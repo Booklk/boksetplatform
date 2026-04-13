@@ -1354,3 +1354,37 @@ export const posTransVendorIdx = index('idx_pos_trans_vendor_id').on(posTransact
 // Queue tickets — real-time queue
 export const queueTicketsSessionIdx = index('idx_queue_tickets_session_id').on(queueTickets.sessionId);
 export const queueTicketsStatusIdx = index('idx_queue_tickets_status').on(queueTickets.status);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  VENDOR REFERRAL SYSTEM (Vendor-to-Vendor)                               ██
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const vendorReferrals = pgTable('vendor_referrals', {
+  id: serial('id').primaryKey(),
+  referrerVendorId: integer('referrer_vendor_id').notNull().references(() => vendors.id),
+  referralCode: varchar('referral_code', { length: 20 }).notNull().unique(),
+  referredVendorId: integer('referred_vendor_id').references(() => vendors.id),
+  status: varchar('status', { length: 20 }).notNull().default('pending'),
+  // pending | converted | rewarded | expired
+  rewardType: varchar('reward_type', { length: 30 }).notNull().default('free_month'),
+  // free_month | discount_percent | cash
+  rewardValue: decimal('reward_value', { precision: 10, scale: 2 }).default('0'),
+  rewardGranted: boolean('reward_granted').notNull().default(false),
+  convertedAt: timestamp('converted_at'),
+  rewardedAt: timestamp('rewarded_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  SOCIAL PROOF ACTIVITY LOG                                                ██
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const activityFeed = pgTable('activity_feed', {
+  id: serial('id').primaryKey(),
+  type: varchar('type', { length: 30 }).notNull(),
+  // vendor_joined | booking_completed | milestone_reached
+  message: text('message').notNull(),
+  city: varchar('city', { length: 100 }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});

@@ -76,6 +76,8 @@ import recurringBookingsRoutes from './routes/recurring-bookings.js';
 import notificationCenterRoutes from './routes/notification-center.js';
 import aiAdvisorRoutes from './routes/ai-advisor.js';
 import gamificationRoutes from './routes/gamification.js';
+import vendorReferralRoutes from './routes/vendor-referral.js';
+import onboardingTemplatesRoutes from './routes/onboarding-templates.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -280,6 +282,8 @@ app.use('/api/recurring-bookings', requireAuth, recurringBookingsRoutes);
 app.use('/api/notification-center', requireAuth, notificationCenterRoutes);
 app.use('/api/ai-advisor', requireAuth, aiAdvisorRoutes);
 app.use('/api/gamification', requireAuth, gamificationRoutes);
+app.use('/api/vendor-referral', vendorReferralRoutes);
+app.use('/api/onboarding-templates', onboardingTemplatesRoutes);
 
 // Health check
 app.get('/api/health', async (_req, res) => {

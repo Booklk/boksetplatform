@@ -8,6 +8,7 @@ import {
   TrendingUp, Users, Clock, CreditCard, Smartphone,
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import SocialProofTicker from '../components/SocialProofTicker';
 
 /* ── Water drop particle type ── */
 interface Drop { id: number; left: string; size: number; duration: number; delay: number; }
@@ -2093,6 +2094,9 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Social Proof Ticker — shows recent platform activity */}
+      <SocialProofTicker />
     </div>
   );
 }
