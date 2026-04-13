@@ -305,7 +305,7 @@ export default function Landing() {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#030711] text-white overflow-x-hidden">
+    <div dir="rtl" className="min-h-screen bg-surface-1 text-white overflow-x-hidden">
 
       {/* ── Global keyframes for water drops & marquee ── */}
       <style>{`
@@ -355,7 +355,7 @@ export default function Landing() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
         className={`fixed top-0 inset-x-0 z-50 border-b transition-all duration-300 ${
-          scrolled ? 'bg-[#030711]/90 border-white/8 backdrop-blur-2xl shadow-xl shadow-black/30' : 'bg-transparent border-transparent'
+          scrolled ? 'bg-surface-1/90 border-white/8 backdrop-blur-2xl shadow-xl shadow-black/30' : 'bg-transparent border-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -414,7 +414,7 @@ export default function Landing() {
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-              className="md:hidden border-t border-white/5 bg-[#030711]/97 backdrop-blur-2xl overflow-hidden"
+              className="md:hidden border-t border-white/5 bg-surface-1/97 backdrop-blur-2xl overflow-hidden"
             >
               <div className="px-5 py-5 space-y-3">
                 {/* Marketplace hidden until 200+ vendors */}

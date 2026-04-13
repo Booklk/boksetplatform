@@ -74,6 +74,8 @@ import financialStatementsRoutes from './routes/financial-statements.js';
 import crmRoutes from './routes/crm.js';
 import recurringBookingsRoutes from './routes/recurring-bookings.js';
 import notificationCenterRoutes from './routes/notification-center.js';
+import aiAdvisorRoutes from './routes/ai-advisor.js';
+import gamificationRoutes from './routes/gamification.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -276,6 +278,8 @@ app.use('/api/financial-statements', requireAuth, financialStatementsRoutes);
 app.use('/api/crm', requireAuth, crmRoutes);
 app.use('/api/recurring-bookings', requireAuth, recurringBookingsRoutes);
 app.use('/api/notification-center', requireAuth, notificationCenterRoutes);
+app.use('/api/ai-advisor', requireAuth, aiAdvisorRoutes);
+app.use('/api/gamification', requireAuth, gamificationRoutes);
 
 // Health check
 app.get('/api/health', async (_req, res) => {
