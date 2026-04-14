@@ -34,67 +34,43 @@ const fadeUp = (delay = 0) => ({
 const features = [
   {
     Icon: TrendingUp,
-    gradient: 'from-blue-500 to-cyan-400',
-    glow: 'shadow-blue-500/25',
-    border: 'border-blue-500/20',
     title: 'جلب العملاء تلقائي',
-    desc: 'بدل ما تدور عملاء، هم يجونك عبر المنصة. مغسلتك تظهر في الماركت‌بليس ويحجزون مباشرة.',
+    desc: 'العملاء يحجزون من المنصة مباشرة. بدون ما تدور عليهم.',
   },
   {
     Icon: CalendarCheck,
-    gradient: 'from-purple-500 to-pink-500',
-    glow: 'shadow-purple-500/25',
-    border: 'border-purple-500/20',
     title: 'حجوزات بدون اتصال',
-    desc: 'العميل يحجز من جواله بثواني — تقويم تفاعلي + إشعارات واتساب فورية. خلاص ما فيه فوضى.',
+    desc: 'العميل يحجز من جواله بثواني — تقويم + إشعارات واتساب فورية.',
   },
   {
     Icon: BarChart3,
-    gradient: 'from-emerald-500 to-teal-400',
-    glow: 'shadow-emerald-500/25',
-    border: 'border-emerald-500/20',
     title: 'تتبع كل ريال',
-    desc: 'قوائم مالية وتقارير ضريبية جاهزة. دخل ومصاريف وأرباح بمخططات + تصدير Excel + VAT تلقائي.',
+    desc: 'دخل ومصاريف وأرباح بمخططات واضحة + تصدير Excel + VAT تلقائي.',
   },
   {
     Icon: Users,
-    gradient: 'from-orange-500 to-amber-400',
-    glow: 'shadow-orange-500/25',
-    border: 'border-orange-500/20',
     title: 'موظفينك تحت السيطرة',
-    desc: 'جدولة، رواتب، أداء، GPS — تعرف وين كل موظف وكم أنجز وكم يستحق. شفافية كاملة.',
+    desc: 'جدولة، رواتب، أداء، GPS — شفافية كاملة من لوحة واحدة.',
   },
   {
     Icon: Camera,
-    gradient: 'from-rose-500 to-red-400',
-    glow: 'shadow-rose-500/25',
-    border: 'border-rose-500/20',
     title: 'مخزون ما ينقص',
-    desc: 'تنبيه تلقائي قبل ما يخلص أي منتج + طلب من الموردين بضغطة. ما تتعطل أبداً.',
+    desc: 'تنبيه تلقائي قبل ما يخلص أي منتج + طلب من الموردين بضغطة.',
   },
   {
     Icon: MessageSquare,
-    gradient: 'from-green-500 to-emerald-400',
-    glow: 'shadow-green-500/25',
-    border: 'border-green-500/20',
     title: 'تسويق ذكي',
-    desc: 'حملات واتساب تلقائية + تصنيف عملاء (VIP، جديد، خامل) + عروض مخصصة ترجّعهم لك.',
+    desc: 'حملات واتساب تلقائية + تصنيف عملاء + عروض مخصصة.',
   },
   {
     Icon: MapPin,
-    gradient: 'from-indigo-500 to-blue-500',
-    glow: 'shadow-indigo-500/25',
-    border: 'border-indigo-500/20',
     title: 'تتبع GPS مباشر',
-    desc: 'خريطة حية لموظفيك وسياراتهم — العميل يرى الموظف يقترب بالثواني مثل أوبر.',
+    desc: 'خريطة حية — العميل يرى الموظف يقترب بالثواني مثل أوبر.',
   },
   {
     Icon: CreditCard,
-    gradient: 'from-cyan-500 to-sky-500',
-    glow: 'shadow-cyan-500/25',
-    border: 'border-cyan-500/20',
     title: 'مدفوعات فورية',
-    desc: 'STC Pay · مدى · Apple Pay بمفتاحك الخاص — المال يدخل حسابك مباشرة بدون وسيط.',
+    desc: 'STC Pay · مدى · Apple Pay — المال يدخل حسابك مباشرة.',
   },
   {
     Icon: Gift,
@@ -308,46 +284,12 @@ export default function Landing() {
   return (
     <div dir="rtl" className="min-h-screen bg-surface-1 text-white overflow-x-hidden">
 
-      {/* ── Global keyframes for water drops & marquee ── */}
-      <style>{`
-        @keyframes rise {
-          0%   { transform: translateY(0)   scale(1);   opacity: 0; }
-          10%  { opacity: 0.7; }
-          80%  { opacity: 0.4; }
-          100% { transform: translateY(-110vh) scale(0.3); opacity: 0; }
-        }
-        @keyframes marquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .drop { animation: rise linear infinite; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
-        .marquee-track { animation: marquee 28s linear infinite; }
-      `}</style>
+      {/* No extra keyframes needed — clean design */}
 
-      {/* ── Background gradient mesh ── */}
+      {/* ── Background — clean, minimal ── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
-        <motion.div
-          animate={{ scale: [1, 1.15, 1], x: [0, 30, 0], y: [0, -20, 0] }}
-          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute -top-48 -right-48 w-[800px] h-[800px] rounded-full bg-blue-600/12 blur-[140px]"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], x: [0, -40, 0], y: [0, 30, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          className="absolute top-[40%] -left-40 w-[600px] h-[600px] rounded-full bg-purple-600/10 blur-[120px]"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.1, 1], x: [0, 20, 0] }}
-          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
-          className="absolute bottom-[-20%] right-[20%] w-[500px] h-[500px] rounded-full bg-cyan-500/8 blur-[110px]"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.25, 1], y: [0, -30, 0] }}
-          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-          className="absolute top-[65%] left-[30%] w-[400px] h-[400px] rounded-full bg-pink-600/7 blur-[100px]"
-        />
-        {/* Subtle grid */}
-        <div className="absolute inset-0 opacity-[0.018]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.7) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.7) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
+        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-blue-600/[0.07] blur-[150px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-500/[0.04] blur-[120px]" />
       </div>
 
       {/* ══ NAVBAR ══════════════════════════════════════════════════════════ */}
@@ -435,132 +377,76 @@ export default function Landing() {
 
       {/* ══ HERO ════════════════════════════════════════════════════════════ */}
       <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center pt-16 px-4 overflow-hidden">
-        {/* Water drops */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-          {DROPS.map(d => (
-            <div
-              key={d.id}
-              className="drop absolute bottom-0 bg-gradient-to-t from-blue-500/80 to-cyan-400/60"
-              style={{
-                left: d.left,
-                width: d.size,
-                height: d.size * 1.3,
-                animationDuration: `${d.duration}s`,
-                animationDelay: `${d.delay}s`,
-              }}
-            />
-          ))}
-        </div>
 
         <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 max-w-5xl mx-auto text-center">
-          {/* Pain-first badge */}
+          {/* Badge — clean */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 backdrop-blur-sm rounded-full px-5 py-2 mb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/[0.08] rounded-full px-4 py-1.5 mb-8"
           >
-            <span className="text-sm text-red-400 font-bold">تعبت من فوضى الواتساب والحجوزات الضايعة؟</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+            <span className="text-xs text-slate-400 font-medium">نظام إدارة مغاسل السيارات في السعودية</span>
           </motion.div>
 
-          {/* H1 — Pain → Solution */}
+          {/* H1 — clean, direct */}
           <motion.h1
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="text-4xl sm:text-5xl lg:text-[72px] font-black leading-[1.12] tracking-tight mb-7"
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-4xl sm:text-5xl lg:text-[64px] font-black leading-[1.15] tracking-tight mb-6"
           >
-            <span className="text-white">مغسلتك تستاهل</span>
+            <span className="text-white">وقّف فوضى الحجوزات.</span>
             <br />
-            <span className="text-white">نظام يشتغل </span>
-            <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent bg-[length:200%] animate-gradient">
-              وأنت مرتاح
-            </span>
+            <span className="text-blue-400">ابدأ النظام.</span>
           </motion.h1>
 
-          {/* Subtitle — specific pain points */}
+          {/* Subtitle */}
           <motion.p
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-5 leading-relaxed"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-lg text-slate-500 max-w-xl mx-auto mb-10 leading-relaxed"
           >
-            حجوزات تضيع؟ موظفين ما تعرف وين هم؟ حسابات آخر الشهر صداع؟
-            <br />
-            <span className="text-slate-300">Bokset يحل لك كل هذا في مكان واحد.</span>
+            حجوزات أونلاين، تتبع موظفين، مدفوعات إلكترونية، تقارير مالية — كل شيء من مكان واحد. جرّب 14 يوم مجاناً.
           </motion.p>
 
-          {/* Pain → Solution mini-cards */}
+          {/* CTAs — clean */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.38 }}
-            className="flex flex-wrap justify-center gap-3 mb-8 max-w-2xl mx-auto"
-          >
-            {[
-              { pain: 'حجوزات واتساب', solution: 'نظام حجز أونلاين', icon: '📱' },
-              { pain: 'وين الموظف؟', solution: 'GPS مباشر', icon: '📍' },
-              { pain: 'حسابات يدوية', solution: 'تقارير فورية', icon: '📊' },
-              { pain: 'كاش فقط', solution: 'STC Pay ومدى', icon: '💳' },
-            ].map((item, i) => (
-              <motion.div
-                key={item.pain}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 + i * 0.08 }}
-                className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 text-xs"
-              >
-                <span>{item.icon}</span>
-                <span className="text-red-400/80 line-through">{item.pain}</span>
-                <span className="text-slate-600">→</span>
-                <span className="text-emerald-400 font-bold">{item.solution}</span>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.45 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-6"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-3 justify-center mb-8"
           >
             <motion.button
-              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="relative group bg-gradient-to-l from-blue-600 to-cyan-500 text-white px-10 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-blue-500/40 overflow-hidden"
-              style={{ boxShadow: '0 0 40px rgba(59,130,246,0.4), 0 0 80px rgba(59,130,246,0.2)' }}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
             >
-              <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-2xl" />
-              <span className="relative flex items-center gap-2 justify-center">
-                جرّب مجاناً — 14 يوم
-                <ChevronLeft size={22} />
-              </span>
+              ابدأ مجاناً — 14 يوم
             </motion.button>
             <motion.button
-              whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                const el = document.getElementById('pain-points');
-                el?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="bg-white/[0.06] border-2 border-white/20 hover:bg-white/10 hover:border-white/30 text-white px-9 py-5 rounded-2xl font-bold text-xl backdrop-blur-sm transition-all"
+              onClick={() => navigate('/demo')}
+              className="bg-white/[0.05] border border-white/[0.1] hover:border-white/[0.2] text-slate-300 px-8 py-4 rounded-xl font-bold text-base transition-all"
             >
-              هل هذا وضعك؟ 👇
+              شاهد العرض التجريبي
             </motion.button>
           </motion.div>
 
-          {/* Trust line */}
+          {/* Trust — minimal */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.55 }}
-            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400 mb-20"
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex items-center justify-center gap-6 text-xs text-slate-600 mb-20"
           >
-            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> بدون بطاقة ائتمانية</span>
-            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> جاهز خلال 5 دقائق</span>
-            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> +120 مغسلة تثق فينا</span>
+            <span>بدون بطاقة ائتمانية</span>
+            <span className="w-px h-3 bg-white/[0.08]" />
+            <span>جاهز خلال 5 دقائق</span>
+            <span className="w-px h-3 bg-white/[0.08]" />
+            <span>+120 مغسلة تثق فينا</span>
           </motion.div>
 
           {/* Stats */}
@@ -630,44 +516,31 @@ export default function Landing() {
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
 
-      {/* ══ MARQUEE ════════════════════════════════════════════════════════ */}
-      <div className="relative py-5 bg-white/[0.025] border-y border-white/8 overflow-hidden">
-        <div className="marquee-track flex whitespace-nowrap">
-          {[marqueeText, marqueeText].map((t, i) => (
-            <span key={i} className="text-slate-400 text-sm font-medium tracking-wide flex-shrink-0 px-4">{t}</span>
-          ))}
-        </div>
-      </div>
+      {/* ── Divider ── */}
+      <div className="max-w-5xl mx-auto px-4"><div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" /></div>
 
       {/* ══ FEATURES ════════════════════════════════════════════════════════ */}
       <section id="features" className="relative py-28 px-4">
         <div className="max-w-7xl mx-auto">
-          <motion.div {...fadeUp()} className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-5">
-              <span className="text-xs text-blue-400 font-bold tracking-wide">حلول حقيقية — مو مجرد كلام</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight">
-              كل مشكلة فوق
-              <br />
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent">لها حل جاهز هنا</span>
+          <motion.div {...fadeUp()} className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
+              كل شيء تحتاجه في مكان واحد
             </h2>
-            <p className="text-slate-400 text-lg max-w-xl mx-auto">بنينا كل ميزة بعد ما سمعنا من أصحاب مغاسل حقيقيين — مو من مكتب</p>
+            <p className="text-slate-500 text-base max-w-lg mx-auto">بُنيت كل ميزة بناءً على احتياجات حقيقية من أصحاب مغاسل</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map(({ Icon, gradient, glow, border, title, desc }, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {features.map(({ Icon, title, desc }, i) => (
               <motion.div
                 key={title}
-                {...fadeUp(i * 0.06)}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className={`group relative bg-white/[0.04] border ${border} hover:border-white/20 rounded-2xl p-6 transition-all duration-300 cursor-default overflow-hidden`}
+                {...fadeUp(i * 0.04)}
+                className="group bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-6 transition-all duration-300"
               >
-                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br ${gradient} opacity-[0.05] rounded-2xl`} />
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 shadow-xl ${glow}`}>
-                  <Icon size={21} className="text-white" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center mb-4 group-hover:bg-blue-500/10 transition-colors">
+                  <Icon size={20} className="text-slate-400 group-hover:text-blue-400 transition-colors" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
+                <h3 className="text-base font-bold text-white mb-2">{title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
               </motion.div>
             ))}
           </div>
@@ -675,99 +548,50 @@ export default function Landing() {
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
 
-      {/* ══ PAIN POINTS — "هل هذا وضعك؟" ══════════════════════════════════ */}
-      <section id="pain-points" className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-red-950/15 via-transparent to-transparent pointer-events-none" />
-        <div className="max-w-6xl mx-auto">
-          <motion.div {...fadeUp()} className="text-center mb-16">
-            <span className="inline-block text-xs font-bold tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-2 mb-5">
-              اعترف — كم مرة صار معك هذا؟
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-5">
-              <span className="bg-gradient-to-l from-red-400 to-orange-400 bg-clip-text text-transparent">6 مشاكل</span> يعاني منها كل صاحب مغسلة
+      {/* ══ PAIN POINTS — clean table format ═══════════════════════════════ */}
+      <section id="pain-points" className="relative py-24 px-4">
+        <div className="max-w-4xl mx-auto">
+          <motion.div {...fadeUp()} className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
+              بدون نظام vs مع Bokset
             </h2>
-            <p className="text-slate-400 text-lg max-w-xl mx-auto">إذا عندك مشكلة واحدة على الأقل — Bokset صُمم لك</p>
+            <p className="text-slate-500 text-base">الفرق اللي يحسه كل صاحب مغسلة من أول أسبوع</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16">
-            {[
-              {
-                emoji: '😤', number: '1', title: 'الحجوزات فوضى',
-                story: 'عميل يرسلك واتساب الساعة 11 بالليل. ثاني يتصل وأنت مشغول. ثالث يرسل على إنستقرام. تنسى واحد وتخلط بين اثنين — والعميل يزعل ويروح لمنافسك.',
-                solution: 'نظام حجز أونلاين 24/7 — العميل يحجز بنفسه وأنت نايم',
-              },
-              {
-                emoji: '🤷', number: '2', title: 'ما تعرف وين موظفينك',
-                story: 'ترسل الموظف للعميل. بعد نص ساعة العميل يتصل "وينه؟" وأنت ما عندك أي فكرة. تتصل بالموظف ما يرد. العميل يلغي.',
-                solution: 'GPS مباشر — تشوفه على الخريطة + العميل يتتبعه مثل أوبر',
-              },
-              {
-                emoji: '📉', number: '3', title: 'ما تدري كم دخلك الحقيقي',
-                story: 'آخر الشهر تقعد تحسب: كم غسلة سوينا؟ كم صرفنا بنزين؟ رواتب كم؟ تطلع بأرقام تقريبية وتتمنى إنها صح. ما عندك تقارير.',
-                solution: 'تقارير فورية — دخل ومصاريف وأرباح بمخططات + تصدير Excel',
-              },
-              {
-                emoji: '😴', number: '4', title: 'عملاء يحجزون وما يجون',
-                story: 'حجز 3 عملاء على الصباح. اثنين ما جوا. الموظف قاعد فاضي ساعتين. الوقت راح والمال ضاع. ما فيه تذكير ولا متابعة.',
-                solution: 'تذكير واتساب تلقائي قبل الموعد + إشعار فوري',
-              },
-              {
-                emoji: '💸', number: '5', title: 'تخسر عملاء بسبب الكاش',
-                story: '"عندك مدى؟ لا؟ طيب تحويل؟ لا؟ معليش بروح لغيرك." — عميل كل أسبوع يقول لك كذا. تخسر دخل لأنك ما تقبل إلا كاش.',
-                solution: 'STC Pay ومدى وApple Pay — المال يدخل حسابك مباشرة',
-              },
-              {
-                emoji: '📦', number: '6', title: 'المخزون يخلص فجأة',
-                story: 'الساعة 10 الصبح ويوم العمل بدأ. تكتشف إن الشامبو خلص أمس ونسيت تطلب. تتعطل ساعتين لين يوصل المورد — والحجوزات تتأخر.',
-                solution: 'تنبيه فوري قبل ما يخلص + طلب مورد تلقائي بضغطة',
-              },
-            ].map((p, i) => (
-              <motion.div key={i} {...fadeUp(i * 0.07)}
-                className="relative bg-white/[0.03] border border-red-500/10 hover:border-red-500/30 rounded-2xl p-6 transition-all group overflow-hidden">
-                {/* Number badge */}
-                <div className="absolute top-4 left-4 w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 text-xs font-black">
-                  {p.number}
-                </div>
-                <div className="flex gap-4">
-                  <span className="text-4xl flex-shrink-0 group-hover:scale-110 transition-transform">{p.emoji}</span>
-                  <div>
-                    <h3 className="font-black text-white text-lg mb-2">{p.title}</h3>
-                    <p className="text-sm text-slate-400 leading-relaxed mb-3">{p.story}</p>
-                    <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
-                      <CheckCircle size={14} className="text-emerald-400 shrink-0" />
-                      <span className="text-xs text-emerald-400 font-bold">{p.solution}</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Emotional CTA */}
-          <motion.div {...fadeUp(0.3)} className="text-center">
-            <div className="glass-premium rounded-3xl p-8 sm:p-10 max-w-2xl mx-auto">
-              <p className="text-2xl sm:text-3xl font-black text-white mb-3">عندك مشكلة واحدة على الأقل؟</p>
-              <p className="text-slate-400 mb-6">كل هذي المشاكل تختفي خلال 5 دقائق مع Bokset. بدون عقد. بدون إلزام.</p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/onboard')}
-                  className="bg-gradient-to-l from-blue-600 to-cyan-500 text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/30"
-                >
-                  ودّي أجرّب — مجاناً
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/demo')}
-                  className="bg-white/[0.06] border border-white/20 text-white px-8 py-4 rounded-2xl font-bold text-lg backdrop-blur-sm"
-                >
-                  أبي أشوف النظام أول
-                </motion.button>
-              </div>
-              <p className="text-xs text-slate-600 mt-4">بدون بطاقة ائتمانية · إلغاء في أي وقت · بياناتك ملكك</p>
+          {/* Clean before/after table */}
+          <motion.div {...fadeUp(0.1)} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden mb-12">
+            <div className="grid grid-cols-3 text-xs font-bold text-slate-500 border-b border-white/[0.06] px-6 py-3">
+              <span></span>
+              <span className="text-center text-red-400/70">بدون نظام</span>
+              <span className="text-center text-blue-400/70">مع Bokset</span>
             </div>
+            {[
+              { area: 'استقبال الحجوزات', before: 'واتساب + اتصالات + فوضى', after: 'نظام أونلاين 24/7' },
+              { area: 'تتبع الموظفين', before: 'ما تعرف وين هم', after: 'خريطة GPS مباشرة' },
+              { area: 'المدفوعات', before: 'كاش فقط', after: 'STC Pay · مدى · Apple Pay' },
+              { area: 'التقارير المالية', before: 'حسابات يدوية آخر الشهر', after: 'تقارير فورية + تصدير' },
+              { area: 'تذكير العملاء', before: 'تتصل يدوياً أو ينسون', after: 'واتساب تلقائي' },
+              { area: 'فواتير ضريبية', before: 'تسويها يدوياً', after: 'PDF تلقائي مع VAT 15%' },
+              { area: 'المخزون', before: 'تكتشف النقص وقت العمل', after: 'تنبيه + طلب تلقائي' },
+            ].map((row, i) => (
+              <div key={i} className="grid grid-cols-3 items-center px-6 py-4 border-b border-white/[0.03] last:border-0 hover:bg-white/[0.01] transition-colors">
+                <span className="text-sm text-white font-bold">{row.area}</span>
+                <span className="text-center text-sm text-slate-500">{row.before}</span>
+                <span className="text-center text-sm text-blue-400">{row.after}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* CTA — clean */}
+          <motion.div {...fadeUp(0.2)} className="text-center">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate('/onboard')}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+            >
+              جرّب الفرق بنفسك — مجاناً
+            </motion.button>
+            <p className="text-xs text-slate-600 mt-3">14 يوم مجاناً · بدون بطاقة · إلغاء في أي وقت</p>
           </motion.div>
         </div>
       </section>
