@@ -367,7 +367,7 @@ export default function Landing() {
             className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/[0.08] rounded-full px-4 py-1.5 mb-8"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-            <span className="text-xs text-slate-400 font-medium">نظام إدارة مغاسل السيارات في السعودية</span>
+            <span className="text-xs text-slate-400 font-medium">مغاسل سيارات · خدمات منزلية · فري لانسر</span>
           </motion.div>
 
           {/* H1 — clean, direct */}
@@ -377,9 +377,9 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-[64px] font-black leading-[1.15] tracking-tight mb-6"
           >
-            <span className="text-white">وقّف فوضى الحجوزات.</span>
+            <span className="text-white">أنشئ موقع حجوزاتك</span>
             <br />
-            <span className="text-blue-400">ابدأ النظام.</span>
+            <span className="text-blue-400">بجميع المميزات اللي يحتاجها مشروعك</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -389,7 +389,7 @@ export default function Landing() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg text-slate-500 max-w-xl mx-auto mb-10 leading-relaxed"
           >
-            حجوزات أونلاين، تتبع موظفين، مدفوعات إلكترونية، تقارير مالية — كل شيء من مكان واحد. جرّب 14 يوم مجاناً.
+            موقع حجز احترافي + إدارة موظفين + مدفوعات إلكترونية + تقارير مالية — كل شيء جاهز خلال 5 دقائق. جرّب 14 يوم مجاناً.
           </motion.p>
 
           {/* CTAs — clean */}
