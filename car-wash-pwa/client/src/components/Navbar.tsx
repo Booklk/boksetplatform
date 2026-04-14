@@ -88,6 +88,7 @@ const vendorNavSections: NavSection[] = [
     label: 'التسويق والمبيعات',
     items: [
       { to: '/vendor/crm', icon: UserCircle, label: 'إدارة العملاء CRM' },
+      { to: '/vendor/customer-import', icon: Users, label: 'استيراد عملاء' },
       { to: '/vendor/automations', icon: Bot, label: 'الأتمتة التسويقية' },
       { to: '/vendor/segments', icon: Target, label: 'ذكاء العملاء' },
       { to: '/vendor/campaigns', icon: Send, label: 'حملات واتساب' },

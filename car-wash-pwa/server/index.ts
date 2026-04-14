@@ -78,6 +78,8 @@ import aiAdvisorRoutes from './routes/ai-advisor.js';
 import gamificationRoutes from './routes/gamification.js';
 import vendorReferralRoutes from './routes/vendor-referral.js';
 import onboardingTemplatesRoutes from './routes/onboarding-templates.js';
+import webhooksRoutes from './routes/webhooks.js';
+import customerImportRoutes from './routes/customer-import.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -284,6 +286,8 @@ app.use('/api/ai-advisor', requireAuth, aiAdvisorRoutes);
 app.use('/api/gamification', requireAuth, gamificationRoutes);
 app.use('/api/vendor-referral', vendorReferralRoutes);
 app.use('/api/onboarding-templates', onboardingTemplatesRoutes);
+app.use('/api/webhooks', requireAuth, webhooksRoutes);
+app.use('/api/customer-import', requireAuth, customerImportRoutes);
 
 // Health check
 app.get('/api/health', async (_req, res) => {
