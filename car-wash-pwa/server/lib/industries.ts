@@ -19,13 +19,19 @@ export const INDUSTRIES = {
       { nameAr: 'غسيل داخلي', icon: '🧹' },
       { nameAr: 'غسيل شامل', icon: '✨' },
       { nameAr: 'بوليش وتلميع', icon: '💎' },
+      { nameAr: 'تنظيف محرك', icon: '⚙️' },
+      { nameAr: 'حماية نانو سيراميك', icon: '🛡️' },
     ],
     defaultPackages: [
       { serviceName: 'غسيل خارجي', nameAr: 'خارجي عادي', price: 50, duration: 30, features: ['غسيل بالرغوة', 'تجفيف', 'تلميع إطارات'] },
       { serviceName: 'غسيل خارجي', nameAr: 'خارجي VIP', price: 80, duration: 45, features: ['غسيل بالرغوة', 'شمع حماية', 'تلميع إطارات', 'تنظيف جنوط'] },
+      { serviceName: 'غسيل داخلي', nameAr: 'داخلي كامل', price: 80, duration: 45, features: ['مكنسة', 'مسح تابلوه', 'تنظيف مقاعد', 'تعطير'] },
       { serviceName: 'غسيل شامل', nameAr: 'شامل عادي', price: 120, duration: 60, features: ['خارجي + داخلي', 'تعطير', 'تلميع إطارات'] },
       { serviceName: 'غسيل شامل', nameAr: 'شامل VIP', price: 180, duration: 90, features: ['خارجي + داخلي', 'شمع حماية', 'تلميع كامل', 'تعطير فاخر'] },
+      { serviceName: 'بوليش وتلميع', nameAr: 'بوليش خفيف', price: 150, duration: 90, features: ['إزالة خدوش خفيفة', 'تلميع', 'طبقة شمع'] },
       { serviceName: 'بوليش وتلميع', nameAr: 'بوليش كامل', price: 250, duration: 120, features: ['بوليش 3 مراحل', 'تلميع كريستالي', 'حماية شمعية'] },
+      { serviceName: 'تنظيف محرك', nameAr: 'تنظيف محرك', price: 100, duration: 30, features: ['رش مذيب', 'تنظيف بالهواء', 'تلميع'] },
+      { serviceName: 'حماية نانو سيراميك', nameAr: 'نانو سيراميك', price: 500, duration: 180, features: ['بوليش تحضيري', 'طبقة سيراميك', 'حماية سنة', 'لمعان مرآة'] },
     ],
     defaultInventory: [
       { nameAr: 'شامبو سيارات', unit: 'لتر', minQuantity: 10 },
@@ -54,6 +60,8 @@ export const INDUSTRIES = {
       { nameAr: 'تنظيف مطابخ', icon: '🍳' },
       { nameAr: 'تنظيف بعد البناء', icon: '🏗️' },
       { nameAr: 'كوي وترتيب', icon: '👔' },
+      { nameAr: 'تنظيف واجهات وزجاج', icon: '🪟' },
+      { nameAr: 'تعقيم وتطهير', icon: '🧴' },
     ],
     defaultPackages: [
       { serviceName: 'تنظيف شامل', nameAr: 'استوديو / غرفة', price: 150, duration: 90, features: ['تنظيف كامل', 'مطبخ', 'حمام', 'تعقيم'] },
@@ -91,6 +99,8 @@ export const INDUSTRIES = {
       { nameAr: 'صيانة وإصلاح', icon: '🔧' },
       { nameAr: 'تركيب جديد', icon: '⚙️' },
       { nameAr: 'شحن فريون', icon: '🧊' },
+      { nameAr: 'فك ونقل', icon: '📦' },
+      { nameAr: 'عقد صيانة سنوي', icon: '📋' },
     ],
     defaultPackages: [
       { serviceName: 'تنظيف مكيف', nameAr: 'سبليت', price: 100, duration: 45, features: ['تنظيف فلاتر', 'غسيل المبخر', 'تعقيم', 'فحص'] },
@@ -125,6 +135,8 @@ export const INDUSTRIES = {
       { nameAr: 'كشف تسربات', icon: '💧' },
       { nameAr: 'تركيب أدوات صحية', icon: '🚿' },
       { nameAr: 'صيانة عامة', icon: '🔩' },
+      { nameAr: 'تمديدات مياه', icon: '🏗️' },
+      { nameAr: 'صيانة سخانات', icon: '🔥' },
     ],
     defaultPackages: [
       { serviceName: 'تسليك مجاري', nameAr: 'تسليك عادي', price: 150, duration: 60, features: ['تسليك بالسلك', 'تنظيف', 'فحص'] },
@@ -158,6 +170,8 @@ export const INDUSTRIES = {
       { nameAr: 'تمديدات جديدة', icon: '🔌' },
       { nameAr: 'تركيب إنارة', icon: '💡' },
       { nameAr: 'فحص وأمان', icon: '🛡️' },
+      { nameAr: 'تركيب لوحات كهربائية', icon: '📋' },
+      { nameAr: 'كاميرات مراقبة', icon: '📹' },
     ],
     defaultPackages: [
       { serviceName: 'صيانة كهرباء', nameAr: 'زيارة فحص', price: 100, duration: 60, features: ['فحص شامل', 'إصلاح بسيط', 'تقرير'] },
@@ -191,6 +205,8 @@ export const INDUSTRIES = {
       { nameAr: 'مكافحة قوارض', icon: '🐀' },
       { nameAr: 'تعقيم شامل', icon: '🧴' },
       { nameAr: 'رش وقائي', icon: '🛡️' },
+      { nameAr: 'مكافحة نمل أبيض', icon: '🐜' },
+      { nameAr: 'تبخير', icon: '💨' },
     ],
     defaultPackages: [
       { serviceName: 'رش حشرات', nameAr: 'شقة', price: 200, duration: 60, features: ['رش جميع الغرف', 'مبيد آمن', 'ضمان شهر'] },
@@ -223,6 +239,8 @@ export const INDUSTRIES = {
       { nameAr: 'غسيل كنب', icon: '🛋️' },
       { nameAr: 'غسيل مجالس', icon: '🪑' },
       { nameAr: 'غسيل موكيت', icon: '🏠' },
+      { nameAr: 'غسيل ستائر', icon: '🪟' },
+      { nameAr: 'تنظيف مراتب', icon: '🛏️' },
     ],
     defaultPackages: [
       { serviceName: 'غسيل سجاد', nameAr: 'سجادة صغيرة (2×3)', price: 40, duration: 15, features: ['غسيل بالبخار', 'تجفيف', 'تعطير'] },
@@ -256,6 +274,8 @@ export const INDUSTRIES = {
       { nameAr: 'زراعة وتنسيق', icon: '🌱' },
       { nameAr: 'شبكة ري', icon: '💧' },
       { nameAr: 'صيانة دورية', icon: '🌿' },
+      { nameAr: 'تصميم حدائق', icon: '🎨' },
+      { nameAr: 'إنارة حدائق', icon: '💡' },
     ],
     defaultPackages: [
       { serviceName: 'قص وتشذيب', nameAr: 'حديقة صغيرة', price: 150, duration: 60, features: ['قص نجيل', 'تشذيب أشجار', 'تنظيف'] },
@@ -367,7 +387,7 @@ export const INDUSTRIES = {
     nameAr: 'فري لانسر / خدمات حرة',
     nameEn: 'Freelancer',
     icon: 'Briefcase',
-    description: 'أي مقدم خدمة مستقل — حلاق، مصور، مدرب، طباخ',
+    description: 'أي مقدم خدمة مستقل — مصور، مدرب، طباخ، معلم، مصمم',
     vehicleFieldsEnabled: false,
     locationRequired: true,
     comingSoon: false,
@@ -375,10 +395,17 @@ export const INDUSTRIES = {
     bookingFieldLabel: 'الحجز',
     defaultServices: [
       { nameAr: 'الخدمة الرئيسية', icon: '⭐' },
+      { nameAr: 'استشارة', icon: '💬' },
+      { nameAr: 'تدريب', icon: '🎯' },
+      { nameAr: 'جلسة تصوير', icon: '📸' },
+      { nameAr: 'طبخ منزلي', icon: '🍳' },
+      { nameAr: 'دروس خصوصية', icon: '📚' },
     ],
     defaultPackages: [
-      { serviceName: 'الخدمة الرئيسية', nameAr: 'جلسة عادية', price: 100, duration: 60, features: ['ساعة واحدة', 'في الموقع'] },
-      { serviceName: 'الخدمة الرئيسية', nameAr: 'جلسة مطوّلة', price: 180, duration: 120, features: ['ساعتين', 'في الموقع', 'مواد مشمولة'] },
+      { serviceName: 'الخدمة الرئيسية', nameAr: 'جلسة عادية (ساعة)', price: 100, duration: 60, features: ['ساعة واحدة', 'في الموقع'] },
+      { serviceName: 'الخدمة الرئيسية', nameAr: 'جلسة مطوّلة (ساعتين)', price: 180, duration: 120, features: ['ساعتين', 'في الموقع', 'مواد مشمولة'] },
+      { serviceName: 'استشارة', nameAr: 'استشارة أونلاين', price: 80, duration: 30, features: ['30 دقيقة', 'عن بعد'] },
+      { serviceName: 'تدريب', nameAr: 'جلسة تدريب', price: 150, duration: 60, features: ['ساعة', 'في الموقع أو أونلاين'] },
     ],
     defaultInventory: [],
     whatsappTemplates: [
