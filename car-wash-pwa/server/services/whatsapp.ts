@@ -20,37 +20,29 @@ interface WhatsAppCredentials {
   phoneId: string;
 }
 
-/** Get WhatsApp credentials for a vendor (BYOC) or fall back to platform */
+/** Get WhatsApp credentials for a vendor — vendor MUST have own credentials */
 async function getCredentials(vendorId?: number | null): Promise<WhatsAppCredentials | null> {
-  // Try vendor-specific credentials first
-  if (vendorId) {
-    try {
-      const [vendor] = await db.select({
-        whatsappToken: vendors.whatsappToken,
-        whatsappPhoneId: vendors.whatsappPhoneId,
-      }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+  if (!vendorId) return null;
 
-      if (vendor?.whatsappToken && vendor?.whatsappPhoneId) {
-        return {
-          token: decrypt(vendor.whatsappToken),
-          phoneId: decrypt(vendor.whatsappPhoneId),
-        };
-      }
-    } catch (e) {
-      console.warn(`[WhatsApp] Failed to decrypt vendor ${vendorId} credentials, falling back to platform`);
+  try {
+    const [vendor] = await db.select({
+      whatsappToken: vendors.whatsappToken,
+      whatsappPhoneId: vendors.whatsappPhoneId,
+    }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+
+    if (!vendor?.whatsappToken || !vendor?.whatsappPhoneId) {
+      // Vendor has not connected WhatsApp Business — do NOT send
+      return null;
     }
-  }
 
-  // Fall back to platform credentials
-  const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_ID;
-
-  if (!token || !phoneId) {
-    console.warn('[WhatsApp] No credentials available — skipping send');
+    return {
+      token: decrypt(vendor.whatsappToken),
+      phoneId: decrypt(vendor.whatsappPhoneId),
+    };
+  } catch (e) {
+    console.warn(`[WhatsApp] Failed to decrypt vendor ${vendorId} credentials`);
     return null;
   }
-
-  return { token, phoneId };
 }
 
 function formatSaudiPhone(phone: string): string {
