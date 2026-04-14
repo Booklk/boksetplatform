@@ -75,7 +75,7 @@ router.get('/:slug.json', async (req, res) => {
     const manifest = {
       name: displayName,
       short_name: shortName,
-      description: `احجز خدمة غسيل سيارتك مع ${displayName}`,
+      description: `احجز خدماتك مع ${displayName}`,
       lang: 'ar',
       dir: 'rtl',
       start_url: `/store/${vendor.slug}`,
