@@ -14,9 +14,9 @@ import { useVendorTheme } from '../../store/vendorTheme';
 const ACTIVE_BOOKING_STATUSES = ['on_way', 'arrived', 'in_progress'];
 
 const STATUS_LABEL_MAP: Record<string, string> = {
-  on_way:      'في الطريق إليك 🚗',
-  arrived:     'وصل الموظف 📍',
-  in_progress: 'الغسيل جارٍ الآن 🧹',
+  on_way:      'في الطريق إليك',
+  arrived:     'وصل مقدم الخدمة 📍',
+  in_progress: 'جارٍ تنفيذ الخدمة',
 };
 
 const STATUS_COLOR: Record<string, string> = {

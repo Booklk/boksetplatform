@@ -509,7 +509,7 @@ export default function Login() {
           >
             <h1 className="text-3xl font-black">
               <span className="gradient-text">Bokset</span>{' '}
-              <span className="text-white">مغسلة</span>
+              <span className="text-white"></span>
             </h1>
             <p className="text-slate-500 text-sm mt-2 font-medium">تسجيل الدخول إلى حسابك</p>
           </motion.div>

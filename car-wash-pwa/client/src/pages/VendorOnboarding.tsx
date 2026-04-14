@@ -19,59 +19,72 @@ interface OnboardForm {
   city: string;
   address: string;
   plan: string;
+  industry: string;
   washType: '' | 'bike' | 'car' | 'fixed';
   password: string;
 }
 
+const INDUSTRY_OPTIONS = [
+  { id: 'car_wash', label: 'مغسلة سيارات', icon: '🚗' },
+  { id: 'home_cleaning', label: 'تنظيف منازل', icon: '🏠' },
+  { id: 'ac_maintenance', label: 'صيانة مكيفات', icon: '❄️' },
+  { id: 'plumbing', label: 'سباكة', icon: '🔧' },
+  { id: 'electrical', label: 'كهرباء', icon: '⚡' },
+  { id: 'salon', label: 'صالون / حلاق', icon: '💈' },
+  { id: 'beauty_home', label: 'تجميل منزلي / سبا', icon: '💄' },
+  { id: 'freelancer', label: 'فري لانسر', icon: '💼' },
+  { id: 'other', label: 'خدمات أخرى', icon: '⭐' },
+];
+
 const PLAN_TYPES = [
   {
-    id: 'bike_solo',
-    emoji: '🏍️',
-    nameAr: 'بايك واحد',
-    desc: 'للمغاسل المتنقلة بدراجة',
+    id: 'starter',
+    emoji: '🚀',
+    nameAr: 'أساسي',
+    desc: 'لمقدم خدمة واحد',
     price: 29,
     color: 'from-blue-500 to-cyan-400',
     border: 'border-blue-500/30',
     activeBorder: 'border-blue-400',
-    features: ['حجوزات غير محدودة', 'إشعارات واتساب', 'تتبع GPS', 'تقارير مبسطة'],
+    features: ['حجوزات غير محدودة', 'إشعارات واتساب', 'موقع حجز خاص', 'تقارير مبسطة'],
   },
   {
-    id: 'car_solo',
-    emoji: '🚗',
-    nameAr: 'سيارة واحدة',
-    desc: 'للمغاسل المتنقلة بسيارة',
+    id: 'professional',
+    emoji: '⭐',
+    nameAr: 'احترافي',
+    desc: 'حتى 5 موظفين',
     price: 119,
     color: 'from-purple-500 to-pink-500',
     border: 'border-purple-500/30',
     activeBorder: 'border-purple-400',
-    features: ['حجوزات غير محدودة', 'إشعارات واتساب', 'تتبع GPS', 'POS كاشير', 'إدارة مخزون'],
+    features: ['كل مميزات الأساسي', 'تتبع GPS', 'POS كاشير', 'إدارة مخزون', 'مدفوعات إلكترونية'],
   },
   {
-    id: 'fixed_wash',
-    emoji: '🏪',
-    nameAr: 'مغسلة ثابتة',
-    desc: 'للمغاسل بموقع ثابت',
+    id: 'business',
+    emoji: '🏢',
+    nameAr: 'أعمال',
+    desc: 'موقع ثابت + موظفين',
     price: 199,
     badge: '⭐ الأكثر طلباً',
     color: 'from-amber-500 to-orange-400',
     border: 'border-amber-500/30',
     activeBorder: 'border-amber-400',
-    features: ['طابور انتظار ذكي', 'POS متكامل', 'إدارة مخزون', 'تقارير VAT', 'برنامج ولاء'],
+    features: ['كل مميزات الاحترافي', 'طابور انتظار ذكي', 'برنامج ولاء', 'تقارير VAT', 'CRM عملاء'],
   },
   {
-    id: 'fleet',
-    emoji: '🚗🏍️',
-    nameAr: 'أسطول كامل',
-    desc: '5 سيارات + 5 بايكات',
+    id: 'enterprise',
+    emoji: '🏗️',
+    nameAr: 'مؤسسي',
+    desc: 'فريق كبير أو فروع',
     price: 299,
     color: 'from-blue-600 to-cyan-500',
     border: 'border-blue-500/30',
     activeBorder: 'border-blue-400',
-    features: ['حتى 5 سيارات + 5 بايكات', 'موظفون غير محدودون', 'إدارة رواتب', 'تقارير VAT + ZATCA'],
+    features: ['كل مميزات الأعمال', 'موظفون غير محدودون', 'إدارة رواتب تلقائية', 'فروع متعددة', 'API + Webhooks'],
   },
   {
     id: 'branches_2_3',
-    emoji: '🏪🏪',
+    emoji: '🏪',
     nameAr: 'فروع (2-3)',
     desc: 'إدارة عدة فروع',
     price: 349,
@@ -201,7 +214,8 @@ export default function VendorOnboarding() {
     email: '',
     city: '',
     address: '',
-    plan: 'fixed_wash',
+    plan: 'business',
+    industry: '',
     washType: '',
     password: '',
   });
@@ -227,9 +241,10 @@ export default function VendorOnboarding() {
 
   function handleStep1Next() {
     if (!form.ownerName.trim()) { toast.error('أدخل اسمك'); return; }
-    if (!form.nameAr.trim()) { toast.error('أدخل اسم المغسلة'); return; }
+    if (!form.nameAr.trim()) { toast.error('أدخل اسم مشروعك'); return; }
     if (!form.phone.trim()) { toast.error('أدخل رقم الجوال'); return; }
     if (!form.password || form.password.length < 6) { toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return; }
+    if (!form.industry) { toast.error('اختر نوع مشروعك'); return; }
     if (!form.city) { toast.error('اختر المدينة'); return; }
     setStep(1);
   }
@@ -410,7 +425,7 @@ export default function VendorOnboarding() {
                   <Building2 size={20} className="text-purple-400" />
                 </div>
                 <div>
-                  <h2 className="font-black text-white text-lg">معلومات المغسلة</h2>
+                  <h2 className="font-black text-white text-lg">معلومات مشروعك</h2>
                   <p className="text-slate-500 text-xs">أدخل البيانات الأساسية</p>
                 </div>
               </div>
@@ -424,21 +439,21 @@ export default function VendorOnboarding() {
                       type="text"
                       value={form.ownerName}
                       onChange={(e) => setForm({ ...form, ownerName: e.target.value })}
-                      placeholder="اسم صاحب المغسلة"
+                      placeholder="اسمك الكامل"
                       className="input-field pr-10"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="label">اسم المغسلة بالعربي *</label>
+                  <label className="label">اسم المشروع * *</label>
                   <div className="relative">
                     <Building2 size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input
                       type="text"
                       value={form.nameAr}
                       onChange={(e) => setForm({ ...form, nameAr: e.target.value })}
-                      placeholder="مثال: مغسلة النجوم"
+                      placeholder="مثال: صالون الأناقة، شركة النظافة، مغسلة النجوم"
                       className="input-field pr-10"
                     />
                   </div>
@@ -486,6 +501,28 @@ export default function VendorOnboarding() {
                       className="input-field pr-10"
                       dir="ltr"
                     />
+                  </div>
+                </div>
+
+                {/* Industry selector */}
+                <div>
+                  <label className="label">نوع مشروعك *</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {INDUSTRY_OPTIONS.map(opt => (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setForm({ ...form, industry: opt.id })}
+                        className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center transition-all ${
+                          form.industry === opt.id
+                            ? 'border-blue-500 bg-blue-500/10 text-blue-400'
+                            : 'border-white/[0.08] bg-white/[0.03] text-slate-400 hover:border-white/[0.15]'
+                        }`}
+                      >
+                        <span className="text-xl">{opt.icon}</span>
+                        <span className="text-[11px] font-bold">{opt.label}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
 

@@ -4,12 +4,12 @@ import { CheckCircle, MapPin } from 'lucide-react';
 
 // Simulated activity data for social proof (before real data loads)
 const fallbackActivities = [
-  { message: 'مغسلة الفخامة انضمت للمنصة', city: 'الرياض', minutesAgo: 3 },
-  { message: 'مغسلة الكريستال أكملت 50 حجز', city: 'جدة', minutesAgo: 8 },
-  { message: 'مغسلة النجمة فعّلت نظام الولاء', city: 'الدمام', minutesAgo: 15 },
-  { message: 'مغسلة الألماس انضمت للمنصة', city: 'مكة', minutesAgo: 22 },
-  { message: 'مغسلة الصفوة أكملت 100 حجز', city: 'الرياض', minutesAgo: 35 },
-  { message: 'مغسلة المروج بدأت التجربة المجانية', city: 'الخبر', minutesAgo: 45 },
+  { message: 'صالون الأناقة انضم للمنصة', city: 'الرياض', minutesAgo: 3 },
+  { message: 'شركة النظافة المثالية أكملت 50 حجز', city: 'جدة', minutesAgo: 8 },
+  { message: 'مشروع جديد فعّل موقع الحجوزات', city: 'الدمام', minutesAgo: 15 },
+  { message: 'فني مكيفات انضم للمنصة', city: 'مكة', minutesAgo: 22 },
+  { message: 'متخصصة تجميل أكملت 30 موعد', city: 'الرياض', minutesAgo: 35 },
+  { message: 'مشروع جديد بدأ التجربة المجانية', city: 'الخبر', minutesAgo: 45 },
 ];
 
 function timeAgo(minutes: number): string {
