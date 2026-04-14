@@ -72,11 +72,15 @@ export default function ReferVendor() {
           </div>
 
           <h2 className="text-2xl font-black text-white mb-2">ادعُ مغسلة واكسب شهر مجاني</h2>
-          <p className="text-slate-400 max-w-lg mx-auto mb-6 leading-relaxed">
-            شارك رابط الإحالة مع أصحاب مغاسل تعرفهم. عندما يسجلون ويفعّلون حسابهم،
-            تحصل أنت على <span className="text-amber-400 font-bold">شهر مجاني</span> وهم يحصلون على
-            <span className="text-emerald-400 font-bold"> 7 أيام إضافية</span> فوق التجربة المجانية!
+          <p className="text-slate-400 max-w-lg mx-auto mb-4 leading-relaxed">
+            شارك رابط الإحالة مع أصحاب مغاسل تعرفهم. المُحال يحصل على
+            <span className="text-emerald-400 font-bold"> 7 أيام إضافية</span> فوق التجربة المجانية.
           </p>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 max-w-md mx-auto mb-6">
+            <p className="text-amber-400 text-sm font-bold">
+              المكافأة تُمنح بعد اشتراك التاجر المُحال فعلياً (دفع) — وليس فقط التجربة المجانية
+            </p>
+          </div>
 
           {!code ? (
             <motion.button
@@ -145,10 +149,11 @@ export default function ReferVendor() {
 
         {/* Stats */}
         {stats && (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { icon: Send, label: 'إحالات مرسلة', value: stats.total, color: 'text-blue-400' },
-              { icon: Users, label: 'تم التسجيل', value: stats.converted, color: 'text-emerald-400' },
+              { icon: Users, label: 'سجّلوا (تجربة)', value: stats.registered ?? 0, color: 'text-purple-400' },
+              { icon: CheckCircle, label: 'اشتركوا (دفعوا)', value: stats.converted, color: 'text-emerald-400' },
               { icon: Award, label: 'مكافآت مكتسبة', value: stats.rewardsEarned, color: 'text-amber-400' },
             ].map((stat, i) => (
               <motion.div
@@ -189,7 +194,14 @@ export default function ReferVendor() {
                       {ref.referredVendorName ?? 'في انتظار التسجيل'}
                     </p>
                     <p className="text-xs text-slate-500">
-                      كود: {ref.code} · {ref.status === 'pending' ? 'قيد الانتظار' : ref.status === 'converted' ? 'تم التسجيل' : 'تم المكافأة'}
+                      كود: {ref.code} · {
+                        ref.status === 'pending' ? 'لم يُستخدم بعد' :
+                        ref.status === 'registered' ? '⏳ سجّل (فترة تجربة)' :
+                        ref.status === 'converted' ? '✅ اشترك ودفع' :
+                        ref.status === 'rewarded' ? '🎁 تم منح المكافأة' :
+                        ref.status === 'expired' ? '❌ انتهت التجربة بدون اشتراك' :
+                        ref.status
+                      }
                     </p>
                   </div>
                 </div>

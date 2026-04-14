@@ -759,6 +759,16 @@ cron.schedule('*/15 * * * *', async () => {
   }
 });
 
+// Every 6 hours: check if referred vendors have paid → grant rewards
+cron.schedule('0 */6 * * *', async () => {
+  try {
+    const { processReferralConversions } = await import('./routes/vendor-referral.js');
+    await processReferralConversions();
+  } catch (e) {
+    console.error('[Cron referral-conversions]', e);
+  }
+});
+
 // Auto-generate recurring bookings daily at 6 AM
 cron.schedule('0 6 * * *', async () => {
   try {
