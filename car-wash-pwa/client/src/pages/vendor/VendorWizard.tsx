@@ -3,7 +3,7 @@
  * Route: /vendor/wizard
  *
  * Steps:
- *  1 – اسم مغسلتك
+ *  1 – اسم مشروعك
  *  2 – نوع نشاطك
  *  3 – شعارك وهويتك (LogoGenerator)
  *  4 – رقم الواتساب
@@ -97,7 +97,7 @@ function NavButtons({
   );
 }
 
-// ─── Step 1: اسم مغسلتك ───────────────────────────────────────────────────────
+// ─── Step 1: اسم مشروعك ───────────────────────────────────────────────────────
 
 function Step1({
   value,
@@ -113,7 +113,7 @@ function Step1({
     <div className="space-y-6">
       <div className="text-center space-y-1">
         <div className="text-4xl mb-3">🏪</div>
-        <h2 className="text-2xl font-black text-white">ما اسم مغسلتك؟</h2>
+        <h2 className="text-2xl font-black text-white">ما اسم مشروعك؟</h2>
         <p className="text-white/40 text-sm">هذا ما سيراه عملاؤك</p>
       </div>
 
@@ -121,7 +121,7 @@ function Step1({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="مثال: مغسلة النظافة الذهبية"
+        placeholder="مثال: مثال: صالون الأناقة، شركة النظافة"
         autoFocus
         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-xl text-center font-bold placeholder-white/20 focus:outline-none focus:border-blue-500/60 transition-all"
         style={{ fontFamily: 'Cairo, Arial, sans-serif' }}
@@ -149,9 +149,9 @@ function Step1({
 // ─── Step 2: نوع نشاطك ────────────────────────────────────────────────────────
 
 const WASH_TYPES = [
-  { id: 'bike', emoji: '🏍️', label: 'مغسلة بايكات متنقلة', badge: 'الأكثر شيوعاً' },
-  { id: 'car', emoji: '🚗', label: 'مغسلة سيارات متنقلة', badge: '' },
-  { id: 'fixed', emoji: '🏪', label: 'مغسلة ثابتة (محل/موقف)', badge: '' },
+  { id: 'bike', emoji: '🏍️', label: 'خدمة متنقلة (بايك)', badge: 'الأكثر شيوعاً' },
+  { id: 'car', emoji: '🚗', label: 'خدمة متنقلة (سيارة)', badge: '' },
+  { id: 'fixed', emoji: '🏪', label: 'موقع ثابت (محل/مكتب)', badge: '' },
 ];
 
 function Step2({
@@ -579,7 +579,7 @@ function Step6({ nameAr, slug }: { nameAr: string; slug: string }) {
         transition={{ delay: 0.5 }}
         className="relative z-10 space-y-2"
       >
-        <h2 className="text-3xl font-black text-white">مغسلتك جاهزة! 🎉</h2>
+        <h2 className="text-3xl font-black text-white">مشروعك جاهز! 🎉</h2>
         <p className="text-white/40">
           {nameAr ? `أهلاً بـ ${nameAr} في منصة ركيزة` : 'أهلاً بك في منصة ركيزة'}
         </p>

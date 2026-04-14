@@ -21,7 +21,7 @@ function autoSlug(nameAr: string, phone: string) {
   // Build a unique slug: transliterated prefix + last 6 digits of phone + timestamp
   const prefix = phone.replace(/\D/g, '').slice(-6);
   const ts = Date.now().toString(36);
-  return `wash-${prefix}-${ts}`;
+  return `bk-${prefix}-${ts}`;
 }
 
 const router = Router();
@@ -127,7 +127,7 @@ router.get('/public/:slug/reviews', async (req, res) => {
       .from(vendors)
       .where(and(eq(vendors.slug, req.params.slug), eq(vendors.isActive, true)))
       .limit(1);
-    if (!vendor) return res.status(404).json({ error: 'المغسلة غير موجودة' });
+    if (!vendor) return res.status(404).json({ error: 'غير موجود' });
 
     const rows = await db.select({
       id: bookings.id,
@@ -188,7 +188,7 @@ router.get('/public/:slug', async (req, res) => {
       .where(eq(vendors.slug, req.params.slug))
       .limit(1);
 
-    if (!vendor) return res.status(404).json({ error: 'المغسلة غير موجودة' });
+    if (!vendor) return res.status(404).json({ error: 'غير موجود' });
     return res.json(vendor);
   } catch (e) {
     console.error(e);
@@ -256,7 +256,7 @@ router.post('/onboard', async (req, res) => {
     const now = new Date();
 
     // 1. Create vendor record
-    const vendorIndustry = industry || 'car_wash';
+    const vendorIndustry = industry || 'other';
     const [vendor] = await db.insert(vendors).values({
       nameAr,
       nameEn: nameEn || null,
@@ -363,7 +363,7 @@ router.get('/public-by-id/:id', async (req, res) => {
       .where(eq(vendors.id, vendorId))
       .limit(1);
 
-    if (!vendor) return res.status(404).json({ error: 'المغسلة غير موجودة' });
+    if (!vendor) return res.status(404).json({ error: 'غير موجود' });
     return res.json(vendor);
   } catch (e) {
     console.error(e);
@@ -375,11 +375,11 @@ router.get('/public-by-id/:id', async (req, res) => {
 router.get('/qr', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(404).json({ error: 'ليس حساب مغسلة' });
+    if (!vendorId) return res.status(404).json({ error: 'ليس حساب تاجر' });
 
     const [vendor] = await db.select({ slug: vendors.slug, nameAr: vendors.nameAr })
       .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-    if (!vendor?.slug) return res.status(404).json({ error: 'المغسلة غير موجودة' });
+    if (!vendor?.slug) return res.status(404).json({ error: 'غير موجود' });
 
     const DOMAIN = process.env.DOMAIN ?? 'washsaas.com';
     const url = `https://${DOMAIN}/store/${vendor.slug}`;
@@ -413,9 +413,9 @@ router.get('/qr', requireAuth, async (req: AuthRequest, res) => {
 router.get('/me', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(404).json({ error: 'ليس حساب مغسلة' });
+    if (!vendorId) return res.status(404).json({ error: 'ليس حساب تاجر' });
     const [vendor] = await db.select().from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-    if (!vendor) return res.status(404).json({ error: 'المغسلة غير موجودة' });
+    if (!vendor) return res.status(404).json({ error: 'غير موجود' });
     const { whatsappToken, whatsappPhoneId, paymentConfig, ...safe } = vendor;
     return res.json({
       ...safe,
@@ -432,7 +432,7 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
 router.post('/notification-preferences', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(404).json({ error: 'ليس حساب مغسلة' });
+    if (!vendorId) return res.status(404).json({ error: 'ليس حساب تاجر' });
     const prefs = req.body;
     const [vendor] = await db.select({ settings: vendors.settings }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
     const updatedSettings = { ...(vendor?.settings ?? {}), notificationPrefs: prefs };
@@ -533,7 +533,7 @@ router.get('/:id', requireAuth, async (req: AuthRequest, res) => {
     }
 
     const [vendor] = await db.select().from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-    if (!vendor) return res.status(404).json({ error: 'المغسلة غير موجودة' });
+    if (!vendor) return res.status(404).json({ error: 'غير موجود' });
 
     // Strip encrypted credentials before sending
     const { whatsappToken, whatsappPhoneId, paymentConfig, ...safe } = vendor;

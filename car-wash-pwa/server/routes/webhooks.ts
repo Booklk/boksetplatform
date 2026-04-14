@@ -41,7 +41,7 @@ const webhookSchema = z.object({
 router.get('/', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const [vendor] = await db.select({ settings: vendors.settings })
       .from(vendors)
@@ -74,7 +74,7 @@ router.get('/', async (req: AuthRequest, res) => {
 router.post('/', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const data = webhookSchema.parse(req.body);
 
@@ -118,7 +118,7 @@ router.post('/', async (req: AuthRequest, res) => {
 router.delete('/:id', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const [vendor] = await db.select({ settings: vendors.settings })
       .from(vendors)

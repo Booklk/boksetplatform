@@ -23,7 +23,7 @@ const customerRowSchema = z.object({
 router.post('/bulk', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const { customers: rawCustomers } = req.body;
     if (!Array.isArray(rawCustomers) || rawCustomers.length === 0) {

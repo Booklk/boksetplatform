@@ -11,7 +11,7 @@ router.use(requireAuth);
 router.get('/leaderboard', requireRole('vendor_admin', 'admin', 'employee'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const period = (req.query.period as string) ?? 'month';
     const now = new Date();
@@ -105,7 +105,7 @@ router.get('/my-stats', async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

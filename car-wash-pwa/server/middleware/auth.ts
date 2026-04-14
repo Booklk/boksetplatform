@@ -37,7 +37,7 @@ export function requireRole(...roles: string[]) {
 /** Ensures the request is associated with a vendor (not super_admin global) */
 export function requireVendor(req: AuthRequest, res: Response, next: NextFunction) {
   if (!req.user?.vendorId && req.user?.role !== 'super_admin') {
-    return res.status(403).json({ error: 'هذا الإجراء يتطلب ارتباطاً بمغسلة' });
+    return res.status(403).json({ error: 'هذا الإجراء يتطلب ارتباطاً بمشروع' });
   }
   next();
 }

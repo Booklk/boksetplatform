@@ -22,7 +22,7 @@ const router = Router();
 router.post('/generate', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     // Check if vendor already has an active pending code
     const existing = await db.select().from(vendorReferrals)
@@ -63,14 +63,14 @@ router.post('/generate', requireAuth, requireRole('vendor_admin', 'admin'), asyn
 });
 
 function buildWhatsAppMessage(code: string, domain: string): string {
-  return `🚗 جرّب Bokset — نظام إدارة المغاسل الأذكى!\n\nأنا أستخدمه لإدارة مغسلتي وفعلاً غيّر شغلي.\nسجّل مجاناً من هنا وجرّب 14 يوم:\n\n${domain}/onboard?ref=${code}\n\nاستخدم كود الإحالة: ${code}`;
+  return `جرّب Bokset — أنشئ موقع حجوزات لمشروعك!\n\nأنا أستخدمه وفعلاً سهّل شغلي.\nسجّل مجاناً من هنا وجرّب 14 يوم:\n\n${domain}/onboard?ref=${code}\n\nكود الإحالة: ${code}`;
 }
 
 // GET /api/vendor-referral/my-referrals — Get vendor's referral stats
 router.get('/my-referrals', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const referrals = await db.select({
       id: vendorReferrals.id,
@@ -129,7 +129,7 @@ router.post('/validate', async (req, res) => {
       valid: true,
       referrerName: referral.referrerName,
       benefit: 'تحصل على 7 أيام إضافية مجانية على فترة التجربة!',
-      note: 'صاحب المغسلة اللي أحالك يحصل على شهر مجاني بعد ما تشترك',
+      note: 'اللي أحالك يحصل على شهر مجاني بعد ما تشترك',
     });
   } catch (err) {
     return res.json({ valid: false });

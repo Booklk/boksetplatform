@@ -32,7 +32,7 @@ router.use(requireRole('vendor_admin', 'admin'));
 router.get('/export', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     // Gather all vendor data from all tables
     const [vendorData] = await db.select().from(vendors).where(eq(vendors.id, vendorId));
@@ -108,7 +108,7 @@ router.get('/export', async (req: AuthRequest, res) => {
 router.get('/summary', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const tables = [
       { name: 'المستخدمون', table: users, count: 0 },
@@ -148,7 +148,7 @@ router.get('/summary', async (req: AuthRequest, res) => {
 router.delete('/request-deletion', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     // Don't actually delete — just flag for deletion
     // In production, this would trigger a 30-day countdown

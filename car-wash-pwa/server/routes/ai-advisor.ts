@@ -155,7 +155,7 @@ async function gatherBusinessData(vendorId: number) {
 router.post('/analyze', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -166,7 +166,7 @@ router.post('/analyze', async (req: AuthRequest, res) => {
 
     const openai = new OpenAI({ apiKey });
 
-    const prompt = `أنت مستشار أعمال متخصص في قطاع مغاسل السيارات في السعودية. حلل البيانات التالية وقدم توصيات عملية.
+    const prompt = `أنت مستشار أعمال متخصص في قطاع الخدمات في السعودية. حلل البيانات التالية وقدم توصيات عملية.
 
 بيانات الشهر الحالي:
 - إجمالي الحجوزات: ${data.thisMonth.totalBookings}
@@ -250,7 +250,7 @@ router.post('/analyze', async (req: AuthRequest, res) => {
 router.get('/quick-stats', async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
 
     const data = await gatherBusinessData(vendorId);
     return res.json(data);
