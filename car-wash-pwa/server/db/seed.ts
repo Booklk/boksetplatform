@@ -30,7 +30,19 @@ async function seed() {
 }
 
 async function seedWithVendor(vendorId: number) {
-  // Admin user
+  // Super Admin (platform owner — separate login)
+  const superAdminHash = await bcrypt.hash('Super@123', 12);
+  await db.insert(users).values({
+    name: 'مدير المنصة',
+    phone: '0599999999',
+    email: 'admin@bokset.sa',
+    passwordHash: superAdminHash,
+    role: 'super_admin',
+    vendorId: null,
+  }).onConflictDoNothing();
+  console.log('  ✅ Super Admin: admin@bokset.sa / Super@123');
+
+  // Vendor Admin user
   const adminHash = await bcrypt.hash('Admin@123', 12);
   await db.insert(users).values([
     {

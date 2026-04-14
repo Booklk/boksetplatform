@@ -104,6 +104,7 @@ const VendorReferVendor = lazy(() => import('./pages/vendor/ReferVendor'));
 const VendorStoreBuilder = lazy(() => import('./pages/vendor/StoreBuilder'));
 const VendorCustomerImport = lazy(() => import('./pages/vendor/CustomerImport'));
 
+const AdminLogin = lazy(() => import('./pages/super-admin/AdminLogin'));
 const SuperAdminDashboard = lazy(() => import('./pages/super-admin/Dashboard'));
 const SuperAdminVendors = lazy(() => import('./pages/super-admin/Vendors'));
 const SuperAdminRevenue = lazy(() => import('./pages/super-admin/Revenue'));
@@ -166,7 +167,11 @@ function PageLoader() {
 function RequireAuth({ children, roles }: { children: React.ReactNode; roles?: string[] }) {
   const { user, isLoading } = useAuth();
   if (isLoading) return <PageLoader />;
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) {
+    // Super admin routes → redirect to admin login
+    if (roles?.includes('super_admin')) return <Navigate to="/super-admin/login" replace />;
+    return <Navigate to="/login" replace />;
+  }
   if (roles && !roles.includes(user.role)) {
     // Redirect to correct dashboard based on actual role
     const roleHome: Record<string, string> = {
@@ -612,6 +617,7 @@ function AppRoutes() {
         <Route path="/onboarding" element={<S><Onboarding /></S>} />
 
         {/* ── Super Admin ───────────────────────────────────────────────── */}
+        <Route path="/super-admin/login" element={<S><AdminLogin /></S>} />
         <Route path="/super-admin" element={
           <RequireAuth roles={['super_admin']}>
             <S><SuperAdminDashboard /></S>

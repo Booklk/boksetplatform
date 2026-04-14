@@ -18,6 +18,7 @@ Disallow: /admin/
 Disallow: /employee/
 Disallow: /app/
 Disallow: /super-admin/
+Disallow: /super-admin/login
 Disallow: /api/
 Disallow: /login
 Disallow: /register

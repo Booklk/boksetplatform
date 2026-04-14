@@ -151,6 +151,35 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// ─── Admin-only login (separate panel) ───────────────────────────────────────
+router.post('/admin-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'البريد وكلمة المرور مطلوبة' });
+
+    const [user] = await db.select().from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (!user) return res.status(401).json({ error: 'بيانات الدخول غير صحيحة' });
+    if (user.role !== 'super_admin') return res.status(403).json({ error: 'هذا الدخول مخصص لمدراء المنصة فقط' });
+    if (!user.isActive) return res.status(403).json({ error: 'الحساب موقوف' });
+    if (!user.passwordHash) return res.status(401).json({ error: 'كلمة المرور غير معدة' });
+
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) return res.status(401).json({ error: 'كلمة المرور غير صحيحة' });
+
+    const token = signToken(user);
+    return res.json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
+    });
+  } catch (e) {
+    console.error('[admin-login]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // Get current user
 router.get('/me', requireAuth, async (req: AuthRequest, res) => {
   try {
