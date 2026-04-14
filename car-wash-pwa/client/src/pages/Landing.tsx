@@ -154,26 +154,6 @@ const faqs = [
   },
 ];
 
-const competitorRows = [
-  { feature: 'أقل سعر', competitor: '2,999 ريال/سنة', bokset: '29 ريال/شهر فقط' },
-  { feature: 'نوع الدفع', competitor: 'سنوي مقدماً — بدون مرونة', bokset: 'شهري — ألغِ وقتما تشاء' },
-  { feature: 'التخصص', competitor: 'عام (مطاعم، فنادق، مخابز...)', bokset: 'مغاسل السيارات فقط ✓' },
-  { feature: 'تجربة مجانية', competitor: '❌ لا توجد', bokset: '✅ 14 يوماً بدون بطاقة' },
-  { feature: 'ضمان السعر', competitor: '❌ لا يوجد', bokset: '✅ للمؤسسين للأبد' },
-  { feature: 'GPS الموظفين', competitor: '⚠️ محدود', bokset: '✅ خريطة حية + مشاركة العميل' },
-  { feature: 'واتساب مدمج', competitor: '⚠️ إضافي بتكلفة', bokset: '✅ مجاناً في كل الخطط' },
-];
-
-const comparisonRows = [
-  { feature: 'استقبال الحجوزات', before: 'واتساب وهاتف يدوياً', after: 'تلقائي ٢٤/٧ بدون تدخل' },
-  { feature: 'تتبع الموظفين', before: 'لا تعرف وين هم', after: 'GPS حي على الخريطة' },
-  { feature: 'تذكير العملاء', before: 'تتصل يدوياً أو ينسون', after: 'واتساب تلقائي قبل ساعة' },
-  { feature: 'استلام المدفوعات', before: 'كاش فقط', after: 'STC Pay، مدى، Apple Pay' },
-  { feature: 'التقارير المالية', before: 'حسابات يدوية في Excel', after: 'مخططات فورية لحظية' },
-  { feature: 'فواتير الضريبة', before: 'تعمل فاتورة لكل واحد', after: 'PDF تلقائي مع VAT 15%' },
-  { feature: 'الرواتب', before: 'تحسب في نهاية الشهر', after: 'تحسب تلقائياً مع البونص' },
-  { feature: 'نقص المخزون', before: 'تكتشفه وقت العمل', after: 'تنبيه فوري + طلب مورد تلقائي' },
-];
 
 function dashboardHref(role?: string) {
   if (!role) return '/login';
@@ -1704,58 +1684,6 @@ export default function Landing() {
               className="bg-gradient-to-l from-emerald-600 to-teal-500 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-emerald-500/25"
             >
               أريد هذا التحول — ابدأ مجاناً
-            </motion.button>
-          </motion.div>
-        </div>
-        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      </section>
-
-      {/* ══ COMPETITOR COMPARISON ════════════════════════════════════════════ */}
-      <section className="relative py-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-red-950/10 via-transparent to-transparent pointer-events-none" />
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <motion.div {...fadeUp()} className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-1.5 mb-5">
-              <span className="text-xs text-red-400 font-bold tracking-wide">مقارنة شفافة</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-black mb-3">
-              لماذا Bokset وليس
-              <span className="bg-gradient-to-l from-red-400 to-orange-400 bg-clip-text text-transparent"> البدائل الأخرى؟</span>
-            </h2>
-            <p className="text-slate-400 text-lg">مقارنة صادقة مع أشهر المنافسين في السوق السعودي</p>
-          </motion.div>
-
-          <motion.div {...fadeUp(0.1)} className="rounded-3xl border border-white/10 overflow-hidden bg-white/[0.02] backdrop-blur-sm">
-            <div className="grid grid-cols-3 border-b border-white/10">
-              <div className="px-5 py-4 text-sm font-bold text-slate-400">الميزة</div>
-              <div className="px-5 py-4 text-sm font-bold text-red-400 bg-red-500/5 border-r border-l border-white/5 text-center">
-                ⚔️ المنافسون
-                <div className="text-xs text-slate-600 font-normal">مثل ركاز وغيره</div>
-              </div>
-              <div className="px-5 py-4 text-sm font-bold text-blue-400 text-center bg-blue-500/5">
-                💧 Bokset
-              </div>
-            </div>
-            {competitorRows.map((row, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.05 }}
-                className={`grid grid-cols-3 border-b border-white/5 ${i % 2 === 0 ? '' : 'bg-white/[0.015]'}`}
-              >
-                <div className="px-5 py-4 text-sm font-semibold text-white">{row.feature}</div>
-                <div className="px-5 py-4 text-sm text-red-300/80 bg-red-500/[0.03] border-r border-l border-white/5 text-center">{row.competitor}</div>
-                <div className="px-5 py-4 text-sm text-emerald-300 font-bold text-center bg-emerald-500/[0.03]">{row.bokset}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <motion.div {...fadeUp(0.2)} className="text-center mt-8">
-            <p className="text-slate-500 text-sm mb-6">* الأسعار والمميزات حسب ما هو معلن على مواقع المنافسين</p>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-              onClick={() => navigate('/onboard')}
-              className="bg-gradient-to-l from-blue-600 to-cyan-500 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/25"
-            >
-              ابدأ بـ 29 ريال/شهر — بدون إلزام
             </motion.button>
           </motion.div>
         </div>

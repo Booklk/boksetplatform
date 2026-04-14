@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMutation } from '@tanstack/react-query';
@@ -94,6 +94,62 @@ const SAUDI_CITIES = [
   'الأحساء', 'الطائف', 'بريدة', 'تبوك', 'خميس مشيط',
   'حائل', 'نجران', 'الجبيل', 'أبها', 'ينبع',
 ];
+
+// ─── Custom City Picker (dark theme) ─────────────────────────────────────────
+function CityPicker({ value, onChange }: { value: string; onChange: (city: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  return (
+    <div>
+      <label className="label">المدينة *</label>
+      <div className="relative" ref={ref}>
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="input-field pr-10 text-right w-full flex items-center justify-between"
+        >
+          <MapPin size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          <span className={value ? 'text-white pr-6' : 'text-slate-500 pr-6'}>{value || 'اختر المدينة'}</span>
+          <ChevronLeft size={14} className={`text-slate-500 transition-transform ${open ? 'rotate-90' : '-rotate-90'}`} />
+        </button>
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="absolute z-50 top-full mt-1 inset-x-0 bg-[#0d1a30] border border-white/[0.1] rounded-xl shadow-2xl shadow-black/50 max-h-56 overflow-y-auto"
+            >
+              {SAUDI_CITIES.map((city) => (
+                <button
+                  key={city}
+                  type="button"
+                  onClick={() => { onChange(city); setOpen(false); }}
+                  className={`w-full text-right px-4 py-2.5 text-sm transition-colors ${
+                    value === city
+                      ? 'bg-blue-600/20 text-blue-400 font-bold'
+                      : 'text-slate-300 hover:bg-white/[0.06]'
+                  }`}
+                >
+                  {city}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
 
 const STEP_LABELS = ['المعلومات الأساسية', 'اختر الباقة', 'التأكيد'];
 
@@ -433,22 +489,7 @@ export default function VendorOnboarding() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="label">المدينة *</label>
-                  <div className="relative">
-                    <MapPin size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-                    <select
-                      value={form.city}
-                      onChange={(e) => setForm({ ...form, city: e.target.value })}
-                      className="input-field pr-10 appearance-none"
-                    >
-                      <option value="">اختر المدينة</option>
-                      {SAUDI_CITIES.map((city) => (
-                        <option key={city} value={city}>{city}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                <CityPicker value={form.city} onChange={(city) => setForm({ ...form, city })} />
 
                 <div>
                   <label className="label">العنوان التفصيلي</label>
