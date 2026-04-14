@@ -1,8 +1,17 @@
+# Bokset — برنامج إدارة مغاسل السيارات
+# https://bokset.sa
+
 User-agent: *
 Allow: /
 Allow: /marketplace
 Allow: /store/
 Allow: /onboard
+Allow: /blog
+Allow: /blog/
+Allow: /demo
+Allow: /privacy
+Allow: /terms
+Allow: /city/
 
 Disallow: /vendor/
 Disallow: /admin/
@@ -10,8 +19,22 @@ Disallow: /employee/
 Disallow: /app/
 Disallow: /super-admin/
 Disallow: /api/
+Disallow: /login
+Disallow: /register
 
+# Sitemaps
 Sitemap: https://bokset.sa/sitemap.xml
 
-# Crawl-delay for responsible crawling
+# Google-specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Others
+User-agent: *
 Crawl-delay: 1
