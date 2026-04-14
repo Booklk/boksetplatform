@@ -367,7 +367,7 @@ export default function Landing() {
             className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/[0.08] rounded-full px-4 py-1.5 mb-8"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-            <span className="text-xs text-slate-400 font-medium">مغاسل · صالونات · تجميل · نظافة · صيانة · فري لانسر</span>
+            <span className="text-xs text-slate-400 font-medium">مغاسل سيارات · صالونات · تجميل منزلي · تنظيف · صيانة · كهرباء · سباكة · فري لانسر</span>
           </motion.div>
 
           {/* H1 — clean, direct */}
