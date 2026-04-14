@@ -4,19 +4,19 @@
 
 /* ── Design System Custom Properties ── */
 :root {
-  --color-primary: 59 130 246;
-  --color-primary-hex: #3b82f6;
-  --color-accent: 0 212 255;
-  --color-accent-hex: #00d4ff;
+  --color-primary: 99 102 241;
+  --color-primary-hex: #6366f1;
+  --color-accent: 139 92 246;
+  --color-accent-hex: #8b5cf6;
   --color-success: 34 197 94;
   --color-danger: 239 68 68;
   --color-warning: 245 158 11;
-  --surface-1: 7 16 32;
-  --surface-2: 13 26 48;
-  --surface-3: 19 36 67;
-  --surface-4: 26 48 85;
-  --glass-bg: rgba(13, 26, 48, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --surface-1: 10 10 20;
+  --surface-2: 18 18 30;
+  --surface-3: 28 28 42;
+  --surface-4: 38 38 55;
+  --glass-bg: rgba(18, 18, 30, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.06);
   --glass-blur: 20px;
   --radius-lg: 1.25rem;
   --radius-xl: 1.5rem;
@@ -470,23 +470,20 @@
 
 .bg-mesh-hero {
   background:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(30,58,138,0.25) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 60% at 100% 50%, rgba(30,64,120,0.1) 0%, transparent 40%),
-    #071020;
+    radial-gradient(ellipse 60% 40% at 50% -10%, rgba(99,102,241,0.1) 0%, transparent 50%),
+    #0a0a14;
 }
 
 .bg-mesh-auth {
   background:
-    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(30,58,138,0.2) 0%, transparent 50%),
-    radial-gradient(ellipse 40% 40% at 90% 90%, rgba(30,64,120,0.12) 0%, transparent 50%),
-    #071020;
+    radial-gradient(ellipse 50% 40% at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 50%),
+    #0a0a14;
 }
 
 .bg-mesh-dashboard {
   background:
-    radial-gradient(ellipse 60% 30% at 30% 0%, rgba(30,58,138,0.1) 0%, transparent 50%),
-    radial-gradient(ellipse 40% 40% at 100% 50%, rgba(30,64,120,0.06) 0%, transparent 50%),
-    #071020;
+    radial-gradient(ellipse 50% 25% at 30% 0%, rgba(99,102,241,0.06) 0%, transparent 50%),
+    #0a0a14;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -540,7 +537,7 @@
     font-size: 12pt !important;
   }
 
-  .bg-\[\#071020\], .bg-slate-800\/50, .bg-slate-800,
+  .bg-\[\#0a0a14\], .bg-slate-800\/50, .bg-slate-800,
   .bg-slate-700, .bg-slate-900, .bg-surface-1, .bg-surface-2 {
     background: white !important;
     border: 1px solid #e5e7eb !important;

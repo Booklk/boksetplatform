@@ -124,7 +124,7 @@ const Onboarding = lazy(() => import('./pages/auth/Onboarding'));
 // ─── Loading Fallback ────────────────────────────────────────────────────────
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#071020]">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a14]">
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}

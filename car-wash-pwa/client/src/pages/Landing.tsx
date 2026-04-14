@@ -268,8 +268,8 @@ export default function Landing() {
 
       {/* ── Background — clean, minimal ── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
-        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-blue-600/[0.07] blur-[150px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-blue-500/[0.04] blur-[120px]" />
+        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-indigo-600/[0.07] blur-[150px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-500/[0.04] blur-[120px]" />
       </div>
 
       {/* ══ NAVBAR ══════════════════════════════════════════════════════════ */}
@@ -292,7 +292,7 @@ export default function Landing() {
             </motion.div>
             <div className="leading-tight">
               <p className="font-black text-white text-[15px] tracking-tight">Bokset</p>
-              <p className="text-[10px] text-blue-400/70 font-medium tracking-widest">Car Wash SaaS</p>
+              <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">Car Wash SaaS</p>
             </div>
           </Link>
 
@@ -314,7 +314,7 @@ export default function Landing() {
               </Link>
             ) : (
               <div className="flex items-center gap-3">
-                <Link to="/onboard" className="border border-blue-500/40 text-blue-400 hover:bg-blue-500/10 px-4 py-2.5 rounded-xl text-sm font-medium transition-all">
+                <Link to="/onboard" className="border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/10 px-4 py-2.5 rounded-xl text-sm font-medium transition-all">
                   انضم بمغسلتك
                 </Link>
                 <Link to="/login" className="bg-gradient-to-l from-blue-600 to-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105">
@@ -345,7 +345,7 @@ export default function Landing() {
                   <Link to={dashboardHref(user.role)} onClick={() => setMenuOpen(false)} className="block bg-gradient-to-l from-blue-600 to-blue-500 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">لوحتي</Link>
                 ) : (
                   <>
-                    <Link to="/onboard" onClick={() => setMenuOpen(false)} className="block border border-blue-500/40 text-blue-400 px-4 py-3 rounded-xl text-sm font-medium text-center">انضم بمغسلتك</Link>
+                    <Link to="/onboard" onClick={() => setMenuOpen(false)} className="block border border-indigo-500/40 text-indigo-400 px-4 py-3 rounded-xl text-sm font-medium text-center">انضم بمغسلتك</Link>
                     <Link to="/login" onClick={() => setMenuOpen(false)} className="block bg-gradient-to-l from-blue-600 to-blue-500 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">ادخل</Link>
                   </>
                 )}
@@ -379,7 +379,7 @@ export default function Landing() {
           >
             <span className="text-white">أنشئ موقع حجوزاتك</span>
             <br />
-            <span className="text-blue-400">بجميع المميزات اللي يحتاجها مشروعك</span>
+            <span className="text-indigo-400">بجميع المميزات اللي يحتاجها مشروعك</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -402,7 +402,7 @@ export default function Landing() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
             >
               ابدأ مجاناً — 14 يوم
             </motion.button>
@@ -516,8 +516,8 @@ export default function Landing() {
                 {...fadeUp(i * 0.04)}
                 className="group bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-6 transition-all duration-300"
               >
-                <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center mb-4 group-hover:bg-blue-500/10 transition-colors">
-                  <Icon size={20} className="text-slate-400 group-hover:text-blue-400 transition-colors" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center mb-4 group-hover:bg-indigo-500/10 transition-colors">
+                  <Icon size={20} className="text-slate-400 group-hover:text-indigo-400 transition-colors" />
                 </div>
                 <h3 className="text-base font-bold text-white mb-2">{title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
@@ -543,7 +543,7 @@ export default function Landing() {
             <div className="grid grid-cols-3 text-xs font-bold text-slate-500 border-b border-white/[0.06] px-6 py-3">
               <span></span>
               <span className="text-center text-red-400/70">بدون نظام</span>
-              <span className="text-center text-blue-400/70">مع Bokset</span>
+              <span className="text-center text-indigo-400/70">مع Bokset</span>
             </div>
             {[
               { area: 'استقبال الحجوزات', before: 'واتساب + اتصالات + فوضى', after: 'نظام أونلاين 24/7' },
@@ -557,7 +557,7 @@ export default function Landing() {
               <div key={i} className="grid grid-cols-3 items-center px-6 py-4 border-b border-white/[0.03] last:border-0 hover:bg-white/[0.01] transition-colors">
                 <span className="text-sm text-white font-bold">{row.area}</span>
                 <span className="text-center text-sm text-slate-500">{row.before}</span>
-                <span className="text-center text-sm text-blue-400">{row.after}</span>
+                <span className="text-center text-sm text-indigo-400">{row.after}</span>
               </div>
             ))}
           </motion.div>
@@ -567,7 +567,7 @@ export default function Landing() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
             >
               جرّب الفرق بنفسك — مجاناً
             </motion.button>
@@ -596,7 +596,7 @@ export default function Landing() {
 
           <motion.div
             {...fadeUp(0.1)}
-            className="relative rounded-3xl border border-blue-500/20 bg-white/[0.03] backdrop-blur-sm p-8 sm:p-10 overflow-hidden"
+            className="relative rounded-3xl border border-indigo-500/20 bg-white/[0.03] backdrop-blur-sm p-8 sm:p-10 overflow-hidden"
           >
             {/* Gradient border glow */}
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/10 via-cyan-400/5 to-blue-500/10 pointer-events-none" />
@@ -679,8 +679,8 @@ export default function Landing() {
                     </div>
 
                     {/* Annual Revenue */}
-                    <div className="bg-gradient-to-br from-blue-950/60 to-cyan-950/40 border border-blue-500/25 rounded-2xl p-5">
-                      <p className="text-xs text-blue-400 font-bold mb-2 tracking-wide">الدخل السنوي</p>
+                    <div className="bg-gradient-to-br from-blue-950/60 to-cyan-950/40 border border-indigo-500/25 rounded-2xl p-5">
+                      <p className="text-xs text-indigo-400 font-bold mb-2 tracking-wide">الدخل السنوي</p>
                       <p className="text-3xl font-black text-blue-300">
                         {(washesPerDay * pricePerWash * 26 * 12).toLocaleString('ar-SA')}
                         <span className="text-base font-bold text-blue-500 mr-2">ر.س</span>
@@ -908,11 +908,11 @@ export default function Landing() {
       <section className="relative py-28 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-950/20 via-transparent to-transparent pointer-events-none" />
         {/* Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[120px] pointer-events-none rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-600/10 blur-[120px] pointer-events-none rounded-full" />
 
         <div className="relative z-10 max-w-6xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <span className="inline-block text-xs font-bold tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-4">
+            <span className="inline-block text-xs font-bold tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 mb-4">
               شاهد بنفسك
             </span>
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
@@ -1124,7 +1124,7 @@ export default function Landing() {
                   <div className="relative mx-auto w-20 h-20 mb-6">
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 opacity-20 blur-xl group-hover:opacity-50 transition-opacity duration-300" />
                     <div className="relative w-full h-full rounded-full bg-white/[0.05] border border-white/15 flex flex-col items-center justify-center gap-0.5">
-                      <Icon size={20} className="text-blue-400" />
+                      <Icon size={20} className="text-indigo-400" />
                       <span className="text-xs font-black text-slate-400">{num}</span>
                     </div>
                   </div>
@@ -1170,7 +1170,7 @@ export default function Landing() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="ابحث بالمدينة أو اسم المغسلة..."
-                className="w-full bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 pr-11 pl-4 py-4 rounded-2xl focus:outline-none focus:border-blue-500/60 focus:bg-white/8 transition-all text-sm backdrop-blur-sm"
+                className="w-full bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 pr-11 pl-4 py-4 rounded-2xl focus:outline-none focus:border-indigo-500/60 focus:bg-white/8 transition-all text-sm backdrop-blur-sm"
               />
             </div>
             <motion.button
@@ -1263,7 +1263,7 @@ export default function Landing() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/20 to-transparent pointer-events-none" />
         <div className="relative z-10 max-w-6xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-10">
-            <span className="inline-block text-xs font-bold tracking-widest text-blue-400 uppercase bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-4">
+            <span className="inline-block text-xs font-bold tracking-widest text-indigo-400 uppercase bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 mb-4">
               الأسعار
             </span>
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
@@ -1331,7 +1331,7 @@ export default function Landing() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Bike Solo */}
             <motion.div {...fadeUp(0.05)}
-              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-blue-500/40 hover:bg-white/[0.07] transition-all duration-300 group">
+              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-indigo-500/40 hover:bg-white/[0.07] transition-all duration-300 group">
               <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-emerald-500/30">14 يوم مجاناً</div>
               <div className="text-4xl mb-4">🏍️</div>
               <h3 className="text-lg font-bold text-white mb-1">بايك واحد</h3>
@@ -1344,7 +1344,7 @@ export default function Landing() {
                 <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
                   {['حجوزات غير محدودة','إشعارات واتساب','تتبع GPS','تقارير مبسطة','دعم فني'].map(f => (
                     <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-blue-400 flex-shrink-0" />
+                      <CheckCircle size={15} className="text-indigo-400 flex-shrink-0" />
                       {f}
                     </li>
                   ))}
@@ -1443,7 +1443,7 @@ export default function Landing() {
 
             {/* Fleet — MOST POPULAR, spans 2 cols on lg */}
             <motion.div {...fadeUp(0.1)}
-              className="relative lg:col-span-2 rounded-3xl border-2 border-blue-500/60 bg-gradient-to-br from-blue-900/40 to-purple-900/30 backdrop-blur-sm p-7 flex flex-col overflow-hidden">
+              className="relative lg:col-span-2 rounded-3xl border-2 border-indigo-500/60 bg-gradient-to-br from-blue-900/40 to-purple-900/30 backdrop-blur-sm p-7 flex flex-col overflow-hidden">
               {/* Popular badge */}
               <div className="absolute top-5 left-5 flex gap-2">
                 <span className="bg-gradient-to-l from-blue-500 to-cyan-400 text-white text-xs font-black px-3 py-1 rounded-full">
@@ -1482,7 +1482,7 @@ export default function Landing() {
                   'دعم فني أولوية 24/7',
                 ].map(f => (
                   <div key={f} className="flex items-center gap-2 text-sm text-white/80">
-                    <CheckCircle size={14} className="text-blue-400 flex-shrink-0" />
+                    <CheckCircle size={14} className="text-indigo-400 flex-shrink-0" />
                     {f}
                   </div>
                 ))}
@@ -1694,7 +1694,7 @@ export default function Landing() {
       <section id="faq" className="relative py-28 px-4 overflow-hidden">
         <div className="max-w-3xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <span className="inline-block text-xs font-bold tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-4">
+            <span className="inline-block text-xs font-bold tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 mb-4">
               الأسئلة الشائعة
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
@@ -1711,7 +1711,7 @@ export default function Landing() {
                 {...fadeUp(i * 0.05)}
                 className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                   openFaq === i
-                    ? 'border-blue-500/40 bg-blue-500/[0.06]'
+                    ? 'border-indigo-500/40 bg-indigo-500/[0.06]'
                     : 'border-white/8 bg-white/[0.03] hover:border-white/15'
                 }`}
               >
@@ -1724,7 +1724,7 @@ export default function Landing() {
                   <motion.span
                     animate={{ rotate: openFaq === i ? 45 : 0 }}
                     transition={{ duration: 0.25 }}
-                    className={`text-2xl leading-none flex-shrink-0 ${openFaq === i ? 'text-blue-400' : 'text-slate-600'}`}
+                    className={`text-2xl leading-none flex-shrink-0 ${openFaq === i ? 'text-indigo-400' : 'text-slate-600'}`}
                   >
                     +
                   </motion.span>
@@ -1769,7 +1769,7 @@ export default function Landing() {
         <motion.div
           animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-blue-600/20 blur-[120px] pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none"
         />
         <div className="absolute inset-0 border-y border-white/10" />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
@@ -1848,7 +1848,7 @@ export default function Landing() {
                 </div>
                 <div className="leading-tight">
                   <p className="font-black text-white text-lg">Bokset</p>
-                  <p className="text-[10px] text-blue-400/70 font-medium tracking-widest">Bokset Platform</p>
+                  <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">Bokset Platform</p>
                 </div>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
