@@ -453,41 +453,70 @@ export default function Landing() {
         </div>
 
         <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 max-w-5xl mx-auto text-center">
-          {/* Badge */}
+          {/* Pain-first badge */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/10 backdrop-blur-sm rounded-full px-5 py-2 mb-10"
+            className="inline-flex items-center gap-2 bg-red-500/10 border border-red-500/20 backdrop-blur-sm rounded-full px-5 py-2 mb-8"
           >
-            <motion.span animate={{ rotate: [0, 15, -15, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }} className="text-yellow-400">✨</motion.span>
-            <span className="text-sm text-slate-300 font-medium">منصة #1 لمغاسل السيارات في السعودية</span>
-            <motion.span animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
+            <span className="text-sm text-red-400 font-bold">تعبت من فوضى الواتساب والحجوزات الضايعة؟</span>
           </motion.div>
 
-          {/* H1 */}
+          {/* H1 — Pain → Solution */}
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="text-5xl sm:text-6xl lg:text-[84px] font-black leading-[1.08] tracking-tight mb-7"
+            className="text-4xl sm:text-5xl lg:text-[72px] font-black leading-[1.12] tracking-tight mb-7"
           >
-            <span className="text-white">أدر مغسلتك من جوالك</span>
+            <span className="text-white">مغسلتك تستاهل</span>
             <br />
+            <span className="text-white">نظام يشتغل </span>
             <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent bg-[length:200%] animate-gradient">
-              واجلب عملاء جدد كل يوم
+              وأنت مرتاح
             </span>
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle — specific pain points */}
           <motion.p
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-8 leading-relaxed"
+            className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-5 leading-relaxed"
           >
-            منصة متكاملة لإدارة الحجوزات والموظفين والمخزون والتسويق. جربها 14 يوم مجاناً.
+            حجوزات تضيع؟ موظفين ما تعرف وين هم؟ حسابات آخر الشهر صداع؟
+            <br />
+            <span className="text-slate-300">Bokset يحل لك كل هذا في مكان واحد.</span>
           </motion.p>
+
+          {/* Pain → Solution mini-cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.38 }}
+            className="flex flex-wrap justify-center gap-3 mb-8 max-w-2xl mx-auto"
+          >
+            {[
+              { pain: 'حجوزات واتساب', solution: 'نظام حجز أونلاين', icon: '📱' },
+              { pain: 'وين الموظف؟', solution: 'GPS مباشر', icon: '📍' },
+              { pain: 'حسابات يدوية', solution: 'تقارير فورية', icon: '📊' },
+              { pain: 'كاش فقط', solution: 'STC Pay ومدى', icon: '💳' },
+            ].map((item, i) => (
+              <motion.div
+                key={item.pain}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 + i * 0.08 }}
+                className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 text-xs"
+              >
+                <span>{item.icon}</span>
+                <span className="text-red-400/80 line-through">{item.pain}</span>
+                <span className="text-slate-600">→</span>
+                <span className="text-emerald-400 font-bold">{item.solution}</span>
+              </motion.div>
+            ))}
+          </motion.div>
 
           {/* CTAs */}
           <motion.div
@@ -500,12 +529,12 @@ export default function Landing() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="relative group bg-gradient-to-l from-blue-600 to-cyan-500 text-white px-10 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-blue-500/40 overflow-hidden animate-pulse-slow"
+              className="relative group bg-gradient-to-l from-blue-600 to-cyan-500 text-white px-10 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-blue-500/40 overflow-hidden"
               style={{ boxShadow: '0 0 40px rgba(59,130,246,0.4), 0 0 80px rgba(59,130,246,0.2)' }}
             >
               <span className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-2xl" />
               <span className="relative flex items-center gap-2 justify-center">
-                ابدأ مجاناً
+                جرّب مجاناً — 14 يوم
                 <ChevronLeft size={22} />
               </span>
             </motion.button>
@@ -513,12 +542,12 @@ export default function Landing() {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => {
-                const el = document.getElementById('how-it-works');
+                const el = document.getElementById('pain-points');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
               className="bg-white/[0.06] border-2 border-white/20 hover:bg-white/10 hover:border-white/30 text-white px-9 py-5 rounded-2xl font-bold text-xl backdrop-blur-sm transition-all"
             >
-              شوف كيف تشتغل
+              هل هذا وضعك؟ 👇
             </motion.button>
           </motion.div>
 
@@ -530,8 +559,8 @@ export default function Landing() {
             className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-400 mb-20"
           >
             <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> بدون بطاقة ائتمانية</span>
-            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> 14 يوم مجاناً</span>
-            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> +120 مغسلة مسجلة</span>
+            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> جاهز خلال 5 دقائق</span>
+            <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> +120 مغسلة تثق فينا</span>
           </motion.div>
 
           {/* Stats */}
@@ -615,14 +644,14 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-20">
             <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-5">
-              <span className="text-xs text-blue-400 font-bold tracking-wide">لأصحاب المغاسل</span>
+              <span className="text-xs text-blue-400 font-bold tracking-wide">حلول حقيقية — مو مجرد كلام</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4 leading-tight">
-              مشاكلك لها حلول
+              كل مشكلة فوق
               <br />
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent">وكلها في مكان واحد</span>
+              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent">لها حل جاهز هنا</span>
             </h2>
-            <p className="text-slate-400 text-lg max-w-xl mx-auto">كل ميزة صُممت لحل مشكلة حقيقية يعاني منها أصحاب المغاسل كل يوم</p>
+            <p className="text-slate-400 text-lg max-w-xl mx-auto">بنينا كل ميزة بعد ما سمعنا من أصحاب مغاسل حقيقيين — مو من مكتب</p>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -646,52 +675,98 @@ export default function Landing() {
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
 
-      {/* ══ PAIN POINTS ═════════════════════════════════════════════════════ */}
-      <section className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-red-950/10 via-transparent to-transparent pointer-events-none" />
+      {/* ══ PAIN POINTS — "هل هذا وضعك؟" ══════════════════════════════════ */}
+      <section id="pain-points" className="relative py-28 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-red-950/15 via-transparent to-transparent pointer-events-none" />
         <div className="max-w-6xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-16">
-            <span className="inline-block text-xs font-bold tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-2 mb-4">
-              هل تعاني من هذا؟
+            <span className="inline-block text-xs font-bold tracking-widest text-red-400 bg-red-500/10 border border-red-500/20 rounded-full px-4 py-2 mb-5">
+              اعترف — كم مرة صار معك هذا؟
             </span>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
-              المشاكل اليومية لكل
-              <span className="bg-gradient-to-l from-red-400 to-orange-400 bg-clip-text text-transparent"> مغسلة بدون نظام</span>
+            <h2 className="text-4xl sm:text-5xl font-black text-white mb-5">
+              <span className="bg-gradient-to-l from-red-400 to-orange-400 bg-clip-text text-transparent">6 مشاكل</span> يعاني منها كل صاحب مغسلة
             </h2>
+            <p className="text-slate-400 text-lg max-w-xl mx-auto">إذا عندك مشكلة واحدة على الأقل — Bokset صُمم لك</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-16">
             {[
-              { emoji: '😤', title: 'فوضى الحجوزات', desc: 'تستقبل طلبات على واتساب، إنستقرام، هاتف — تنسى وتخلط وتتأخر. العميل يزعل ويمشي.' },
-              { emoji: '🤷', title: 'وين موظفي الآن؟', desc: 'ترسل موظف ولا تعرف وصل ولا لا. العميل يتصل يسأل وأنت ما عندك جواب.' },
-              { emoji: '📉', title: 'لا تعرف كم ربحت', desc: 'في نهاية الشهر تحسب على الأوراق والكاشير وتتمنى ما أخطأت. مافي تقارير واضحة.' },
-              { emoji: '😴', title: 'عملاء ينسون مواعيدهم', desc: 'حجز ثم لا أحد يأتي. الوقت يضيع والموظف يقعد فاضي. خسارة بدون سبب.' },
-              { emoji: '💸', title: 'الدفع نقداً فقط', desc: 'تخسر عملاء ما معهم كاش. STC Pay ومدى وApple Pay مطلوبة — لكن الإعداد معقد.' },
-              { emoji: '📦', title: 'مخزون ينتهي فجأة', desc: 'شامبو خلص في عز العمل. ما فيه تنبيهات ولا متابعة. تتعطل الشغل بدون سبب.' },
+              {
+                emoji: '😤', number: '1', title: 'الحجوزات فوضى',
+                story: 'عميل يرسلك واتساب الساعة 11 بالليل. ثاني يتصل وأنت مشغول. ثالث يرسل على إنستقرام. تنسى واحد وتخلط بين اثنين — والعميل يزعل ويروح لمنافسك.',
+                solution: 'نظام حجز أونلاين 24/7 — العميل يحجز بنفسه وأنت نايم',
+              },
+              {
+                emoji: '🤷', number: '2', title: 'ما تعرف وين موظفينك',
+                story: 'ترسل الموظف للعميل. بعد نص ساعة العميل يتصل "وينه؟" وأنت ما عندك أي فكرة. تتصل بالموظف ما يرد. العميل يلغي.',
+                solution: 'GPS مباشر — تشوفه على الخريطة + العميل يتتبعه مثل أوبر',
+              },
+              {
+                emoji: '📉', number: '3', title: 'ما تدري كم دخلك الحقيقي',
+                story: 'آخر الشهر تقعد تحسب: كم غسلة سوينا؟ كم صرفنا بنزين؟ رواتب كم؟ تطلع بأرقام تقريبية وتتمنى إنها صح. ما عندك تقارير.',
+                solution: 'تقارير فورية — دخل ومصاريف وأرباح بمخططات + تصدير Excel',
+              },
+              {
+                emoji: '😴', number: '4', title: 'عملاء يحجزون وما يجون',
+                story: 'حجز 3 عملاء على الصباح. اثنين ما جوا. الموظف قاعد فاضي ساعتين. الوقت راح والمال ضاع. ما فيه تذكير ولا متابعة.',
+                solution: 'تذكير واتساب تلقائي قبل الموعد + إشعار فوري',
+              },
+              {
+                emoji: '💸', number: '5', title: 'تخسر عملاء بسبب الكاش',
+                story: '"عندك مدى؟ لا؟ طيب تحويل؟ لا؟ معليش بروح لغيرك." — عميل كل أسبوع يقول لك كذا. تخسر دخل لأنك ما تقبل إلا كاش.',
+                solution: 'STC Pay ومدى وApple Pay — المال يدخل حسابك مباشرة',
+              },
+              {
+                emoji: '📦', number: '6', title: 'المخزون يخلص فجأة',
+                story: 'الساعة 10 الصبح ويوم العمل بدأ. تكتشف إن الشامبو خلص أمس ونسيت تطلب. تتعطل ساعتين لين يوصل المورد — والحجوزات تتأخر.',
+                solution: 'تنبيه فوري قبل ما يخلص + طلب مورد تلقائي بضغطة',
+              },
             ].map((p, i) => (
               <motion.div key={i} {...fadeUp(i * 0.07)}
-                className="flex gap-4 bg-white/[0.03] border border-red-500/10 hover:border-red-500/25 rounded-2xl p-5 transition-all group">
-                <span className="text-4xl flex-shrink-0 group-hover:scale-110 transition-transform">{p.emoji}</span>
-                <div>
-                  <h3 className="font-bold text-white mb-1">{p.title}</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">{p.desc}</p>
+                className="relative bg-white/[0.03] border border-red-500/10 hover:border-red-500/30 rounded-2xl p-6 transition-all group overflow-hidden">
+                {/* Number badge */}
+                <div className="absolute top-4 left-4 w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 text-xs font-black">
+                  {p.number}
+                </div>
+                <div className="flex gap-4">
+                  <span className="text-4xl flex-shrink-0 group-hover:scale-110 transition-transform">{p.emoji}</span>
+                  <div>
+                    <h3 className="font-black text-white text-lg mb-2">{p.title}</h3>
+                    <p className="text-sm text-slate-400 leading-relaxed mb-3">{p.story}</p>
+                    <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
+                      <CheckCircle size={14} className="text-emerald-400 shrink-0" />
+                      <span className="text-xs text-emerald-400 font-bold">{p.solution}</span>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Transition arrow */}
+          {/* Emotional CTA */}
           <motion.div {...fadeUp(0.3)} className="text-center">
-            <div className="inline-flex flex-col items-center gap-3">
-              <p className="text-slate-400 text-lg">كل هذا يختفي مع</p>
-              <div className="flex items-center gap-3">
-                <div className="h-px w-16 bg-gradient-to-l from-blue-500 to-transparent" />
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <Droplets size={22} className="text-white" />
-                </div>
-                <div className="h-px w-16 bg-gradient-to-r from-blue-500 to-transparent" />
+            <div className="glass-premium rounded-3xl p-8 sm:p-10 max-w-2xl mx-auto">
+              <p className="text-2xl sm:text-3xl font-black text-white mb-3">عندك مشكلة واحدة على الأقل؟</p>
+              <p className="text-slate-400 mb-6">كل هذي المشاكل تختفي خلال 5 دقائق مع Bokset. بدون عقد. بدون إلزام.</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => navigate('/onboard')}
+                  className="bg-gradient-to-l from-blue-600 to-cyan-500 text-white px-8 py-4 rounded-2xl font-black text-lg shadow-xl shadow-blue-500/30"
+                >
+                  ودّي أجرّب — مجاناً
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => navigate('/demo')}
+                  className="bg-white/[0.06] border border-white/20 text-white px-8 py-4 rounded-2xl font-bold text-lg backdrop-blur-sm"
+                >
+                  أبي أشوف النظام أول
+                </motion.button>
               </div>
-              <p className="text-2xl font-black text-white">Bokset</p>
+              <p className="text-xs text-slate-600 mt-4">بدون بطاقة ائتمانية · إلغاء في أي وقت · بياناتك ملكك</p>
             </div>
           </motion.div>
         </div>
