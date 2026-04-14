@@ -3,25 +3,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronLeft, Eye, Save, Palette, Layout, Type,
-  Image, CheckCircle, Globe, Smartphone, Star,
+  CheckCircle, Globe, Star, Lock,
   MapPin, Phone, CalendarCheck, Sparkles, Monitor,
-  MessageCircle, ExternalLink, Copy,
+  MessageCircle, ExternalLink, Copy, Crown,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 
-// ─── Theme Templates ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// THEME SYSTEM — 20 Professional Templates (5 Free + 15 Premium)
+// ═══════════════════════════════════════════════════════════════════════════════
 
 interface StoreTheme {
   id: string;
   name: string;
   desc: string;
+  category: 'free' | 'premium';
+  gradient: string; // CSS gradient for preview card
+  accent: string;   // Primary accent hex
   preview: {
-    heroStyle: 'full-cover' | 'gradient-split' | 'minimal-clean' | 'bold-centered' | 'wave-bg';
-    cardStyle: 'glass' | 'solid' | 'bordered' | 'gradient-border' | 'elevated';
-    ctaStyle: 'rounded' | 'pill' | 'square' | 'glow';
+    heroStyle: string;
+    cardStyle: string;
+    ctaStyle: string;
+    bgPattern: string;
     showRating: boolean;
     showAreas: boolean;
     showSlots: boolean;
@@ -33,121 +39,129 @@ interface StoreTheme {
 }
 
 const THEMES: StoreTheme[] = [
+  // ── FREE THEMES (5) ── Available during trial
   {
-    id: 'premium-dark',
-    name: 'بريميوم داكن',
-    desc: 'تصميم فاخر مع خلفية داكنة وتأثيرات ضوئية',
-    preview: {
-      heroStyle: 'full-cover',
-      cardStyle: 'glass',
-      ctaStyle: 'glow',
-      showRating: true,
-      showAreas: true,
-      showSlots: true,
-      showReviews: true,
-      showWhatsApp: true,
-      showCallButton: true,
-      accentGlow: true,
-    },
+    id: 'premium-dark', name: 'بريميوم داكن', desc: 'تصميم فاخر مع تأثيرات ضوئية', category: 'free',
+    gradient: 'from-blue-900 to-slate-900', accent: '#2563eb',
+    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'mesh',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
   {
-    id: 'clean-modern',
-    name: 'عصري نظيف',
-    desc: 'تصميم بسيط وأنيق بخطوط واضحة',
-    preview: {
-      heroStyle: 'minimal-clean',
-      cardStyle: 'bordered',
-      ctaStyle: 'rounded',
-      showRating: true,
-      showAreas: true,
-      showSlots: true,
-      showReviews: true,
-      showWhatsApp: true,
-      showCallButton: false,
-      accentGlow: false,
-    },
+    id: 'clean-modern', name: 'عصري نظيف', desc: 'بسيط وأنيق بخطوط واضحة', category: 'free',
+    gradient: 'from-slate-800 to-slate-900', accent: '#3b82f6',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
   },
   {
-    id: 'bold-gradient',
-    name: 'تدرج جريء',
-    desc: 'تدرجات لونية جريئة مع تأثيرات بارزة',
-    preview: {
-      heroStyle: 'gradient-split',
-      cardStyle: 'gradient-border',
-      ctaStyle: 'pill',
-      showRating: true,
-      showAreas: false,
-      showSlots: true,
-      showReviews: true,
-      showWhatsApp: true,
-      showCallButton: true,
-      accentGlow: true,
-    },
+    id: 'bold-gradient', name: 'تدرج جريء', desc: 'تدرجات لونية جريئة', category: 'free',
+    gradient: 'from-purple-900 to-blue-900', accent: '#8b5cf6',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'gradient-border', ctaStyle: 'pill', bgPattern: 'gradient',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
   {
-    id: 'trust-focused',
-    name: 'يركز على الثقة',
-    desc: 'يُبرز التقييمات والآراء لبناء الثقة',
-    preview: {
-      heroStyle: 'bold-centered',
-      cardStyle: 'elevated',
-      ctaStyle: 'rounded',
-      showRating: true,
-      showAreas: true,
-      showSlots: true,
-      showReviews: true,
-      showWhatsApp: true,
-      showCallButton: true,
-      accentGlow: false,
-    },
+    id: 'wave-water', name: 'موجة مائية', desc: 'مستوحى من الماء مع تموجات', category: 'free',
+    gradient: 'from-cyan-900 to-blue-950', accent: '#06b6d4',
+    preview: { heroStyle: 'wave-bg', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'wave',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
   {
-    id: 'minimal-speed',
-    name: 'سريع ومختصر',
-    desc: 'أقل عناصر — يوصل العميل للحجز بأسرع وقت',
-    preview: {
-      heroStyle: 'minimal-clean',
-      cardStyle: 'solid',
-      ctaStyle: 'pill',
-      showRating: true,
-      showAreas: false,
-      showSlots: true,
-      showReviews: false,
-      showWhatsApp: false,
-      showCallButton: false,
-      accentGlow: false,
-    },
+    id: 'minimal-speed', name: 'سريع ومختصر', desc: 'أقل عناصر — حجز أسرع', category: 'free',
+    gradient: 'from-zinc-800 to-zinc-900', accent: '#a1a1aa',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'solid', ctaStyle: 'pill', bgPattern: 'clean',
+      showRating: true, showAreas: false, showSlots: true, showReviews: false, showWhatsApp: false, showCallButton: false, accentGlow: false },
+  },
+
+  // ── PREMIUM THEMES (15) ── Subscribers only
+  {
+    id: 'neon-glow', name: 'نيون متوهج', desc: 'تأثيرات نيون مع توهج كهربائي', category: 'premium',
+    gradient: 'from-violet-950 to-black', accent: '#a855f7',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'neon',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
   {
-    id: 'wave-water',
-    name: 'موجة مائية',
-    desc: 'تصميم مستوحى من الماء مع تموجات',
-    preview: {
-      heroStyle: 'wave-bg',
-      cardStyle: 'glass',
-      ctaStyle: 'glow',
-      showRating: true,
-      showAreas: true,
-      showSlots: true,
-      showReviews: true,
-      showWhatsApp: true,
-      showCallButton: true,
-      accentGlow: true,
-    },
+    id: 'saudi-royal', name: 'ملكي سعودي', desc: 'مستوحى من التراث السعودي — أخضر وذهبي', category: 'premium',
+    gradient: 'from-emerald-950 to-green-900', accent: '#059669',
+    preview: { heroStyle: 'full-cover', cardStyle: 'elevated', ctaStyle: 'rounded', bgPattern: 'pattern',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+  {
+    id: 'desert-sand', name: 'رمال الصحراء', desc: 'دافئ بألوان الصحراء والرمال', category: 'premium',
+    gradient: 'from-amber-950 to-orange-950', accent: '#d97706',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'dots',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+  {
+    id: 'ice-crystal', name: 'كريستال ثلجي', desc: 'بارد ونقي بألوان جليدية', category: 'premium',
+    gradient: 'from-sky-950 to-cyan-950', accent: '#0ea5e9',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'glass', ctaStyle: 'pill', bgPattern: 'mesh',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: true },
+  },
+  {
+    id: 'carbon-fiber', name: 'ألياف كربونية', desc: 'تقني وعصري بنمط كربوني', category: 'premium',
+    gradient: 'from-neutral-900 to-neutral-950', accent: '#525252',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'grid',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+  {
+    id: 'sunset-horizon', name: 'غروب الأفق', desc: 'دافئ بألوان الغروب البرتقالية والبنفسجية', category: 'premium',
+    gradient: 'from-orange-950 to-purple-950', accent: '#f97316',
+    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'gradient',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+  },
+  {
+    id: 'forest-green', name: 'غابة خضراء', desc: 'طبيعي ومريح بدرجات الأخضر', category: 'premium',
+    gradient: 'from-green-950 to-emerald-950', accent: '#10b981',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+  {
+    id: 'rose-gold', name: 'وردي ذهبي', desc: 'أنيق وفخم بالوردي والذهبي', category: 'premium',
+    gradient: 'from-rose-950 to-pink-950', accent: '#e11d48',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'gradient-border', ctaStyle: 'pill', bgPattern: 'dots',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+  },
+  {
+    id: 'ocean-deep', name: 'أعماق المحيط', desc: 'أزرق عميق مثل قاع البحر', category: 'premium',
+    gradient: 'from-blue-950 to-indigo-950', accent: '#1d4ed8',
+    preview: { heroStyle: 'wave-bg', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'wave',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+  },
+  {
+    id: 'marble-luxury', name: 'رخام فاخر', desc: 'كلاسيكي فاخر بتأثير رخامي', category: 'premium',
+    gradient: 'from-stone-900 to-stone-950', accent: '#78716c',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'elevated', ctaStyle: 'rounded', bgPattern: 'pattern',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+  {
+    id: 'midnight-purple', name: 'بنفسج منتصف الليل', desc: 'غامق وغامض بدرجات البنفسجي', category: 'premium',
+    gradient: 'from-purple-950 to-indigo-950', accent: '#7c3aed',
+    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'neon',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+  },
+  {
+    id: 'golden-hour', name: 'الساعة الذهبية', desc: 'دافئ بإضاءة ذهبية', category: 'premium',
+    gradient: 'from-yellow-950 to-amber-950', accent: '#ca8a04',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'gradient',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+  {
+    id: 'arctic-frost', name: 'صقيع قطبي', desc: 'أبيض مزرق هادئ ونظيف', category: 'premium',
+    gradient: 'from-sky-950 to-slate-900', accent: '#38bdf8',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'bordered', ctaStyle: 'pill', bgPattern: 'clean',
+      showRating: true, showAreas: false, showSlots: true, showReviews: false, showWhatsApp: true, showCallButton: false, accentGlow: true },
+  },
+  {
+    id: 'volcanic-red', name: 'أحمر بركاني', desc: 'جريء وقوي بالأحمر الداكن', category: 'premium',
+    gradient: 'from-red-950 to-rose-950', accent: '#dc2626',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'gradient',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
 ];
 
-// ─── Color Palettes ──────────────────────────────────────────────────────────
-
-const COLOR_PALETTES = [
-  { id: 'ocean', label: 'محيطي', color: '#0369A1', bg: 'from-sky-700 to-cyan-500' },
-  { id: 'royal', label: 'ملكي', color: '#1E3A8A', bg: 'from-blue-800 to-blue-500' },
-  { id: 'emerald', label: 'زمردي', color: '#065F46', bg: 'from-emerald-800 to-emerald-500' },
-  { id: 'purple', label: 'بنفسجي', color: '#5B21B6', bg: 'from-violet-800 to-purple-500' },
-  { id: 'crimson', label: 'قرمزي', color: '#991B1B', bg: 'from-red-800 to-rose-500' },
-  { id: 'gold', label: 'ذهبي', color: '#78350F', bg: 'from-amber-800 to-amber-500' },
-  { id: 'carbon', label: 'كربوني', color: '#18181B', bg: 'from-zinc-800 to-zinc-500' },
-  { id: 'teal', label: 'فيروزي', color: '#115E59', bg: 'from-teal-800 to-teal-500' },
+const THEME_CATEGORIES = [
+  { id: 'all', label: 'الكل' },
+  { id: 'free', label: 'مجانية' },
+  { id: 'premium', label: 'بريميوم' },
 ];
 
 // ─── Hero text templates ─────────────────────────────────────────────────────
@@ -160,52 +174,65 @@ const HERO_TEXTS = [
   { id: 'promo', title: 'أهلاً في {name}!', subtitle: 'أول غسلة بخصم خاص — لا تفوّت الفرصة' },
 ];
 
-// ─── Mini Preview Component ──────────────────────────────────────────────────
+// ─── Theme Preview Card ──────────────────────────────────────────────────────
 
-function ThemePreview({ theme, color, selected, onClick }: {
-  theme: StoreTheme;
-  color: string;
-  selected: boolean;
-  onClick: () => void;
+function ThemeCard({ theme, selected, locked, onClick }: {
+  theme: StoreTheme; selected: boolean; locked: boolean; onClick: () => void;
 }) {
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`text-right rounded-2xl border-2 overflow-hidden transition-all ${
-        selected
-          ? 'border-blue-500 shadow-lg shadow-blue-500/20'
-          : 'border-white/[0.06] hover:border-white/[0.15]'
+      whileHover={locked ? {} : { scale: 1.02 }}
+      whileTap={locked ? {} : { scale: 0.98 }}
+      className={`relative text-right rounded-2xl border-2 overflow-hidden transition-all ${
+        selected ? 'border-blue-500 shadow-lg shadow-blue-500/20 ring-1 ring-blue-500/30'
+        : locked ? 'border-white/[0.04] opacity-70'
+        : 'border-white/[0.06] hover:border-white/[0.15]'
       }`}
     >
-      {/* Mini mockup */}
-      <div className="h-32 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${color}40, #0f172a)` }}>
-        {/* Mini hero */}
-        <div className="absolute inset-x-0 top-0 h-14" style={{ background: `linear-gradient(135deg, ${color}, ${color}80)` }}>
-          <div className="absolute bottom-2 right-3">
-            <div className="w-6 h-6 rounded-lg bg-white/20" />
-          </div>
+      {/* Preview gradient */}
+      <div className={`h-24 bg-gradient-to-br ${theme.gradient} relative overflow-hidden`}>
+        {/* Accent glow */}
+        {theme.preview.accentGlow && (
+          <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-2xl opacity-30"
+            style={{ background: theme.accent }} />
+        )}
+        {/* Mini UI mockup */}
+        <div className="absolute bottom-2 inset-x-2 flex gap-1">
+          <div className={`flex-1 h-6 rounded ${theme.preview.cardStyle === 'glass' ? 'bg-white/10' : 'bg-white/[0.06]'} border border-white/10`} />
+          <div className={`flex-1 h-6 rounded ${theme.preview.cardStyle === 'glass' ? 'bg-white/10' : 'bg-white/[0.06]'} border border-white/10`} />
         </div>
-        {/* Mini cards */}
-        <div className="absolute bottom-2 inset-x-2 flex gap-1.5">
-          <div className={`flex-1 h-10 rounded-lg ${theme.preview.cardStyle === 'glass' ? 'bg-white/10' : 'bg-white/[0.06]'} border border-white/10`} />
-          <div className={`flex-1 h-10 rounded-lg ${theme.preview.cardStyle === 'glass' ? 'bg-white/10' : 'bg-white/[0.06]'} border border-white/10`} />
-        </div>
-        {/* Badge */}
+        {/* Mini CTA */}
+        <div className="absolute top-2 left-2 h-4 w-12 rounded-full" style={{ background: theme.accent, opacity: 0.8 }} />
+
+        {/* Selected badge */}
         {selected && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute top-2 left-2 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center"
-          >
-            <CheckCircle className="w-4 h-4 text-white" />
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute top-2 right-2 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
+            <CheckCircle className="w-3 h-3 text-white" />
           </motion.div>
         )}
+
+        {/* Lock overlay */}
+        {locked && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div className="bg-black/60 rounded-xl px-3 py-1.5 flex items-center gap-1.5">
+              <Lock className="w-3 h-3 text-amber-400" />
+              <span className="text-[10px] font-bold text-amber-400">مشتركين فقط</span>
+            </div>
+          </div>
+        )}
+
+        {/* Premium badge */}
+        {theme.category === 'premium' && !locked && (
+          <div className="absolute top-2 left-2">
+            <Crown className="w-3.5 h-3.5 text-amber-400" />
+          </div>
+        )}
       </div>
-      <div className="p-3 bg-surface-2">
-        <p className={`text-sm font-bold ${selected ? 'text-blue-400' : 'text-white'}`}>{theme.name}</p>
-        <p className="text-[11px] text-slate-500 mt-0.5">{theme.desc}</p>
+
+      <div className="p-2.5 bg-surface-2">
+        <p className={`text-xs font-bold ${selected ? 'text-blue-400' : 'text-white'} truncate`}>{theme.name}</p>
+        <p className="text-[10px] text-slate-500 truncate">{theme.desc}</p>
       </div>
     </motion.button>
   );
@@ -218,11 +245,16 @@ export default function StoreBuilder() {
   const queryClient = useQueryClient();
 
   const [selectedTheme, setSelectedTheme] = useState('premium-dark');
-  const [selectedColor, setSelectedColor] = useState('ocean');
   const [heroTextId, setHeroTextId] = useState('classic');
   const [customTagline, setCustomTagline] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
-  const [tab, setTab] = useState<'theme' | 'color' | 'content' | 'sections'>('theme');
+  const [tab, setTab] = useState<'theme' | 'content' | 'sections'>('theme');
+  const [themeFilter, setThemeFilter] = useState('all');
+
+  // Section toggles
+  const [sections, setSections] = useState({
+    showRating: true, showAreas: true, showSlots: true,
+    showReviews: true, showWhatsApp: true, showCallButton: true,
+  });
 
   // Load vendor data
   const { data: vendor } = useQuery({
@@ -230,52 +262,47 @@ export default function StoreBuilder() {
     queryFn: () => api.get('/vendors/my').then(r => r.data),
   });
 
+  const isSubscribed = vendor?.subscriptionStatus === 'active' || vendor?.subscriptionStatus === 'trial';
+  const isPaidSubscriber = vendor?.subscriptionStatus === 'active';
   const vendorSlug = vendor?.slug;
-  const vendorColor = COLOR_PALETTES.find(p => p.id === selectedColor)?.color ?? '#0369A1';
   const activeTheme = THEMES.find(t => t.id === selectedTheme) ?? THEMES[0];
-  const heroText = HERO_TEXTS.find(t => t.id === heroTextId) ?? HERO_TEXTS[0];
 
-  // Section toggles (from theme defaults)
-  const [sections, setSections] = useState({
-    showRating: true,
-    showAreas: true,
-    showSlots: true,
-    showReviews: true,
-    showWhatsApp: true,
-    showCallButton: true,
-  });
+  // Filter themes
+  const filteredThemes = themeFilter === 'all' ? THEMES
+    : THEMES.filter(t => t.category === themeFilter);
 
-  // Update sections when theme changes
-  const handleThemeChange = (themeId: string) => {
-    setSelectedTheme(themeId);
-    const theme = THEMES.find(t => t.id === themeId);
-    if (theme) {
-      setSections({
-        showRating: theme.preview.showRating,
-        showAreas: theme.preview.showAreas,
-        showSlots: theme.preview.showSlots,
-        showReviews: theme.preview.showReviews,
-        showWhatsApp: theme.preview.showWhatsApp,
-        showCallButton: theme.preview.showCallButton,
-      });
+  // Handle theme selection
+  function handleThemeSelect(theme: StoreTheme) {
+    const locked = theme.category === 'premium' && !isPaidSubscriber;
+    if (locked) {
+      toast.error('هذا الثيم متاح للمشتركين فقط. فعّل اشتراكك للوصول لـ 20 ثيم!');
+      return;
     }
-  };
+    setSelectedTheme(theme.id);
+    setSections({
+      showRating: theme.preview.showRating,
+      showAreas: theme.preview.showAreas,
+      showSlots: theme.preview.showSlots,
+      showReviews: theme.preview.showReviews,
+      showWhatsApp: theme.preview.showWhatsApp,
+      showCallButton: theme.preview.showCallButton,
+    });
+  }
 
-  // Save store settings
+  // Save
   const saveMutation = useMutation({
     mutationFn: () => api.put('/vendors/my', {
-      primaryColor: vendorColor,
+      primaryColor: activeTheme.accent,
       settings: {
         ...(vendor?.settings ?? {}),
         storeTheme: selectedTheme,
-        storeColor: selectedColor,
         heroTextId,
         customTagline,
         storeSections: sections,
       },
     }),
     onSuccess: () => {
-      toast.success('تم حفظ إعدادات المتجر بنجاح!');
+      toast.success('تم حفظ الثيم بنجاح!');
       queryClient.invalidateQueries({ queryKey: ['vendor-branding'] });
     },
     onError: () => toast.error('فشل في الحفظ'),
@@ -287,7 +314,7 @@ export default function StoreBuilder() {
     <div className="min-h-screen bg-surface-1 bg-mesh-dashboard" dir="rtl">
       {/* Header */}
       <div className="sticky top-0 z-30 glass-premium border-b border-white/[0.06]">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/vendor/branding" className="btn-icon"><ChevronLeft className="w-5 h-5" /></Link>
             <div>
@@ -295,19 +322,13 @@ export default function StoreBuilder() {
                 <Globe className="w-5 h-5 text-blue-400" />
                 منشئ صفحة الحجز
               </h1>
-              <p className="text-xs text-slate-500">صمّم صفحة الحجز الخاصة بمغسلتك</p>
+              <p className="text-xs text-slate-500">اختر ثيم وصمّم صفحة حجز احترافية لمغسلتك</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {vendorSlug && (
-              <a
-                href={`/store/${vendorSlug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-ghost text-xs flex items-center gap-1"
-              >
-                <Eye className="w-3.5 h-3.5" />
-                معاينة
+              <a href={`/store/${vendorSlug}`} target="_blank" rel="noopener noreferrer" className="btn-ghost text-xs flex items-center gap-1">
+                <Eye className="w-3.5 h-3.5" /> معاينة
               </a>
             )}
             <motion.button
@@ -317,21 +338,21 @@ export default function StoreBuilder() {
               className="btn-primary text-sm px-5 py-2 flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
-              {saveMutation.isPending ? 'جاري الحفظ...' : 'حفظ'}
+              {saveMutation.isPending ? 'حفظ...' : 'حفظ'}
             </motion.button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-5 gap-6">
+
           {/* ── Left: Controls ── */}
           <div className="lg:col-span-3 space-y-5">
-            {/* Tab bar */}
+            {/* Tabs */}
             <div className="flex gap-1 p-1 bg-white/[0.04] rounded-xl">
               {[
-                { id: 'theme' as const, icon: Layout, label: 'القالب' },
-                { id: 'color' as const, icon: Palette, label: 'الألوان' },
+                { id: 'theme' as const, icon: Layout, label: `الثيمات (${THEMES.length})` },
                 { id: 'content' as const, icon: Type, label: 'المحتوى' },
                 { id: 'sections' as const, icon: Sparkles, label: 'الأقسام' },
               ].map(t => (
@@ -339,74 +360,82 @@ export default function StoreBuilder() {
                   key={t.id}
                   onClick={() => setTab(t.id)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold transition-all ${
-                    tab === t.id
-                      ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                      : 'text-slate-500 hover:text-slate-300'
+                    tab === t.id ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' : 'text-slate-500 hover:text-slate-300'
                   }`}
                 >
-                  <t.icon className="w-3.5 h-3.5" />
-                  {t.label}
+                  <t.icon className="w-3.5 h-3.5" /> {t.label}
                 </button>
               ))}
             </div>
 
             <AnimatePresence mode="wait">
+              {/* THEMES TAB */}
               {tab === 'theme' && (
-                <motion.div key="theme" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                  <p className="text-sm text-slate-400 mb-3">اختر القالب الذي يناسب مغسلتك:</p>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {THEMES.map(theme => (
-                      <ThemePreview
+                <motion.div key="theme" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+                  {/* Category filter */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex gap-2">
+                      {THEME_CATEGORIES.map(cat => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setThemeFilter(cat.id)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            themeFilter === cat.id ? 'bg-blue-600/20 text-blue-400' : 'text-slate-500 hover:text-slate-300'
+                          }`}
+                        >
+                          {cat.label}
+                          {cat.id === 'premium' && <Crown className="w-3 h-3 inline mr-1 text-amber-400" />}
+                        </button>
+                      ))}
+                    </div>
+                    <span className="text-xs text-slate-500">
+                      {isPaidSubscriber ? '20 ثيم متاح' : '5 ثيمات مجانية'}
+                    </span>
+                  </div>
+
+                  {/* Premium upsell banner */}
+                  {!isPaidSubscriber && themeFilter !== 'free' && (
+                    <div className="p-4 rounded-xl bg-gradient-to-l from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                      <div className="flex items-center gap-3">
+                        <Crown className="w-8 h-8 text-amber-400 shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-white">فعّل اشتراكك للوصول لـ 20 ثيم احترافي</p>
+                          <p className="text-xs text-slate-400 mt-0.5">ثيمات حصرية تميّز مغسلتك عن المنافسين</p>
+                        </div>
+                        <Link to="/vendor/platform-sub" className="px-4 py-2 rounded-xl bg-amber-500/20 text-amber-400 text-xs font-bold hover:bg-amber-500/30 transition-colors shrink-0">
+                          اشترك الآن
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Theme grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {filteredThemes.map(theme => (
+                      <ThemeCard
                         key={theme.id}
                         theme={theme}
-                        color={vendorColor}
                         selected={selectedTheme === theme.id}
-                        onClick={() => handleThemeChange(theme.id)}
+                        locked={theme.category === 'premium' && !isPaidSubscriber}
+                        onClick={() => handleThemeSelect(theme)}
                       />
                     ))}
                   </div>
                 </motion.div>
               )}
 
-              {tab === 'color' && (
-                <motion.div key="color" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                  <p className="text-sm text-slate-400 mb-3">اختر لون هوية مغسلتك:</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {COLOR_PALETTES.map(p => (
-                      <button
-                        key={p.id}
-                        onClick={() => setSelectedColor(p.id)}
-                        className={`rounded-xl border-2 overflow-hidden transition-all ${
-                          selectedColor === p.id
-                            ? 'border-white shadow-lg scale-105'
-                            : 'border-transparent hover:border-white/20'
-                        }`}
-                      >
-                        <div className={`h-16 bg-gradient-to-br ${p.bg}`} />
-                        <div className="p-2 bg-surface-2">
-                          <p className={`text-xs font-bold text-center ${selectedColor === p.id ? 'text-white' : 'text-slate-400'}`}>
-                            {p.label}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
+              {/* CONTENT TAB */}
               {tab === 'content' && (
                 <motion.div key="content" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
                   <div>
-                    <label className="label">نص الترحيب (العنوان الفرعي)</label>
+                    <label className="label">نص الترحيب</label>
                     <div className="space-y-2">
                       {HERO_TEXTS.map(ht => (
                         <button
                           key={ht.id}
                           onClick={() => setHeroTextId(ht.id)}
                           className={`w-full text-right p-3 rounded-xl border transition-all ${
-                            heroTextId === ht.id
-                              ? 'border-blue-500 bg-blue-500/10'
-                              : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12]'
+                            heroTextId === ht.id ? 'border-blue-500 bg-blue-500/10' : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.12]'
                           }`}
                         >
                           <p className={`text-sm font-bold ${heroTextId === ht.id ? 'text-blue-400' : 'text-white'}`}>
@@ -416,56 +445,41 @@ export default function StoreBuilder() {
                       ))}
                     </div>
                   </div>
-
                   <div>
                     <label className="label">أو اكتب نصاً مخصصاً</label>
-                    <input
-                      type="text"
-                      value={customTagline}
-                      onChange={e => setCustomTagline(e.target.value)}
-                      placeholder="مثال: أفضل مغسلة متنقلة في الرياض"
-                      className="input-field"
-                      maxLength={60}
-                    />
+                    <input type="text" value={customTagline} onChange={e => setCustomTagline(e.target.value)}
+                      placeholder="مثال: أفضل مغسلة متنقلة في الرياض" className="input-field" maxLength={60} />
                     <p className="text-xs text-slate-500 mt-1">{customTagline.length}/60</p>
                   </div>
                 </motion.div>
               )}
 
+              {/* SECTIONS TAB */}
               {tab === 'sections' && (
                 <motion.div key="sections" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-2">
-                  <p className="text-sm text-slate-400 mb-3">اختر الأقسام التي تظهر في صفحة الحجز:</p>
+                  <p className="text-sm text-slate-400 mb-3">تحكم بالأقسام التي تظهر في صفحة الحجز:</p>
                   {[
-                    { key: 'showRating' as const, icon: Star, label: 'التقييمات والنجوم', desc: 'عرض تقييم المغسلة في أعلى الصفحة' },
-                    { key: 'showAreas' as const, icon: MapPin, label: 'مناطق الخدمة', desc: 'عرض قائمة الأحياء التي تخدمها' },
-                    { key: 'showSlots' as const, icon: CalendarCheck, label: 'المواعيد المتاحة', desc: 'عرض أقرب المواعيد المتاحة للحجز' },
-                    { key: 'showReviews' as const, icon: MessageCircle, label: 'آراء العملاء', desc: 'عرض تقييمات وتعليقات العملاء' },
-                    { key: 'showWhatsApp' as const, icon: Phone, label: 'زر واتساب', desc: 'إظهار زر التواصل عبر واتساب' },
-                    { key: 'showCallButton' as const, icon: Phone, label: 'زر الاتصال', desc: 'إظهار زر الاتصال المباشر' },
+                    { key: 'showRating' as const, icon: Star, label: 'التقييمات', desc: 'عرض تقييم المغسلة' },
+                    { key: 'showAreas' as const, icon: MapPin, label: 'مناطق الخدمة', desc: 'الأحياء التي تخدمها' },
+                    { key: 'showSlots' as const, icon: CalendarCheck, label: 'المواعيد', desc: 'أقرب المواعيد المتاحة' },
+                    { key: 'showReviews' as const, icon: MessageCircle, label: 'آراء العملاء', desc: 'تقييمات وتعليقات' },
+                    { key: 'showWhatsApp' as const, icon: Phone, label: 'واتساب', desc: 'زر التواصل' },
+                    { key: 'showCallButton' as const, icon: Phone, label: 'اتصال', desc: 'زر الاتصال المباشر' },
                   ].map(item => (
                     <button
                       key={item.key}
                       onClick={() => setSections(s => ({ ...s, [item.key]: !s[item.key] }))}
-                      className={`w-full flex items-center gap-3 p-4 rounded-xl border transition-all text-right ${
-                        sections[item.key]
-                          ? 'border-blue-500/30 bg-blue-500/5'
-                          : 'border-white/[0.06] bg-white/[0.02]'
+                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-right ${
+                        sections[item.key] ? 'border-blue-500/30 bg-blue-500/5' : 'border-white/[0.06] bg-white/[0.02]'
                       }`}
                     >
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                        sections[item.key] ? 'bg-blue-500/20 text-blue-400' : 'bg-white/[0.06] text-slate-500'
-                      }`}>
-                        <item.icon className="w-5 h-5" />
-                      </div>
+                      <item.icon className={`w-5 h-5 ${sections[item.key] ? 'text-blue-400' : 'text-slate-600'}`} />
                       <div className="flex-1">
                         <p className="text-sm font-bold text-white">{item.label}</p>
-                        <p className="text-xs text-slate-500">{item.desc}</p>
+                        <p className="text-[11px] text-slate-500">{item.desc}</p>
                       </div>
-                      <div className={`w-10 h-6 rounded-full transition-all ${sections[item.key] ? 'bg-blue-500' : 'bg-white/10'}`}>
-                        <motion.div
-                          animate={{ x: sections[item.key] ? 16 : 2 }}
-                          className="w-5 h-5 mt-0.5 rounded-full bg-white shadow"
-                        />
+                      <div className={`w-9 h-5 rounded-full transition-all ${sections[item.key] ? 'bg-blue-500' : 'bg-white/10'}`}>
+                        <motion.div animate={{ x: sections[item.key] ? 16 : 2 }} className="w-4 h-4 mt-0.5 rounded-full bg-white shadow" />
                       </div>
                     </button>
                   ))}
@@ -478,81 +492,71 @@ export default function StoreBuilder() {
           <div className="lg:col-span-2">
             <div className="sticky top-20">
               <p className="text-sm font-bold text-slate-400 mb-3 flex items-center gap-2">
-                <Monitor className="w-4 h-4" />
-                معاينة مباشرة
+                <Monitor className="w-4 h-4" /> معاينة — {activeTheme.name}
               </p>
 
               {/* Phone frame */}
               <div className="mx-auto w-full max-w-[280px]">
                 <div className="rounded-[2.5rem] border-2 border-white/10 bg-surface-2 p-2 shadow-2xl">
-                  {/* Notch */}
                   <div className="relative rounded-[2rem] overflow-hidden bg-surface-1" style={{ aspectRatio: '9/19' }}>
                     <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3.5 bg-black rounded-full z-20" />
 
-                    {/* Mini page preview */}
+                    {/* Mini page */}
                     <div className="h-full overflow-hidden">
                       {/* Hero */}
-                      <div className="h-28 relative" style={{ background: `linear-gradient(135deg, ${vendorColor}, ${vendorColor}80)` }}>
-                        <div className="absolute inset-0 bg-black/30" />
+                      <div className={`h-28 relative bg-gradient-to-br ${activeTheme.gradient}`}>
+                        {activeTheme.preview.accentGlow && (
+                          <div className="absolute top-0 right-0 w-16 h-16 rounded-full blur-xl opacity-40" style={{ background: activeTheme.accent }} />
+                        )}
+                        <div className="absolute inset-0 bg-black/20" />
                         <div className="absolute bottom-3 right-3 left-3">
-                          <div className="w-8 h-8 rounded-lg bg-white/20 mb-1.5" />
-                          <div className="h-2.5 w-3/4 bg-white/40 rounded-full mb-1" />
-                          <div className="h-2 w-1/2 bg-white/20 rounded-full" />
+                          <div className="w-7 h-7 rounded-lg mb-1" style={{ background: `${activeTheme.accent}40` }} />
+                          <div className="h-2 w-3/4 bg-white/40 rounded-full mb-1" />
+                          <div className="h-1.5 w-1/2 bg-white/20 rounded-full" />
                         </div>
                       </div>
 
                       {/* Content */}
-                      <div className="p-3 space-y-2.5">
-                        {/* Rating */}
+                      <div className="p-2.5 space-y-2">
                         {sections.showRating && (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-0.5">
                             {[...Array(5)].map((_, i) => (
-                              <div key={i} className="w-2.5 h-2.5 rounded-sm bg-amber-400/70" />
+                              <div key={i} className="w-2 h-2 rounded-sm bg-amber-400/70" />
                             ))}
-                            <span className="text-[8px] text-slate-400 mr-1">4.9</span>
                           </div>
                         )}
-
-                        {/* Areas */}
                         {sections.showAreas && (
-                          <div className="flex gap-1 flex-wrap">
-                            {['الياسمين', 'الملقا', 'العقيق'].map(a => (
-                              <span key={a} className="text-[7px] px-1.5 py-0.5 rounded-full border border-white/10 text-slate-400">{a}</span>
+                          <div className="flex gap-1">
+                            {['', '', ''].map((_, i) => (
+                              <span key={i} className="h-3 w-10 rounded-full border border-white/10 bg-white/[0.04]" />
                             ))}
                           </div>
                         )}
-
-                        {/* Service cards */}
                         <div className="space-y-1.5">
                           {[1, 2].map(i => (
                             <div key={i} className={`p-2 rounded-lg border border-white/[0.06] ${
                               activeTheme.preview.cardStyle === 'glass' ? 'bg-white/[0.04]' : 'bg-surface-3/50'
                             }`}>
-                              <div className="h-2 w-2/3 bg-white/20 rounded-full mb-1" />
-                              <div className="h-1.5 w-1/3 bg-blue-400/30 rounded-full" />
+                              <div className="h-1.5 w-2/3 bg-white/20 rounded-full mb-1" />
+                              <div className="h-1 w-1/3 rounded-full" style={{ background: `${activeTheme.accent}50` }} />
                             </div>
                           ))}
                         </div>
-
-                        {/* CTA */}
                         <div
-                          className={`h-7 rounded-lg flex items-center justify-center ${
-                            activeTheme.preview.ctaStyle === 'pill' ? 'rounded-full' :
-                            activeTheme.preview.ctaStyle === 'glow' ? 'rounded-lg shadow-lg' : 'rounded-lg'
+                          className={`h-6 flex items-center justify-center ${
+                            activeTheme.preview.ctaStyle === 'pill' ? 'rounded-full' : 'rounded-lg'
                           }`}
                           style={{
-                            background: vendorColor,
-                            boxShadow: activeTheme.preview.accentGlow ? `0 4px 20px ${vendorColor}60` : 'none',
+                            background: activeTheme.accent,
+                            boxShadow: activeTheme.preview.accentGlow ? `0 4px 16px ${activeTheme.accent}50` : 'none',
                           }}
                         >
-                          <span className="text-[9px] text-white font-bold">احجز الآن</span>
+                          <span className="text-[8px] text-white font-bold">احجز الآن</span>
                         </div>
-
-                        {/* Reviews */}
                         {sections.showReviews && (
-                          <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.04]">
-                            <div className="h-1.5 w-full bg-white/10 rounded-full mb-1" />
-                            <div className="h-1.5 w-3/4 bg-white/[0.06] rounded-full" />
+                          <div className="p-1.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
+                            <div className="h-1 w-full bg-white/10 rounded-full mb-0.5" />
+                            <div className="h-1 w-3/4 bg-white/[0.05] rounded-full" />
                           </div>
                         )}
                       </div>
@@ -566,19 +570,24 @@ export default function StoreBuilder() {
                 <div className="mt-4 p-3 rounded-xl bg-white/[0.04] border border-white/[0.06]">
                   <p className="text-xs text-slate-500 mb-1.5">رابط صفحة الحجز</p>
                   <div className="flex items-center gap-2">
-                    <span className="flex-1 text-sm text-blue-400 truncate" dir="ltr">{storeUrl}</span>
-                    <button
-                      onClick={() => { navigator.clipboard.writeText(storeUrl); toast.success('تم نسخ الرابط!'); }}
-                      className="btn-icon w-8 h-8"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
+                    <span className="flex-1 text-xs text-blue-400 truncate" dir="ltr">{storeUrl}</span>
+                    <button onClick={() => { navigator.clipboard.writeText(storeUrl); toast.success('تم النسخ!'); }} className="btn-icon w-7 h-7">
+                      <Copy className="w-3 h-3" />
                     </button>
-                    <a href={storeUrl} target="_blank" rel="noopener noreferrer" className="btn-icon w-8 h-8">
-                      <ExternalLink className="w-3.5 h-3.5" />
+                    <a href={storeUrl} target="_blank" rel="noopener noreferrer" className="btn-icon w-7 h-7">
+                      <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                 </div>
               )}
+
+              {/* Theme info */}
+              <div className="mt-3 text-center">
+                <p className="text-[10px] text-slate-600">
+                  {activeTheme.category === 'premium' && <Crown className="w-3 h-3 inline text-amber-400 ml-1" />}
+                  {activeTheme.name} · {activeTheme.desc}
+                </p>
+              </div>
             </div>
           </div>
         </div>
