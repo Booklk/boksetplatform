@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -26,6 +27,7 @@ const plans = [
     name: 'Pro',
     desc: 'كل شيء مفتوح — جرّب 14 يوم مجاناً',
     price: 99,
+    yearlyPrice: 999,
     popular: true,
     features: [
       'حجوزات غير محدودة',
@@ -49,6 +51,11 @@ const plans = [
   },
 ];
 
+const BILLING_CYCLES = [
+  { id: 'monthly', label: 'شهري', suffix: '/شهر' },
+  { id: 'yearly', label: 'سنوي', suffix: '/سنة', badge: 'وفّر 17%' },
+];
+
 const faqs = [
   { q: 'هل أقدر أجرب قبل ما أدفع؟', a: 'نعم! كل مشترك جديد يبدأ بـ Pro مجاناً لمدة 14 يوم بكل المميزات. بعدها إذا ما اشتركت ترجع تلقائياً للباقة المجانية — ما تخسر بياناتك.' },
   { q: 'هل فيه عقد أو التزام؟', a: 'لا، الاشتراك شهري بدون أي التزام. ألغِ وقتما تشاء.' },
@@ -65,6 +72,9 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function Pricing() {
+  const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
+  const isYearly = billing === 'yearly';
+
   return (
     <>
       <Helmet>
@@ -93,6 +103,26 @@ export default function Pricing() {
 
         {/* Plans */}
         <div className="max-w-3xl mx-auto px-4 pb-16">
+          {/* Billing toggle */}
+          <div className="flex justify-center mb-8">
+            <div className="flex items-center gap-1 p-1 bg-white/[0.04] border border-white/[0.06] rounded-xl">
+              {BILLING_CYCLES.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => setBilling(c.id as 'monthly' | 'yearly')}
+                  className={`px-5 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
+                    billing === c.id
+                      ? 'bg-indigo-600 text-white'
+                      : 'text-slate-500 hover:text-white'
+                  }`}
+                >
+                  {c.label}
+                  {c.badge && <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full">{c.badge}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             {plans.map((plan, i) => (
               <motion.div
@@ -118,8 +148,17 @@ export default function Pricing() {
                     <span className="text-3xl font-black text-white">مجاني</span>
                   ) : (
                     <>
-                      <span className="text-3xl font-black text-white">{plan.price}</span>
-                      <span className="text-sm text-slate-500 mr-1">ر.س / شهر</span>
+                      <span className="text-3xl font-black text-white">
+                        {isYearly ? (plan as any).yearlyPrice ?? plan.price : plan.price}
+                      </span>
+                      <span className="text-sm text-slate-500 mr-1">
+                        ر.س / {isYearly ? 'سنة' : 'شهر'}
+                      </span>
+                      {isYearly && (
+                        <div className="text-xs text-emerald-400 mt-1">
+                          وفّر {(plan.price * 12) - ((plan as any).yearlyPrice ?? plan.price * 12)} ر.س مقارنة بالشهري
+                        </div>
+                      )}
                     </>
                   )}
                 </div>
