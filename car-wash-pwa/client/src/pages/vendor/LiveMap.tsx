@@ -229,7 +229,7 @@ export default function LiveMap() {
   }, [allEmployees, mapReady]);
 
   return (
-    <div className="min-h-screen bg-[#040812] text-white flex flex-col" dir="rtl">
+    <div className="min-h-screen bg-surface-1 text-white flex flex-col" dir="rtl">
       {/* Top header */}
       <div className="px-4 pt-6 pb-3 flex items-center gap-3">
         <div className="p-2 bg-blue-600/20 rounded-xl">

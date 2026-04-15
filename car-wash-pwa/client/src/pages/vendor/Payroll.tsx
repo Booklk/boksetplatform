@@ -660,7 +660,7 @@ export default function Payroll() {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#040812] text-white p-4 md:p-6">
+    <div dir="rtl" className="min-h-screen bg-surface-1 text-white p-4 md:p-6">
 
       {/* ── Toast container ── */}
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-sm pointer-events-none">

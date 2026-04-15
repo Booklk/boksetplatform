@@ -519,7 +519,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-[#040812] relative" dir="rtl">
+    <div className="min-h-screen bg-surface-1 relative" dir="rtl">
       {/* Back button (steps 1+) */}
       {step > 0 && step < 3 && (
         <button

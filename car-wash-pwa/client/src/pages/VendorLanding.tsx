@@ -224,7 +224,7 @@ export default function VendorLanding() {
 
   if (vendorLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-surface-1 flex items-center justify-center" dir="rtl">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
@@ -236,7 +236,7 @@ export default function VendorLanding() {
 
   if (!vendor) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-center px-4" dir="rtl">
+      <div className="min-h-screen bg-surface-1 flex flex-col items-center justify-center text-center px-4" dir="rtl">
         <div className="text-6xl mb-4">🚫</div>
         <h2 className="text-2xl font-black text-white mb-2">المغسلة غير موجودة</h2>
         <p className="text-slate-400 mb-6">لم نتمكن من العثور على هذه المغسلة</p>

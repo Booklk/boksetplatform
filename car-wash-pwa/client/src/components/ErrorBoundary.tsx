@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) return this.props.fallback;
 
       return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-950 p-6" dir="rtl">
+        <div className="min-h-screen flex items-center justify-center bg-surface-1 p-6" dir="rtl">
           <div className="text-center space-y-6 max-w-md">
             <div className="w-20 h-20 mx-auto rounded-full bg-red-500/10 flex items-center justify-center">
               <AlertTriangle className="w-10 h-10 text-red-400" />

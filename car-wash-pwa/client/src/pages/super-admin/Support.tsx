@@ -315,7 +315,7 @@ export default function SuperAdminSupport() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#040812] text-white p-4 md:p-6" dir="rtl">
+    <div className="min-h-screen bg-surface-1 text-white p-4 md:p-6" dir="rtl">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold flex items-center gap-2">

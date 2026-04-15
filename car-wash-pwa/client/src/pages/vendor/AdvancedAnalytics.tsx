@@ -150,11 +150,11 @@ export default function AdvancedAnalytics() {
   const heatmapMax = Math.max(1, ...heatmapData.flat());
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#040812] text-white p-4 md:p-8" dir="rtl">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-surface-1 text-white p-4 md:p-8" dir="rtl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold">التحليلات المتقدمة</h1>
-        <p className="text-slate-400 mt-1">رؤية عميقة عن أداء مغسلتك</p>
+        <p className="text-slate-400 mt-1">رؤية عميقة عن أداء مشروعك</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

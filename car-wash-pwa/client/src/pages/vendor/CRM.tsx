@@ -172,7 +172,7 @@ export default function CRM() {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-[#040812] text-white p-4 md:p-8" dir="rtl">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-surface-1 text-white p-4 md:p-8" dir="rtl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold">إدارة علاقات العملاء</h1>

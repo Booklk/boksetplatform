@@ -120,7 +120,7 @@ export default function VendorSetup() {
   const progress = Math.round((totalDone / CARDS.length) * 100);
 
   return (
-    <div className="min-h-screen bg-[#040812] p-4 pb-16" dir="rtl">
+    <div className="min-h-screen bg-surface-1 p-4 pb-16" dir="rtl">
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}

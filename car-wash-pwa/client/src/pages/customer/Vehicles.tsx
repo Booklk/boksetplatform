@@ -435,7 +435,7 @@ function VehicleCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-6 text-center"
+            className="absolute inset-0 bg-surface-1/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-6 text-center"
           >
             <AlertTriangle size={32} className="text-red-400 mb-3" />
             <p className="text-white font-bold mb-1">حذف السيارة؟</p>
@@ -725,7 +725,7 @@ export default function Vehicles() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 font-arabic" dir="rtl">
+    <div className="min-h-screen bg-surface-1 font-arabic" dir="rtl">
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-brand-900/15 rounded-full blur-3xl" />

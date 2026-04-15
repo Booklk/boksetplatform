@@ -249,7 +249,7 @@ export default function Employees() {
   const activeFleet = (fleet as any[]).filter((v: any) => v.status === 'active');
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#040812] text-white p-4 md:p-6">
+    <div dir="rtl" className="min-h-screen bg-surface-1 text-white p-4 md:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">الفريق</h1>

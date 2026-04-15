@@ -100,7 +100,7 @@ export default function VendorCalendar() {
   });
 
   return (
-    <div className="min-h-screen bg-[#040812] text-white" dir="rtl">
+    <div className="min-h-screen bg-surface-1 text-white" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

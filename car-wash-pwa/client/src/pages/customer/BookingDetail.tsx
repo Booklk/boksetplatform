@@ -108,7 +108,7 @@ function ToastContainer({ toasts }: { toasts: { id: number; msg: string; type: '
 
 function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-[#040812] animate-pulse" dir="rtl">
+    <div className="min-h-screen bg-surface-1 animate-pulse" dir="rtl">
       {/* header */}
       <div className="flex items-center justify-between px-4 py-3 bg-slate-900/80 border-b border-white/10">
         <div className="w-16 h-6 bg-white/10 rounded-lg" />
@@ -363,7 +363,7 @@ export default function BookingDetail() {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-[#040812] flex items-center justify-center p-6" dir="rtl">
+      <div className="min-h-screen bg-surface-1 flex items-center justify-center p-6" dir="rtl">
         <div className="text-center space-y-4">
           <AlertTriangle size={48} className="text-red-400 mx-auto" />
           <p className="text-white font-black text-lg">الحجز غير موجود</p>
@@ -391,11 +391,11 @@ export default function BookingDetail() {
   // ── JSX ──────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-[#040812]" dir="rtl">
+    <div className="min-h-screen bg-surface-1" dir="rtl">
       <ToastContainer toasts={toasts} />
 
       {/* ── Header ── */}
-      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-[#040812]/90 backdrop-blur border-b border-white/10">
+      <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-surface-1/90 backdrop-blur border-b border-white/10">
         <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"

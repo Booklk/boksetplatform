@@ -63,7 +63,7 @@ export default function CustomerReferral() {
   const isLoading = codeLoading || statsLoading;
 
   return (
-    <div className="min-h-screen bg-slate-950 font-arabic" dir="rtl">
+    <div className="min-h-screen bg-surface-1 font-arabic" dir="rtl">
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-brand-900/15 rounded-full blur-3xl" />

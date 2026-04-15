@@ -14,7 +14,7 @@ function MeshBackground() {
   return (
     <div className="fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
       {/* Base dark */}
-      <div className="absolute inset-0 bg-[#040812]" />
+      <div className="absolute inset-0 bg-surface-1" />
 
       {/* Gradient mesh orbs */}
       <div

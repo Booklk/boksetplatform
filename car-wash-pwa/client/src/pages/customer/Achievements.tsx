@@ -217,7 +217,7 @@ export default function Achievements() {
   const categories = ['starter', 'enthusiast', 'vip', 'special'] as const;
 
   return (
-    <div className="min-h-screen bg-[#040812] p-4 max-w-2xl mx-auto" dir="rtl">
+    <div className="min-h-screen bg-surface-1 p-4 max-w-2xl mx-auto" dir="rtl">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}

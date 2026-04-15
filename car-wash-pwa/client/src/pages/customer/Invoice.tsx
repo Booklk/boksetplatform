@@ -38,7 +38,7 @@ export default function InvoicePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#040812]" dir="rtl">
+    <div className="flex flex-col min-h-screen bg-surface-1" dir="rtl">
       {/* Header bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur border-b border-slate-700/50 shrink-0">
         <button

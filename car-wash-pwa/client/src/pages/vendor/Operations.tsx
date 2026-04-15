@@ -491,7 +491,7 @@ export default function VendorOperations() {
   const isLoading = alertsLoading || summaryLoading || bookingsLoading;
 
   return (
-    <div className="min-h-screen bg-[#040812] text-white" dir="rtl">
+    <div className="min-h-screen bg-surface-1 text-white" dir="rtl">
       <div className="max-w-2xl mx-auto px-4 pt-4 pb-24">
 
         {/* ── TOP: Day Header ──────────────────────────────────────────────── */}

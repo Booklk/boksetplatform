@@ -267,7 +267,7 @@ export default function VendorOnboarding() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-slate-950 font-arabic flex items-center justify-center px-4" dir="rtl">
+      <div className="min-h-screen bg-surface-1 font-arabic flex items-center justify-center px-4" dir="rtl">
         {/* Background */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-900/20 rounded-full blur-3xl" />
@@ -357,7 +357,7 @@ export default function VendorOnboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 font-arabic" dir="rtl">
+    <div className="min-h-screen bg-surface-1 font-arabic" dir="rtl">
       {/* Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-900/20 rounded-full blur-3xl" />

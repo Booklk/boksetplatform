@@ -305,7 +305,7 @@ export default function VendorAnalytics() {
   const isLoading = loadingRevenue || loadingServices;
 
   return (
-    <div className="min-h-screen bg-[#040812] text-white" dir="rtl">
+    <div className="min-h-screen bg-surface-1 text-white" dir="rtl">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">

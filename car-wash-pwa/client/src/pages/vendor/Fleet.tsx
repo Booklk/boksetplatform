@@ -156,7 +156,7 @@ export default function Fleet() {
   const needsMaint = vehicles.filter((v: any) => v.status === 'maintenance').length;
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#040812] text-white p-4 md:p-6">
+    <div dir="rtl" className="min-h-screen bg-surface-1 text-white p-4 md:p-6">
       {/* Alerts Banner */}
       <AnimatePresence>
         {!dismissedAlerts && alerts.length > 0 && (

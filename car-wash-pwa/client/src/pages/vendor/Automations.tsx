@@ -176,7 +176,7 @@ export default function Automations() {
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-[#040812] p-4 sm:p-6 lg:p-8 text-white" dir="rtl">
+    <div className="min-h-screen bg-surface-1 p-4 sm:p-6 lg:p-8 text-white" dir="rtl">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}

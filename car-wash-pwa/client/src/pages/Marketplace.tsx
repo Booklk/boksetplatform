@@ -176,7 +176,7 @@ export default function Marketplace() {
   }, [vendors, search, selectedCity, sortBy]);
 
   return (
-    <div className="min-h-screen bg-slate-950" dir="rtl">
+    <div className="min-h-screen bg-surface-1" dir="rtl">
       {/* Hero Header */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-brand-950 to-blue-950" />

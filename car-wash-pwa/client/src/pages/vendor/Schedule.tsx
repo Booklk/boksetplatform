@@ -748,7 +748,7 @@ export default function VendorSchedule() {
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-slate-950 font-arabic" dir="rtl">
+    <div className="min-h-screen bg-surface-1 font-arabic" dir="rtl">
       <ConfigDrawer
         open={configOpen}
         onClose={() => setConfigOpen(false)}
@@ -762,7 +762,7 @@ export default function VendorSchedule() {
       />
 
       {/* ── Top bar ─────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 bg-slate-950/95 border-b border-white/8 backdrop-blur-xl">
+      <div className="sticky top-0 z-20 bg-surface-1/95 border-b border-white/8 backdrop-blur-xl">
         <div className="max-w-3xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-lg font-black text-white">الجدول الزمني</h1>

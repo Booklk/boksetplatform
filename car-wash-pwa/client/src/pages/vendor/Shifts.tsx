@@ -110,7 +110,7 @@ export default function Shifts() {
   const weekLabel = `${weekDays[0].toLocaleDateString('ar-SA', { month:'short', day:'numeric' })} — ${weekDays[6].toLocaleDateString('ar-SA', { month:'short', day:'numeric', year:'numeric' })}`;
 
   return (
-    <div className="min-h-screen bg-[#040812] text-white p-4 md:p-6" dir="rtl">
+    <div className="min-h-screen bg-surface-1 text-white p-4 md:p-6" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
@@ -249,7 +249,7 @@ export default function Shifts() {
                       <label className="block text-xs text-slate-400 mb-1">{field==='startTime'?'البداية':'النهاية'}</label>
                       <select value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
-                        {TIME_SLOTS.map(t => <option key={t} value={t} className="bg-[#040812]">{t}</option>)}
+                        {TIME_SLOTS.map(t => <option key={t} value={t} className="bg-surface-1">{t}</option>)}
                       </select>
                     </div>
                   ))}
@@ -271,7 +271,7 @@ export default function Shifts() {
                     <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white">
                       {Object.entries(STATUS_MAP).map(([v, { label }]) => (
-                        <option key={v} value={v} className="bg-[#040812]">{label}</option>
+                        <option key={v} value={v} className="bg-surface-1">{label}</option>
                       ))}
                     </select>
                   </div>

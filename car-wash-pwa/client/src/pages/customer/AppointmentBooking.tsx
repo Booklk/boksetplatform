@@ -256,7 +256,7 @@ export default function AppointmentBooking() {
 
   if (bookingSuccess) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-4 font-arabic" dir="rtl">
+      <div className="min-h-screen bg-surface-1 flex flex-col items-center justify-center px-4 font-arabic" dir="rtl">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -319,7 +319,7 @@ export default function AppointmentBooking() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 font-arabic" dir="rtl">
+    <div className="min-h-screen bg-surface-1 font-arabic" dir="rtl">
       {/* Header */}
       <div
         className="sticky top-0 z-30 border-b border-white/8 backdrop-blur-xl"

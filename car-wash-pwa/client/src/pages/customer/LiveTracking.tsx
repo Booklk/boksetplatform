@@ -315,7 +315,7 @@ export default function LiveTracking() {
   /* ── loading ── */
   if (bookingLoading || (isPublicRoute && liveLoading && !liveData)) {
     return (
-      <div className="min-h-screen bg-[#040812] flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-surface-1 flex items-center justify-center" dir="rtl">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-4">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center mx-auto shadow-xl shadow-blue-500/30 animate-pulse">
             <Navigation size={28} className="text-white" />
@@ -332,7 +332,7 @@ export default function LiveTracking() {
   /* ── error ── */
   if ((!isPublicRoute && (bookingError || !booking)) || (isPublicRoute && liveError && !liveData)) {
     return (
-      <div className="min-h-screen bg-[#040812] flex items-center justify-center px-4" dir="rtl">
+      <div className="min-h-screen bg-surface-1 flex items-center justify-center px-4" dir="rtl">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-5">
           <div className="w-16 h-16 rounded-2xl bg-red-500/20 border border-red-500/30 flex items-center justify-center mx-auto">
             <AlertCircle size={28} className="text-red-400" />
@@ -358,7 +358,7 @@ export default function LiveTracking() {
 
   /* ── main UI ── */
   return (
-    <div dir="rtl" className="min-h-screen bg-[#040812] text-white flex flex-col">
+    <div dir="rtl" className="min-h-screen bg-surface-1 text-white flex flex-col">
 
       {/* Orbs */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
@@ -371,7 +371,7 @@ export default function LiveTracking() {
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.45 }}
-        className="relative z-20 bg-[#040812]/90 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center gap-3"
+        className="relative z-20 bg-surface-1/90 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center gap-3"
       >
         <button
           onClick={() => navigate(-1)}
@@ -527,7 +527,7 @@ export default function LiveTracking() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 flex flex-col items-center justify-center bg-[#040812]/80 backdrop-blur-sm z-[1000]"
+                className="absolute inset-0 flex flex-col items-center justify-center bg-surface-1/80 backdrop-blur-sm z-[1000]"
               >
                 <div className="text-center space-y-3 px-6">
                   <motion.div
@@ -546,7 +546,7 @@ export default function LiveTracking() {
 
           {/* Not an active tracking status */}
           {!isLive && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#040812]/75 backdrop-blur-sm z-[1000]">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-surface-1/75 backdrop-blur-sm z-[1000]">
               <div className="text-center space-y-3 px-6">
                 <div className="w-14 h-14 rounded-2xl bg-slate-800 border border-white/10 flex items-center justify-center mx-auto">
                   {statusKey === 'completed' || statusKey === 'done' ? (
@@ -566,7 +566,7 @@ export default function LiveTracking() {
 
           {/* Loading map */}
           {!mapReady && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#040812] z-[999]">
+            <div className="absolute inset-0 flex items-center justify-center bg-surface-1 z-[999]">
               <Loader2 size={26} className="text-blue-400 animate-spin" />
             </div>
           )}
@@ -578,16 +578,16 @@ export default function LiveTracking() {
               animate={{ opacity: 1, x: 0 }}
               className="absolute top-3 right-3 z-[1001] space-y-1.5"
             >
-              <div className="bg-[#040812]/85 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-1.5 flex items-center gap-2">
+              <div className="bg-surface-1/85 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-1.5 flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-red-500 to-orange-400 flex-shrink-0" />
                 <span className="text-[11px] text-slate-300 font-medium">الموظف</span>
               </div>
-              <div className="bg-[#040812]/85 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-1.5 flex items-center gap-2">
+              <div className="bg-surface-1/85 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-1.5 flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex-shrink-0" />
                 <span className="text-[11px] text-slate-300 font-medium">موقعك</span>
               </div>
               {lastUpdate && (
-                <div className="bg-[#040812]/85 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-1.5">
+                <div className="bg-surface-1/85 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-1.5">
                   <span className="text-[10px] text-slate-500">
                     آخر تحديث {lastUpdate.toLocaleTimeString('ar-SA', { timeStyle: 'short' })}
                   </span>

@@ -162,7 +162,7 @@ export default function VendorDispatch() {
   });
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#040812] text-white">
+    <div dir="rtl" className="min-h-screen bg-surface-1 text-white">
       {/* Background orbs */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/6 blur-[120px] rounded-full" />
@@ -182,7 +182,7 @@ export default function VendorDispatch() {
       </AnimatePresence>
 
       {/* ── Header ── */}
-      <div className="relative z-10 border-b border-white/5 bg-[#040812]/80 backdrop-blur-xl px-6 py-5">
+      <div className="relative z-10 border-b border-white/5 bg-surface-1/80 backdrop-blur-xl px-6 py-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
