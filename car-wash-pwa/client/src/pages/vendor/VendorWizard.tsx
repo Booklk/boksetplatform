@@ -14,7 +14,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Upload, Palette } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 import LogoGenerator from '../../components/LogoGenerator';
@@ -30,7 +30,7 @@ interface WizardState {
   servicePrice: string;
 }
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 
 // ─── Progress Bar ─────────────────────────────────────────────────────────────
 
@@ -232,14 +232,28 @@ function Step3({
   onNext: () => void;
   onSkip: () => void;
 }) {
-  const [showGenerator, setShowGenerator] = useState(true);
+  const [mode, setMode] = useState<'choose' | 'generate' | 'upload'>('choose');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert('الحد الأقصى 2 ميغابايت'); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      onLogoSave(dataUrl);
+      setMode('choose');
+    };
+    reader.readAsDataURL(file);
+  }
 
   return (
     <div className="space-y-5">
       <div className="text-center space-y-1">
         <div className="text-4xl mb-3">🎨</div>
         <h2 className="text-2xl font-black text-white">شعارك وهويتك</h2>
-        <p className="text-white/40 text-sm">لا يوجد شعار؟ أنشئ واحداً في ثوانٍ 👇</p>
+        <p className="text-white/40 text-sm">ارفع شعارك أو أنشئ واحداً في ثوانٍ</p>
       </div>
 
       {logoUrl ? (
@@ -248,19 +262,34 @@ function Step3({
           animate={{ scale: 1, opacity: 1 }}
           className="flex flex-col items-center gap-3 py-3"
         >
-          <img
-            src={logoUrl}
-            alt="الشعار"
-            className="w-24 h-24 rounded-2xl object-cover border-2 border-blue-500/40 shadow-lg"
-          />
-          <p className="text-green-400 text-sm font-bold flex items-center gap-1">
-            <Check size={14} />
-            تم حفظ الشعار
-          </p>
-          <button
-            type="button"
-            onClick={() => { onLogoSave(''); setShowGenerator(true); }}
-            className="text-xs text-white/40 underline"
+          <img src={logoUrl} alt="الشعار" className="w-24 h-24 rounded-2xl object-cover border-2 border-indigo-500/40 shadow-lg" />
+          <p className="text-green-400 text-sm font-bold flex items-center gap-1"><Check size={14} /> تم حفظ الشعار</p>
+          <button type="button" onClick={() => { onLogoSave(''); setMode('choose'); }} className="text-xs text-white/40 underline">تغيير الشعار</button>
+          <NavButtons step={2} onPrev={onPrev} onNext={onNext} />
+        </motion.div>
+      ) : mode === 'choose' ? (
+        <div className="space-y-3">
+          <button onClick={() => fileRef.current?.click()}
+            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border-2 border-white/10 bg-white/5 hover:border-indigo-500/40 text-right transition-all">
+            <div className="w-12 h-12 rounded-xl bg-indigo-500/15 flex items-center justify-center"><Upload className="w-5 h-5 text-indigo-400" /></div>
+            <div><p className="font-bold text-white">رفع شعار جاهز</p><p className="text-xs text-slate-500">PNG أو JPG — أقصى 2 ميغابايت</p></div>
+          </button>
+          <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFileUpload} className="hidden" />
+
+          <button onClick={() => setMode('generate')}
+            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl border-2 border-white/10 bg-white/5 hover:border-indigo-500/40 text-right transition-all">
+            <div className="w-12 h-12 rounded-xl bg-purple-500/15 flex items-center justify-center"><Palette className="w-5 h-5 text-purple-400" /></div>
+            <div><p className="font-bold text-white">أنشئ شعار الآن</p><p className="text-xs text-slate-500">اختر تصميم وألوان — جاهز بثوانٍ</p></div>
+          </button>
+
+          <NavButtons step={2} onPrev={onPrev} onNext={onSkip} nextLabel="تخطي" />
+        </div>
+      ) : mode === 'generate' ? (
+        <div>
+          <button onClick={() => setMode('choose')} className="text-xs text-indigo-400 mb-3">← رجوع</button>
+          <LogoGenerator initialLetter={nameAr?.charAt(0) ?? ''} onSave={(url) => { onLogoSave(url); setMode('choose'); }} />
+        </div>
+      ) : null}
           >
             تغيير الشعار
           </button>
