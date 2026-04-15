@@ -76,7 +76,7 @@ const statusConfig: Record<
 const statCards = [
   {
     key: 'totalVendors' as keyof Stats,
-    label: 'إجمالي المغاسل',
+    label: 'إجمالي التجار',
     icon: Building2,
     gradient: 'from-purple-500 to-indigo-600',
     glow: 'shadow-purple-500/30',
@@ -84,7 +84,7 @@ const statCards = [
   },
   {
     key: 'activeVendors' as keyof Stats,
-    label: 'المغاسل النشطة',
+    label: 'التجار النشطين',
     icon: CheckCircle,
     gradient: 'from-emerald-500 to-teal-600',
     glow: 'shadow-emerald-500/30',

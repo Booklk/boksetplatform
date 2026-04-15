@@ -110,6 +110,10 @@ const SuperAdminDashboard = lazy(() => import('./pages/super-admin/Dashboard'));
 const SuperAdminVendors = lazy(() => import('./pages/super-admin/Vendors'));
 const SuperAdminRevenue = lazy(() => import('./pages/super-admin/Revenue'));
 const SuperAdminSupport = lazy(() => import('./pages/super-admin/Support'));
+const SuperAdminUsers = lazy(() => import('./pages/super-admin/Users'));
+const SuperAdminHealth = lazy(() => import('./pages/super-admin/Health'));
+const SuperAdminAnnounce = lazy(() => import('./pages/super-admin/Announce'));
+const SuperAdminAuditLogs = lazy(() => import('./pages/super-admin/AuditLogs'));
 
 // Appointment booking
 const AppointmentBooking = lazy(() => import('./pages/customer/AppointmentBooking'));
@@ -638,6 +642,26 @@ function AppRoutes() {
         <Route path="/super-admin/support" element={
           <RequireAuth roles={['super_admin']}>
             <S><SuperAdminSupport /></S>
+          </RequireAuth>
+        } />
+        <Route path="/super-admin/users" element={
+          <RequireAuth roles={['super_admin']}>
+            <S><SuperAdminUsers /></S>
+          </RequireAuth>
+        } />
+        <Route path="/super-admin/health" element={
+          <RequireAuth roles={['super_admin']}>
+            <S><SuperAdminHealth /></S>
+          </RequireAuth>
+        } />
+        <Route path="/super-admin/announce" element={
+          <RequireAuth roles={['super_admin']}>
+            <S><SuperAdminAnnounce /></S>
+          </RequireAuth>
+        } />
+        <Route path="/super-admin/audit-logs" element={
+          <RequireAuth roles={['super_admin']}>
+            <S><SuperAdminAuditLogs /></S>
           </RequireAuth>
         } />
 
