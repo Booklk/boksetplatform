@@ -131,8 +131,13 @@ const superAdminNavSections: NavSection[] = [
     items: [
       { to: '/super-admin', icon: BarChart3, label: 'لوحة التحكم' },
       { to: '/super-admin/vendors', icon: Building2, label: 'التجار' },
+      { to: '/super-admin/users', icon: Users, label: 'المستخدمين' },
       { to: '/super-admin/revenue', icon: TrendingUp, label: 'الإيرادات' },
+      { to: '/super-admin/plans', icon: CreditCard, label: 'الباقات' },
       { to: '/super-admin/support', icon: HelpCircle, label: 'الدعم' },
+      { to: '/super-admin/announce', icon: Send, label: 'إعلانات' },
+      { to: '/super-admin/health', icon: Radio, label: 'صحة النظام' },
+      { to: '/super-admin/audit-logs', icon: FileText, label: 'سجل العمليات' },
     ],
   },
 ];

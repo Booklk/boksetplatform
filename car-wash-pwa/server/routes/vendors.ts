@@ -305,7 +305,7 @@ router.post('/onboard', async (req, res) => {
                 vendorId: vendor.id,
                 serviceId: createdService.id,
                 name: pkg.nameAr,
-                basePrice: String(pkg.price),
+                price: String(pkg.price),
                 duration: pkg.duration,
                 features: pkg.features ?? [],
                 isActive: true,
