@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CreditCard, Plus, Pencil, Trash2, X, Save, CheckCircle, Star } from 'lucide-react';
+import { CreditCard, Plus, Pencil, Trash2, X, Save, CheckCircle, Star, Shield } from 'lucide-react';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
+import { FEATURE_REGISTRY, DEFAULT_PLAN_FEATURES } from '../../lib/features';
 
 interface Plan {
   id: number;
@@ -15,6 +16,7 @@ interface Plan {
   maxEmployees: number;
   maxBranches: number;
   features: string[];
+  featureGates: Record<string, boolean>;
   isPopular: boolean;
   isActive: boolean;
   sortOrder: number;
@@ -23,8 +25,8 @@ interface Plan {
 
 const EMPTY_PLAN: Omit<Plan, 'id'> = {
   slug: '', nameAr: '', nameEn: '', description: '', price: '0',
-  maxEmployees: 1, maxBranches: 1, features: [], isPopular: false,
-  isActive: true, sortOrder: 0, trialDays: 14,
+  maxEmployees: 1, maxBranches: 1, features: [], featureGates: {},
+  isPopular: false, isActive: true, sortOrder: 0, trialDays: 14,
 };
 
 export default function AdminPlans() {
@@ -178,6 +180,31 @@ export default function AdminPlans() {
                     onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addFeature())}
                     placeholder="أضف ميزة..." className="input-field text-sm flex-1" />
                   <button onClick={addFeature} className="btn-icon w-10 h-10"><Plus className="w-4 h-4" /></button>
+                </div>
+              </div>
+
+              {/* Feature Gates */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="label flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-indigo-400" /> الميزات المتاحة</label>
+                  {editing.slug && DEFAULT_PLAN_FEATURES[editing.slug] && (
+                    <button type="button" onClick={() => setEditing({ ...editing, featureGates: { ...DEFAULT_PLAN_FEATURES[editing.slug] } })}
+                      className="text-[10px] text-indigo-400 hover:text-indigo-300">تطبيق الافتراضي</button>
+                  )}
+                </div>
+                <div className="max-h-48 overflow-y-auto space-y-1 bg-white/[0.02] rounded-xl p-3 border border-white/[0.06]">
+                  {FEATURE_REGISTRY.map(feat => {
+                    const isOn = editing.featureGates[feat.id] ?? false;
+                    return (
+                      <label key={feat.id} className="flex items-center gap-2 py-1 px-2 rounded-lg hover:bg-white/[0.03] cursor-pointer">
+                        <input type="checkbox" checked={isOn}
+                          onChange={e => setEditing({ ...editing, featureGates: { ...editing.featureGates, [feat.id]: e.target.checked } })}
+                          className="w-3.5 h-3.5 rounded border-white/20 bg-white/5 accent-indigo-500" />
+                        <span className={`text-xs flex-1 ${isOn ? 'text-white' : 'text-slate-500'}`}>{feat.nameAr}</span>
+                        <span className="text-[9px] text-slate-600">{feat.category}</span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 

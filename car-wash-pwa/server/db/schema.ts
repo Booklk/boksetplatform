@@ -1374,6 +1374,8 @@ export const platformPlans = pgTable('platform_plans', {
   isActive: boolean('is_active').notNull().default(true),
   sortOrder: integer('sort_order').notNull().default(0),
   trialDays: integer('trial_days').notNull().default(14),
+  // Feature gates — which features this plan unlocks
+  featureGates: jsonb('feature_gates').$type<Record<string, boolean>>().notNull().default({}),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
