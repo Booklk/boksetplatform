@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png', 'favicon.ico'],
       manifest: {
-        name: 'مغسلة واش ساس للسيارات',
-        short_name: 'واش ساس',
-        description: 'منصة SaaS لإدارة مغاسل السيارات متنقلة في شمال الرياض',
+        name: 'Jdawil — جداول',
+        short_name: 'جداول',
+        description: 'أنشئ موقع حجوزاتك بجميع المميزات اللي يحتاجها مشروعك',
         theme_color: '#1e3a8a',
         background_color: '#0f172a',
         display: 'standalone',
