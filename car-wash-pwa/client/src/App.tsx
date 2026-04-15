@@ -50,6 +50,7 @@ const Demo = lazy(() => import('./pages/Demo'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const CityLanding = lazy(() => import('./pages/CityLanding'));
+const PricingPage = lazy(() => import('./pages/Pricing'));
 
 const VendorDashboard = lazy(() => import('./pages/vendor/Dashboard'));
 const VendorQueue = lazy(() => import('./pages/vendor/Queue'));
@@ -240,6 +241,7 @@ function AppRoutes() {
         <Route path="/privacy" element={<S><Privacy /></S>} />
         <Route path="/terms" element={<S><Terms /></S>} />
         <Route path="/city/:city" element={<S><CityLanding /></S>} />
+        <Route path="/pricing" element={<S><PricingPage /></S>} />
 
         {/* ── Customer ──────────────────────────────────────────────────── */}
         <Route path="/app" element={

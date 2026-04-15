@@ -1,6 +1,6 @@
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-[#040812] text-white" dir="rtl">
+    <div className="min-h-screen bg-surface-1 text-white" dir="rtl">
       <div className="max-w-3xl mx-auto px-6 py-16">
         <h1 className="text-3xl font-bold mb-2 text-center">سياسة الخصوصية</h1>
         <p className="text-sm text-gray-400 text-center mb-12">
