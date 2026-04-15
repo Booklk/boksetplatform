@@ -267,7 +267,7 @@ router.post('/onboard', async (req, res) => {
       address: address || null,
       industry: vendorIndustry,
       subscriptionStatus: 'trial',
-      subscriptionPlan: plan === 'bike_solo' ? 'basic' : plan === 'fleet' || plan === 'branches_2_3' ? 'enterprise' : 'pro',
+      subscriptionPlan: plan === 'free' ? 'free' : 'pro',
       isActive: true,
       trialEndsAt,
       isFoundingMember,

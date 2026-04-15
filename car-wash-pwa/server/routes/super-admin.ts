@@ -348,7 +348,7 @@ router.get('/plans', requireAuth, requireRole('super_admin'), async (_req, res) 
 // POST /api/super-admin/plans — Create a plan
 router.post('/plans', requireAuth, requireRole('super_admin'), async (req, res) => {
   try {
-    const { slug, nameAr, nameEn, description, price, maxEmployees, maxBranches, features, isPopular, sortOrder, trialDays } = req.body;
+    const { slug, nameAr, nameEn, description, price, maxEmployees, maxBranches, features, featureGates, isPopular, sortOrder, trialDays } = req.body;
     if (!slug || !nameAr || !price) return res.status(400).json({ error: 'البيانات ناقصة' });
 
     const [plan] = await db.insert(platformPlans).values({
@@ -357,6 +357,7 @@ router.post('/plans', requireAuth, requireRole('super_admin'), async (req, res) 
       maxEmployees: maxEmployees ?? -1,
       maxBranches: maxBranches ?? 1,
       features: features ?? [],
+      featureGates: featureGates ?? {},
       isPopular: isPopular ?? false,
       sortOrder: sortOrder ?? 0,
       trialDays: trialDays ?? 14,
@@ -374,12 +375,13 @@ router.post('/plans', requireAuth, requireRole('super_admin'), async (req, res) 
 router.put('/plans/:id', requireAuth, requireRole('super_admin'), async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const { nameAr, nameEn, description, price, maxEmployees, maxBranches, features, isPopular, isActive, sortOrder, trialDays } = req.body;
+    const { nameAr, nameEn, description, price, maxEmployees, maxBranches, features, featureGates, isPopular, isActive, sortOrder, trialDays } = req.body;
 
     const [updated] = await db.update(platformPlans).set({
       ...(nameAr !== undefined && { nameAr }),
       ...(nameEn !== undefined && { nameEn }),
       ...(description !== undefined && { description }),
+      ...(featureGates !== undefined && { featureGates }),
       ...(price !== undefined && { price: String(price) }),
       ...(maxEmployees !== undefined && { maxEmployees }),
       ...(maxBranches !== undefined && { maxBranches }),
