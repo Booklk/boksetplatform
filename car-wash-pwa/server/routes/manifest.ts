@@ -53,7 +53,7 @@ router.get('/:slug.json', async (req, res) => {
 
     const primaryColor = vendor.primaryColor ?? '#1e3a8a';
     const backgroundColor = shade(primaryColor, 0.3);
-    const displayName = vendor.nameAr ?? vendor.nameEn ?? 'Bokset';
+    const displayName = vendor.nameAr ?? vendor.nameEn ?? 'Jdawil';
     const shortName = displayName.length > 12 ? displayName.slice(0, 12) : displayName;
 
     const icons: Array<{ src: string; sizes: string; type: string; purpose?: string }> = [

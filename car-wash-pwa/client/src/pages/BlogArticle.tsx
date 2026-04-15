@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { Clock, ArrowRight, MessageCircle, Calendar, CheckCircle } from 'lucide-react';
 import { ARTICLES } from './Blog';
 
-const CONSULTATION_PHONE = '966500000000'; // رقم واتساب Bokset
-const DOMAIN = 'https://bokset.sa';
+const CONSULTATION_PHONE = '966500000000'; // رقم واتساب Jdawil
+const DOMAIN = 'https://jdawil.sa';
 
 const SCHEDULE = [
   { day: 'الأحد', slots: ['10:00 ص', '2:00 م', '4:00 م'] },
@@ -17,7 +17,7 @@ const SCHEDULE = [
 
 function ConsultationCTA({ articleTitle }: { articleTitle: string }) {
   const waMsg = encodeURIComponent(
-    `مرحباً 👋\nقرأت مقال "${articleTitle}" في موقع Bokset.\n\nأريد استشارة مجانية لبدء مشروع مغسلة سيارات متنقلة — هل يمكننا التحدث؟`
+    `مرحباً 👋\nقرأت مقال "${articleTitle}" في موقع Jdawil.\n\nأريد استشارة مجانية لبدء مشروع مغسلة سيارات متنقلة — هل يمكننا التحدث؟`
   );
   const waUrl = `https://wa.me/${CONSULTATION_PHONE}?text=${waMsg}`;
 
@@ -35,7 +35,7 @@ function ConsultationCTA({ articleTitle }: { articleTitle: string }) {
           </div>
           <div>
             <h3 className="text-white font-black text-xl">نساعدك تبدأ مغسلتك المتنقلة — مجاناً 🚗</h3>
-            <p className="text-slate-400 text-sm mt-1">استشارة شخصية مع خبير Bokset — بدون رسوم، بدون التزام</p>
+            <p className="text-slate-400 text-sm mt-1">استشارة شخصية مع خبير Jdawil — بدون رسوم، بدون التزام</p>
           </div>
         </div>
 
@@ -120,8 +120,8 @@ export default function BlogArticle() {
     inLanguage: 'ar',
     datePublished: article.date,
     dateModified: article.date,
-    author: { '@type': 'Organization', name: 'Bokset', url: DOMAIN },
-    publisher: { '@type': 'Organization', name: 'Bokset', url: DOMAIN, logo: `${DOMAIN}/icons/icon-192x192.png` },
+    author: { '@type': 'Organization', name: 'Jdawil', url: DOMAIN },
+    publisher: { '@type': 'Organization', name: 'Jdawil', url: DOMAIN, logo: `${DOMAIN}/icons/icon-192x192.png` },
     mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
   };
 
@@ -130,7 +130,7 @@ export default function BlogArticle() {
   return (
     <>
       <Helmet>
-        <title>{article.title} | مدونة Bokset</title>
+        <title>{article.title} | مدونة Jdawil</title>
         <meta name="description" content={article.description} />
         <link rel="canonical" href={articleUrl} />
         <meta property="og:type" content="article" />

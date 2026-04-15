@@ -195,7 +195,7 @@ export default function VendorOnboarding() {
     email: '',
     city: '',
     address: '',
-    plan: 'business',
+    plan: 'free',
     industry: '',
     washType: '',
     password: '',
@@ -244,7 +244,7 @@ export default function VendorOnboarding() {
   }
 
   const selectedPlan = PLAN_TYPES.find((p) => p.id === form.plan) ?? PLAN_TYPES[2];
-  const whatsappOnboard = `https://wa.me/966500000000?text=${encodeURIComponent(`مرحباً، أريد الانضمام إلى منصة Bokset - ${form.nameAr}`)}`;
+  const whatsappOnboard = `https://wa.me/966500000000?text=${encodeURIComponent(`مرحباً، أريد الانضمام إلى منصة Jdawil - ${form.nameAr}`)}`;
 
   if (success) {
     return (
@@ -283,7 +283,7 @@ export default function VendorOnboarding() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-3xl font-black text-white mb-2">🎉 مرحباً بك في Bokset!</h2>
+            <h2 className="text-3xl font-black text-white mb-2">🎉 مرحباً بك في Jdawil!</h2>
             <p className="text-slate-300 text-lg mb-1">
               تجربتك المجانية لمدة{' '}
               <span className="text-emerald-400 font-bold">14 يوم</span>{' '}
@@ -382,7 +382,7 @@ export default function VendorOnboarding() {
             سجّل مغسلتك في 3 دقائق وابدأ فوراً
           </p>
           <p className="text-slate-500 text-xs">
-            كل يوم بدون Bokset هو يوم تخسر فيه حجوزات
+            كل يوم بدون Jdawil هو يوم تخسر فيه حجوزات
           </p>
         </motion.div>
 
@@ -689,7 +689,7 @@ export default function VendorOnboarding() {
                 >
                   🎉
                 </motion.div>
-                <h2 className="text-2xl font-black text-white mb-1">مرحباً بك في Bokset!</h2>
+                <h2 className="text-2xl font-black text-white mb-1">مرحباً بك في Jdawil!</h2>
                 <p className="text-slate-400 text-sm">راجع بياناتك وأرسل الطلب</p>
               </div>
 

@@ -158,7 +158,7 @@ export default function Demo() {
                 step: '3',
                 icon: Globe,
                 title: 'شارك الرابط',
-                desc: 'موقعك جاهز على bokset.sa/store/اسمك — أرسله لعملائك عبر واتساب أو انستقرام.',
+                desc: 'موقعك جاهز على jdawil.sa/store/اسمك — أرسله لعملائك عبر واتساب أو انستقرام.',
               },
             ].map((item, i) => (
               <motion.div key={item.step} {...fadeUp(i * 0.1)}
@@ -190,7 +190,7 @@ export default function Demo() {
                   اربط بوابة الدفع بدقيقة
                 </h2>
                 <p className="text-slate-500 text-sm leading-relaxed mb-5">
-                  ضع مفتاح API من بوابة الدفع الخاصة بك — والمال يدخل حسابك البنكي مباشرة. Bokset لا يلمس أموالك ولا يأخذ عمولة.
+                  ضع مفتاح API من بوابة الدفع الخاصة بك — والمال يدخل حسابك البنكي مباشرة. Jdawil لا يلمس أموالك ولا يأخذ عمولة.
                 </p>
                 <div className="space-y-3">
                   {[

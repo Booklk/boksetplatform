@@ -118,7 +118,7 @@ const vendorNavSections: NavSection[] = [
       { to: '/vendor/brand-kit', icon: Sparkles, label: 'هوية AI ✨' },
       { to: '/vendor/suppliers', icon: ShoppingBag, label: 'الموردون' },
       { to: '/vendor/platform-sub', icon: CreditCard, label: 'اشتراك المنصة' },
-      { to: '/vendor/refer', icon: Gift, label: 'ادعُ مغسلة واكسب' },
+      { to: '/vendor/refer', icon: Gift, label: 'ادعُ تاجر واكسب' },
       { to: '/vendor/support', icon: HelpCircle, label: 'الدعم الفني' },
       { to: '/vendor/settings', icon: Settings, label: 'الإعدادات' },
     ],
@@ -130,7 +130,7 @@ const superAdminNavSections: NavSection[] = [
     label: 'الإدارة',
     items: [
       { to: '/super-admin', icon: BarChart3, label: 'لوحة التحكم' },
-      { to: '/super-admin/vendors', icon: Building2, label: 'المغاسل' },
+      { to: '/super-admin/vendors', icon: Building2, label: 'التجار' },
       { to: '/super-admin/revenue', icon: TrendingUp, label: 'الإيرادات' },
       { to: '/super-admin/support', icon: HelpCircle, label: 'الدعم' },
     ],
@@ -262,7 +262,7 @@ export default function Navbar() {
             )}
             <div className="min-w-0">
               <p className="font-black text-white text-sm truncate">
-                {isVendorPage ? vendorName : 'Bokset'}
+                {isVendorPage ? vendorName : 'Jdawil'}
               </p>
               <p className="text-xs text-slate-400">{roleLabel(user.role)}</p>
             </div>
@@ -312,7 +312,7 @@ export default function Navbar() {
             )}
             <div>
               <p className="font-black text-white text-sm leading-none">
-                {isVendorPage ? vendorName : 'Bokset'}
+                {isVendorPage ? vendorName : 'Jdawil'}
               </p>
               <p className="text-xs text-slate-400 leading-none">{roleLabel(user.role)}</p>
             </div>

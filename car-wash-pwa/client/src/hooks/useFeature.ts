@@ -16,7 +16,7 @@ interface PlanWithGates {
  */
 export function useFeature(featureId: string) {
   const { user } = useAuth();
-  const vendorPlan = user?.vendor?.subscriptionPlan ?? 'starter';
+  const vendorPlan = user?.vendor?.subscriptionPlan ?? 'free';
 
   // Fetch current plan's feature gates
   const { data: plans = [], isLoading } = useQuery<PlanWithGates[]>({
@@ -49,7 +49,7 @@ export function useFeature(featureId: string) {
  */
 export function useFeatures(featureIds: string[]) {
   const { user } = useAuth();
-  const vendorPlan = user?.vendor?.subscriptionPlan ?? 'starter';
+  const vendorPlan = user?.vendor?.subscriptionPlan ?? 'free';
 
   const { data: plans = [], isLoading } = useQuery<PlanWithGates[]>({
     queryKey: ['platform-plans'],

@@ -319,7 +319,7 @@ router.get('/export/:type', requireAuth, requireRole('vendor_admin', 'admin'), a
       ['فترة التقرير', `${from.toLocaleDateString('ar-SA')} — ${to.toLocaleDateString('ar-SA')}`],
       ['تاريخ الإصدار', new Date().toLocaleDateString('ar-SA')],
       [],
-      ['تم إنشاء هذا التقرير من منصة Bokset — bokset.com'],
+      ['تم إنشاء هذا التقرير من منصة Jdawil — jdawil.com'],
     ];
     const coverSheet = XLSX.utils.aoa_to_sheet(coverData);
     coverSheet['!cols'] = [{ wch: 25 }, { wch: 40 }];

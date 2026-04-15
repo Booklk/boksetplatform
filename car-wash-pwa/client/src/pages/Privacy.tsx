@@ -11,7 +11,7 @@ export default function Privacy() {
         <section className="mb-10">
           <h2 className="text-xl font-semibold mb-3">١. من نحن</h2>
           <p className="text-gray-300 leading-relaxed">
-            منصة <span className="font-bold text-white">بوكست (Bokset)</span> هي
+            منصة <span className="font-bold text-white">بوكست (Jdawil)</span> هي
             منصة سعودية متخصصة في تمكين مقدّمي الخدمات من إدارة أعمالهم رقميًا،
             بما يشمل الحجوزات والمدفوعات وإدارة العملاء والتسويق. يشار إليها
             فيما يلي بـ «المنصة» أو «نحن». نلتزم بحماية خصوصيتك وفقًا لنظام
@@ -132,7 +132,7 @@ export default function Privacy() {
           <ul className="list-none text-gray-300 space-y-2 mt-3 leading-relaxed">
             <li>
               البريد الإلكتروني:{" "}
-              <span className="text-blue-400">privacy@bokset.com</span>
+              <span className="text-blue-400">privacy@jdawil.com</span>
             </li>
             <li>
               الهاتف:{" "}
@@ -145,7 +145,7 @@ export default function Privacy() {
         </section>
 
         <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-          &copy; {new Date().getFullYear()} Bokset. جميع الحقوق محفوظة.
+          &copy; {new Date().getFullYear()} Jdawil. جميع الحقوق محفوظة.
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ const router = Router();
 // Initialize VAPID keys (set in env)
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    `mailto:${process.env.VAPID_EMAIL ?? 'admin@bokset.sa'}`,
+    `mailto:${process.env.VAPID_EMAIL ?? 'admin@jdawil.sa'}`,
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );

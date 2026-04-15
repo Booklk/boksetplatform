@@ -49,7 +49,7 @@ export default function AdminLogin() {
           <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center">
             <Shield className="w-7 h-7 text-blue-400" />
           </div>
-          <h1 className="text-xl font-black text-white">Bokset Admin</h1>
+          <h1 className="text-xl font-black text-white">Jdawil Admin</h1>
           <p className="text-sm text-slate-600 mt-1">لوحة تحكم المنصة</p>
         </div>
 
@@ -75,7 +75,7 @@ export default function AdminLogin() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="admin@bokset.sa"
+                placeholder="admin@jdawil.sa"
                 className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pr-10 pl-4 py-3 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-blue-500/40 transition-colors"
                 required
                 dir="ltr"
@@ -108,7 +108,7 @@ export default function AdminLogin() {
         </form>
 
         <p className="text-center text-[11px] text-slate-700 mt-6">
-          هذه اللوحة مخصصة لمدراء منصة Bokset فقط
+          هذه اللوحة مخصصة لمدراء منصة Jdawil فقط
         </p>
       </motion.div>
     </div>

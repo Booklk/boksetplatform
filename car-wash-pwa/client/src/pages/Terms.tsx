@@ -15,7 +15,7 @@ export default function Terms() {
           <ul className="list-disc list-inside text-gray-300 space-y-2 leading-relaxed">
             <li>
               <span className="font-medium text-white">المنصة:</span> منصة بوكست
-              (Bokset) الإلكترونية وتطبيقاتها.
+              (Jdawil) الإلكترونية وتطبيقاتها.
             </li>
             <li>
               <span className="font-medium text-white">المستخدم:</span> أي شخص
@@ -160,7 +160,7 @@ export default function Terms() {
           <ul className="list-none text-gray-300 space-y-2 mt-3 leading-relaxed">
             <li>
               البريد الإلكتروني:{" "}
-              <span className="text-blue-400">support@bokset.com</span>
+              <span className="text-blue-400">support@jdawil.com</span>
             </li>
             <li>
               الهاتف:{" "}
@@ -173,7 +173,7 @@ export default function Terms() {
         </section>
 
         <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-          &copy; {new Date().getFullYear()} Bokset. جميع الحقوق محفوظة.
+          &copy; {new Date().getFullYear()} Jdawil. جميع الحقوق محفوظة.
         </div>
       </div>
     </div>

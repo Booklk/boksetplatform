@@ -9,7 +9,7 @@ import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
 
-const DOMAIN = process.env.DOMAIN ?? 'washsaas.com';
+const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
 
 function getOpenAI() {
   const key = process.env.OPENAI_API_KEY;

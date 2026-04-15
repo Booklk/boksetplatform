@@ -248,7 +248,7 @@ export default function VendorLanding() {
   const whatsappUrl = `https://wa.me/966${vendor.phone.replace(/^0/, '')}?text=${encodeURIComponent(`مرحباً، أريد الاستفسار عن خدماتكم في ${vendor.nameAr}`)}`;
   const callUrl = `tel:${vendor.phone}`;
 
-  const DOMAIN = 'https://bokset.sa';
+  const DOMAIN = 'https://jdawil.sa';
   const storeUrl = `${DOMAIN}/store/${slug}`;
   const pageTitle = `${vendor.nameAr} — احجز خدمتك | ${vendor.city ?? ''}`;
   const pageDesc = vendor.descriptionAr
@@ -659,7 +659,7 @@ export default function VendorLanding() {
         {/* ─── FOOTER ─────────────────────────────────────────── */}
         <div className="max-w-4xl mx-auto px-4 py-8 pb-16">
           <p className="text-center text-slate-600 text-[10px] mt-8 opacity-40">
-            Powered by Bokset
+            Powered by Jdawil
           </p>
         </div>
       </div>

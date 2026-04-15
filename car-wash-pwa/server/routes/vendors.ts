@@ -329,7 +329,7 @@ router.post('/onboard', async (req, res) => {
         vendorId: user.vendorId,
       },
       vendor,
-      message: 'تم إنشاء حسابك بنجاح! مرحباً بك في Bokset.',
+      message: 'تم إنشاء حسابك بنجاح! مرحباً بك في Jdawil.',
     });
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
@@ -381,7 +381,7 @@ router.get('/qr', requireAuth, async (req: AuthRequest, res) => {
       .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
     if (!vendor?.slug) return res.status(404).json({ error: 'غير موجود' });
 
-    const DOMAIN = process.env.DOMAIN ?? 'washsaas.com';
+    const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
     const url = `https://${DOMAIN}/store/${vendor.slug}`;
     const format = (req.query.format as string) ?? 'png';
 
@@ -756,7 +756,7 @@ router.post('/:id/test-whatsapp', requireAuth, requireRole('vendor_admin', 'admi
         messaging_product: 'whatsapp',
         to: testPhone,
         type: 'text',
-        text: { body: '✅ تم ربط واتساب بنجاح مع منصة Bokset! رسائل المغسلة ستصل الآن من هذا الرقم.' },
+        text: { body: '✅ تم ربط واتساب بنجاح مع منصة Jdawil! رسائل المغسلة ستصل الآن من هذا الرقم.' },
       }),
     });
 
@@ -815,7 +815,7 @@ router.post('/:id/platform-subscribe', requireAuth, requireRole('vendor_admin', 
 
     const apiKey = process.env.MOYASAR_API_KEY ?? '';
     if (!apiKey) {
-      return res.status(503).json({ error: 'بوابة الدفع غير مهيأة بعد، تواصل مع فريق Bokset على واتساب.' });
+      return res.status(503).json({ error: 'بوابة الدفع غير مهيأة بعد، تواصل مع فريق Jdawil على واتساب.' });
     }
 
     const baseUrl = process.env.BASE_URL ?? 'http://localhost:3001';

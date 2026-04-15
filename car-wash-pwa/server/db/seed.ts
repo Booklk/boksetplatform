@@ -35,12 +35,12 @@ async function seedWithVendor(vendorId: number) {
   await db.insert(users).values({
     name: 'مدير المنصة',
     phone: '0599999999',
-    email: 'admin@bokset.sa',
+    email: 'admin@jdawil.sa',
     passwordHash: superAdminHash,
     role: 'super_admin',
     vendorId: null,
   }).onConflictDoNothing();
-  console.log('  ✅ Super Admin: admin@bokset.sa / Super@123');
+  console.log('  ✅ Super Admin: admin@jdawil.sa / Super@123');
 
   // Vendor Admin user
   const adminHash = await bcrypt.hash('Admin@123', 12);
@@ -48,7 +48,7 @@ async function seedWithVendor(vendorId: number) {
     {
       name: 'مدير النظام',
       phone: '0500000001',
-      email: 'admin@washsaas.com',
+      email: 'admin@jdawil.sa',
       passwordHash: adminHash,
       role: 'admin',
       vendorId,

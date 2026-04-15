@@ -33,7 +33,7 @@ export default function CustomerReferral() {
   });
 
   const referralLink = myCode
-    ? `https://bokset.sa/store/${myCode.vendorSlug}/book?ref=${myCode.code}`
+    ? `https://jdawil.sa/store/${myCode.vendorSlug}/book?ref=${myCode.code}`
     : '';
 
   function copyCode() {

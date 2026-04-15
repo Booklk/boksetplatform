@@ -55,7 +55,7 @@ router.get('/export', async (req: AuthRequest, res) => {
     const exportData = {
       exportVersion: '1.0',
       exportedAt: new Date().toISOString(),
-      platform: 'Bokset',
+      platform: 'Jdawil',
       vendor: {
         ...vendorData,
         // Remove sensitive encrypted fields
@@ -93,7 +93,7 @@ router.get('/export', async (req: AuthRequest, res) => {
     };
 
     // Set headers for file download
-    const filename = `bokset-export-${vendorData.slug ?? vendorId}-${new Date().toISOString().slice(0, 10)}.json`;
+    const filename = `jdawil-export-${vendorData.slug ?? vendorId}-${new Date().toISOString().slice(0, 10)}.json`;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 

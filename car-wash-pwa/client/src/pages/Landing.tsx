@@ -93,7 +93,7 @@ const testimonials = [
   {
     name: 'أحمد الشمري',
     role: 'صاحب مغسلة الفخامة — الرياض',
-    text: 'قبل Bokset كنت أدير كل شيء على واتساب! الآن الحجوزات تنظم نفسها والإيرادات زادت ٤٠٪ في أول شهرين.',
+    text: 'قبل Jdawil كنت أدير كل شيء على واتساب! الآن الحجوزات تنظم نفسها والإيرادات زادت ٤٠٪ في أول شهرين.',
     rating: 5,
     avatar: 'أ',
     color: 'from-blue-500 to-cyan-500',
@@ -121,24 +121,24 @@ const marqueeText = 'حجوزات ذكية ✦ GPS مباشر ✦ برامج ا�
 
 const faqs = [
   {
-    q: 'ما هو Bokset؟',
-    a: 'Bokset هو برنامج SaaS متكامل لإدارة مغاسل السيارات في المملكة العربية السعودية. يوفر حجوزات ذكية، تتبع GPS مباشر للموظفين والسيارات، مدفوعات STC Pay ومدى، إدارة رواتب، وفواتير PDF — كل شيء في مكان واحد بدون تعقيد.',
+    q: 'ما هو Jdawil؟',
+    a: 'Jdawil هو برنامج SaaS متكامل لإدارة مغاسل السيارات في المملكة العربية السعودية. يوفر حجوزات ذكية، تتبع GPS مباشر للموظفين والسيارات، مدفوعات STC Pay ومدى، إدارة رواتب، وفواتير PDF — كل شيء في مكان واحد بدون تعقيد.',
   },
   {
     q: 'هل يناسب المغاسل المتنقلة والثابتة معاً؟',
-    a: 'نعم. Bokset مُصمَّم من اليوم الأول لكلا النوعين. المغسلة المتنقلة تستفيد من تتبع GPS، حساب وقت الوصول، وتوزيع الحجوزات على السيارات المتاحة. المغسلة الثابتة تستفيد من نظام الطابور والكاشير وإدارة العملاء.',
+    a: 'نعم. Jdawil مُصمَّم من اليوم الأول لكلا النوعين. المغسلة المتنقلة تستفيد من تتبع GPS، حساب وقت الوصول، وتوزيع الحجوزات على السيارات المتاحة. المغسلة الثابتة تستفيد من نظام الطابور والكاشير وإدارة العملاء.',
   },
   {
     q: 'كم سعر الاشتراك وهل توجد رسوم إضافية؟',
-    a: 'تبدأ الخطط من 29 ريال/شهر (مغسلة بايكات) وتصل إلى 299 ريال/شهر (أسطول كامل). لا توجد رسوم إعداد ولا عمولات على الحجوزات. السعر ثابت وشامل لجميع الميزات في الخطة.',
+    a: 'Jdawil مجاني للأبد مع 30 حجز/شهر. باقة Pro بـ 99 ر.س شهرياً أو 999 ر.س سنوياً لكل شيء مفتوح. بدون عمولة على المدفوعات.',
   },
   {
     q: 'هل أحتاج تثبيت تطبيق أو شراء أجهزة؟',
-    a: 'لا. Bokset يعمل كـ PWA من المتصفح على أي جهاز. يمكن تثبيته على الشاشة الرئيسية بدون متجر تطبيقات. لا يحتاج أجهزة خاصة — جوالك كافٍ.',
+    a: 'لا. Jdawil يعمل كـ PWA من المتصفح على أي جهاز. يمكن تثبيته على الشاشة الرئيسية بدون متجر تطبيقات. لا يحتاج أجهزة خاصة — جوالك كافٍ.',
   },
   {
     q: 'كيف تعمل المدفوعات الإلكترونية؟',
-    a: 'تربط حساب ميسر أو Checkout.com الخاص بك بمفتاح API. المال يذهب مباشرة لحسابك البنكي — Bokset لا يلمس أموالك. يدعم STC Pay، مدى، Apple Pay، وNFC.',
+    a: 'تربط حساب ميسر أو Checkout.com الخاص بك بمفتاح API. المال يذهب مباشرة لحسابك البنكي — Jdawil لا يلمس أموالك. يدعم STC Pay، مدى، Apple Pay، وNFC.',
   },
   {
     q: 'ماذا يحدث بعد انتهاء التجربة المجانية؟',
@@ -291,7 +291,7 @@ export default function Landing() {
               <Droplets size={17} className="text-white" />
             </motion.div>
             <div className="leading-tight">
-              <p className="font-black text-white text-[15px] tracking-tight">Bokset</p>
+              <p className="font-black text-white text-[15px] tracking-tight">Jdawil</p>
               <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">Car Wash SaaS</p>
             </div>
           </Link>
@@ -533,7 +533,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
-              بدون نظام vs مع Bokset
+              بدون نظام vs مع Jdawil
             </h2>
             <p className="text-slate-500 text-base">الفرق اللي يحسه كل صاحب مغسلة من أول أسبوع</p>
           </motion.div>
@@ -543,7 +543,7 @@ export default function Landing() {
             <div className="grid grid-cols-3 text-xs font-bold text-slate-500 border-b border-white/[0.06] px-6 py-3">
               <span></span>
               <span className="text-center text-red-400/70">بدون نظام</span>
-              <span className="text-center text-indigo-400/70">مع Bokset</span>
+              <span className="text-center text-indigo-400/70">مع Jdawil</span>
             </div>
             {[
               { area: 'استقبال الحجوزات', before: 'واتساب + اتصالات + فوضى', after: 'نظام أونلاين 24/7' },
@@ -589,7 +589,7 @@ export default function Landing() {
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4">
               احسب دخلك مع
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Bokset</span>
+              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Jdawil</span>
             </h2>
             <p className="text-slate-400 text-lg">حرّك الشريط — وشاهد الأرقام تتغير</p>
           </motion.div>
@@ -699,7 +699,7 @@ export default function Landing() {
 
                     {/* Plan Cost */}
                     <div className="bg-gradient-to-br from-amber-950/40 to-orange-950/30 border border-amber-500/20 rounded-2xl p-4">
-                      <p className="text-xs text-amber-400 font-bold mb-1">تكلفة Bokset الملائمة لك</p>
+                      <p className="text-xs text-amber-400 font-bold mb-1">تكلفة Jdawil الملائمة لك</p>
                       <p className="text-2xl font-black text-amber-300">
                         {washesPerDay <= 5 ? '29' : washesPerDay <= 20 ? '119' : '199'}
                         <span className="text-sm font-bold text-amber-500 mr-2">ر.س / شهر</span>
@@ -756,7 +756,7 @@ export default function Landing() {
               {...fadeUp(0.1)}
               className="bg-red-950/20 border border-red-500/20 rounded-3xl p-8 flex flex-col"
             >
-              <h3 className="text-2xl font-black text-red-300 mb-6 text-center">😤 قبل Bokset</h3>
+              <h3 className="text-2xl font-black text-red-300 mb-6 text-center">😤 قبل Jdawil</h3>
               <ul className="space-y-4">
                 {[
                   'تنسيق المواعيد عبر واتساب — فوضى كاملة',
@@ -783,7 +783,7 @@ export default function Landing() {
               {...fadeUp(0.2)}
               className="bg-emerald-950/20 border border-emerald-500/20 rounded-3xl p-8 flex flex-col"
             >
-              <h3 className="text-2xl font-black text-emerald-300 mb-6 text-center">✨ بعد Bokset</h3>
+              <h3 className="text-2xl font-black text-emerald-300 mb-6 text-center">✨ بعد Jdawil</h3>
               <ul className="space-y-4">
                 {[
                   'حجز تلقائي — العميل يحجز من هاتفه',
@@ -812,7 +812,7 @@ export default function Landing() {
               <div className="h-8 w-px bg-gradient-to-b from-transparent to-blue-500/50" />
               <div className="flex items-center gap-3 bg-white/[0.05] border border-white/15 rounded-2xl px-6 py-3">
                 <span className="text-2xl">💧</span>
-                <span className="font-black text-white text-lg tracking-tight">Bokset</span>
+                <span className="font-black text-white text-lg tracking-tight">Jdawil</span>
               </div>
               <div className="h-8 w-px bg-gradient-to-t from-transparent to-blue-500/50" />
             </div>
@@ -919,7 +919,7 @@ export default function Landing() {
               داشبورد مغسلتك
               <span className="bg-gradient-to-l from-blue-400 to-cyan-300 bg-clip-text text-transparent"> في ثانية واحدة</span>
             </h2>
-            <p className="text-slate-400 text-lg">هذا ما تراه كل صباح عند فتح Bokset</p>
+            <p className="text-slate-400 text-lg">هذا ما تراه كل صباح عند فتح Jdawil</p>
           </motion.div>
 
           {/* Mock Dashboard */}
@@ -931,7 +931,7 @@ export default function Landing() {
               <div className="w-3 h-3 rounded-full bg-red-500/70" />
               <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
               <div className="w-3 h-3 rounded-full bg-green-500/70" />
-              <div className="mx-auto text-xs text-slate-500 bg-white/5 px-6 py-1 rounded-full">bokset.sa/vendor</div>
+              <div className="mx-auto text-xs text-slate-500 bg-white/5 px-6 py-1 rounded-full">jdawil.sa/vendor</div>
             </div>
 
             <div className="p-5 md:p-7">
@@ -1029,7 +1029,7 @@ export default function Landing() {
                     {label}
                   </div>
                 ))}
-                <div className="mr-auto text-[10px] text-slate-600">Bokset v1.0</div>
+                <div className="mr-auto text-[10px] text-slate-600">Jdawil v1.0</div>
               </div>
             </div>
           </motion.div>
@@ -1228,7 +1228,7 @@ export default function Landing() {
                     أنت من العملاء المؤسسين — سعرك محفوظ للأبد
                   </p>
                   <p className="text-amber-100 text-sm mt-0.5">
-                    أول 100 مغسلة تسجل في Bokset تحتفظ بسعر اليوم حتى لو رفعنا الأسعار لاحقاً
+                    أول 100 مغسلة تسجل في Jdawil تحتفظ بسعر اليوم حتى لو رفعنا الأسعار لاحقاً
                   </p>
                   {foundingSeats !== null && (
                     <div className="mt-1.5 inline-flex items-center gap-1.5">
@@ -1643,7 +1643,7 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto relative z-10">
           <motion.div {...fadeUp()} className="text-center mb-14">
             <span className="inline-block text-xs font-bold tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2 mb-4">
-              قبل وبعد Bokset
+              قبل وبعد Jdawil
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
               الفرق واضح
@@ -1660,7 +1660,7 @@ export default function Landing() {
                 ❌ بدون نظام
               </div>
               <div className="px-6 py-4 text-sm font-bold text-emerald-400 text-center bg-emerald-500/5">
-                ✅ مع Bokset
+                ✅ مع Jdawil
               </div>
             </div>
             {comparisonRows.map((row, i) => (
@@ -1751,7 +1751,7 @@ export default function Landing() {
           <motion.div {...fadeUp(0.3)} className="mt-10 p-6 rounded-2xl bg-white/[0.03] border border-white/8 text-center">
             <p className="text-slate-400 mb-3">لا تزال لديك أسئلة؟</p>
             <a
-              href="https://wa.me/966500000000?text=أريد معرفة المزيد عن Bokset"
+              href="https://wa.me/966500000000?text=أريد معرفة المزيد عن Jdawil"
               target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-xl font-bold transition-colors text-sm"
             >
@@ -1784,7 +1784,7 @@ export default function Landing() {
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
               سيارة عميلك تستاهل
               <br />
-              <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">ومغسلتك تستاهل Bokset</span>
+              <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">ومغسلتك تستاهل Jdawil</span>
             </h2>
             <p className="text-slate-300 text-xl mb-12">١٤ يوم مجاناً — بدون بطاقة ائتمان — الإعداد يأخذ ٣ دقائق</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
@@ -1800,7 +1800,7 @@ export default function Landing() {
               </motion.button>
             </div>
             <a
-              href="https://wa.me/966500000000?text=أبي أعرف أكثر عن Bokset"
+              href="https://wa.me/966500000000?text=أبي أعرف أكثر عن Jdawil"
               target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 transition-colors text-lg font-bold"
             >
@@ -1847,8 +1847,8 @@ export default function Landing() {
                   <Droplets size={20} className="text-white" />
                 </div>
                 <div className="leading-tight">
-                  <p className="font-black text-white text-lg">Bokset</p>
-                  <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">Bokset Platform</p>
+                  <p className="font-black text-white text-lg">Jdawil</p>
+                  <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">Jdawil Platform</p>
                 </div>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
@@ -1912,7 +1912,7 @@ export default function Landing() {
           </div>
 
           <div className="pt-8 border-t border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-slate-600">© {new Date().getFullYear()} منصة Bokset — جميع الحقوق محفوظة</p>
+            <p className="text-xs text-slate-600">© {new Date().getFullYear()} منصة Jdawil — جميع الحقوق محفوظة</p>
             <div className="flex gap-5 text-xs text-slate-600">
               <span className="hover:text-slate-400 cursor-pointer transition-colors">سياسة الخصوصية</span>
               <span className="hover:text-slate-400 cursor-pointer transition-colors">شروط الاستخدام</span>

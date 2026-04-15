@@ -11,7 +11,7 @@ export function validateEnv() {
   const recommended: Array<{ key: string; label: string; fallback: string }> = [
     { key: 'PORT', label: 'رقم المنفذ', fallback: '3001' },
     { key: 'CLIENT_URL', label: 'رابط الواجهة', fallback: 'http://localhost:5173' },
-    { key: 'DOMAIN', label: 'الدومين', fallback: 'washsaas.com' },
+    { key: 'DOMAIN', label: 'الدومين', fallback: 'jdawil.sa' },
     { key: 'ENCRYPTION_KEY', label: 'مفتاح التشفير', fallback: 'dev-only' },
     { key: 'WHATSAPP_TOKEN', label: 'توكن واتساب', fallback: 'not set' },
     { key: 'WHATSAPP_PHONE_ID', label: 'معرف هاتف واتساب', fallback: 'not set' },

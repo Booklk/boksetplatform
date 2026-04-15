@@ -587,7 +587,7 @@ router.post('/:id/send-whatsapp', requireAuth, requireRole('vendor_admin', 'admi
       .limit(1);
 
     const vendorName = vendor?.nameAr ?? 'المغسلة';
-    const invoiceUrl = `${process.env.APP_URL ?? 'https://app.washsaas.com'}/api/invoices/${id}/pdf`;
+    const invoiceUrl = `${process.env.APP_URL ?? 'https://app.jdawil.sa'}/api/invoices/${id}/pdf`;
 
     const message =
       `🧾 *فاتورتك من ${vendorName}*\n\n` +

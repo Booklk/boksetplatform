@@ -325,19 +325,19 @@ export default function Blog() {
   return (
     <>
       <Helmet>
-        <title>مدونة Bokset — مقالات إدارة مغاسل السيارات الثابتة والمتنقلة</title>
+        <title>مدونة Jdawil — مقالات إدارة مغاسل السيارات الثابتة والمتنقلة</title>
         <meta name="description" content="مقالات وأدلة عملية لأصحاب مغاسل السيارات الثابتة والمتنقلة — تكاليف، إدارة، جودة، وتقنية." />
-        <meta property="og:title" content="مدونة Bokset — إدارة مغاسل السيارات" />
+        <meta property="og:title" content="مدونة Jdawil — إدارة مغاسل السيارات" />
         <meta property="og:description" content="مقالات ونصائح عملية لأصحاب مغاسل السيارات." />
-        <link rel="canonical" href="https://bokset.sa/blog" />
+        <link rel="canonical" href="https://jdawil.sa/blog" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Blog',
-          name: 'مدونة Bokset',
-          url: 'https://bokset.sa/blog',
+          name: 'مدونة Jdawil',
+          url: 'https://jdawil.sa/blog',
           description: 'مقالات إدارة مغاسل السيارات الثابتة والمتنقلة',
           inLanguage: 'ar',
-          publisher: { '@type': 'Organization', name: 'Bokset', url: 'https://bokset.sa' },
+          publisher: { '@type': 'Organization', name: 'Jdawil', url: 'https://jdawil.sa' },
         })}</script>
       </Helmet>
       <div className="min-h-screen bg-[#0a0f1e] text-white font-arabic" dir="rtl">
@@ -349,7 +349,7 @@ export default function Blog() {
           <div className="relative max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-6">
               <BookOpen size={14} className="text-blue-400" />
-              <span className="text-xs text-blue-400 font-bold">مدونة Bokset</span>
+              <span className="text-xs text-blue-400 font-bold">مدونة Jdawil</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black mb-4">
               أدلة عملية لأصحاب

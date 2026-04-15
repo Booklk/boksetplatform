@@ -63,7 +63,7 @@ router.post('/generate', requireAuth, requireRole('vendor_admin', 'admin'), asyn
 });
 
 function buildWhatsAppMessage(code: string, domain: string): string {
-  return `جرّب Bokset — أنشئ موقع حجوزات لمشروعك!\n\nأنا أستخدمه وفعلاً سهّل شغلي.\nسجّل مجاناً من هنا وجرّب 14 يوم:\n\n${domain}/onboard?ref=${code}\n\nكود الإحالة: ${code}`;
+  return `جرّب Jdawil — أنشئ موقع حجوزات لمشروعك!\n\nأنا أستخدمه وفعلاً سهّل شغلي.\nسجّل مجاناً من هنا وجرّب 14 يوم:\n\n${domain}/onboard?ref=${code}\n\nكود الإحالة: ${code}`;
 }
 
 // GET /api/vendor-referral/my-referrals — Get vendor's referral stats

@@ -19,11 +19,11 @@
 
   <!-- Logo mark -->
   <rect x="80" y="180" width="60" height="60" rx="16" fill="url(#accent)"/>
-  <text x="110" y="222" text-anchor="middle" dominant-baseline="central" fill="white" font-size="30" font-weight="900" font-family="Arial, sans-serif">B</text>
+  <text x="110" y="222" text-anchor="middle" dominant-baseline="central" fill="white" font-size="30" font-weight="900" font-family="Arial, sans-serif">J</text>
 
   <!-- Title -->
-  <text x="160" y="200" fill="white" font-size="42" font-weight="900" font-family="Arial, sans-serif">Bokset</text>
-  <text x="160" y="235" fill="#6366f1" font-size="18" font-weight="600" font-family="Arial, sans-serif">bokset.sa</text>
+  <text x="160" y="200" fill="white" font-size="42" font-weight="900" font-family="Arial, sans-serif">Jdawil</text>
+  <text x="160" y="235" fill="#6366f1" font-size="18" font-weight="600" font-family="Arial, sans-serif">jdawil.sa</text>
 
   <!-- Main headline -->
   <text x="80" y="340" fill="white" font-size="48" font-weight="900" font-family="Arial, sans-serif" direction="rtl" text-anchor="start">أنشئ موقع حجوزاتك</text>

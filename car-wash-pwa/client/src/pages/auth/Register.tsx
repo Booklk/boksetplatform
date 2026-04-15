@@ -108,7 +108,7 @@ export default function Register() {
             💧
           </div>
           <h1 className="text-2xl font-black text-white">إنشاء حساب جديد</h1>
-          <p className="text-slate-400 text-sm mt-1">مغسلة Bokset</p>
+          <p className="text-slate-400 text-sm mt-1">مغسلة Jdawil</p>
         </div>
 
         {/* Progress */}

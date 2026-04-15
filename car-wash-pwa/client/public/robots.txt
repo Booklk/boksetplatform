@@ -1,5 +1,5 @@
-# Bokset — برنامج إدارة مغاسل السيارات
-# https://bokset.sa
+# Jdawil — برنامج إدارة مغاسل السيارات
+# https://jdawil.sa
 
 User-agent: *
 Allow: /
@@ -24,7 +24,7 @@ Disallow: /login
 Disallow: /register
 
 # Sitemaps
-Sitemap: https://bokset.sa/sitemap.xml
+Sitemap: https://jdawil.sa/sitemap.xml
 
 # Google-specific
 User-agent: Googlebot

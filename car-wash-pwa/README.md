@@ -1,4 +1,4 @@
-# Bokset Platform — نظام إدارة مغاسل السيارات
+# Jdawil Platform — نظام إدارة مغاسل السيارات
 
 منصة SaaS متكاملة لإدارة مغاسل السيارات الثابتة والمتنقلة في المملكة العربية السعودية.
 
@@ -112,7 +112,7 @@ car-wash-pwa/
 | `JWT_SECRET` | مفتاح JWT (32+ حرف) |
 | `PORT` | منفذ السيرفر (افتراضي: 3001) |
 | `CLIENT_URL` | رابط الواجهة للـ CORS |
-| `DOMAIN` | الدومين الرئيسي (bokset.sa) |
+| `DOMAIN` | الدومين الرئيسي (jdawil.sa) |
 | `WHATSAPP_TOKEN` | Meta WhatsApp Cloud API token |
 | `WHATSAPP_PHONE_ID` | معرف هاتف واتساب Business |
 | `MOYASAR_API_KEY` | مفتاح Moyasar للمدفوعات |

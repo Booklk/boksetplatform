@@ -1,5 +1,5 @@
 /**
- * Industry definitions for Bokset — منصة إنشاء مواقع الحجوزات للخدمات.
+ * Industry definitions for Jdawil — منصة إنشاء مواقع الحجوزات للخدمات.
  * All sectors are ACTIVE — no comingSoon restrictions.
  */
 

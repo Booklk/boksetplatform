@@ -8,9 +8,9 @@ export default function WhatsAppFAB() {
   const [expanded, setExpanded] = useState(false);
 
   const options = [
-    { label: 'سؤال عن الاشتراك', msg: 'مرحباً، لدي سؤال حول اشتراك Bokset' },
-    { label: 'مشكلة تقنية', msg: 'مرحباً، أحتاج مساعدة تقنية في Bokset' },
-    { label: 'طلب عرض', msg: 'مرحباً، أريد طلب عرض سعر لـ Bokset' },
+    { label: 'سؤال عن الاشتراك', msg: 'مرحباً، لدي سؤال حول اشتراك Jdawil' },
+    { label: 'مشكلة تقنية', msg: 'مرحباً، أحتاج مساعدة تقنية في Jdawil' },
+    { label: 'طلب عرض', msg: 'مرحباً، أريد طلب عرض سعر لـ Jdawil' },
   ];
 
   return (

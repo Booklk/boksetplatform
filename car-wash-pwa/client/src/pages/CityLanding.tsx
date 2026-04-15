@@ -83,9 +83,9 @@ export default function CityLanding() {
     );
   }
 
-  const DOMAIN = 'https://bokset.sa';
+  const DOMAIN = 'https://jdawil.sa';
   const pageUrl = `${DOMAIN}/city/${encodeURIComponent(city!)}`;
-  const title = `مغسلة سيارات متنقلة في ${data.nameAr} | برنامج إدارة مغاسل — Bokset`;
+  const title = `مغسلة سيارات متنقلة في ${data.nameAr} | برنامج إدارة مغاسل — Jdawil`;
   const desc = `أفضل برنامج لإدارة مغسلة سيارات متنقلة في ${data.nameAr}. نظام حجوزات أونلاين، تتبع GPS، مدفوعات STC Pay. يخدم أحياء ${data.districts.slice(0, 5).join('، ')} وغيرها. تجربة مجانية 14 يوم.`;
 
   return (
@@ -108,7 +108,7 @@ export default function CityLanding() {
           "description": desc,
           "url": pageUrl,
           "areaServed": { "@type": "City", "name": data.nameAr },
-          "provider": { "@type": "Organization", "name": "Bokset", "url": DOMAIN },
+          "provider": { "@type": "Organization", "name": "Jdawil", "url": DOMAIN },
           "offers": { "@type": "Offer", "price": "29", "priceCurrency": "SAR" },
         })}</script>
       </Helmet>
@@ -120,7 +120,7 @@ export default function CityLanding() {
           <div className="relative z-10 max-w-5xl mx-auto px-4 pt-24 pb-16 text-center">
             <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-8 transition-colors">
               <ArrowLeft size={14} />
-              العودة لـ Bokset
+              العودة لـ Jdawil
             </Link>
 
             <motion.div
@@ -140,7 +140,7 @@ export default function CityLanding() {
               </h1>
 
               <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                {data.description} Bokset يساعدك تدير مغسلتك باحترافية — حجوزات، GPS، مدفوعات، تقارير — كل شيء من جوالك.
+                {data.description} Jdawil يساعدك تدير مغسلتك باحترافية — حجوزات، GPS، مدفوعات، تقارير — كل شيء من جوالك.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -186,7 +186,7 @@ export default function CityLanding() {
           >
             <h2 className="text-2xl font-black text-white mb-4 flex items-center gap-2">
               <MapPin className="w-6 h-6 text-blue-400" />
-              الأحياء التي يخدمها Bokset في {data.nameAr}
+              الأحياء التي يخدمها Jdawil في {data.nameAr}
             </h2>
             <div className="flex flex-wrap gap-2">
               {data.districts.map(d => (
@@ -200,7 +200,7 @@ export default function CityLanding() {
             </div>
           </motion.div>
 
-          {/* Why Bokset for this city */}
+          {/* Why Jdawil for this city */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -208,7 +208,7 @@ export default function CityLanding() {
             className="mb-16"
           >
             <h2 className="text-2xl font-black text-white mb-6 text-center">
-              لماذا Bokset لمغسلتك في {data.nameAr}؟
+              لماذا Jdawil لمغسلتك في {data.nameAr}؟
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[
@@ -238,7 +238,7 @@ export default function CityLanding() {
 
           {/* Other cities */}
           <div className="text-center">
-            <h3 className="text-lg font-bold text-white mb-4">Bokset متوفر أيضاً في:</h3>
+            <h3 className="text-lg font-bold text-white mb-4">Jdawil متوفر أيضاً في:</h3>
             <div className="flex flex-wrap justify-center gap-2">
               {cityKeys.filter(c => c !== city).map(c => (
                 <Link
@@ -255,7 +255,7 @@ export default function CityLanding() {
 
         {/* Footer */}
         <div className="text-center py-8">
-          <p className="text-slate-600 text-xs">Bokset — أفضل برنامج إدارة مغاسل السيارات في السعودية</p>
+          <p className="text-slate-600 text-xs">Jdawil — أفضل برنامج إدارة مغاسل السيارات في السعودية</p>
         </div>
       </div>
     </>

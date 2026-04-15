@@ -150,14 +150,14 @@ router.post('/test', async (req: AuthRequest, res) => {
       event: 'test',
       timestamp: new Date().toISOString(),
       data: {
-        message: 'هذا اختبار من Bokset Webhooks',
+        message: 'هذا اختبار من Jdawil Webhooks',
         vendorId: req.user!.vendorId,
       },
     };
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Bokset-Event': 'test' },
+      headers: { 'Content-Type': 'application/json', 'X-Jdawil-Event': 'test' },
       body: JSON.stringify(testPayload),
       signal: AbortSignal.timeout(10000),
     });
@@ -195,7 +195,7 @@ export async function fireWebhook(vendorId: number, event: WebhookEvent, data: R
 
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
-          'X-Bokset-Event': event,
+          'X-Jdawil-Event': event,
         };
 
         if (hook.secret) {
@@ -203,7 +203,7 @@ export async function fireWebhook(vendorId: number, event: WebhookEvent, data: R
           const signature = crypto.createHmac('sha256', hook.secret)
             .update(JSON.stringify(payload))
             .digest('hex');
-          headers['X-Bokset-Signature'] = signature;
+          headers['X-Jdawil-Signature'] = signature;
         }
 
         await fetch(hook.url, {

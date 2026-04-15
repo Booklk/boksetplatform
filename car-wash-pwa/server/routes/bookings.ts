@@ -417,7 +417,7 @@ router.post('/:id/status', requireAuth, requireRole('employee', 'admin', 'vendor
             const afterPhotos = photos.filter(p => p.phase === 'after');
             const beforePhotos = photos.filter(p => p.phase === 'before');
             if (afterPhotos.length > 0) {
-              const DOMAIN = process.env.DOMAIN ?? 'washsaas.com';
+              const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
               const photoLinks = afterPhotos.map(p => `https://${DOMAIN}${p.photoUrl}`).join('\n');
               const beforeLink = beforePhotos.length > 0
                 ? `\n\n📸 قبل:\n${beforePhotos.map(p => `https://${DOMAIN}${p.photoUrl}`).join('\n')}`

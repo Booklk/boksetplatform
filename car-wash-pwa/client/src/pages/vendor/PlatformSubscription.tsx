@@ -519,7 +519,7 @@ export default function PlatformSubscription() {
             <p className="text-slate-400 text-sm mt-0.5">فريقنا متاح على واتساب — يرد خلال دقائق</p>
           </div>
           <a
-            href={`https://wa.me/${WHATSAPP_SUPPORT}?text=${encodeURIComponent('مرحباً، لدي سؤال حول اشتراك Bokset')}`}
+            href={`https://wa.me/${WHATSAPP_SUPPORT}?text=${encodeURIComponent('مرحباً، لدي سؤال حول اشتراك Jdawil')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all"

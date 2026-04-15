@@ -13,7 +13,7 @@ import { eq } from 'drizzle-orm';
 import { decrypt } from '../lib/crypto.js';
 
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v19.0';
-const DOMAIN = process.env.DOMAIN ?? 'bokset.sa';
+const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
 
 interface WhatsAppCredentials {
   token: string;
@@ -93,30 +93,30 @@ export async function sendRawWhatsAppMessage(phone: string, message: string, ven
   return sendMessage(phone, message, vendorId);
 }
 
-export async function notifyBookingConfirmed(phone: string, bookingNumber: string, scheduledAt: Date, packageName: string, vendorName = 'Bokset', vendorId?: number | null) {
+export async function notifyBookingConfirmed(phone: string, bookingNumber: string, scheduledAt: Date, packageName: string, vendorName = 'Jdawil', vendorId?: number | null) {
   const dateStr = scheduledAt.toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const timeStr = scheduledAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
   return sendMessage(phone, `✅ *${vendorName}*\n\nتم تأكيد حجزك بنجاح!\n\n📋 رقم الحجز: #${bookingNumber}\n📦 الخدمة: ${packageName}\n📅 الموعد: ${dateStr}\n⏰ الوقت: ${timeStr}\n\nشكراً لثقتك!`, vendorId);
 }
 
-export async function notifyEmployeeOnWay(phone: string, bookingNumber: string, employeeName: string, vendorName = 'Bokset', vendorId?: number | null) {
+export async function notifyEmployeeOnWay(phone: string, bookingNumber: string, employeeName: string, vendorName = 'Jdawil', vendorId?: number | null) {
   return sendMessage(phone, `🚗 *${vendorName}*\n\n*${employeeName}* في الطريق إليك الآن!\n\n📋 رقم الحجز: #${bookingNumber}\n\nيرجى التواجد في الموقع. شكراً!`, vendorId);
 }
 
-export async function notifyArrived(phone: string, bookingNumber: string, vendorName = 'Bokset', vendorId?: number | null) {
+export async function notifyArrived(phone: string, bookingNumber: string, vendorName = 'Jdawil', vendorId?: number | null) {
   return sendMessage(phone, `📍 *${vendorName}*\n\nوصل مقدم الخدمة إلى موقعك!\n\n📋 رقم الحجز: #${bookingNumber}`, vendorId);
 }
 
-export async function notifyServiceCompleted(phone: string, bookingNumber: string, vendorName = 'Bokset', vendorId?: number | null) {
+export async function notifyServiceCompleted(phone: string, bookingNumber: string, vendorName = 'Jdawil', vendorId?: number | null) {
   return sendMessage(phone, `🌟 *${vendorName}*\n\nاكتملت خدمتك بنجاح!\n\n📋 رقم الحجز: #${bookingNumber}\n\nنتمنى أن تكون راضياً. يسعدنا تقييمك ⭐\n\nشكراً لاختيارك ${vendorName}! 💙`, vendorId);
 }
 
-export async function notifyAppointmentReminder(phone: string, bookingNumber: string, scheduledAt: Date, vendorName = 'Bokset', vendorId?: number | null) {
+export async function notifyAppointmentReminder(phone: string, bookingNumber: string, scheduledAt: Date, vendorName = 'Jdawil', vendorId?: number | null) {
   const timeStr = scheduledAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
   return sendMessage(phone, `⏰ *${vendorName}*\n\nتذكير بموعدك غداً!\n\n📋 رقم الحجز: #${bookingNumber}\n🕐 الوقت: ${timeStr}\n\nنراك قريباً!`, vendorId);
 }
 
-export async function notifyRatingRequest(phone: string, bookingNumber: string, vendorName = 'Bokset', vendorId?: number | null) {
+export async function notifyRatingRequest(phone: string, bookingNumber: string, vendorName = 'Jdawil', vendorId?: number | null) {
   return sendMessage(phone, `⭐ *${vendorName}*\n\nشكراً لاستخدامك خدماتنا!\n\nقيّم تجربتك مع الحجز #${bookingNumber}\n\nتقييمك يساعدنا على التحسين 💙`, vendorId);
 }
 
@@ -126,7 +126,7 @@ export async function notifyGoogleReviewRequest(phone: string, vendorName: strin
 
 export async function notifyBookingConfirmedWithTracking(
   phone: string, bookingNumber: string, scheduledAt: Date,
-  packageName: string, vendorName = 'Bokset',
+  packageName: string, vendorName = 'Jdawil',
   bookingId?: number, trackingToken?: string, vendorId?: number | null,
 ) {
   const dateStr = scheduledAt.toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });

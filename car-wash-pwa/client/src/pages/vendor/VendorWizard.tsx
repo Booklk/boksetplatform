@@ -530,7 +530,7 @@ function Step5({
 function Step6({ nameAr, slug }: { nameAr: string; slug: string }) {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
-  const storeUrl = `bokset.sa/store/${slug || 'your-store'}`;
+  const storeUrl = `jdawil.sa/store/${slug || 'your-store'}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`https://${storeUrl}`).catch(() => {});

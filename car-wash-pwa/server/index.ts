@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { validateEnv } from './lib/validate-env.js';
 validateEnv();
-const DOMAIN = process.env.DOMAIN ?? 'washsaas.com';
+const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
@@ -158,7 +158,7 @@ app.use(detectVendorDomain);
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Dynamic CORS: support platform domains + vendor custom domains
-const platformDomains = (process.env.PLATFORM_DOMAINS ?? 'bokset.sa,localhost,127.0.0.1')
+const platformDomains = (process.env.PLATFORM_DOMAINS ?? 'jdawil.sa,localhost,127.0.0.1')
   .split(',').map(d => d.trim());
 const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
 
@@ -997,7 +997,7 @@ process.on('unhandledRejection', (reason) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🚗 Bokset SaaS Server running on http://localhost:${PORT}`);
+  console.log(`🚗 Jdawil SaaS Server running on http://localhost:${PORT}`);
   console.log(`🔌 WebSocket server ready on ws://localhost:${PORT}/ws`);
   console.log(`📡 Environment: ${process.env.NODE_ENV ?? 'development'}`);
 });
