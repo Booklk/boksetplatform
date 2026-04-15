@@ -303,10 +303,8 @@ app.get('/api/plans', async (_req, res) => {
   } catch {
     // Fallback if table doesn't exist yet
     return res.json([
-      { id: 1, slug: 'starter', nameAr: 'أساسي', price: '29', features: ['حجوزات غير محدودة', 'موقع حجز خاص', 'إشعارات واتساب', 'تقارير مبسطة'], isPopular: false, maxEmployees: 1, trialDays: 14 },
-      { id: 2, slug: 'professional', nameAr: 'احترافي', price: '119', features: ['كل مميزات الأساسي', 'تتبع GPS', 'كاشير POS', 'إدارة مخزون', 'مدفوعات إلكترونية'], isPopular: false, maxEmployees: 5, trialDays: 14 },
-      { id: 3, slug: 'business', nameAr: 'أعمال', price: '199', features: ['كل مميزات الاحترافي', 'طابور ذكي', 'برنامج ولاء', 'تقارير VAT', 'CRM عملاء', 'مستشار AI'], isPopular: true, maxEmployees: 15, trialDays: 14 },
-      { id: 4, slug: 'enterprise', nameAr: 'مؤسسي', price: '299', features: ['كل مميزات الأعمال', 'موظفون غير محدودون', 'رواتب تلقائية', 'فروع متعددة', 'API + Webhooks'], isPopular: false, maxEmployees: -1, trialDays: 14 },
+      { id: 1, slug: 'free', nameAr: 'مجاني', price: '0', features: ['موقع حجز خاص', 'حتى 30 حجز/شهر', 'إشعارات واتساب', '3 ثيمات'], isPopular: false, maxEmployees: 1, trialDays: 0, featureGates: {} },
+      { id: 2, slug: 'pro', nameAr: 'Pro', price: '99', features: ['حجوزات غير محدودة', 'موظفون غير محدودون', 'GPS + كاشير + مدفوعات', 'CRM + ولاء + AI', 'كل الثيمات', 'تقارير VAT + رواتب'], isPopular: true, maxEmployees: -1, trialDays: 14, featureGates: {} },
     ]);
   }
 });

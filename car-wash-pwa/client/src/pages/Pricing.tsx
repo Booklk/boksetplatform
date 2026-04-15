@@ -7,71 +7,50 @@ import {
 
 const plans = [
   {
-    id: 'starter',
-    name: 'أساسي',
-    desc: 'لمقدم خدمة واحد أو فري لانسر',
-    price: 29,
+    id: 'free',
+    name: 'مجاني',
+    desc: 'ابدأ بدون أي تكلفة',
+    price: 0,
     popular: false,
     features: [
-      'حجوزات غير محدودة',
       'موقع حجز خاص بمشروعك',
+      'حتى 30 حجز/شهر',
       'إشعارات واتساب',
       'تقارير مبسطة',
-      '20 ثيم لتصميم موقعك',
-      'فواتير ضريبية PDF',
+      '3 ثيمات لتصميم موقعك',
+      'موظف واحد',
     ],
   },
   {
-    id: 'professional',
-    name: 'احترافي',
-    desc: 'حتى 5 موظفين',
-    price: 119,
-    popular: false,
-    features: [
-      'كل مميزات الأساسي',
-      'تتبع GPS للموظفين',
-      'نقطة بيع (كاشير)',
-      'إدارة مخزون',
-      'مدفوعات إلكترونية',
-      'حملات واتساب',
-    ],
-  },
-  {
-    id: 'business',
-    name: 'أعمال',
-    desc: 'موقع ثابت + فريق عمل',
-    price: 199,
+    id: 'pro',
+    name: 'Pro',
+    desc: 'كل شيء مفتوح — جرّب 14 يوم مجاناً',
+    price: 99,
     popular: true,
     features: [
-      'كل مميزات الاحترافي',
-      'طابور انتظار ذكي',
-      'برنامج ولاء عملاء',
-      'تقارير VAT ضريبية',
-      'CRM إدارة عملاء',
-      'مستشار ذكي AI',
-      'Webhooks للربط الخارجي',
-    ],
-  },
-  {
-    id: 'enterprise',
-    name: 'مؤسسي',
-    desc: 'فريق كبير أو فروع متعددة',
-    price: 299,
-    popular: false,
-    features: [
-      'كل مميزات الأعمال',
+      'حجوزات غير محدودة',
       'موظفون غير محدودون',
+      '20 ثيم لتصميم موقعك',
+      'تتبع GPS للموظفين',
+      'مدفوعات إلكترونية (STC Pay, مدى)',
+      'نقطة بيع (كاشير)',
+      'إدارة مخزون وموردين',
+      'برنامج ولاء عملاء',
+      'CRM إدارة عملاء',
+      'حملات واتساب تسويقية',
+      'تقارير VAT ضريبية',
+      'قوائم مالية + تصدير Excel',
+      'مستشار ذكي AI',
       'إدارة رواتب تلقائية',
-      'فروع متعددة',
-      'API + Webhooks',
+      'Webhooks / API',
+      'فواتير ضريبية PDF',
       'أولوية دعم فني',
-      'تحليلات متقدمة',
     ],
   },
 ];
 
 const faqs = [
-  { q: 'هل أقدر أجرب قبل ما أدفع؟', a: 'نعم، 14 يوم تجربة مجانية كاملة بدون بطاقة ائتمان. تقدر تلغي في أي وقت.' },
+  { q: 'هل أقدر أجرب قبل ما أدفع؟', a: 'نعم! كل مشترك جديد يبدأ بـ Pro مجاناً لمدة 14 يوم بكل المميزات. بعدها إذا ما اشتركت ترجع تلقائياً للباقة المجانية — ما تخسر بياناتك.' },
   { q: 'هل فيه عقد أو التزام؟', a: 'لا، الاشتراك شهري بدون أي التزام. ألغِ وقتما تشاء.' },
   { q: 'هل Bokset يأخذ عمولة على المدفوعات؟', a: 'لا. المال يدخل حسابك البنكي مباشرة. Bokset لا يلمس أموالك.' },
   { q: 'أقدر أغير الباقة لاحقاً؟', a: 'نعم، تقدر ترقّي أو تنزّل باقتك في أي وقت من إعدادات حسابك.' },
@@ -89,8 +68,8 @@ export default function Pricing() {
   return (
     <>
       <Helmet>
-        <title>الأسعار — Bokset | أنشئ موقع حجوزاتك يبدأ من 29 ريال/شهر</title>
-        <meta name="description" content="أسعار Bokset تبدأ من 29 ريال شهرياً. تجربة مجانية 14 يوم بدون بطاقة ائتمان. بدون عمولة. بدون عقد. اختر الباقة المناسبة لمشروعك." />
+        <title>الأسعار — Bokset | مجاني للأبد أو Pro بـ 99 ر.س/شهر</title>
+        <meta name="description" content="Bokset مجاني للأبد مع 30 حجز/شهر. باقة Pro بـ 99 ريال شهرياً لكل شيء مفتوح. بدون عمولة. بدون عقد. ألغِ وقتما تشاء." />
       </Helmet>
 
       <div dir="rtl" className="min-h-screen bg-surface-1 text-white">
@@ -113,8 +92,8 @@ export default function Pricing() {
         </div>
 
         {/* Plans */}
-        <div className="max-w-5xl mx-auto px-4 pb-16">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="max-w-3xl mx-auto px-4 pb-16">
+          <div className="grid sm:grid-cols-2 gap-4">
             {plans.map((plan, i) => (
               <motion.div
                 key={plan.id}
@@ -135,8 +114,14 @@ export default function Pricing() {
                 <p className="text-xs text-slate-500 mt-1">{plan.desc}</p>
 
                 <div className="mt-4 mb-5">
-                  <span className="text-3xl font-black text-white">{plan.price}</span>
-                  <span className="text-sm text-slate-500 mr-1">ر.س / شهر</span>
+                  {plan.price === 0 ? (
+                    <span className="text-3xl font-black text-white">مجاني</span>
+                  ) : (
+                    <>
+                      <span className="text-3xl font-black text-white">{plan.price}</span>
+                      <span className="text-sm text-slate-500 mr-1">ر.س / شهر</span>
+                    </>
+                  )}
                 </div>
 
                 <ul className="space-y-2.5 flex-1">
@@ -163,7 +148,7 @@ export default function Pricing() {
           </div>
 
           <p className="text-center text-xs text-slate-600 mt-6">
-            جميع الأسعار بالريال السعودي · شاملة ضريبة القيمة المضافة · تجربة مجانية 14 يوم لجميع الباقات
+            جميع الأسعار بالريال السعودي · شاملة ضريبة القيمة المضافة · Pro مجاني 14 يوم بدون بطاقة
           </p>
         </div>
 
