@@ -48,7 +48,7 @@ async function seedWithVendor(vendorId: number) {
     {
       name: 'مدير النظام',
       phone: '0500000001',
-      email: 'admin@jdawil.sa',
+      email: 'vendor@jdawil.sa',
       passwordHash: adminHash,
       role: 'admin',
       vendorId,

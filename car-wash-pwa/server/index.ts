@@ -179,9 +179,8 @@ app.use(cors({
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
         return callback(null, true);
       }
-      // Allow vendor custom domains (they'll be validated by domain middleware)
-      // Custom domains are verified at the vendor level
-      return callback(null, true);
+      // Reject unknown origins in production
+      return callback(null, false);
     } catch {
       return callback(null, false);
     }
@@ -220,6 +219,16 @@ const campaignLimiter = rateLimit({
 
 app.use('/api/auth', authLimiter);
 app.use('/api/campaigns', campaignLimiter);
+
+const onboardLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 registrations per hour per IP
+  message: { error: 'محاولات تسجيل كثيرة. حاول بعد ساعة' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/vendors/onboard', onboardLimiter);
+
 app.use('/api/', apiLimiter);
 
 // Serve uploaded files with caching
@@ -604,7 +613,7 @@ cron.schedule('0 7 * * *', async () => {
           eq(inventory.autoReorderEnabled, true),
           eq(suppliers.isActive, true),
           sql`CAST(${inventory.quantity} AS DECIMAL) <= CAST(${inventory.minQuantity} AS DECIMAL)`,
-          sql`${inventory.vendorId} = ANY(${sql.raw('ARRAY[' + vendorIds.join(',') + ']::int[]')})`,
+          sql`${inventory.vendorId} IN (${sql.join(vendorIds.map(id => sql`${id}`), sql`, `)})`,
         )
       );
 
