@@ -250,14 +250,14 @@ export default function VendorLanding() {
 
   const DOMAIN = 'https://bokset.sa';
   const storeUrl = `${DOMAIN}/store/${slug}`;
-  const pageTitle = `${vendor.nameAr} — حجز غسيل سيارة | ${vendor.city ?? ''}`;
+  const pageTitle = `${vendor.nameAr} — احجز خدمتك | ${vendor.city ?? ''}`;
   const pageDesc = vendor.descriptionAr
     ? `${vendor.descriptionAr} — احجز الآن عبر الإنترنت.`
-    : `احجز خدمة غسيل السيارة مع ${vendor.nameAr}${vendor.city ? ` في ${vendor.city}` : ''}. حجز سريع وآمن عبر الإنترنت.`;
+    : `احجز خدمتك مع ${vendor.nameAr}${vendor.city ? ` في ${vendor.city}` : ''}. حجز سريع وآمن.`;
 
   const localBusinessSchema = {
     '@context': 'https://schema.org',
-    '@type': 'AutoWash',
+    '@type': 'LocalBusiness',
     name: vendor.nameAr,
     url: storeUrl,
     ...(vendor.logoUrl ? { logo: vendor.logoUrl } : {}),
@@ -295,169 +295,112 @@ export default function VendorLanding() {
       </Helmet>
     <VendorThemeProvider slug={slug}>
     <div className="min-h-screen bg-surface-1 font-arabic" dir="rtl">
-      {/* Background — adapts to theme */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl"
-          style={{ background: color, opacity: isGlassTheme ? 0.15 : isBoldTheme ? 0.25 : 0.1 }} />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-900/20 rounded-full blur-3xl" />
-        {/* Wave effect for wave-water theme */}
-        {themeId === 'wave-water' && (
-          <svg className="absolute bottom-0 left-0 right-0 opacity-[0.06]" viewBox="0 0 1440 320" preserveAspectRatio="none" style={{ height: '40%' }}>
-            <path fill={color} d="M0,160L48,170.7C96,181,192,203,288,197.3C384,192,480,160,576,154.7C672,149,768,171,864,181.3C960,192,1056,192,1152,176C1248,160,1344,128,1392,112L1440,96L1440,320L0,320Z"/>
-          </svg>
-        )}
-        {/* Gradient border for bold theme */}
-        {isBoldTheme && (
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent" style={{ background: `linear-gradient(180deg, ${color}10 0%, transparent 30%)` }} />
-        )}
+      {/* Subtle background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[180px] opacity-[0.07]" style={{ background: color }} />
       </div>
 
       <div className="relative z-10">
-        {/* Back */}
-        <div className="max-w-4xl mx-auto px-4 pt-4">
-          <Link
-            to="/marketplace"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm"
-          >
-            <ArrowLeft size={16} />
-            العودة للسوق
-          </Link>
-        </div>
 
-        {/* ─── HERO ─────────────────────────────────────────────────── */}
-        <div className="relative overflow-hidden">
-          {/* Cover image */}
-          <div className="relative h-56 sm:h-72">
+        {/* ═══ HERO ═══════════════════════════════════════════════════════ */}
+        <section className="relative">
+          {/* Cover */}
+          <div className="h-48 sm:h-64 relative">
             {vendor.coverImageUrl ? (
-              <img
-                src={vendor.coverImageUrl}
-                alt={vendor.nameAr}
-                className="w-full h-full object-cover"
-              />
+              <img src={vendor.coverImageUrl} alt={vendor.nameAr} className="w-full h-full object-cover" />
             ) : (
-              <div
-                className="w-full h-full"
-                style={{
-                  background: `linear-gradient(135deg, ${color}33 0%, #0f172a 100%)`,
-                }}
-              />
+              <div className="w-full h-full" style={{ background: `linear-gradient(160deg, ${color}25, #0a0a14 80%)` }} />
             )}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#040812]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface-1/60 to-surface-1" />
           </div>
 
-          {/* Vendor info overlay */}
-          <div className="max-w-4xl mx-auto px-4 -mt-20 relative z-10 pb-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+          {/* Content */}
+          <div className="max-w-3xl mx-auto px-5 -mt-16 relative z-10 pb-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               {/* Logo */}
-              <div
-                className="w-20 h-20 rounded-2xl border-2 overflow-hidden bg-slate-800 shadow-2xl mb-4"
-                style={{ borderColor: `${color}60` }}
-              >
+              <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 shadow-xl mb-5" style={{ borderColor: `${color}40`, background: '#12121e' }}>
                 {vendor.logoUrl ? (
                   <img src={vendor.logoUrl} alt={vendor.nameAr} className="w-full h-full object-cover" />
                 ) : (
-                  <div
-                    className="w-full h-full flex items-center justify-center text-3xl font-black"
-                    style={{ background: `${color}33`, color }}
-                  >
-                    {vendor.nameAr.charAt(0)}
-                  </div>
+                  <div className="w-full h-full flex items-center justify-center text-3xl font-black" style={{ color }}>{vendor.nameAr.charAt(0)}</div>
                 )}
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-black text-white mb-2">{vendor.nameAr}</h1>
+              {/* Name */}
+              <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight mb-2">{vendor.nameAr}</h1>
 
-              {/* Rating + city row */}
-              <div className="flex flex-wrap items-center gap-4 mb-3">
+              {/* Subtitle */}
+              <p className="text-slate-400 text-sm leading-relaxed mb-4 max-w-xl">{heroSubtitle}</p>
+
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center gap-4 mb-5">
                 {sections.showRating !== false && vendor.rating !== null && (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <StarRating rating={vendor.rating ?? 0} size={14} />
-                    <span className="text-amber-400 font-bold text-sm">{(vendor.rating ?? 0).toFixed(1)}</span>
-                    <span className="text-slate-500 text-xs">({vendor.reviewsCount} تقييم)</span>
+                    <span className="text-sm font-bold text-white">{(vendor.rating ?? 0).toFixed(1)}</span>
+                    <span className="text-xs text-slate-600">({vendor.reviewsCount})</span>
                   </div>
                 )}
-                <div className="flex items-center gap-1 text-slate-400 text-sm">
-                  <MapPin size={14} style={{ color }} />
+                <span className="flex items-center gap-1.5 text-sm text-slate-500">
+                  <MapPin size={13} className="opacity-60" />
                   {vendor.city}
-                </div>
+                </span>
               </div>
 
-              {/* Service areas */}
+              {/* Areas */}
               {sections.showAreas !== false && vendor.serviceAreas?.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {vendor.serviceAreas.map((area) => (
-                    <span
-                      key={area}
-                      className="px-3 py-1 rounded-full text-xs font-semibold border"
-                      style={{
-                        backgroundColor: `${color}18`,
-                        borderColor: `${color}40`,
-                        color,
-                      }}
-                    >
+                <div className="flex flex-wrap gap-1.5 mb-5">
+                  {vendor.serviceAreas.map(area => (
+                    <span key={area} className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/[0.04] border border-white/[0.06] text-slate-400">
                       {area}
                     </span>
                   ))}
                 </div>
               )}
 
-              {/* Hero subtitle from Store Builder */}
-              <p className="text-slate-300 text-sm leading-relaxed max-w-2xl mb-3">{heroSubtitle}</p>
-
               {vendor.descriptionAr && (
-                <p className="text-slate-400 text-xs leading-relaxed max-w-2xl mb-5">{vendor.descriptionAr}</p>
+                <p className="text-slate-500 text-xs leading-relaxed mb-5 max-w-xl">{vendor.descriptionAr}</p>
               )}
 
-              {/* CTA buttons — controlled by sections */}
-              <div className="flex flex-wrap gap-3">
+              {/* CTAs */}
+              <div className="flex gap-3">
                 {sections.showWhatsApp !== false && (
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`btn-premium flex items-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold px-5 py-2.5 ${ctaClass} transition-all active:scale-95 text-sm shadow-lg`}
-                    style={{ boxShadow: '0 4px 20px rgba(37,211,102,0.35)' }}
-                  >
-                    <MessageCircle size={16} />
-                    واتساب
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
+                    style={{ background: color }}>
+                    <MessageCircle size={15} />
+                    تواصل معنا
                   </a>
                 )}
                 {sections.showCallButton !== false && (
-                  <a
-                    href={callUrl}
-                    className={`btn-premium flex items-center gap-2 bg-slate-700/70 hover:bg-slate-700 border text-white font-bold px-5 py-2.5 ${ctaClass} transition-all active:scale-95 text-sm`}
-                    style={{ borderColor: `${color}60` }}
-                  >
-                    <Phone size={16} />
+                  <a href={callUrl}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-white/[0.05] border border-white/[0.08] text-slate-300 hover:bg-white/[0.08] transition-all active:scale-95">
+                    <Phone size={15} />
                     اتصال
                   </a>
                 )}
               </div>
             </motion.div>
           </div>
-        </div>
 
-        {/* ─── SERVICES ─────────────────────────────────────────────── */}
-        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
+        </section>
+
+        {/* ═══ SERVICES ═══════════════════════════════════════════════ */}
+        <section className="max-w-3xl mx-auto px-5 py-10">
           <motion.h2
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-2xl font-black text-white mb-6 flex items-center gap-2"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-xl font-black text-white mb-6"
           >
-            <Droplets size={22} style={{ color }} />
             الخدمات والباقات
           </motion.h2>
 
           {servicesLoading ? (
             <ServicesSkeleton />
           ) : activeServices.length === 0 ? (
-            <div className="bg-slate-800/40 border border-slate-700/40 rounded-2xl p-10 text-center text-slate-400">
-              <div className="text-4xl mb-3">🛠️</div>
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-10 text-center text-slate-500">
               <p>لا توجد خدمات متاحة حالياً</p>
             </div>
           ) : (
@@ -474,19 +417,12 @@ export default function VendorLanding() {
                   <button
                     key={service.id}
                     onClick={() => setActiveServiceId(service.id)}
-                    className={`shrink-0 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${
+                    className={`shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                       isActive
                         ? 'text-white'
-                        : 'bg-slate-800/60 border border-slate-700/40 text-slate-300 hover:border-slate-600'
+                        : 'bg-white/[0.04] border border-white/[0.06] text-slate-400 hover:text-white'
                     }`}
-                    style={
-                      isActive
-                        ? {
-                            background: `linear-gradient(135deg, ${color}, ${color}cc)`,
-                            boxShadow: `0 4px 16px ${color}40`,
-                          }
-                        : {}
-                    }
+                    style={isActive ? { background: color } : {}}
                   >
                     {service.name}
                   </button>
@@ -516,8 +452,7 @@ export default function VendorLanding() {
                             initial={{ opacity: 0, scale: 0.96 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: idx * 0.06 }}
-                            className={`relative glow-hover ${cardClass} rounded-2xl p-5 hover:border-white/20 transition-all duration-300 flex flex-col`}
-                            style={glowStyle}
+                            className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 hover:border-white/[0.12] transition-all duration-300 flex flex-col"
                           >
                             <div className="flex items-start justify-between mb-3">
                               <h3 className="font-black text-white text-base">{pkg.name}</h3>
@@ -545,11 +480,8 @@ export default function VendorLanding() {
 
                             <Link
                               to={`/app/book/${pkg.id}?vendorId=${vendor.id}`}
-                              className={`btn-premium mt-auto block w-full text-center font-bold text-sm py-2.5 ${ctaClass} transition-all duration-200 active:scale-95 hover:brightness-110 text-white`}
-                              style={{
-                                background: `linear-gradient(135deg, ${color}, ${color}bb)`,
-                                ...glowStyle,
-                              }}
+                              className="mt-auto block w-full text-center font-bold text-sm py-2.5 rounded-xl transition-all active:scale-[0.97] text-white"
+                              style={{ background: color }}
                             >
                               احجز الآن
                             </Link>
@@ -561,9 +493,11 @@ export default function VendorLanding() {
               </AnimatePresence>
             </motion.div>
           )}
-        </div>
+        </section>
 
-        {/* ─── QUICK BOOK ───────────────────────────────────────────── */}
+        <div className="max-w-3xl mx-auto px-5"><div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" /></div>
+
+        {/* ═══ QUICK BOOK ───────────────────────────────────────────── */}
         <div className="max-w-4xl mx-auto px-4"><div className="h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent my-8" /></div>
         <div className="max-w-4xl mx-auto px-4 py-8">
           <motion.div
