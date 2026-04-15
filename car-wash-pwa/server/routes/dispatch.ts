@@ -88,7 +88,7 @@ router.get(
             recordedAt: employeeLocations.recordedAt,
           })
           .from(employeeLocations)
-          .where(sql`${employeeLocations.employeeId} = ANY(${sql.raw(`ARRAY[${empIds.join(',')}]::integer[]`)})`)
+          .where(sql`${employeeLocations.employeeId} IN (${sql.join(empIds.filter(id => Number.isInteger(Number(id))).map(id => sql`${Number(id)}`), sql`, `)})`)
           .orderBy(desc(employeeLocations.recordedAt));
 
         // Keep only the first row per employee (latest)

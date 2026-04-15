@@ -255,80 +255,84 @@ router.post('/onboard', async (req, res) => {
     const isFoundingMember = Number(vendorCount) < 100;
     const now = new Date();
 
-    // 1. Create vendor record
-    const vendorIndustry = industry || 'other';
-    const [vendor] = await db.insert(vendors).values({
-      nameAr,
-      nameEn: nameEn || null,
-      slug,
-      phone,
-      email: email || null,
-      city: city || null,
-      address: address || null,
-      industry: vendorIndustry,
-      subscriptionStatus: 'trial',
-      subscriptionPlan: plan === 'free' ? 'free' : 'pro',
-      isActive: true,
-      trialEndsAt,
-      isFoundingMember,
-      foundingMemberSince: isFoundingMember ? now : undefined,
-    }).returning();
+    // Wrap critical operations in a transaction
+    const result = await db.transaction(async (tx) => {
+      // 1. Create vendor record
+      const vendorIndustry = industry || 'other';
+      const [vendor] = await tx.insert(vendors).values({
+        nameAr,
+        nameEn: nameEn || null,
+        slug,
+        phone,
+        email: email || null,
+        city: city || null,
+        address: address || null,
+        industry: vendorIndustry,
+        subscriptionStatus: 'trial',
+        subscriptionPlan: plan === 'free' ? 'free' : 'pro',
+        isActive: true,
+        trialEndsAt,
+        isFoundingMember,
+        foundingMemberSince: isFoundingMember ? now : undefined,
+      }).returning();
 
-    // 2. Create vendor_admin user linked to the new vendor
-    const [user] = await db.insert(users).values({
-      name: ownerName?.trim() || nameAr,
-      phone,
-      email: email || null,
-      passwordHash,
-      role: 'vendor_admin',
-      vendorId: vendor.id,
-    }).returning();
+      // 2. Create vendor_admin user linked to the new vendor
+      const [user] = await tx.insert(users).values({
+        name: ownerName?.trim() || nameAr,
+        phone,
+        email: email || null,
+        passwordHash,
+        role: 'vendor_admin',
+        vendorId: vendor.id,
+      }).returning();
 
-    const token = signToken(user);
-
-    // 3. Auto-seed default services & packages from industry template
-    try {
-      const { INDUSTRIES } = await import('../lib/industries.js');
-      const template = INDUSTRIES[vendorIndustry as keyof typeof INDUSTRIES];
-      if (template?.defaultServices?.length) {
-        for (const svc of template.defaultServices) {
-          const [createdService] = await db.insert(services).values({
-            vendorId: vendor.id,
-            name: svc.nameAr,
-            icon: svc.icon ?? null,
-            isActive: true,
-          }).returning();
-
-          // Add packages for this service
-          const svcPackages = template.defaultPackages?.filter(p => p.serviceName === svc.nameAr) ?? [];
-          for (const pkg of svcPackages) {
-            await db.insert(packages).values({
+      // 3. Auto-seed default services & packages from industry template
+      try {
+        const { INDUSTRIES } = await import('../lib/industries.js');
+        const template = INDUSTRIES[vendorIndustry as keyof typeof INDUSTRIES];
+        if (template?.defaultServices?.length) {
+          for (const svc of template.defaultServices) {
+            const [createdService] = await tx.insert(services).values({
               vendorId: vendor.id,
-              serviceId: createdService.id,
-              name: pkg.nameAr,
-              basePrice: String(pkg.price),
-              duration: pkg.duration,
-              features: pkg.features ?? [],
+              name: svc.nameAr,
+              icon: svc.icon ?? null,
               isActive: true,
-            });
+            }).returning();
+
+            const svcPackages = template.defaultPackages?.filter(p => p.serviceName === svc.nameAr) ?? [];
+            for (const pkg of svcPackages) {
+              await tx.insert(packages).values({
+                vendorId: vendor.id,
+                serviceId: createdService.id,
+                name: pkg.nameAr,
+                basePrice: String(pkg.price),
+                duration: pkg.duration,
+                features: pkg.features ?? [],
+                isActive: true,
+              });
+            }
           }
         }
+      } catch (_e) {
+        console.error('[onboard template seed]', _e);
+        // Non-blocking — vendor can create services manually
       }
-    } catch (_e) {
-      console.error('[onboard template seed]', _e);
-      // Non-blocking — vendor can create services manually
-    }
+
+      return { vendor, user };
+    });
+
+    const token = signToken(result.user);
 
     return res.status(201).json({
       token,
       user: {
-        id: user.id,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-        vendorId: user.vendorId,
+        id: result.user.id,
+        name: result.user.name,
+        phone: result.user.phone,
+        role: result.user.role,
+        vendorId: result.user.vendorId,
       },
-      vendor,
+      vendor: result.vendor,
       message: 'تم إنشاء حسابك بنجاح! مرحباً بك في Jdawil.',
     });
   } catch (e: any) {

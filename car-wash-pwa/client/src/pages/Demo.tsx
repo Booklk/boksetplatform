@@ -57,7 +57,7 @@ export default function Demo() {
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4">
-              ابنِ موقع حجز لمغسلتك
+              ابنِ موقع حجز لمشروعك
               <br />
               <span className="text-blue-400">خلال 5 دقائق</span>
             </h1>
@@ -70,7 +70,7 @@ export default function Demo() {
           {/* ── Live theme picker ── */}
           <motion.div {...fadeUp(0.1)} className="max-w-3xl mx-auto">
             <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6">
-              <p className="text-sm text-slate-400 mb-4">اختر تصميم لمغسلتك:</p>
+              <p className="text-sm text-slate-400 mb-4">اختر تصميم لمشروعك:</p>
               <div className="flex gap-2 justify-center mb-6 flex-wrap">
                 {themes.map((t, i) => (
                   <button
@@ -152,7 +152,7 @@ export default function Demo() {
                 step: '2',
                 icon: Package,
                 title: 'أضف خدماتك',
-                desc: 'أضف خدماتك وأسعارك — أو استخدم قوالب جاهزة لمغاسل السيارات المتنقلة والثابتة.',
+                desc: 'أضف خدماتك وأسعارك — أو استخدم قوالب جاهزة لجميع أنواع المشاريع الخدمية.',
               },
               {
                 step: '3',
