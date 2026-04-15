@@ -1356,6 +1356,29 @@ export const queueTicketsSessionIdx = index('idx_queue_tickets_session_id').on(q
 export const queueTicketsStatusIdx = index('idx_queue_tickets_status').on(queueTickets.status);
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// ██  PLATFORM PLANS (Dynamic — Admin-managed)                                ██
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const platformPlans = pgTable('platform_plans', {
+  id: serial('id').primaryKey(),
+  slug: varchar('slug', { length: 50 }).notNull().unique(), // starter, professional, business, enterprise
+  nameAr: varchar('name_ar', { length: 100 }).notNull(),
+  nameEn: varchar('name_en', { length: 100 }),
+  description: text('description'),
+  price: decimal('price', { precision: 10, scale: 2 }).notNull(),
+  billingCycle: varchar('billing_cycle', { length: 20 }).notNull().default('monthly'), // monthly | yearly
+  maxEmployees: integer('max_employees').default(-1), // -1 = unlimited
+  maxBranches: integer('max_branches').default(1),
+  features: jsonb('features').$type<string[]>().notNull().default([]),
+  isPopular: boolean('is_popular').notNull().default(false),
+  isActive: boolean('is_active').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  trialDays: integer('trial_days').notNull().default(14),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // ██  VENDOR REFERRAL SYSTEM (Vendor-to-Vendor)                               ██
 // ═══════════════════════════════════════════════════════════════════════════════
 

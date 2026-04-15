@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db/index.js';
-import { vendors, users, bookings, financials, vendorSubscriptionPayments, auditLogs, inAppNotifications } from '../db/schema.js';
-import { eq, sql, count, sum, desc, gte, like, or } from 'drizzle-orm';
+import { vendors, users, bookings, financials, vendorSubscriptionPayments, auditLogs, inAppNotifications, platformPlans } from '../db/schema.js';
+import { eq, sql, count, sum, desc, gte, like, or, asc } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
@@ -330,18 +330,84 @@ router.get('/audit-logs', requireAuth, requireRole('super_admin'), async (req, r
 // PLANS MANAGEMENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// GET /api/super-admin/plans — Get platform plans config
+// ═══════════════════════════════════════════════════════════════════════════════
+// DYNAMIC PLANS MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// GET /api/super-admin/plans — List all plans
 router.get('/plans', requireAuth, requireRole('super_admin'), async (_req, res) => {
-  // Plans are currently defined in frontend. This returns them for admin editing.
-  return res.json({
-    plans: [
-      { id: 'starter', name: 'أساسي', price: 29, maxEmployees: 1 },
-      { id: 'professional', name: 'احترافي', price: 119, maxEmployees: 5 },
-      { id: 'business', name: 'أعمال', price: 199, maxEmployees: 15 },
-      { id: 'enterprise', name: 'مؤسسي', price: 299, maxEmployees: -1 },
-    ],
-    note: 'تعديل الأسعار يتطلب تحديث الكود حالياً — سيتم دعم التعديل الديناميكي قريباً',
-  });
+  try {
+    const plans = await db.select().from(platformPlans).orderBy(asc(platformPlans.sortOrder));
+    return res.json(plans);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// POST /api/super-admin/plans — Create a plan
+router.post('/plans', requireAuth, requireRole('super_admin'), async (req, res) => {
+  try {
+    const { slug, nameAr, nameEn, description, price, maxEmployees, maxBranches, features, isPopular, sortOrder, trialDays } = req.body;
+    if (!slug || !nameAr || !price) return res.status(400).json({ error: 'البيانات ناقصة' });
+
+    const [plan] = await db.insert(platformPlans).values({
+      slug, nameAr, nameEn, description,
+      price: String(price),
+      maxEmployees: maxEmployees ?? -1,
+      maxBranches: maxBranches ?? 1,
+      features: features ?? [],
+      isPopular: isPopular ?? false,
+      sortOrder: sortOrder ?? 0,
+      trialDays: trialDays ?? 14,
+    }).returning();
+
+    return res.json(plan);
+  } catch (e: any) {
+    if (e?.code === '23505') return res.status(409).json({ error: 'هذا الـ slug مستخدم مسبقاً' });
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// PUT /api/super-admin/plans/:id — Update a plan
+router.put('/plans/:id', requireAuth, requireRole('super_admin'), async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { nameAr, nameEn, description, price, maxEmployees, maxBranches, features, isPopular, isActive, sortOrder, trialDays } = req.body;
+
+    const [updated] = await db.update(platformPlans).set({
+      ...(nameAr !== undefined && { nameAr }),
+      ...(nameEn !== undefined && { nameEn }),
+      ...(description !== undefined && { description }),
+      ...(price !== undefined && { price: String(price) }),
+      ...(maxEmployees !== undefined && { maxEmployees }),
+      ...(maxBranches !== undefined && { maxBranches }),
+      ...(features !== undefined && { features }),
+      ...(isPopular !== undefined && { isPopular }),
+      ...(isActive !== undefined && { isActive }),
+      ...(sortOrder !== undefined && { sortOrder }),
+      ...(trialDays !== undefined && { trialDays }),
+      updatedAt: new Date(),
+    }).where(eq(platformPlans.id, id)).returning();
+
+    if (!updated) return res.status(404).json({ error: 'الباقة غير موجودة' });
+    return res.json(updated);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// DELETE /api/super-admin/plans/:id — Delete a plan
+router.delete('/plans/:id', requireAuth, requireRole('super_admin'), async (req, res) => {
+  try {
+    await db.delete(platformPlans).where(eq(platformPlans.id, Number(req.params.id)));
+    return res.json({ success: true });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════

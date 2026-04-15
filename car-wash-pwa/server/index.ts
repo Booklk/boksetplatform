@@ -291,6 +291,26 @@ app.use('/api/webhooks', requireAuth, webhooksRoutes);
 app.use('/api/customer-import', requireAuth, customerImportRoutes);
 app.use('/api/vendor-data', requireAuth, vendorDataExportRoutes);
 
+// Public: Get active platform plans (for pricing page + onboarding)
+app.get('/api/plans', async (_req, res) => {
+  try {
+    const { platformPlans } = await import('./db/schema.js');
+    const { asc } = await import('drizzle-orm');
+    const plans = await db.select().from(platformPlans)
+      .where(eq(platformPlans.isActive, true))
+      .orderBy(asc(platformPlans.sortOrder));
+    return res.json(plans);
+  } catch {
+    // Fallback if table doesn't exist yet
+    return res.json([
+      { id: 1, slug: 'starter', nameAr: 'أساسي', price: '29', features: ['حجوزات غير محدودة', 'موقع حجز خاص', 'إشعارات واتساب', 'تقارير مبسطة'], isPopular: false, maxEmployees: 1, trialDays: 14 },
+      { id: 2, slug: 'professional', nameAr: 'احترافي', price: '119', features: ['كل مميزات الأساسي', 'تتبع GPS', 'كاشير POS', 'إدارة مخزون', 'مدفوعات إلكترونية'], isPopular: false, maxEmployees: 5, trialDays: 14 },
+      { id: 3, slug: 'business', nameAr: 'أعمال', price: '199', features: ['كل مميزات الاحترافي', 'طابور ذكي', 'برنامج ولاء', 'تقارير VAT', 'CRM عملاء', 'مستشار AI'], isPopular: true, maxEmployees: 15, trialDays: 14 },
+      { id: 4, slug: 'enterprise', nameAr: 'مؤسسي', price: '299', features: ['كل مميزات الأعمال', 'موظفون غير محدودون', 'رواتب تلقائية', 'فروع متعددة', 'API + Webhooks'], isPopular: false, maxEmployees: -1, trialDays: 14 },
+    ]);
+  }
+});
+
 // Health check
 app.get('/api/health', async (_req, res) => {
   const health: Record<string, unknown> = {
