@@ -44,7 +44,7 @@ export const ARTICLES: Article[] = [
   <li><strong>الوقود:</strong> 500 – 1,500 ريال</li>
   <li><strong>مواد التنظيف:</strong> 300 – 800 ريال</li>
   <li><strong>رواتب موظفين (موظف واحد):</strong> 1,500 – 2,500 ريال</li>
-  <li><strong>نظام إدارة الحجوزات:</strong> 29 – 199 ريال</li>
+  <li><strong>نظام إدارة الحجوزات:</strong> مجاني – 99 ريال/شهر</li>
   <li><strong>تأمين السيارة:</strong> 200 – 400 ريال</li>
 </ul>
 

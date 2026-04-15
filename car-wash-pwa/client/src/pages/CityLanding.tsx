@@ -7,63 +7,63 @@ const CITIES: Record<string, {
   nameAr: string;
   districts: string[];
   population: string;
-  carWashDemand: string;
+  serviceDemand: string;
   description: string;
 }> = {
   'الرياض': {
     nameAr: 'الرياض',
     districts: ['الياسمين', 'الملقا', 'الصحافة', 'العقيق', 'حطين', 'النرجس', 'العارض', 'الندى', 'الوادي', 'الغدير', 'الربيع', 'قرطبة', 'المروج', 'الملك فهد', 'النخيل', 'الرحمانية', 'السليمانية', 'العليا', 'الورود'],
     population: '7.6 مليون',
-    carWashDemand: 'الأعلى في المملكة — أكثر من 3 مليون سيارة مسجلة',
+    serviceDemand: 'الأعلى في المملكة — أكثر من 3 مليون سيارة مسجلة',
     description: 'الرياض أكبر سوق لمغاسل السيارات في السعودية. الطلب على خدمات الغسيل المتنقل يتزايد سنوياً بسبب الطقس الحار والغبار المستمر.',
   },
   'جدة': {
     nameAr: 'جدة',
     districts: ['الحمراء', 'الروضة', 'الشاطئ', 'أبحر الشمالية', 'أبحر الجنوبية', 'الفيصلية', 'النعيم', 'المحمدية', 'الأندلس', 'السلامة', 'البساتين', 'الزهراء'],
     population: '4.7 مليون',
-    carWashDemand: 'ثاني أكبر سوق — الرطوبة العالية تزيد الطلب على التلميع',
+    serviceDemand: 'ثاني أكبر سوق — الرطوبة العالية تزيد الطلب على التلميع',
     description: 'جدة عروس البحر الأحمر. رطوبة الجو وملوحة الهواء تجعل غسيل السيارات ضرورة أسبوعية وليست رفاهية.',
   },
   'الدمام': {
     nameAr: 'الدمام',
     districts: ['الشاطئ', 'الفيصلية', 'النور', 'الأمانة', 'المريكبات', 'الجلوية', 'البديع', 'الطبيشي'],
     population: '1.2 مليون',
-    carWashDemand: 'سوق متنامي — المنطقة الشرقية تشهد توسعاً عمرانياً كبيراً',
+    serviceDemand: 'سوق متنامي — المنطقة الشرقية تشهد توسعاً عمرانياً كبيراً',
     description: 'الدمام مركز المنطقة الشرقية الاقتصادي. قربها من الصحراء والبحر يخلق طلباً مستمراً على خدمات غسيل السيارات.',
   },
   'مكة': {
     nameAr: 'مكة المكرمة',
     districts: ['العزيزية', 'الشوقية', 'الرصيفة', 'النسيم', 'الزاهر', 'العوالي', 'الكعكية'],
     population: '2.4 مليون',
-    carWashDemand: 'موسمي مرتفع — مواسم الحج والعمرة ترفع الطلب 300%',
+    serviceDemand: 'موسمي مرتفع — مواسم الحج والعمرة ترفع الطلب 300%',
     description: 'مكة المكرمة تستقبل ملايين الزوار سنوياً. خدمات غسيل السيارات المتنقلة مطلوبة جداً خصوصاً في مواسم الحج والعمرة.',
   },
   'المدينة': {
     nameAr: 'المدينة المنورة',
     districts: ['قباء', 'العريض', 'الحرم', 'السلام', 'الخالدية', 'الفتح', 'الجمعة'],
     population: '1.5 مليون',
-    carWashDemand: 'سوق موسمي — الزوار يحتاجون خدمة سريعة',
+    serviceDemand: 'سوق موسمي — الزوار يحتاجون خدمة سريعة',
     description: 'المدينة المنورة تشهد حركة زوار مستمرة. المغاسل المتنقلة فرصة ذهبية لخدمة الفنادق والشقق المفروشة.',
   },
   'الخبر': {
     nameAr: 'الخبر',
     districts: ['الحزام الذهبي', 'العليا', 'الكورنيش', 'الروابي', 'اليرموك', 'الثقبة', 'العزيزية'],
     population: '600 ألف',
-    carWashDemand: 'قوة شرائية عالية — سكان يفضلون الخدمات المتنقلة',
+    serviceDemand: 'قوة شرائية عالية — سكان يفضلون الخدمات المتنقلة',
     description: 'الخبر مدينة راقية بقوة شرائية عالية. سكانها يفضلون خدمات الراحة والجودة — فرصة مثالية للمغاسل المتنقلة الاحترافية.',
   },
   'الطائف': {
     nameAr: 'الطائف',
     districts: ['الحوية', 'الشهداء', 'الحلقة', 'السلامة', 'شبرا'],
     population: '700 ألف',
-    carWashDemand: 'طلب صيفي مرتفع — السياحة الداخلية تنعش السوق',
-    description: 'الطائف مصيف السعودية. في الصيف يتضاعف عدد السيارات والطلب على الغسيل بسبب السياحة الداخلية.',
+    serviceDemand: 'طلب صيفي مرتفع — السياحة الداخلية تنعش السوق',
+    description: 'الطائف مصيف السعودية. في الصيف يتضاعف عدد السيارات والطلب على الخدمات بسبب السياحة الداخلية.',
   },
   'تبوك': {
     nameAr: 'تبوك',
     districts: ['المروج', 'السليمانية', 'الورود', 'النهضة', 'المصيف'],
     population: '600 ألف',
-    carWashDemand: 'سوق صاعد — مشاريع نيوم ترفع الطلب',
+    serviceDemand: 'سوق صاعد — مشاريع نيوم ترفع الطلب',
     description: 'تبوك بوابة مشروع نيوم. النمو العمراني المتسارع يفتح فرصاً كبيرة لمغاسل السيارات المتنقلة.',
   },
 };
@@ -85,8 +85,8 @@ export default function CityLanding() {
 
   const DOMAIN = 'https://jdawil.sa';
   const pageUrl = `${DOMAIN}/city/${encodeURIComponent(city!)}`;
-  const title = `مغسلة سيارات متنقلة في ${data.nameAr} | برنامج إدارة مغاسل — Jdawil`;
-  const desc = `أفضل برنامج لإدارة مغسلة سيارات متنقلة في ${data.nameAr}. نظام حجوزات أونلاين، تتبع GPS، مدفوعات STC Pay. يخدم أحياء ${data.districts.slice(0, 5).join('، ')} وغيرها. تجربة مجانية 14 يوم.`;
+  const title = `أنشئ موقع حجوزات في ${data.nameAr} | منصة حجوزات — Jdawil`;
+  const desc = `أفضل برنامج لإدارة أنشئ موقع حجوزات في ${data.nameAr}. نظام حجوزات أونلاين، تتبع GPS، مدفوعات STC Pay. يخدم أحياء ${data.districts.slice(0, 5).join('، ')} وغيرها. تجربة مجانية 14 يوم.`;
 
   return (
     <>
@@ -104,12 +104,12 @@ export default function CityLanding() {
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Service",
-          "name": `برنامج إدارة مغسلة سيارات في ${data.nameAr}`,
+          "name": `منصة حجوزات في ${data.nameAr}`,
           "description": desc,
           "url": pageUrl,
           "areaServed": { "@type": "City", "name": data.nameAr },
           "provider": { "@type": "Organization", "name": "Jdawil", "url": DOMAIN },
-          "offers": { "@type": "Offer", "price": "29", "priceCurrency": "SAR" },
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SAR" },
         })}</script>
       </Helmet>
 
@@ -134,13 +134,13 @@ export default function CityLanding() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight">
-                أفضل برنامج مغسلة سيارات
+                أفضل منصة حجوزات
                 <br />
-                <span className="gradient-text">متنقلة في {data.nameAr}</span>
+                <span className="gradient-text">في {data.nameAr}</span>
               </h1>
 
               <p className="text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                {data.description} Jdawil يساعدك تدير مغسلتك باحترافية — حجوزات، GPS، مدفوعات، تقارير — كل شيء من جوالك.
+                {data.description} Jdawil يساعدك تدير مشروعك باحترافية — حجوزات، GPS، مدفوعات، تقارير — كل شيء من جوالك.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -160,7 +160,7 @@ export default function CityLanding() {
           <div className="grid sm:grid-cols-3 gap-4 mb-16">
             {[
               { label: 'عدد السكان', value: data.population, icon: '👥' },
-              { label: 'الطلب على الغسيل', value: data.carWashDemand, icon: '📈' },
+              { label: 'الطلب على الخدمات', value: data.serviceDemand, icon: '📈' },
               { label: 'أحياء مخدومة', value: `${data.districts.length}+ حي`, icon: '🏘️' },
             ].map((s, i) => (
               <motion.div
@@ -255,7 +255,7 @@ export default function CityLanding() {
 
         {/* Footer */}
         <div className="text-center py-8">
-          <p className="text-slate-600 text-xs">Jdawil — أفضل برنامج إدارة مغاسل السيارات في السعودية</p>
+          <p className="text-slate-600 text-xs">Jdawil — أفضل منصة حجوزات السيارات في السعودية</p>
         </div>
       </div>
     </>
