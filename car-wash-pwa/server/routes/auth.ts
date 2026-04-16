@@ -31,7 +31,7 @@ function signToken(user: { id: number; role: string; phone: string; vendorId?: n
   return jwt.sign(
     { id: user.id, role: user.role, phone: user.phone, vendorId: user.vendorId ?? undefined },
     process.env.JWT_SECRET!,
-    { expiresIn: '30d' }
+    { expiresIn: '24h', algorithm: 'HS256' }
   );
 }
 
@@ -167,13 +167,14 @@ router.post('/admin-login', async (req, res) => {
       .where(eq(users.phone, p))
       .limit(1);
 
-    if (!user) return res.status(401).json({ error: 'بيانات الدخول غير صحيحة' });
-    if (user.role !== 'super_admin') return res.status(403).json({ error: 'هذا الدخول مخصص لمدراء المنصة فقط' });
-    if (!user.isActive) return res.status(403).json({ error: 'الحساب موقوف' });
-    if (!user.passwordHash) return res.status(401).json({ error: 'كلمة المرور غير معدة' });
+    const genericError = 'رقم الجوال أو كلمة المرور غير صحيحة';
+    if (!user) return res.status(401).json({ error: genericError });
+    if (user.role !== 'super_admin') return res.status(401).json({ error: genericError });
+    if (!user.isActive) return res.status(401).json({ error: genericError });
+    if (!user.passwordHash) return res.status(401).json({ error: genericError });
 
     const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) return res.status(401).json({ error: 'كلمة المرور غير صحيحة' });
+    if (!valid) return res.status(401).json({ error: genericError });
 
     const token = signToken(user);
     return res.json({
@@ -235,7 +236,7 @@ router.post('/change-password', requireAuth, async (req: AuthRequest, res) => {
     if (!user.passwordHash) return res.status(400).json({ error: 'لا يمكن تغيير كلمة المرور لهذا الحساب' });
     const valid = await bcrypt.compare(oldPassword, user.passwordHash);
     if (!valid) return res.status(400).json({ error: 'كلمة المرور القديمة غير صحيحة' });
-    const hash = await bcrypt.hash(newPassword, 10);
+    const hash = await bcrypt.hash(newPassword, 12);
     await db.update(users).set({ passwordHash: hash, updatedAt: new Date() }).where(eq(users.id, req.user!.id));
     return res.json({ success: true, message: 'تم تغيير كلمة المرور بنجاح' });
   } catch (e) {

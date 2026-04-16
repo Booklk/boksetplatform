@@ -14,7 +14,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import cron from 'node-cron';
-import { db } from './db/index.js';
+import { db, closeDatabase } from './db/index.js';
 import { bookings, users, notifications, maintenanceSettings, fleetVehicles, vendors, bonusRules, inventory, suppliers, supplierOrders, automationWorkflows, automationSteps, automationExecutions, automationStepLogs, abandonedBookings, customerScores, customerSegments, customerSegmentMembers, customers } from './db/schema.js';
 import { eq, and, gte, lte, sql, count, or } from 'drizzle-orm';
 import { notifyAppointmentReminder, notifyRatingRequest, sendRawWhatsAppMessage } from './services/whatsapp.js';
@@ -217,6 +217,14 @@ const campaignLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'محاولات كثيرة لدخول لوحة الإدارة. حاول بعد 15 دقيقة' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/auth/admin-login', adminLoginLimiter);
 app.use('/api/auth', authLimiter);
 app.use('/api/campaigns', campaignLimiter);
 
@@ -976,10 +984,9 @@ app.use('/api/*', (req: Request, res: Response) => {
 function gracefulShutdown(signal: string) {
   console.log(`\n🛑 Received ${signal}. Shutting down gracefully...`);
 
-  server.close(() => {
+  server.close(async () => {
     console.log('✅ HTTP server closed');
 
-    // Close all WebSocket connections
     wss.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
         client.close(1001, 'Server shutting down');
@@ -987,10 +994,16 @@ function gracefulShutdown(signal: string) {
     });
     console.log('✅ WebSocket connections closed');
 
+    try {
+      await closeDatabase();
+      console.log('✅ Database connections drained');
+    } catch (e) {
+      console.error('⚠️ Error closing database:', e);
+    }
+
     process.exit(0);
   });
 
-  // Force shutdown after 10 seconds
   setTimeout(() => {
     console.error('⚠️ Forced shutdown after timeout');
     process.exit(1);
@@ -1000,9 +1013,13 @@ function gracefulShutdown(signal: string) {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason) => {
   console.error('[UNHANDLED REJECTION]', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('[UNCAUGHT EXCEPTION]', error);
+  gracefulShutdown('uncaughtException');
 });
 
 server.listen(PORT, () => {

@@ -239,7 +239,10 @@ router.post('/onboard', async (req, res) => {
 
     if (!nameAr?.trim()) return res.status(400).json({ error: 'اسم المنشأة مطلوب' });
     if (!phone?.trim()) return res.status(400).json({ error: 'رقم الجوال مطلوب' });
-    if (!password || password.length < 6) return res.status(400).json({ error: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' });
+    if (!password || password.length < 8) return res.status(400).json({ error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' });
+    if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+      return res.status(400).json({ error: 'كلمة المرور يجب أن تحتوي على حرف كبير ورقم على الأقل' });
+    }
 
     // Check phone uniqueness (vendor admins share the global users table)
     const existingUser = await db.select({ id: users.id }).from(users)
@@ -247,7 +250,7 @@ router.post('/onboard', async (req, res) => {
     if (existingUser.length > 0) return res.status(409).json({ error: 'رقم الجوال مسجل مسبقاً' });
 
     const slug = autoSlug(nameAr, phone);
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 12);
     const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
     // Check if this registration qualifies as a founding member (first 100)

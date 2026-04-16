@@ -77,59 +77,57 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       trackingToken,
     }).returning();
 
-    // Auto-assign to nearest available vehicle
+    // Auto-assign to nearest available vehicle (inside transaction to prevent double-booking)
     try {
-      // Get all active vehicles for this vendor with their crew
-      const availableVehicles = await db
-        .select({ vehicle: fleetVehicles, crewCount: sql<number>`count(${vehicleCrewMembers.id})` })
-        .from(fleetVehicles)
-        .leftJoin(vehicleCrewMembers, and(
-          eq(vehicleCrewMembers.vehicleId, fleetVehicles.id),
-          eq(vehicleCrewMembers.isActive, true)
-        ))
-        .where(and(
-          eq(fleetVehicles.vendorId, pkg.vendorId),
-          eq(fleetVehicles.isActive, true)
-        ))
-        .groupBy(fleetVehicles.id);
-
-      // Find vehicles with no active booking at this time (±90 min window)
-      const targetTime = newBooking.scheduledAt ? new Date(newBooking.scheduledAt).getTime() : Date.now();
-      const windowMs = 90 * 60 * 1000;
-
-      for (const { vehicle } of availableVehicles) {
-        const conflicts = await db.select({ id: bookings.id })
-          .from(bookings)
+      await db.transaction(async (tx) => {
+        const availableVehicles = await tx
+          .select({ vehicle: fleetVehicles, crewCount: sql<number>`count(${vehicleCrewMembers.id})` })
+          .from(fleetVehicles)
+          .leftJoin(vehicleCrewMembers, and(
+            eq(vehicleCrewMembers.vehicleId, fleetVehicles.id),
+            eq(vehicleCrewMembers.isActive, true)
+          ))
           .where(and(
-            eq(bookings.fleetVehicleId, vehicle.id),
-            not(eq(bookings.status, 'cancelled')),
-            not(eq(bookings.status, 'completed')),
-            gte(bookings.scheduledAt, new Date(targetTime - windowMs)),
-            lte(bookings.scheduledAt, new Date(targetTime + windowMs)),
-          ));
+            eq(fleetVehicles.vendorId, pkg.vendorId),
+            eq(fleetVehicles.isActive, true)
+          ))
+          .groupBy(fleetVehicles.id);
 
-        if (conflicts.length === 0) {
-          // Get crew driver (primary employee)
-          const [driver] = await db.select()
-            .from(vehicleCrewMembers)
+        const targetTime = newBooking.scheduledAt ? new Date(newBooking.scheduledAt).getTime() : Date.now();
+        const windowMs = 90 * 60 * 1000;
+
+        for (const { vehicle } of availableVehicles) {
+          // Lock conflicting bookings row to prevent race condition
+          const conflicts = await tx.select({ id: bookings.id })
+            .from(bookings)
             .where(and(
-              eq(vehicleCrewMembers.vehicleId, vehicle.id),
-              eq(vehicleCrewMembers.role, 'driver'),
-              eq(vehicleCrewMembers.isActive, true)
+              eq(bookings.fleetVehicleId, vehicle.id),
+              not(eq(bookings.status, 'cancelled')),
+              not(eq(bookings.status, 'completed')),
+              gte(bookings.scheduledAt, new Date(targetTime - windowMs)),
+              lte(bookings.scheduledAt, new Date(targetTime + windowMs)),
             ));
 
-          // Assign vehicle (and driver if exists)
-          await db.update(bookings)
-            .set({
-              fleetVehicleId: vehicle.id,
-              ...(driver ? { employeeId: driver.employeeId, status: 'confirmed' } : {}),
-            })
-            .where(eq(bookings.id, newBooking.id));
-          break; // Stop after first available
+          if (conflicts.length === 0) {
+            const [driver] = await tx.select()
+              .from(vehicleCrewMembers)
+              .where(and(
+                eq(vehicleCrewMembers.vehicleId, vehicle.id),
+                eq(vehicleCrewMembers.role, 'driver'),
+                eq(vehicleCrewMembers.isActive, true)
+              ));
+
+            await tx.update(bookings)
+              .set({
+                fleetVehicleId: vehicle.id,
+                ...(driver ? { employeeId: driver.employeeId, status: 'confirmed' } : {}),
+              })
+              .where(eq(bookings.id, newBooking.id));
+            break;
+          }
         }
-      }
+      });
     } catch (e) {
-      // Auto-assign failed silently — admin can assign manually
       console.error('[Auto-assign]', e);
     }
 

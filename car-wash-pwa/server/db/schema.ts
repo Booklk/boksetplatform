@@ -126,6 +126,7 @@ export const services = pgTable('services', {
   vendorId: integer('vendor_id').notNull().references(() => vendors.id),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
+  icon: varchar('icon', { length: 100 }),
   imageUrl: text('image_url'),
   isActive: boolean('is_active').notNull().default(true),
   sortOrder: integer('sort_order').notNull().default(0),

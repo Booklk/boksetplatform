@@ -15,7 +15,7 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
   if (!token) return res.status(401).json({ error: 'غير مصرح' });
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!, { algorithms: ['HS256'] }) as {
       id: number; role: string; phone: string; vendorId?: number;
     };
     req.user = payload;

@@ -30,8 +30,16 @@ const WEBHOOK_EVENTS = [
 
 type WebhookEvent = typeof WEBHOOK_EVENTS[number];
 
+function isPrivateUrl(urlStr: string): boolean {
+  try {
+    const u = new URL(urlStr);
+    const host = u.hostname.toLowerCase();
+    return /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|0\.0\.0\.0|\[::1\])/.test(host);
+  } catch { return true; }
+}
+
 const webhookSchema = z.object({
-  url: z.string().url('رابط URL غير صحيح'),
+  url: z.string().url('رابط URL غير صحيح').refine(u => !isPrivateUrl(u), 'لا يمكن استخدام عناوين داخلية'),
   events: z.array(z.enum(WEBHOOK_EVENTS)).min(1, 'اختر حدث واحد على الأقل'),
   secret: z.string().optional(),
   isActive: z.boolean().default(true),
