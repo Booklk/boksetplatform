@@ -123,7 +123,7 @@ export const users = pgTable('users', {
 
 export const services = pgTable('services', {
   id: serial('id').primaryKey(),
-  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   icon: varchar('icon', { length: 100 }),
@@ -137,8 +137,8 @@ export const services = pgTable('services', {
 
 export const packages = pgTable('packages', {
   id: serial('id').primaryKey(),
-  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
-  serviceId: integer('service_id').notNull().references(() => services.id),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  serviceId: integer('service_id').notNull().references(() => services.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
   duration: integer('duration').notNull(), // minutes
@@ -152,8 +152,8 @@ export const packages = pgTable('packages', {
 
 export const customers = pgTable('customers', {
   id: serial('id').primaryKey(),
-  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
-  userId: integer('user_id').notNull().references(() => users.id),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   // Single vehicle (legacy, vehicles table is preferred)
   vehicleType: varchar('vehicle_type', { length: 100 }),
   vehiclePlate: varchar('vehicle_plate', { length: 20 }),
@@ -187,7 +187,7 @@ export const vehicles = pgTable('vehicles', {
 
 export const bookings = pgTable('bookings', {
   id: serial('id').primaryKey(),
-  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
   bookingNumber: varchar('booking_number', { length: 20 }).notNull().unique(),
   customerId: integer('customer_id').notNull().references(() => users.id),
   employeeId: integer('employee_id').references(() => users.id),
@@ -263,7 +263,7 @@ export const payments = pgTable('payments', {
 
 export const promoCodes = pgTable('promo_codes', {
   id: serial('id').primaryKey(),
-  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
   code: varchar('code', { length: 50 }).notNull(),
   descriptionAr: text('description_ar'),
   discountType: varchar('discount_type', { length: 10 }).notNull(), // percent | fixed
@@ -1355,6 +1355,17 @@ export const posTransVendorIdx = index('idx_pos_trans_vendor_id').on(posTransact
 // Queue tickets — real-time queue
 export const queueTicketsSessionIdx = index('idx_queue_tickets_session_id').on(queueTickets.sessionId);
 export const queueTicketsStatusIdx = index('idx_queue_tickets_status').on(queueTickets.status);
+
+// Promo codes — vendor-scoped unique code lookup
+export const promoCodesVendorCodeIdx = index('idx_promo_codes_vendor_code').on(promoCodes.vendorId, promoCodes.code);
+
+// Services + Packages — vendor-scoped
+export const servicesVendorIdx = index('idx_services_vendor_id').on(services.vendorId);
+export const packagesVendorIdx = index('idx_packages_vendor_id').on(packages.vendorId);
+export const packagesServiceIdx = index('idx_packages_service_id').on(packages.serviceId);
+
+// Fleet vehicles — auto-assign lookups
+export const fleetVehiclesVendorIdx = index('idx_fleet_vehicles_vendor_id').on(fleetVehicles.vendorId);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ██  PLATFORM PLANS (Dynamic — Admin-managed)                                ██

@@ -153,33 +153,40 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// ─── REQUEST TIMEOUT (30s) ───────────────────────────────────────────────────
+app.use((_req: Request, res: Response, next: NextFunction) => {
+  res.setTimeout(30_000, () => {
+    if (!res.headersSent) {
+      res.status(408).json({ error: 'انتهت مهلة الطلب' });
+    }
+  });
+  next();
+});
+
 // ─── EXPRESS MIDDLEWARE ───────────────────────────────────────────────────────
 app.use(detectVendorDomain);
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Dynamic CORS: support platform domains + vendor custom domains
+const isProd = process.env.NODE_ENV === 'production';
 const platformDomains = (process.env.PLATFORM_DOMAINS ?? 'jdawil.sa,localhost,127.0.0.1')
   .split(',').map(d => d.trim());
 const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, server-to-server)
     if (!origin) return callback(null, true);
     try {
       const url = new URL(origin);
       const hostname = url.hostname;
-      // Allow known platform domains
       if (platformDomains.some(d => hostname === d || hostname.endsWith(`.${d}`))) {
         return callback(null, true);
       }
-      // Allow exact client URL
       if (origin === clientUrl) return callback(null, true);
-      // Allow localhost for development
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      // Allow localhost only in development
+      if (!isProd && (hostname === 'localhost' || hostname === '127.0.0.1')) {
         return callback(null, true);
       }
-      // Reject unknown origins in production
       return callback(null, false);
     } catch {
       return callback(null, false);
@@ -326,7 +333,12 @@ app.get('/api/plans', async (_req, res) => {
   }
 });
 
-// Health check
+// Liveness check — process is alive (no DB needed)
+app.get('/api/health/live', (_req, res) => {
+  return res.json({ status: 'ok', uptime: process.uptime() });
+});
+
+// Readiness check — process + DB ready to serve traffic
 app.get('/api/health', async (_req, res) => {
   const health: Record<string, unknown> = {
     status: 'ok',
@@ -336,10 +348,11 @@ app.get('/api/health', async (_req, res) => {
     environment: process.env.NODE_ENV ?? 'development',
   };
 
-  // Check DB connectivity
   try {
+    const start = Date.now();
     await db.execute(sql`SELECT 1`);
     health.database = 'connected';
+    health.dbLatencyMs = Date.now() - start;
   } catch {
     health.database = 'disconnected';
     health.status = 'degraded';
