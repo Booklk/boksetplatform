@@ -243,7 +243,7 @@ export default function Demo() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
-              { icon: Globe, title: 'موقع حجز خاص بمغسلتك', desc: 'رابط مخصص + 20 ثيم + تخصيص كامل' },
+              { icon: Globe, title: 'موقع حجز خاص بمشروعك', desc: 'رابط مخصص + 20 ثيم + تخصيص كامل' },
               { icon: Smartphone, title: 'يشتغل على كل جهاز', desc: 'جوال، تابلت، كمبيوتر — بدون تطبيق' },
               { icon: CreditCard, title: 'مدفوعات إلكترونية', desc: 'STC Pay، مدى، Apple Pay بحسابك' },
               { icon: MapPin, title: 'تتبع GPS مباشر', desc: 'العميل يشوف الموظف على الخريطة' },
@@ -269,7 +269,36 @@ export default function Demo() {
         </section>
 
         {/* ══════════════════════════════════════════════════════════════════
-            SECTION 5: CTA
+            SECTION 5: القطاعات المدعومة
+            ══════════════════════════════════════════════════════════════════ */}
+        <section>
+          <motion.div {...fadeUp()} className="text-center mb-8">
+            <h2 className="text-2xl font-black text-white mb-2">يناسب أي نوع خدمة</h2>
+            <p className="text-slate-500 text-sm">قوالب جاهزة لكل قطاع — أو عرّف خدماتك بنفسك</p>
+          </motion.div>
+
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+            {[
+              { icon: '🚗', name: 'مغاسل سيارات' },
+              { icon: '💈', name: 'صالونات' },
+              { icon: '💄', name: 'تجميل منزلي' },
+              { icon: '🏠', name: 'تنظيف منازل' },
+              { icon: '❄️', name: 'مكيفات' },
+              { icon: '🔧', name: 'سباكة' },
+              { icon: '⚡', name: 'كهرباء' },
+              { icon: '💼', name: 'فري لانسر' },
+            ].map((ind, i) => (
+              <motion.div key={ind.name} {...fadeUp(i * 0.04)}
+                className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 text-center">
+                <span className="text-2xl block mb-2">{ind.icon}</span>
+                <p className="text-xs font-bold text-slate-400">{ind.name}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            SECTION 6: CTA
             ══════════════════════════════════════════════════════════════════ */}
         <motion.section {...fadeUp()} className="text-center pb-8">
           <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-10">

@@ -576,6 +576,88 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ══ INDUSTRIES — "يناسب مشروعك" ═══════════════════════════════════ */}
+      <section className="relative py-24 px-4">
+        <div className="max-w-5xl mx-auto">
+          <motion.div {...fadeUp()} className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
+              يناسب أي مشروع خدمي
+            </h2>
+            <p className="text-slate-500 text-base max-w-lg mx-auto">اختر مجالك — وابدأ بقوالب وخدمات جاهزة خلال دقائق</p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {[
+              { icon: '🚗', name: 'مغاسل سيارات', desc: 'متنقلة وثابتة — حجوزات + GPS + تتبع', link: '/onboard' },
+              { icon: '💈', name: 'صالونات وحلاقة', desc: 'مواعيد + خدمات + ولاء عملاء', link: '/onboard' },
+              { icon: '💄', name: 'تجميل منزلي وسبا', desc: 'مكياج + مساج + حمام مغربي', link: '/onboard' },
+              { icon: '🏠', name: 'تنظيف منازل', desc: 'شقق + فلل + مكاتب + بعد البناء', link: '/onboard' },
+              { icon: '❄️', name: 'صيانة مكيفات', desc: 'تنظيف + صيانة + تركيب + فريون', link: '/onboard' },
+              { icon: '🔧', name: 'سباكة', desc: 'تسليك + تسربات + صيانة عامة', link: '/onboard' },
+              { icon: '⚡', name: 'كهرباء', desc: 'صيانة + تمديدات + إنارة + كاميرات', link: '/onboard' },
+              { icon: '💼', name: 'فري لانسر', desc: 'مصور + مدرب + طباخ + معلم + أي خدمة', link: '/onboard' },
+            ].map((industry, i) => (
+              <motion.a
+                key={industry.name}
+                href={industry.link}
+                {...fadeUp(i * 0.04)}
+                className="group bg-white/[0.03] border border-white/[0.06] hover:border-indigo-500/30 rounded-2xl p-5 transition-all text-center"
+              >
+                <span className="text-3xl block mb-3">{industry.icon}</span>
+                <h3 className="text-sm font-bold text-white mb-1 group-hover:text-indigo-400 transition-colors">{industry.name}</h3>
+                <p className="text-[11px] text-slate-500 leading-relaxed">{industry.desc}</p>
+              </motion.a>
+            ))}
+          </div>
+
+          <motion.p {...fadeUp(0.3)} className="text-center text-slate-600 text-xs mt-6">
+            مشروعك مو موجود؟ اختر "خدمات أخرى" وعرّف خدماتك بنفسك
+          </motion.p>
+        </div>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-4"><div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" /></div>
+
+      {/* ══ HOW IT WORKS — 3 خطوات ═══════════════════════════════════════ */}
+      <section className="relative py-24 px-4">
+        <div className="max-w-4xl mx-auto">
+          <motion.div {...fadeUp()} className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
+              3 خطوات وموقعك جاهز
+            </h2>
+            <p className="text-slate-500 text-base">بدون مبرمج. بدون مصمم. بدون انتظار.</p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              { step: '1', title: 'اختر نشاطك وسمّي مشروعك', desc: 'حدد مجالك (صالون، مغسلة، تنظيف...) واكتب اسم مشروعك. قوالب خدمات وأسعار جاهزة تنتظرك.' },
+              { step: '2', title: 'صمّم موقعك واختر ثيم', desc: 'اختر من 20 تصميم احترافي، ارفع شعارك أو أنشئ واحد، وخصّص الألوان والأقسام.' },
+              { step: '3', title: 'شارك الرابط وابدأ استقبل حجوزات', desc: 'موقعك جاهز على jdawil.sa/store/اسمك. أرسل الرابط عبر واتساب أو انستقرام.' },
+            ].map((item, i) => (
+              <motion.div key={item.step} {...fadeUp(i * 0.1)} className="text-center">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-black text-lg">
+                  {item.step}
+                </div>
+                <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div {...fadeUp(0.3)} className="text-center mt-10">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => navigate('/onboard')}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+            >
+              ابدأ الآن — مجاناً
+            </motion.button>
+          </motion.div>
+        </div>
+      </section>
+
+      <div className="max-w-5xl mx-auto px-4"><div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" /></div>
+
       {/* ══ ROI CALCULATOR ══════════════════════════════════════════════════ */}
       <section id="roi-calculator" className="relative py-28 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-blue-950/15 via-transparent to-transparent pointer-events-none" />
