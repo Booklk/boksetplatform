@@ -40,7 +40,7 @@ async function seedWithVendor(vendorId: number) {
     role: 'super_admin',
     vendorId: null,
   }).onConflictDoNothing();
-  console.log('  ✅ Super Admin: admin@jdawil.sa / Super@123');
+  console.log('  ✅ Super Admin: 0599999999 / Super@123 (رابط: /super-admin/login)');
 
   // Vendor Admin user
   const adminHash = await bcrypt.hash('Admin@123', 12);

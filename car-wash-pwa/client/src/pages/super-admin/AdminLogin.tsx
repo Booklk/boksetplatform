@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Shield, Phone, Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../lib/api';
 
 export default function AdminLogin() {
   const { login, user } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -22,7 +22,7 @@ export default function AdminLogin() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await api.post('/auth/admin-login', { email, password });
+      const { data } = await api.post('/auth/admin-login', { phone, password });
       login(data.token, data.user);
       navigate('/super-admin');
     } catch (err: any) {
@@ -68,14 +68,14 @@ export default function AdminLogin() {
           )}
 
           <div>
-            <label className="block text-xs font-bold text-slate-500 mb-1.5">البريد الإلكتروني</label>
+            <label className="block text-xs font-bold text-slate-500 mb-1.5">رقم الجوال</label>
             <div className="relative">
-              <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+              <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
               <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="admin@jdawil.sa"
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="05XXXXXXXX"
                 className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl pr-10 pl-4 py-3 text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-blue-500/40 transition-colors"
                 required
                 dir="ltr"
@@ -100,7 +100,7 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={loading || !email || !password}
+            disabled={loading || !phone || !password}
             className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold py-3 rounded-xl transition-colors text-sm"
           >
             {loading ? 'جاري الدخول...' : 'تسجيل الدخول'}

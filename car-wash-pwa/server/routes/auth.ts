@@ -151,14 +151,20 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// ─── Admin-only login (separate panel) ───────────────────────────────────────
+// ─── Admin-only login (separate panel — phone + password) ────────────────────
 router.post('/admin-login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'البريد وكلمة المرور مطلوبة' });
+    const { phone, password } = req.body;
+    if (!phone || !password) return res.status(400).json({ error: 'رقم الجوال وكلمة المرور مطلوبة' });
+
+    // Normalize phone
+    let p = phone.replace(/[\s\-\(\)]/g, '');
+    if (p.startsWith('+966')) p = '0' + p.slice(4);
+    if (p.startsWith('966')) p = '0' + p.slice(3);
+    if (!p.startsWith('0')) p = '0' + p;
 
     const [user] = await db.select().from(users)
-      .where(eq(users.email, email))
+      .where(eq(users.phone, p))
       .limit(1);
 
     if (!user) return res.status(401).json({ error: 'بيانات الدخول غير صحيحة' });
@@ -172,7 +178,7 @@ router.post('/admin-login', async (req, res) => {
     const token = signToken(user);
     return res.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
+      user: { id: user.id, name: user.name, phone: user.phone, role: user.role },
     });
   } catch (e) {
     console.error('[admin-login]', e);
