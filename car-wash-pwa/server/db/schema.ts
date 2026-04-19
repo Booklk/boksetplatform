@@ -891,7 +891,7 @@ export const employeeShifts = pgTable('employee_shifts', {
 
 export const supportTickets = pgTable('support_tickets', {
   id: serial('id').primaryKey(),
-  vendorId: integer('vendor_id').references(() => vendors.id), // null = from non-vendor user
+  vendorId: integer('vendor_id').references(() => vendors.id, { onDelete: 'cascade' }),
   submittedBy: integer('submitted_by').references(() => users.id),
   subject: varchar('subject', { length: 255 }).notNull(),
   category: varchar('category', { length: 50 }).notNull().default('general'),
@@ -899,15 +899,27 @@ export const supportTickets = pgTable('support_tickets', {
   priority: varchar('priority', { length: 20 }).default('medium'),
   // low | medium | high | urgent
   status: varchar('status', { length: 20 }).notNull().default('open'),
-  // open | in_progress | resolved | closed
+  // open | in_progress | waiting_vendor | resolved | closed
   description: text('description').notNull(),
   attachmentUrls: jsonb('attachment_urls').$type<string[]>().default([]),
   adminReply: text('admin_reply'),
   adminRepliedAt: timestamp('admin_replied_at'),
   adminRepliedBy: integer('admin_replied_by').references(() => users.id),
   resolvedAt: timestamp('resolved_at'),
+  satisfactionRating: integer('satisfaction_rating'), // 1-5 stars after resolve
+  internalNote: text('internal_note'), // admin-only, hidden from vendor
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const supportReplies = pgTable('support_replies', {
+  id: serial('id').primaryKey(),
+  ticketId: integer('ticket_id').notNull().references(() => supportTickets.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  role: varchar('role', { length: 20 }).notNull(), // admin | vendor
+  message: text('message').notNull(),
+  isInternal: boolean('is_internal').notNull().default(false), // admin-only notes
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
 // ─── BONUS RULES ──────────────────────────────────────────────────────────────
