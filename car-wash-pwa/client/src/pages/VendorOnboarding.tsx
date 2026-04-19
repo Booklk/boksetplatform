@@ -221,10 +221,13 @@ export default function VendorOnboarding() {
   });
 
   function handleStep1Next() {
-    if (!form.ownerName.trim()) { toast.error('أدخل اسمك'); return; }
-    if (!form.nameAr.trim()) { toast.error('أدخل اسم مشروعك'); return; }
-    if (!form.phone.trim()) { toast.error('أدخل رقم الجوال'); return; }
-    if (!form.password || form.password.length < 6) { toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return; }
+    if (!form.ownerName.trim() || form.ownerName.trim().length < 3) { toast.error('أدخل اسمك الكامل (3 أحرف على الأقل)'); return; }
+    if (!form.nameAr.trim() || form.nameAr.trim().length < 3) { toast.error('أدخل اسم مشروعك (3 أحرف على الأقل)'); return; }
+    const phoneClean = form.phone.replace(/[\s\-]/g, '');
+    if (!phoneClean.match(/^(05\d{8}|5\d{8}|\+9665\d{8}|9665\d{8})$/)) { toast.error('رقم الجوال غير صحيح — مثال: 05XXXXXXXX'); return; }
+    if (!form.password || form.password.length < 8) { toast.error('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return; }
+    if (!/[A-Z]/.test(form.password)) { toast.error('كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل'); return; }
+    if (!/[0-9]/.test(form.password)) { toast.error('كلمة المرور يجب أن تحتوي على رقم واحد على الأقل'); return; }
     if (!form.industry) { toast.error('اختر نوع مشروعك'); return; }
     if (!form.city) { toast.error('اختر المدينة'); return; }
     setStep(1);
@@ -478,7 +481,7 @@ export default function VendorOnboarding() {
                       type="password"
                       value={form.password}
                       onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      placeholder="6 أحرف على الأقل"
+                      placeholder="8 أحرف + حرف كبير + رقم"
                       className="input-field pr-10"
                       dir="ltr"
                     />
@@ -520,9 +523,9 @@ export default function VendorOnboarding() {
                   />
                 </div>
 
-                {/* Wash type selector */}
-                <div className="sm:col-span-2">
-                  <label className="label">نوع المغسلة <span className="text-slate-600 font-normal">(اختياري — يساعدنا في اقتراح الباقة المناسبة)</span></label>
+                {/* Wash type selector — only for car_wash */}
+                {form.industry === 'car_wash' && <div className="sm:col-span-2">
+                  <label className="label">نوع المتجر <span className="text-slate-600 font-normal">(اختياري — يساعدنا في اقتراح الباقة المناسبة)</span></label>
                   <div className="grid grid-cols-3 gap-3 mt-1">
                     {[
                       { value: 'bike' as const, emoji: '🏍️', label: 'متنقلة بايك' },
@@ -547,7 +550,7 @@ export default function VendorOnboarding() {
                       );
                     })}
                   </div>
-                </div>
+                </div>}
               </div>
 
               <div className="mt-6 flex justify-start">
@@ -695,7 +698,7 @@ export default function VendorOnboarding() {
 
               {/* Summary card */}
               <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-5">
-                <h3 className="font-bold text-slate-400 text-xs mb-4 uppercase tracking-wider">بيانات المغسلة</h3>
+                <h3 className="font-bold text-slate-400 text-xs mb-4 uppercase tracking-wider">بيانات المتجر</h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <p className="text-slate-500 text-xs">الاسم</p>
