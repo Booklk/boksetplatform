@@ -172,7 +172,7 @@ function RevenuePredictions({ token }: { token: string | null }) {
             <TrendIcon className={`w-6 h-6 ${trendColor}`} />
             <span className={`text-xl font-bold ${trendColor}`}>{trendLabel}</span>
           </div>
-          <span className="text-xs text-slate-500">بناءً على بيانات المغسلة</span>
+          <span className="text-xs text-slate-500">بناءً على بيانات المتجر</span>
         </div>
       </div>
 
@@ -248,7 +248,7 @@ function RevenuePredictions({ token }: { token: string | null }) {
 
       {/* Disclaimer */}
       <p className="mt-4 text-xs text-slate-500 text-center" dir="rtl">
-        * التنبؤات مبنية على بيانات مغسلتك الفعلية وقد تختلف عن النتائج الحقيقية
+        * التنبؤات مبنية على بيانات متجرك الفعلية وقد تختلف عن النتائج الحقيقية
       </p>
     </div>
   );

@@ -21,7 +21,7 @@ const router = Router();
 router.get('/', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicles = await db
       .select({
@@ -98,7 +98,7 @@ router.get('/', requireRole('vendor_admin', 'admin', 'super_admin'), async (req:
 router.get('/alerts', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicles = await db
       .select()
@@ -156,7 +156,7 @@ router.get('/alerts', requireRole('vendor_admin', 'admin', 'super_admin'), async
 router.get('/with-crew', requireRole('vendor_admin', 'admin', 'super_admin', 'employee'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     // Get all active vehicles for this vendor
     const fleetRows = await db
@@ -246,7 +246,7 @@ router.get('/with-crew', requireRole('vendor_admin', 'admin', 'super_admin', 'em
 router.get('/:vehicleId/crew', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicleId = Number(req.params.vehicleId);
 
@@ -284,7 +284,7 @@ router.get('/:vehicleId/crew', requireRole('vendor_admin', 'admin', 'super_admin
 router.post('/:vehicleId/crew', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicleId = Number(req.params.vehicleId);
     const { employeeId, role } = z
@@ -299,7 +299,7 @@ router.post('/:vehicleId/crew', requireRole('vendor_admin', 'admin', 'super_admi
       .limit(1);
 
     if (!employee) return res.status(404).json({ error: 'الموظف غير موجود' });
-    if (employee.vendorId !== vendorId) return res.status(403).json({ error: 'الموظف لا ينتمي لهذه المغسلة' });
+    if (employee.vendorId !== vendorId) return res.status(403).json({ error: 'الموظف لا ينتمي لهذا المتجر' });
 
     // If adding a driver, ensure no other active driver on this vehicle
     if (role === 'driver') {
@@ -353,7 +353,7 @@ router.post('/:vehicleId/crew', requireRole('vendor_admin', 'admin', 'super_admi
 router.delete('/:vehicleId/crew/:employeeId', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicleId = Number(req.params.vehicleId);
     const employeeId = Number(req.params.employeeId);
@@ -380,7 +380,7 @@ router.delete('/:vehicleId/crew/:employeeId', requireRole('vendor_admin', 'admin
 router.post('/', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const data = z
       .object({
@@ -424,7 +424,7 @@ router.post('/', requireRole('vendor_admin', 'admin', 'super_admin'), async (req
 router.put('/:id', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const id = Number(req.params.id);
     const data = z
@@ -461,7 +461,7 @@ router.put('/:id', requireRole('vendor_admin', 'admin', 'super_admin'), async (r
 router.delete('/:id', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const id = Number(req.params.id);
     const [updated] = await db
@@ -482,7 +482,7 @@ router.delete('/:id', requireRole('vendor_admin', 'admin', 'super_admin'), async
 router.post('/:id/update-mileage', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const id = Number(req.params.id);
     const { currentMileage } = z.object({ currentMileage: z.number().int().min(0) }).parse(req.body);
@@ -529,7 +529,7 @@ router.post('/:id/update-mileage', requireRole('vendor_admin', 'admin', 'super_a
 router.get('/:id/maintenance', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicleId = Number(req.params.id);
 
@@ -559,7 +559,7 @@ router.get('/:id/maintenance', requireRole('vendor_admin', 'admin', 'super_admin
 router.post('/:id/maintenance', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicleId = Number(req.params.id);
 
@@ -638,7 +638,7 @@ router.post('/:id/maintenance', requireRole('vendor_admin', 'admin', 'super_admi
 router.delete('/maintenance/:recordId', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const recordId = Number(req.params.recordId);
     await db
@@ -658,7 +658,7 @@ router.delete('/maintenance/:recordId', requireRole('vendor_admin', 'admin', 'su
 router.get('/:id/settings', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicleId = Number(req.params.id);
     const [settings] = await db
@@ -679,7 +679,7 @@ router.get('/:id/settings', requireRole('vendor_admin', 'admin', 'super_admin'),
 router.put('/:id/settings', requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const vehicleId = Number(req.params.id);
     const data = z

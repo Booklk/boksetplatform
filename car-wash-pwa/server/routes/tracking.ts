@@ -20,7 +20,7 @@ router.post('/location', requireAuth, requireRole('employee', 'admin', 'vendor_a
     }).parse(req.body);
 
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'الموظف غير مرتبط بمغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'الموظف غير مرتبط بمتجر' });
 
     await db.insert(employeeLocations).values({
       employeeId: req.user!.id,

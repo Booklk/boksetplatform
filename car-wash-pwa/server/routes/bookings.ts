@@ -143,7 +143,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       // Fetch vendor name for branded WhatsApp message
       const [vendorRow] = await db.select({ nameAr: vendors.nameAr })
         .from(vendors).where(eq(vendors.id, pkg.vendorId)).limit(1);
-      const vendorName = vendorRow?.nameAr ?? 'المغسلة';
+      const vendorName = vendorRow?.nameAr ?? 'المتجر';
       await notifyBookingConfirmedWithTracking(
         customer.phone,
         booking.bookingNumber,
@@ -331,7 +331,7 @@ router.post('/:id/status', requireAuth, requireRole('employee', 'admin', 'vendor
       .from(users).where(eq(users.id, booking.customerId)).limit(1);
 
     // Fetch vendor name for branded WhatsApp messages
-    let statusVendorName = 'المغسلة';
+    let statusVendorName = 'المتجر';
     if (booking.vendorId) {
       const [vRow] = await db.select({ nameAr: vendors.nameAr })
         .from(vendors).where(eq(vendors.id, booking.vendorId)).limit(1);
@@ -563,7 +563,7 @@ router.get('/', requireAuth, requireRole('admin', 'vendor_admin'), async (req, r
 
     // vendor_admin MUST always be scoped — return 400 if somehow missing vendorId
     if (isVendorAdmin && !reqUser.vendorId) {
-      return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+      return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
     }
 
     const result = await (isVendorAdmin
@@ -723,7 +723,7 @@ router.post('/intent', requireAuth, async (req, res) => {
     const { vendorId, packageId, serviceId, address, lat, lng, stepReached } = req.body;
 
     const vId = vendorId ?? reqUser.vendorId;
-    if (!vId) return res.status(400).json({ error: 'يرجى تحديد المغسلة' });
+    if (!vId) return res.status(400).json({ error: 'يرجى تحديد المتجر' });
 
     const [intent] = await db.insert(abandonedBookings).values({
       vendorId: vId,

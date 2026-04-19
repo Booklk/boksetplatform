@@ -34,7 +34,7 @@ router.get('/', async (_req, res) => {
 router.post('/', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const raw = req.body;
     // Support both nameAr/nameEn (from client) and name (direct)
@@ -91,7 +91,7 @@ router.post('/:serviceId/packages', requireAuth, requireRole('admin', 'vendor_ad
   try {
     const serviceId = Number(req.params.serviceId);
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط' });
 
     const data = z.object({
       name: z.string().min(2),

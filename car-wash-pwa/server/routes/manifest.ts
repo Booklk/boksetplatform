@@ -48,7 +48,7 @@ router.get('/:slug.json', async (req, res) => {
       .limit(1);
 
     if (!vendor) {
-      return res.status(404).json({ error: 'المغسلة غير موجودة' });
+      return res.status(404).json({ error: 'المتجر غير موجود' });
     }
 
     const primaryColor = vendor.primaryColor ?? '#1e3a8a';

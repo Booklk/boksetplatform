@@ -65,7 +65,7 @@ export default function BrandKit() {
   }
 
   async function generate() {
-    if (!washName.trim()) { setError('أدخل اسم المغسلة'); return; }
+    if (!washName.trim()) { setError('أدخل اسم المتجر'); return; }
     if (!location.trim()) { setError('أدخل المدينة أو الحي'); return; }
     if (selectedServices.length === 0) { setError('اختر خدمة واحدة على الأقل'); return; }
 
@@ -116,10 +116,10 @@ export default function BrandKit() {
             <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
               <Sparkles size={20} className="text-purple-400" />
             </div>
-            <h1 className="text-2xl font-black text-white">هوية المغسلة بالذكاء الاصطناعي</h1>
+            <h1 className="text-2xl font-black text-white">هوية المتجر بالذكاء الاصطناعي</h1>
           </div>
           <p className="text-slate-400 text-sm">
-            أدخل معلومات مغسلتك وسيولّد لك الذكاء الاصطناعي وصفاً احترافياً، صورة غلاف، QR code، وقالب منشور
+            أدخل معلومات متجرك وسيولّد لك الذكاء الاصطناعي وصفاً احترافياً، صورة غلاف، QR code، وقالب منشور
           </p>
         </motion.div>
 
@@ -138,11 +138,11 @@ export default function BrandKit() {
 
             {/* Wash name */}
             <div>
-              <label className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1.5 block">اسم المغسلة</label>
+              <label className="text-slate-400 text-xs font-bold uppercase tracking-wide mb-1.5 block">اسم المتجر</label>
               <input
                 value={washName}
                 onChange={e => setWashName(e.target.value)}
-                placeholder="مثال: مغسلة النجم"
+                placeholder="مثال: متجر النجم"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500/50 text-sm"
               />
             </div>
@@ -332,7 +332,7 @@ export default function BrandKit() {
                     </div>
                     <img
                       src={kit.coverImageUrl}
-                      alt="غلاف المغسلة"
+                      alt="غلاف المتجر"
                       className="w-full rounded-xl object-cover"
                       style={{ maxHeight: 200 }}
                       onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80'; }}
@@ -361,7 +361,7 @@ export default function BrandKit() {
                         className="w-40 h-40 rounded-xl bg-white p-2"
                       />
                     </div>
-                    <p className="text-slate-500 text-xs text-center mt-2">امسح الكود لفتح صفحة مغسلتك مباشرة</p>
+                    <p className="text-slate-500 text-xs text-center mt-2">امسح الكود لفتح صفحة متجرك مباشرة</p>
                   </div>
 
                   <p className="text-slate-600 text-xs text-center">

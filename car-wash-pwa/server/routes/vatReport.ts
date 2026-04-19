@@ -162,7 +162,7 @@ router.get('/invoice/:bookingId', requireAuth, async (req: AuthRequest, res) => 
     const vat     = Math.round(total * VAT_RATE * 100) / 100;
     const netPrice = Math.round((total - vat) * 100) / 100;
     const date    = new Date(booking.createdAt).toISOString().split('T')[0];
-    const sellerName  = vendor?.nameAr ?? 'مغسلة';
+    const sellerName  = vendor?.nameAr ?? 'المتجر';
     const vatNumber   = vendor?.vatNumber ?? '000000000000000';
 
     // ZATCA TLV encoding (Phase 1)
@@ -263,7 +263,7 @@ router.get('/pdf', requireAuth, requireRole('vendor_admin', 'admin'), async (req
       9: 'سبتمبر', 10: 'أكتوبر', 11: 'نوفمبر', 12: 'ديسمبر',
     };
     const monthLabel = monthNames[month] ?? String(month);
-    const companyName = vendor?.nameAr ?? 'المغسلة';
+    const companyName = vendor?.nameAr ?? 'المتجر';
     const generatedAt = new Date().toLocaleDateString('ar-SA', { dateStyle: 'full' });
 
     const rows: Array<{ label: string; value: string }> = [

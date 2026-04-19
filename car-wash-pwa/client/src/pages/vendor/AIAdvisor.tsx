@@ -205,7 +205,7 @@ export default function AIAdvisor() {
             </div>
             <h2 className="text-2xl font-black text-white mb-3">حلّل أعمالك بالذكاء الاصطناعي</h2>
             <p className="text-slate-400 max-w-lg mx-auto mb-8 leading-relaxed">
-              سيحلل المستشار الذكي بيانات مغسلتك — الإيرادات، العملاء، المخزون، الأداء — ويقدم لك
+              سيحلل المستشار الذكي بيانات متجرك — الإيرادات، العملاء، المخزون، الأداء — ويقدم لك
               توصيات عملية مخصصة لتنمية أعمالك.
             </p>
             <motion.button

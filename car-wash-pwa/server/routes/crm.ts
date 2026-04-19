@@ -65,7 +65,7 @@ async function verifyCustomerOwnership(customerId: number, vendorId: number): Pr
 router.get('/customers/:id/timeline', ...crmAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const customerId = Number(req.params.id);
     if (isNaN(customerId)) return res.status(400).json({ error: 'معرف العميل غير صالح' });
@@ -161,7 +161,7 @@ router.get('/customers/:id/timeline', ...crmAuth, async (req: AuthRequest, res) 
 router.get('/customers/:id/notes', ...crmAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const customerId = Number(req.params.id);
     if (isNaN(customerId)) return res.status(400).json({ error: 'معرف العميل غير صالح' });
@@ -194,7 +194,7 @@ router.get('/customers/:id/notes', ...crmAuth, async (req: AuthRequest, res) => 
 router.post('/customers/:id/notes', ...crmAuth, audit('crm.note.create'), async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const customerId = Number(req.params.id);
     if (isNaN(customerId)) return res.status(400).json({ error: 'معرف العميل غير صالح' });
@@ -227,7 +227,7 @@ router.post('/customers/:id/notes', ...crmAuth, audit('crm.note.create'), async 
 router.delete('/notes/:noteId', ...crmAuth, audit('crm.note.delete'), async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const noteId = Number(req.params.noteId);
     if (isNaN(noteId)) return res.status(400).json({ error: 'معرف الملاحظة غير صالح' });
@@ -254,7 +254,7 @@ router.delete('/notes/:noteId', ...crmAuth, audit('crm.note.delete'), async (req
 router.get('/tags', ...crmAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const tags = await db
       .select({
@@ -283,7 +283,7 @@ router.get('/tags', ...crmAuth, async (req: AuthRequest, res) => {
 router.post('/tags', ...crmAuth, audit('crm.tag.create'), async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const data = createTagSchema.parse(req.body);
 
@@ -318,7 +318,7 @@ router.post('/tags', ...crmAuth, audit('crm.tag.create'), async (req: AuthReques
 router.delete('/tags/:id', ...crmAuth, audit('crm.tag.delete'), async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const tagId = Number(req.params.id);
     if (isNaN(tagId)) return res.status(400).json({ error: 'معرف الوسم غير صالح' });
@@ -346,7 +346,7 @@ router.delete('/tags/:id', ...crmAuth, audit('crm.tag.delete'), async (req: Auth
 router.post('/customers/:id/tags', ...crmAuth, audit('crm.tag.assign'), async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const customerId = Number(req.params.id);
     if (isNaN(customerId)) return res.status(400).json({ error: 'معرف العميل غير صالح' });
@@ -395,7 +395,7 @@ router.post('/customers/:id/tags', ...crmAuth, audit('crm.tag.assign'), async (r
 router.delete('/customers/:id/tags/:tagId', ...crmAuth, audit('crm.tag.unassign'), async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const customerId = Number(req.params.id);
     const tagId = Number(req.params.tagId);
@@ -428,7 +428,7 @@ router.delete('/customers/:id/tags/:tagId', ...crmAuth, audit('crm.tag.unassign'
 router.get('/dashboard', ...crmAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -535,7 +535,7 @@ router.get('/dashboard', ...crmAuth, async (req: AuthRequest, res) => {
 router.post('/lifecycle-event', ...crmAuth, audit('crm.lifecycle.create'), async (req: AuthRequest, res) => {
   try {
     const vendorId = getVendorId(req);
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const data = lifecycleEventSchema.parse(req.body);
 

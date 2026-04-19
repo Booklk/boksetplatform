@@ -198,7 +198,7 @@ router.post('/', requireAuth, requireRole('admin', 'vendor_admin'), async (req: 
   try {
     const data = financialSchema.parse(req.body);
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد حساب مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط' });
 
     const [record] = await db.insert(financials).values({
       ...data,

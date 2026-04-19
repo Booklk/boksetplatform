@@ -98,7 +98,7 @@ router.post(
 
       // Build receipt HTML
       const vendor = await db.select({ nameAr: vendors.nameAr }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-      const vendorName = vendor[0]?.nameAr ?? 'المغسلة';
+      const vendorName = vendor[0]?.nameAr ?? 'المتجر';
 
       const receiptHtml = buildReceiptHtml({
         vendorName,

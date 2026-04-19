@@ -11,7 +11,7 @@ const router = Router();
 router.get('/', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
     const items = await db.select().from(inventory).where(eq(inventory.vendorId, vendorId)).orderBy(desc(inventory.updatedAt));
     return res.json(items);
   } catch (e) {
@@ -23,7 +23,7 @@ router.get('/', requireAuth, requireRole('admin', 'vendor_admin'), async (req: A
 router.get('/low-stock', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
     const items = await db.select().from(inventory)
       .where(and(eq(inventory.vendorId, vendorId), lte(inventory.quantity, inventory.minQuantity)));
     return res.json(items);
@@ -36,7 +36,7 @@ router.get('/low-stock', requireAuth, requireRole('admin', 'vendor_admin'), asyn
 router.post('/', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const data = z.object({
       name: z.string().min(2),

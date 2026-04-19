@@ -61,7 +61,7 @@ function buildInvoiceHtml(p: InvoiceHtmlParams): string {
     : null;
 
   const logoHtml = p.vendorLogoUrl
-    ? `<img src="${p.vendorLogoUrl}" alt="شعار المغسلة" style="height:70px;object-fit:contain;margin-bottom:8px;" />`
+    ? `<img src="${p.vendorLogoUrl}" alt="شعار المتجر" style="height:70px;object-fit:contain;margin-bottom:8px;" />`
     : '';
 
   const itemRows = p.items.map((item) => {
@@ -420,7 +420,7 @@ router.get('/booking/:id', requireAuth, async (req: AuthRequest, res) => {
         invoiceNumber: existing.invoiceNumber,
         customerName: existing.customerName,
         customerPhone: existing.customerPhone,
-        vendorNameAr: row.vendorNameAr ?? 'المغسلة',
+        vendorNameAr: row.vendorNameAr ?? 'المتجر',
         vendorPhone: row.vendorPhone ?? null,
         vendorAddress: row.vendorAddress ?? null,
         vendorLogoUrl: row.vendorLogoUrl ?? null,
@@ -463,7 +463,7 @@ router.get('/booking/:id', requireAuth, async (req: AuthRequest, res) => {
       invoiceNumber: created.invoiceNumber,
       customerName: created.customerName,
       customerPhone: created.customerPhone,
-      vendorNameAr: row.vendorNameAr ?? 'المغسلة',
+      vendorNameAr: row.vendorNameAr ?? 'المتجر',
       vendorPhone: row.vendorPhone ?? null,
       vendorAddress: row.vendorAddress ?? null,
       vendorLogoUrl: row.vendorLogoUrl ?? null,
@@ -586,7 +586,7 @@ router.post('/:id/send-whatsapp', requireAuth, requireRole('vendor_admin', 'admi
       .where(eq(vendors.id, vendorId))
       .limit(1);
 
-    const vendorName = vendor?.nameAr ?? 'المغسلة';
+    const vendorName = vendor?.nameAr ?? 'المتجر';
     const invoiceUrl = `${process.env.APP_URL ?? 'https://app.jdawil.sa'}/api/invoices/${id}/pdf`;
 
     const message =
@@ -638,7 +638,7 @@ router.get('/:id/pdf', requireAuth, async (req: AuthRequest, res) => {
       invoiceNumber: inv.invoiceNumber,
       customerName: inv.customerName,
       customerPhone: inv.customerPhone,
-      vendorNameAr: vendor?.nameAr ?? 'المغسلة',
+      vendorNameAr: vendor?.nameAr ?? 'المتجر',
       vendorPhone: vendor?.phone ?? null,
       vendorAddress: vendor?.address ?? null,
       vendorLogoUrl: vendor?.logoUrl ?? null,

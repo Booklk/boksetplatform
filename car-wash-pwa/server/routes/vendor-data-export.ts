@@ -36,7 +36,7 @@ router.get('/export', async (req: AuthRequest, res) => {
 
     // Gather all vendor data from all tables
     const [vendorData] = await db.select().from(vendors).where(eq(vendors.id, vendorId));
-    if (!vendorData) return res.status(404).json({ error: 'المغسلة غير موجودة' });
+    if (!vendorData) return res.status(404).json({ error: 'المتجر غير موجود' });
 
     const vendorUsers = await db.select().from(users).where(eq(users.vendorId, vendorId));
     const vendorCustomers = await db.select().from(customers).where(eq(customers.vendorId, vendorId));
@@ -136,7 +136,7 @@ router.get('/summary', async (req: AuthRequest, res) => {
       tables: tables.map(t => ({ name: t.name, recordCount: t.count })),
       totalRecords: tables.reduce((sum, t) => sum + t.count, 0),
       isolationMethod: 'vendor_id-based row-level isolation',
-      note: 'جميع بياناتك معزولة بالكامل عن المغاسل الأخرى باستخدام معرف المغسلة (vendor_id) في كل جدول',
+      note: 'جميع بياناتك معزولة بالكامل عن المتاجر الأخرى باستخدام معرف المتجر (vendor_id) في كل جدول',
     });
   } catch (err) {
     console.error('[Vendor Data Summary]', err);

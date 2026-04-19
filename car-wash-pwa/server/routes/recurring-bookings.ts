@@ -104,7 +104,7 @@ const updateRecurringSchema = z.object({
 router.get('/', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const result = await db
       .select({
@@ -150,7 +150,7 @@ router.get('/', requireAuth, async (req: AuthRequest, res) => {
 router.post('/', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const data = createRecurringSchema.parse(req.body);
 
@@ -159,14 +159,14 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       .from(customers)
       .where(and(eq(customers.id, data.customerId), eq(customers.vendorId, vendorId)))
       .limit(1);
-    if (!customer) return res.status(404).json({ error: 'العميل غير موجود أو لا ينتمي لهذه المغسلة' });
+    if (!customer) return res.status(404).json({ error: 'العميل غير موجود أو لا ينتمي لهذا المتجر' });
 
     // Verify package belongs to this vendor
     const [pkg] = await db.select({ id: packages.id })
       .from(packages)
       .where(and(eq(packages.id, data.packageId), eq(packages.vendorId, vendorId)))
       .limit(1);
-    if (!pkg) return res.status(404).json({ error: 'الباقة غير موجودة أو لا تنتمي لهذه المغسلة' });
+    if (!pkg) return res.status(404).json({ error: 'الباقة غير موجودة أو لا تنتمي لهذا المتجر' });
 
     const nextScheduledAt = calculateNextScheduledAt(data.frequency, data.preferredDay, data.preferredTime);
 
@@ -200,7 +200,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
 router.get('/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: 'معرّف غير صالح' });
@@ -253,7 +253,7 @@ router.get('/:id', requireAuth, async (req: AuthRequest, res) => {
 router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: 'معرّف غير صالح' });
@@ -305,7 +305,7 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
 router.delete('/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: 'معرّف غير صالح' });
@@ -332,7 +332,7 @@ router.delete('/:id', requireAuth, async (req: AuthRequest, res) => {
 router.post('/:id/generate', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     const id = Number(req.params.id);
     if (isNaN(id)) return res.status(400).json({ error: 'معرّف غير صالح' });

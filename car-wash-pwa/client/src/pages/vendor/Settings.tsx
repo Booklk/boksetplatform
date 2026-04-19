@@ -42,7 +42,7 @@ interface NotificationPrefs {
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'business',       label: 'المغسلة',      icon: Building2 },
+  { id: 'business',       label: 'المتجر',      icon: Building2 },
   { id: 'notifications',  label: 'الإشعارات',    icon: Bell },
   { id: 'plan',           label: 'باقتي',        icon: Crown },
   { id: 'security',       label: 'الأمان',       icon: Shield },
@@ -72,10 +72,8 @@ function loadNotifPrefs(): NotificationPrefs {
 }
 
 const PLAN_INFO: Record<string, { label: string; price: number; color: string }> = {
-  basic:      { label: 'أساسي',    price: 2400, color: 'from-slate-700/60 to-slate-800/60' },
-  pro:        { label: 'احترافي',  price: 4800, color: 'from-blue-900/60 to-blue-800/40' },
-  enterprise: { label: 'مؤسسي',   price: 9600, color: 'from-purple-900/60 to-purple-800/40' },
-  yearly:     { label: 'سنوي',     price: 4800, color: 'from-blue-900/60 to-blue-800/40' },
+  free:       { label: 'مجاني',    price: 0,    color: 'from-slate-700/60 to-slate-800/60' },
+  pro:        { label: 'Pro',      price: 999,  color: 'from-blue-900/60 to-blue-800/40' },
 };
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
@@ -244,7 +242,7 @@ function BusinessTab({ vendor }: { vendor?: VendorProfile }) {
         },
       }),
     onSuccess: () => {
-      toast.success('تم حفظ بيانات المغسلة بنجاح ✅');
+      toast.success('تم حفظ بيانات المتجر بنجاح ✅');
       qc.invalidateQueries({ queryKey: ['vendor-profile'] });
     },
     onError: () => toast.error('فشل الحفظ — حاول مرة أخرى'),
@@ -254,11 +252,11 @@ function BusinessTab({ vendor }: { vendor?: VendorProfile }) {
     <div>
       <h2 className="text-xl font-black text-white mb-6 flex items-center gap-2">
         <Building2 className="w-5 h-5 text-blue-400" />
-        بيانات المغسلة
+        بيانات المتجر
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Field label="اسم المغسلة" value={form.nameAr} onChange={set('nameAr')} placeholder="مغسلة النجوم" icon={Building2} />
+        <Field label="اسم المتجر" value={form.nameAr} onChange={set('nameAr')} placeholder="متجر النجوم" icon={Building2} />
         <Field label="رقم الجوال" value={form.phone} onChange={set('phone')} placeholder="0500000000" icon={Phone} type="tel" />
         <Field label="البريد الإلكتروني" value={form.email} onChange={set('email')} placeholder="info@example.com" icon={Mail} type="email" />
         <Field label="المدينة" value={form.city} onChange={set('city')} placeholder="الرياض" icon={MapPin} />
@@ -273,7 +271,7 @@ function BusinessTab({ vendor }: { vendor?: VendorProfile }) {
 
       {/* Logo section */}
       <div className="mt-5">
-        <label className="block text-sm font-semibold text-white/60 mb-1.5">رابط شعار المغسلة</label>
+        <label className="block text-sm font-semibold text-white/60 mb-1.5">رابط شعار المتجر</label>
         <div className="flex items-center gap-3">
           {form.logoUrl && (
             <img src={form.logoUrl} alt="شعار" className="w-14 h-14 rounded-xl object-cover border border-white/10" />

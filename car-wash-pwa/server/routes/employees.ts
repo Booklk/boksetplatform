@@ -123,7 +123,7 @@ router.patch('/:id/availability', requireAuth, async (req: AuthRequest, res) => 
 router.get('/on-duty', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     // Get all on-duty employees for this vendor
     const onDutyEmployees = await db
@@ -243,7 +243,7 @@ router.get('/:id/stats', requireAuth, requireRole('admin', 'vendor_admin', 'supe
 router.post('/:id/assign-vehicle', requireAuth, requireRole('admin', 'vendor_admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const employeeId = Number(req.params.id);
     const { vehicleId } = z.object({ vehicleId: z.number().int().nullable() }).parse(req.body);

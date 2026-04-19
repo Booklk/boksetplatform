@@ -32,7 +32,7 @@ router.post(
   async (req: AuthRequest, res) => {
     try {
       const vendorId = req.user!.vendorId;
-      if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بالحساب' });
+      if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بالحساب' });
 
       const data = generateSchema.parse(req.body);
 
@@ -149,7 +149,7 @@ photorealistic, wide angle shot, marketing quality image.`;
 router.get('/my', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const [vendor] = await db
       .select({ brandKit: vendors.brandKit, brandKitGeneratedCount: vendors.brandKitGeneratedCount, slug: vendors.slug })

@@ -100,7 +100,7 @@ router.get('/config', async (req, res) => {
     const config = await getVendorConfig(vendorId);
     return res.json(config);
   } catch (e: any) {
-    if (e?.message === 'Vendor not found') return res.status(404).json({ error: 'المغسلة غير موجودة' });
+    if (e?.message === 'Vendor not found') return res.status(404).json({ error: 'المتجر غير موجود' });
     return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
@@ -121,7 +121,7 @@ const configSchema = z.object({
 router.put('/config', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مرتبط بمغسلة فقط' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمنشأة' });
     const config = configSchema.parse(req.body);
 
     const [vendor] = await db.select({ settings: vendors.settings })
@@ -320,7 +320,7 @@ router.post('/book', requireAuth, async (req: AuthRequest, res) => {
       packageId: resolvedPackageId,
       vehicleId: data.vehicleId ?? null,
       scheduledAt: slotStart,
-      address: 'موعد مسبق بالمغسلة',
+      address: 'موعد مسبق',
       status: 'confirmed',
       notes: data.notes ?? null,
       totalPrice: pkg.price,
@@ -429,7 +429,7 @@ router.delete('/:id', requireAuth, async (req: AuthRequest, res) => {
 router.get('/schedule', requireAuth, requireRole('vendor_admin', 'admin', 'employee'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مرتبط بمغسلة فقط' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمنشأة' });
 
     const date = (req.query.date as string) ?? new Date().toISOString().slice(0, 10);
     const dayStart = new Date(`${date}T00:00:00.000Z`);
@@ -477,7 +477,7 @@ router.get('/schedule', requireAuth, requireRole('vendor_admin', 'admin', 'emplo
 router.get('/schedule/week', requireAuth, requireRole('vendor_admin', 'admin', 'employee'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مرتبط بمغسلة فقط' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمنشأة' });
 
     const from = (req.query.from as string) ?? new Date().toISOString().slice(0, 10);
     const to = (req.query.to as string) ?? (() => {
@@ -529,7 +529,7 @@ const blockSchema = z.object({
 router.post('/:id/block-slot', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'مرتبط بمغسلة فقط' });
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمنشأة' });
 
     const data = blockSchema.parse(req.body);
 

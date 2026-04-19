@@ -55,7 +55,7 @@ router.post('/', requireAuth, requireRole('admin', 'employee', 'vendor_admin'), 
     }).parse(req.body);
 
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة مرتبطة بهذا الحساب' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
 
     // Check if phone already exists
     const existing = await db.select().from(users).where(eq(users.phone, data.phone)).limit(1);

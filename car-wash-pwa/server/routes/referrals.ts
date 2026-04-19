@@ -33,7 +33,7 @@ router.get('/my-code', requireAuth, async (req: AuthRequest, res) => {
         .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
       return res.json({
         code: existing.referralCode,
-        vendorName: vendor[0]?.nameAr ?? 'المغسلة',
+        vendorName: vendor[0]?.nameAr ?? 'المتجر',
         vendorSlug: vendor[0]?.slug ?? '',
       });
     }
@@ -60,7 +60,7 @@ router.get('/my-code', requireAuth, async (req: AuthRequest, res) => {
 
     return res.json({
       code: created.referralCode,
-      vendorName: vendor[0]?.nameAr ?? 'المغسلة',
+      vendorName: vendor[0]?.nameAr ?? 'المتجر',
       vendorSlug: vendor[0]?.slug ?? '',
     });
   } catch (e) {

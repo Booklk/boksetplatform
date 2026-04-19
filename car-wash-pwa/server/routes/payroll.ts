@@ -285,7 +285,7 @@ router.get('/pdf', requireAuth, requireRole('vendor_admin', 'admin'), async (req
     // Fetch vendor name for branded report
     const [vendorRow] = await db.select({ nameAr: vendors.nameAr })
       .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-    const vendorDisplayName = vendorRow?.nameAr ?? 'المغسلة';
+    const vendorDisplayName = vendorRow?.nameAr ?? 'المتجر';
 
     const statusLabel = (s: string | null) => {
       if (s === 'paid') return '<span style="color:#16a34a;font-weight:600">مدفوع</span>';

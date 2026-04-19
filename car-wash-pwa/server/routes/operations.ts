@@ -20,7 +20,7 @@ const router = Router();
 router.get('/alerts', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const alerts: Array<{
       type: 'unassigned_booking' | 'employee_not_ready' | 'maintenance_due';
@@ -230,7 +230,7 @@ router.get('/alerts', requireRole('vendor_admin', 'admin'), async (req: AuthRequ
 router.get('/today-summary', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
@@ -326,7 +326,7 @@ router.get('/today-summary', requireRole('vendor_admin', 'admin'), async (req: A
 router.get('/bookings/today', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمغسلة' });
+    if (!vendorId) return res.status(403).json({ error: 'يتطلب ارتباطاً بمتجر' });
 
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);

@@ -30,7 +30,7 @@ const DEFAULT_FACTORS = [
 router.get('/', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد حساب مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط' });
 
     let factors = await db.select().from(washCostFactors)
       .where(eq(washCostFactors.vendorId, vendorId))
@@ -55,7 +55,7 @@ router.get('/', requireAuth, requireRole('vendor_admin', 'admin'), async (req: A
 router.post('/', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد حساب مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط' });
 
     const data = factorSchema.parse(req.body);
     const [factor] = await db.insert(washCostFactors)
@@ -110,7 +110,7 @@ router.delete('/:id', requireAuth, requireRole('vendor_admin', 'admin'), async (
 router.get('/profit-analysis', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد حساب مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط' });
 
     const { from, to, period = 'this_month' } = req.query as Record<string, string>;
 

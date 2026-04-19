@@ -49,7 +49,7 @@ function buildWhatsAppMessage(data: {
 router.get('/daily', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const dateParam = req.query.date as string | undefined;
     const { start, end } = dayBounds(dateParam);
@@ -182,7 +182,7 @@ router.get('/daily', requireAuth, async (req: AuthRequest, res) => {
 router.post('/send-whatsapp', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     // Get vendor phone
     const [vendor] = await db.select({ phone: vendors.phone })
@@ -190,7 +190,7 @@ router.post('/send-whatsapp', requireAuth, async (req: AuthRequest, res) => {
       .where(eq(vendors.id, vendorId));
 
     if (!vendor?.phone) {
-      return res.status(400).json({ error: 'لا يوجد رقم هاتف مسجّل للمغسلة' });
+      return res.status(400).json({ error: 'لا يوجد رقم هاتف مسجّل للمتجر' });
     }
 
     // Build today's daily summary

@@ -223,7 +223,7 @@ export async function processReferralConversions() {
           // Log to activity feed
           await db.insert(activityFeed).values({
             type: 'vendor_joined',
-            message: `${ref.referredVendorName ?? 'مغسلة جديدة'} اشتركت عبر إحالة`,
+            message: `${ref.referredVendorName ?? 'متجر جديد'} اشتركت عبر إحالة`,
             city: null,
           });
 

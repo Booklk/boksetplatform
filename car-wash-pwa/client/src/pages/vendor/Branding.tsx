@@ -294,8 +294,8 @@ export default function VendorBranding() {
             <Settings className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">إعدادات المغسلة</h1>
-            <p className="text-white/40 text-sm">إدارة معلومات وهوية مغسلتك</p>
+            <h1 className="text-2xl font-bold text-white">إعدادات المتجر</h1>
+            <p className="text-white/40 text-sm">إدارة معلومات وهوية متجرك</p>
           </div>
         </motion.div>
 
@@ -306,7 +306,7 @@ export default function VendorBranding() {
             : `https://jdawil.sa/store/${vendorData?.slug ?? ''}`;
           return (
             <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6">
-              <h3 className="text-white font-bold text-lg mb-4">🔗 رابط مغسلتك</h3>
+              <h3 className="text-white font-bold text-lg mb-4">🔗 رابط متجرك</h3>
 
               {/* Visual link card */}
               <div className="rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-950/40 to-slate-900 p-5 mb-4">
@@ -416,14 +416,14 @@ export default function VendorBranding() {
                   <>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <InputField
-                        label="اسم المغسلة بالعربية"
+                        label="اسم المتجر بالعربية"
                         value={form.nameAr ?? ''}
                         onChange={(v) => setField('nameAr', v)}
-                        placeholder="مغسلة النجوم"
+                        placeholder="متجر النجوم"
                         icon={Building2}
                       />
                       <InputField
-                        label="اسم المغسلة بالإنجليزية"
+                        label="اسم المتجر بالإنجليزية"
                         value={form.nameEn ?? ''}
                         onChange={(v) => setField('nameEn', v)}
                         placeholder="Al Nujoom Car Wash"
@@ -463,7 +463,7 @@ export default function VendorBranding() {
                       icon={MapPin}
                     />
                     <InputField
-                      label="وصف المغسلة"
+                      label="وصف المتجر"
                       value={form.descriptionAr ?? ''}
                       onChange={(v) => setField('descriptionAr', v)}
                       placeholder="نقدم خدمات غسيل السيارات المتنقلة بأعلى جودة..."
@@ -676,7 +676,7 @@ export default function VendorBranding() {
                         <div className="p-1.5 rounded-lg bg-purple-500/20">
                           <Link className="w-4 h-4 text-purple-400" />
                         </div>
-                        <h4 className="font-bold text-white text-sm">ربط دومين خاص بمغسلتك</h4>
+                        <h4 className="font-bold text-white text-sm">ربط دومين خاص بمتجرك</h4>
                       </div>
                       <InputField
                         label="الدومين الخاص"
@@ -740,7 +740,7 @@ export default function VendorBranding() {
                         <h4 className="font-bold text-white text-sm">واتساب Business</h4>
                       </div>
                       <p className="text-white/40 text-xs leading-relaxed">
-                        اربط واتساب Business الخاص بمغسلتك لإرسال الرسائل باسمك
+                        اربط واتساب Business الخاص بمتجرك لإرسال الرسائل باسمك
                       </p>
                       <InputField
                         label="معرف رقم الهاتف (Phone ID)"

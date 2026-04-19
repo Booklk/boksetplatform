@@ -10,7 +10,7 @@ const router = Router();
 router.get('/dashboard', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
@@ -70,7 +70,7 @@ router.get('/dashboard', requireAuth, requireRole('admin', 'vendor_admin'), asyn
 router.get('/revenue', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const { months = '6' } = req.query as Record<string, string>;
     const numMonths = Math.min(12, Math.max(1, parseInt(months)));
@@ -97,7 +97,7 @@ router.get('/revenue', requireAuth, requireRole('admin', 'vendor_admin'), async 
 router.get('/revenue/week', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 6); weekStart.setHours(0,0,0,0);
 
@@ -122,7 +122,7 @@ router.get('/revenue/week', requireAuth, requireRole('admin', 'vendor_admin'), a
 router.get('/top-services', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const rows = await db.select({
       serviceName: services.name,
@@ -149,7 +149,7 @@ router.get('/top-services', requireAuth, requireRole('admin', 'vendor_admin'), a
 router.get('/summary', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
@@ -179,7 +179,7 @@ router.get('/summary', requireAuth, requireRole('admin', 'vendor_admin'), async 
 router.get('/insights', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -369,7 +369,7 @@ router.get('/insights', requireAuth, requireRole('admin', 'vendor_admin'), async
 router.get('/predictions', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     // Last 6 months starting from 6 months ago (inclusive)
     const since = new Date();
@@ -479,7 +479,7 @@ router.get('/predictions', requireAuth, requireRole('admin', 'vendor_admin'), as
 router.get('/employee-performance', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const { from, to } = req.query as Record<string, string>;
     const fromDate = from ? new Date(from) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

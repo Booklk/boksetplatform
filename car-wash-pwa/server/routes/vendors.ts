@@ -471,7 +471,7 @@ router.get('/setup-checklist', requireAuth, async (req: AuthRequest, res) => {
     ]);
 
     const steps = [
-      { id: 'profile', label: 'أكمل بيانات مغسلتك', done: true, path: '/vendor/setup', desc: 'اسم المغسلة والموقع وطريقة التواصل' },
+      { id: 'profile', label: 'أكمل بيانات متجرك', done: true, path: '/vendor/setup', desc: 'اسم المتجر والموقع وطريقة التواصل' },
       { id: 'services', label: 'أضف خدماتك وأسعارها', done: Number(servicesCount[0]?.c) > 0, path: '/admin/services', desc: 'حتى تتمكن العملاء من الحجز' },
       { id: 'employees', label: 'أضف أول موظف', done: Number(employeesCount[0]?.c) > 0, path: '/vendor/employees', desc: 'أضف سائقيك وفنييك' },
       { id: 'vehicle', label: 'أضف سيارتك الأولى', done: Number(vehiclesCount[0]?.c) > 0, path: '/vendor/fleet', desc: 'ليبدأ نظام التوزيع التلقائي' },
@@ -753,7 +753,7 @@ router.post('/:id/test-whatsapp', requireAuth, requireRole('vendor_admin', 'admi
 
     const testPhone = vendor?.phone?.replace(/^0/, '+966') ?? '';
     if (!testPhone) {
-      return res.status(400).json({ error: 'لا يوجد رقم هاتف مسجّل للمغسلة' });
+      return res.status(400).json({ error: 'لا يوجد رقم هاتف مسجّل للمتجر' });
     }
 
     const response = await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
@@ -763,7 +763,7 @@ router.post('/:id/test-whatsapp', requireAuth, requireRole('vendor_admin', 'admi
         messaging_product: 'whatsapp',
         to: testPhone,
         type: 'text',
-        text: { body: '✅ تم ربط واتساب بنجاح مع منصة Jdawil! رسائل المغسلة ستصل الآن من هذا الرقم.' },
+        text: { body: '✅ تم ربط واتساب بنجاح مع منصة Jdawil! رسائل المتجر ستصل الآن من هذا الرقم.' },
       }),
     });
 
@@ -834,7 +834,7 @@ router.post('/:id/platform-subscribe', requireAuth, requireRole('vendor_admin', 
       body: JSON.stringify({
         amount: planInfo.annual * 100, // halalah
         currency: 'SAR',
-        description: planInfo.label + ` - مغسلة #${vendorId}`,
+        description: planInfo.label + ` - متجر #${vendorId}`,
         callback_url: callbackUrl,
         source: { type: 'creditcard' },
       }),

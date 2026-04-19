@@ -195,7 +195,7 @@ export default function VendorSetup() {
                           <>
                             <div className="grid grid-cols-2 gap-3">
                               {[
-                                { label: 'اسم المغسلة', key: 'nameAr', placeholder: 'مغسلة كريستال' },
+                                { label: 'اسم المتجر', key: 'nameAr', placeholder: 'مغسلة كريستال' },
                                 { label: 'رقم الجوال', key: 'phone', placeholder: '05xxxxxxxx' },
                               ].map(({ label, key, placeholder }) => (
                                 <div key={key}>

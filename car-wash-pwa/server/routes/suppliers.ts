@@ -15,7 +15,7 @@ const router = Router();
 router.get('/', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const rows = await db
       .select()
@@ -34,7 +34,7 @@ router.get('/', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, r
 router.post('/', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const data = z.object({
       nameAr: z.string().min(2),
@@ -58,7 +58,7 @@ router.post('/', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, 
 router.put('/:id', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const id = Number(req.params.id);
     const data = z.object({
@@ -90,7 +90,7 @@ router.put('/:id', requireRole('vendor_admin', 'admin'), async (req: AuthRequest
 router.delete('/:id', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const id = Number(req.params.id);
     const [updated] = await db
@@ -113,7 +113,7 @@ router.delete('/:id', requireRole('vendor_admin', 'admin'), async (req: AuthRequ
 router.get('/orders', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const { status } = req.query;
 
@@ -148,7 +148,7 @@ router.get('/orders', requireRole('vendor_admin', 'admin'), async (req: AuthRequ
 router.post('/orders', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const data = z.object({
       supplierId: z.number().int(),
@@ -206,7 +206,7 @@ router.post('/orders', requireRole('vendor_admin', 'admin'), async (req: AuthReq
 router.put('/orders/:id/status', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const id = Number(req.params.id);
     const { status } = z.object({
@@ -247,7 +247,7 @@ router.put('/orders/:id/status', requireRole('vendor_admin', 'admin'), async (re
 router.post('/check-reorder', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const lowStockItems = await db
       .select({
@@ -323,7 +323,7 @@ router.post('/check-reorder', requireRole('vendor_admin', 'admin'), async (req: 
 router.patch('/auto-reorder-toggle', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const { enabled } = z.object({ enabled: z.boolean() }).parse(req.body);
 
@@ -345,7 +345,7 @@ router.patch('/auto-reorder-toggle', requireRole('vendor_admin', 'admin'), async
 router.patch('/item/:id/auto-reorder', requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
-    if (!vendorId) return res.status(400).json({ error: 'لا يوجد مغسلة' });
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
 
     const id = Number(req.params.id);
     const { enabled } = z.object({ enabled: z.boolean() }).parse(req.body);
