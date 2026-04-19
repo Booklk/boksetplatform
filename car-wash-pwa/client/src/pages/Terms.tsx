@@ -160,7 +160,7 @@ export default function Terms() {
           <ul className="list-none text-gray-300 space-y-2 mt-3 leading-relaxed">
             <li>
               البريد الإلكتروني:{" "}
-              <span className="text-blue-400">support@jdawil.com</span>
+              <span className="text-blue-400">support@jdawil.sa</span>
             </li>
             <li>
               الهاتف:{" "}

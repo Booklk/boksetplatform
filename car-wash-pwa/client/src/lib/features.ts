@@ -48,39 +48,21 @@ export const FEATURE_REGISTRY: FeatureDef[] = [
   { id: 'priority_support', nameAr: 'أولوية دعم', category: 'مؤسسي', description: 'دعم فني بأولوية عالية' },
 ];
 
-// Feature IDs grouped by category for quick reference
+// Feature IDs grouped by plan
 export const FEATURE_CATEGORIES = {
-  basic: ['bookings', 'store_page', 'whatsapp', 'basic_reports', 'basic_themes'],
-  professional: ['gps_tracking', 'pos', 'payments', 'inventory', 'campaigns', 'dispatch'],
-  business: ['queue', 'loyalty', 'crm', 'ai_advisor', 'vat_reports', 'financial_statements', 'premium_themes', 'automations', 'customer_segments'],
-  enterprise: ['unlimited_employees', 'payroll', 'multi_branch', 'webhooks', 'advanced_analytics', 'priority_support'],
+  free: ['bookings', 'store_page', 'whatsapp', 'basic_reports', 'basic_themes'],
+  pro: ['gps_tracking', 'pos', 'payments', 'inventory', 'campaigns', 'dispatch', 'queue', 'loyalty', 'crm', 'ai_advisor', 'vat_reports', 'financial_statements', 'premium_themes', 'automations', 'customer_segments', 'unlimited_employees', 'payroll', 'multi_branch', 'webhooks', 'advanced_analytics', 'priority_support'],
 };
 
-// Default feature gates for each plan tier
+// Default feature gates for 2-plan model
 export const DEFAULT_PLAN_FEATURES: Record<string, Record<string, boolean>> = {
-  starter: Object.fromEntries([
-    ...FEATURE_CATEGORIES.basic.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.professional.map(f => [f, false]),
-    ...FEATURE_CATEGORIES.business.map(f => [f, false]),
-    ...FEATURE_CATEGORIES.enterprise.map(f => [f, false]),
+  free: Object.fromEntries([
+    ...FEATURE_CATEGORIES.free.map(f => [f, true]),
+    ...FEATURE_CATEGORIES.pro.map(f => [f, false]),
   ]),
-  professional: Object.fromEntries([
-    ...FEATURE_CATEGORIES.basic.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.professional.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.business.map(f => [f, false]),
-    ...FEATURE_CATEGORIES.enterprise.map(f => [f, false]),
-  ]),
-  business: Object.fromEntries([
-    ...FEATURE_CATEGORIES.basic.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.professional.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.business.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.enterprise.map(f => [f, false]),
-  ]),
-  enterprise: Object.fromEntries([
-    ...FEATURE_CATEGORIES.basic.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.professional.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.business.map(f => [f, true]),
-    ...FEATURE_CATEGORIES.enterprise.map(f => [f, true]),
+  pro: Object.fromEntries([
+    ...FEATURE_CATEGORIES.free.map(f => [f, true]),
+    ...FEATURE_CATEGORIES.pro.map(f => [f, true]),
   ]),
 };
 

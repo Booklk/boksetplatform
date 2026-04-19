@@ -37,7 +37,7 @@ const vendorSchema = z.object({
   serviceAreas: z.array(z.string()).optional(),
   descriptionAr: z.string().optional(),
   primaryColor: z.string().optional(),
-  subscriptionPlan: z.enum(['basic', 'pro', 'enterprise']).optional(),
+  subscriptionPlan: z.enum(['free', 'pro']).optional(),
 });
 
 // GET /api/vendors — Super Admin: list all vendors
@@ -631,8 +631,8 @@ router.post('/:id/activate', requireAuth, requireRole('super_admin'), async (req
   try {
     const vendorId = parseInt(req.params.id);
     const { plan = 'yearly' } = req.body;
-    const prices: Record<string, number> = { basic: 2400, pro: 4800, enterprise: 9600 };
-    const amount = prices[plan] ?? 4800;
+    const prices: Record<string, number> = { free: 0, pro: 999 };
+    const amount = prices[plan] ?? 999;
     const endDate = new Date();
     endDate.setFullYear(endDate.getFullYear() + 1);
 
@@ -800,12 +800,9 @@ router.get('/:id/stats', requireAuth, requireRole('super_admin'), async (req, re
 // On success Moyasar hits the callback URL which calls /platform-subscribe/verify.
 
 const PLAN_PRICES: Record<string, { annual: number; label: string }> = {
-  basic:      { annual: 2400,  label: 'خطة أساسية سنوية' },
-  pro:        { annual: 4800,  label: 'خطة احترافية سنوية' },
-  enterprise: { annual: 9600,  label: 'خطة مؤسسية سنوية' },
-  basic_m:    { annual: 249,   label: 'خطة أساسية شهرية' },
-  pro_m:      { annual: 449,   label: 'خطة احترافية شهرية' },
-  enterprise_m:{ annual: 849,  label: 'خطة مؤسسية شهرية' },
+  free:   { annual: 0,    label: 'خطة مجانية' },
+  pro:    { annual: 999,  label: 'خطة Pro سنوية' },
+  pro_m:  { annual: 99,   label: 'خطة Pro شهرية' },
 };
 
 router.post('/:id/platform-subscribe', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {

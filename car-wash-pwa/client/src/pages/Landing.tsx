@@ -783,8 +783,8 @@ export default function Landing() {
                     <div className="bg-gradient-to-br from-amber-950/40 to-orange-950/30 border border-amber-500/20 rounded-2xl p-4">
                       <p className="text-xs text-amber-400 font-bold mb-1">تكلفة Jdawil الملائمة لك</p>
                       <p className="text-2xl font-black text-amber-300">
-                        {washesPerDay <= 5 ? '29' : washesPerDay <= 20 ? '119' : '199'}
-                        <span className="text-sm font-bold text-amber-500 mr-2">ر.س / شهر</span>
+                        {washesPerDay <= 5 ? '0' : '99'}
+                        <span className="text-sm font-bold text-amber-500 mr-2">{washesPerDay <= 5 ? 'مجاني' : 'ر.س / شهر'}</span>
                       </p>
                     </div>
 
@@ -1410,21 +1410,19 @@ export default function Landing() {
             </motion.div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {/* Bike Solo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {/* Free */}
             <motion.div {...fadeUp(0.05)}
-              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-indigo-500/40 hover:bg-white/[0.07] transition-all duration-300 group">
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-emerald-500/30">14 يوم مجاناً</div>
-              <div className="text-4xl mb-4">🏍️</div>
-              <h3 className="text-lg font-bold text-white mb-1">بايك واحد</h3>
-              <p className="text-sm text-slate-400 mb-6">للمغاسل المتنقلة بدراجة نارية</p>
+              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-indigo-500/40 hover:bg-white/[0.07] transition-all duration-300">
+              <h3 className="text-xl font-bold text-white mb-1">مجاني</h3>
+              <p className="text-sm text-slate-400 mb-6">ابدأ مشروعك بدون تكلفة</p>
               <div className="mt-auto">
                 <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-black text-white">29</span>
-                  <span className="text-slate-400 mb-2">ر.س / شهر</span>
+                  <span className="text-5xl font-black text-white">0</span>
+                  <span className="text-slate-400 mb-2">ر.س / للأبد</span>
                 </div>
                 <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['حجوزات غير محدودة','إشعارات واتساب','تتبع GPS','تقارير مبسطة','دعم فني'].map(f => (
+                  {['موقع حجز خاص','حتى 30 حجز/شهر','إشعارات واتساب','تقارير مبسطة','3 ثيمات'].map(f => (
                     <li key={f} className="flex items-center gap-2">
                       <CheckCircle size={15} className="text-indigo-400 flex-shrink-0" />
                       {f}
@@ -1439,129 +1437,36 @@ export default function Landing() {
               </div>
             </motion.div>
 
-            {/* Bikes Pack */}
+            {/* Pro */}
             <motion.div {...fadeUp(0.1)}
-              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-cyan-500/40 hover:bg-white/[0.07] transition-all duration-300">
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-emerald-500/30">14 يوم مجاناً</div>
-              <div className="text-4xl mb-4">🏍️🏍️</div>
-              <h3 className="text-lg font-bold text-white mb-1">5 بايكات</h3>
-              <p className="text-sm text-slate-400 mb-6">لأسطول دراجات متنقل</p>
-              <div className="mt-auto">
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-black text-white">129</span>
-                  <span className="text-slate-400 mb-2">ر.س / شهر</span>
-                </div>
-                <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['حتى 5 بايكات','إدارة مركزية','لوحة موظفين','جدول المناوبات','تقارير متقدمة','دعم فني مميز'].map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-cyan-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/onboard')}
-                  className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold transition-all">
-                  ابدأ مجاناً
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* Car Solo */}
-            <motion.div {...fadeUp(0.15)}
-              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-purple-500/40 hover:bg-white/[0.07] transition-all duration-300">
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-emerald-500/30">14 يوم مجاناً</div>
-              <div className="text-4xl mb-4">🚗</div>
-              <h3 className="text-lg font-bold text-white mb-1">سيارة واحدة</h3>
-              <p className="text-sm text-slate-400 mb-6">للمغاسل المتنقلة بسيارة</p>
-              <div className="mt-auto">
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-black text-white">119</span>
-                  <span className="text-slate-400 mb-2">ر.س / شهر</span>
-                </div>
-                <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['حجوزات غير محدودة','إشعارات واتساب','تتبع GPS للسيارة','POS كاشير','إدارة مخزون','دعم فني'].map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-purple-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/onboard')}
-                  className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold transition-all">
-                  ابدأ مجاناً
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* Fixed Wash */}
-            <motion.div {...fadeUp(0.2)}
-              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-amber-500/40 hover:bg-white/[0.07] transition-all duration-300">
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-emerald-500/30">14 يوم مجاناً</div>
-              <div className="text-4xl mb-4">🏪</div>
-              <h3 className="text-lg font-bold text-white mb-1">مغسلة ثابتة</h3>
-              <p className="text-sm text-slate-400 mb-6">للمغاسل بموقع ثابت</p>
-              <div className="mt-auto">
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-black text-white">199</span>
-                  <span className="text-slate-400 mb-2">ر.س / شهر</span>
-                </div>
-                <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['طابور انتظار ذكي','شاشة عرض للعملاء','كاشير POS متكامل','إدارة مخزون','تقارير VAT','برنامج ولاء','دعم فني مميز'].map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-amber-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/onboard')}
-                  className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold transition-all">
-                  ابدأ مجاناً
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* Fleet — MOST POPULAR, spans 2 cols on lg */}
-            <motion.div {...fadeUp(0.1)}
-              className="relative lg:col-span-2 rounded-3xl border-2 border-indigo-500/60 bg-gradient-to-br from-blue-900/40 to-purple-900/30 backdrop-blur-sm p-7 flex flex-col overflow-hidden">
-              {/* Popular badge */}
+              className="relative rounded-3xl border-2 border-indigo-500/60 bg-gradient-to-br from-blue-900/40 to-purple-900/30 backdrop-blur-sm p-7 flex flex-col overflow-hidden">
               <div className="absolute top-5 left-5 flex gap-2">
-                <span className="bg-gradient-to-l from-blue-500 to-cyan-400 text-white text-xs font-black px-3 py-1 rounded-full">
-                  ⭐ الأكثر طلباً
-                </span>
-                <span className="bg-emerald-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md shadow-emerald-500/30">
-                  14 يوم مجاناً
-                </span>
+                <span className="bg-gradient-to-l from-blue-500 to-cyan-400 text-white text-xs font-black px-3 py-1 rounded-full">الأكثر طلباً</span>
+                <span className="bg-emerald-500 text-white text-xs font-black px-3 py-1 rounded-full">14 يوم مجاناً</span>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 pointer-events-none" />
-
-              <div className="text-4xl mb-4 mt-8">🚗🏍️</div>
-              <h3 className="text-xl font-black text-white mb-1">أسطول كامل</h3>
-              <p className="text-sm text-slate-300 mb-6">5 سيارات + 5 بايكات — للأسطول الكبير</p>
+              <h3 className="text-xl font-black text-white mb-1 mt-8">Pro</h3>
+              <p className="text-sm text-slate-300 mb-6">كل المميزات بدون حدود</p>
 
               <div className="flex flex-wrap items-end gap-x-6 gap-y-2 mb-8">
                 <div className="flex items-end gap-1">
-                  <span className="text-6xl font-black text-white">299</span>
+                  <span className="text-6xl font-black text-white">99</span>
                   <span className="text-slate-300 mb-2 text-lg">ر.س / شهر</span>
                 </div>
                 <div className="text-sm text-slate-400 mb-2">
-                  <span className="line-through text-slate-600">600 ر.س</span>
-                  <span className="text-green-400 font-bold mr-2">وفّر 50%</span>
+                  <span className="text-green-400 font-bold">أو 999 ر.س/سنة (وفّر 189)</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-2 mb-8">
                 {[
-                  'حتى 5 سيارات + 5 بايكات',
+                  'حجوزات غير محدودة',
                   'موظفون غير محدودون',
-                  'تتبع GPS لكل الأسطول',
-                  'إدارة رواتب متكاملة',
-                  'تقارير VAT + ZATCA',
+                  'تتبع GPS مباشر',
                   'POS + كاشير + مخزون',
-                  'برنامج ولاء العملاء',
-                  'دعم فني أولوية 24/7',
+                  'إدارة رواتب',
+                  'تقارير VAT + مالية',
+                  'CRM + برنامج ولاء',
+                  'مستشار ذكي AI',
                 ].map(f => (
                   <div key={f} className="flex items-center gap-2 text-sm text-white/80">
                     <CheckCircle size={14} className="text-indigo-400 flex-shrink-0" />
@@ -1577,47 +1482,6 @@ export default function Landing() {
               </motion.button>
             </motion.div>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-5">
-            {/* Unlimited Bikes Fleet */}
-            <motion.div {...fadeUp(0.25)}
-              className="relative rounded-3xl border border-emerald-500/40 bg-gradient-to-br from-emerald-900/20 to-teal-900/20 backdrop-blur-sm p-7 flex flex-col hover:border-emerald-500/70 transition-all duration-300">
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-emerald-500/30">14 يوم مجاناً</div>
-              <div className="text-4xl mb-4">🏍️∞</div>
-              <h3 className="text-xl font-black text-white mb-1">أسطول بايكات مفتوح</h3>
-              <p className="text-sm text-slate-300 mb-6">عدد غير محدود من البايكات</p>
-              <div className="mt-auto">
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-black text-white">469</span>
-                  <span className="text-slate-400 mb-2">ر.س / شهر</span>
-                </div>
-                <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['بايكات غير محدودة','إدارة مركزية كاملة','رواتب وعمولات تلقائية','تقارير متقدمة','أولوية قصوى في الدعم','API للتكامل مع أنظمتك'].map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-emerald-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/onboard')}
-                  className="w-full py-3 rounded-xl bg-gradient-to-l from-emerald-600 to-teal-500 text-white font-bold transition-all shadow-lg shadow-emerald-500/20">
-                  ابدأ مجاناً
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* Multi-branch 2-3 */}
-            <motion.div {...fadeUp(0.28)}
-              className="relative rounded-3xl border border-violet-500/40 bg-gradient-to-br from-violet-900/20 to-purple-900/20 backdrop-blur-sm p-7 flex flex-col hover:border-violet-500/70 transition-all duration-300">
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-emerald-500/30">14 يوم مجاناً</div>
-              <div className="text-4xl mb-4">🏪🏪</div>
-              <h3 className="text-xl font-black text-white mb-1">فروع مغاسل (2-3)</h3>
-              <p className="text-sm text-slate-300 mb-6">إدارة 2 إلى 3 فروع من مكان واحد</p>
-              <div className="mt-auto">
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-black text-white">349</span>
-                  <span className="text-slate-400 mb-2">ر.س / شهر</span>
                 </div>
                 <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
                   {['إدارة 2-3 فروع','لوحة تحكم موحدة','موظفون غير محدودون','تقارير لكل فرع','إدارة مخزون لكل فرع','دعم فني مميز'].map(f => (
@@ -1627,77 +1491,7 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/onboard')}
-                  className="w-full py-3 rounded-xl bg-gradient-to-l from-violet-600 to-purple-500 text-white font-bold transition-all shadow-lg shadow-violet-500/20">
-                  ابدأ مجاناً
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* Multi-branch 4-10 */}
-            <motion.div {...fadeUp(0.3)}
-              className="relative rounded-3xl border-2 border-amber-500/60 bg-gradient-to-br from-amber-900/30 to-yellow-900/20 backdrop-blur-sm p-7 flex flex-col overflow-hidden">
-              <div className="absolute top-5 left-5 flex gap-2">
-                <span className="bg-gradient-to-l from-amber-500 to-yellow-400 text-black text-xs font-black px-3 py-1 rounded-full">
-                  🏆 للشركات
-                </span>
-                <span className="bg-emerald-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md shadow-emerald-500/30">
-                  14 يوم مجاناً
-                </span>
-              </div>
-              <div className="text-4xl mb-4 mt-8">🏪×10</div>
-              <h3 className="text-xl font-black text-white mb-1">فروع مغاسل (4-10)</h3>
-              <p className="text-sm text-slate-300 mb-6">سلسلة فروع احترافية</p>
-              <div className="mt-auto">
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-black text-white">799</span>
-                  <span className="text-slate-400 mb-2">ر.س / شهر</span>
                 </div>
-                <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['إدارة 4-10 فروع','لوحة تحكم مركزية','تقارير مقارنة بين الفروع','رواتب لجميع الموظفين','VAT + ZATCA لكل فرع','مدير حساب مخصص','API للتكامل'].map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-amber-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/onboard')}
-                  className="w-full py-3 rounded-xl bg-gradient-to-l from-amber-500 to-yellow-400 text-black font-black transition-all shadow-lg shadow-amber-500/30">
-                  تواصل معنا
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* Unlimited Cars Fleet */}
-            <motion.div {...fadeUp(0.3)}
-              className="relative rounded-3xl border border-rose-500/40 bg-gradient-to-br from-rose-900/20 to-orange-900/20 backdrop-blur-sm p-7 flex flex-col hover:border-rose-500/70 transition-all duration-300">
-              <div className="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-md shadow-emerald-500/30">14 يوم مجاناً</div>
-              <div className="text-4xl mb-4">🚗∞</div>
-              <h3 className="text-xl font-black text-white mb-1">أسطول سيارات مفتوح</h3>
-              <p className="text-sm text-slate-300 mb-6">عدد غير محدود من السيارات</p>
-              <div className="mt-auto">
-                <div className="flex items-end gap-1 mb-6">
-                  <span className="text-5xl font-black text-white">699</span>
-                  <span className="text-slate-400 mb-2">ر.س / شهر</span>
-                </div>
-                <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['سيارات غير محدودة','تتبع GPS لكل الأسطول','رواتب وعمولات تلقائية','تقارير VAT + ZATCA','مدير حساب مخصص','API للتكامل مع أنظمتك'].map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-rose-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  onClick={() => navigate('/onboard')}
-                  className="w-full py-3 rounded-xl bg-gradient-to-l from-rose-600 to-orange-500 text-white font-bold transition-all shadow-lg shadow-rose-500/20">
-                  ابدأ مجاناً
-                </motion.button>
-              </div>
-            </motion.div>
-          </div>
 
           {/* Trust note */}
           <motion.div {...fadeUp(0.3)} className="text-center mt-10 space-y-3">

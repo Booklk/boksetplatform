@@ -13,7 +13,7 @@ async function seed() {
     slug: 'al-nujoom',
     phone: '0500000001',
     subscriptionStatus: 'trial',
-    subscriptionPlan: 'basic',
+    subscriptionPlan: 'free',
     isActive: true,
   }).returning().onConflictDoNothing();
 
