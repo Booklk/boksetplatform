@@ -15,6 +15,7 @@ export interface User {
     logoUrl?: string;
     primaryColor?: string;
     subscriptionStatus?: string;
+    subscriptionPlan?: string;
     paymentConfig?: Record<string, unknown> | null;
   };
 }

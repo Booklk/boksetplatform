@@ -1,6 +1,8 @@
+import MarketingLayout from '../components/marketing/MarketingLayout';
+
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-surface-1 text-white" dir="rtl">
+    <MarketingLayout>
       <div className="max-w-3xl mx-auto px-6 py-16">
         <h1 className="text-3xl font-bold mb-2 text-center">
           الشروط والأحكام
@@ -173,9 +175,9 @@ export default function Terms() {
         </section>
 
         <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-          &copy; {new Date().getFullYear()} Jdawil. جميع الحقوق محفوظة.
+          &copy; {new Date().getFullYear()} بوكست. جميع الحقوق محفوظة.
         </div>
       </div>
-    </div>
+    </MarketingLayout>
   );
 }

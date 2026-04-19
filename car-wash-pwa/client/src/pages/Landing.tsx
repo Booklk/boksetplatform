@@ -1423,18 +1423,26 @@ export default function Landing() {
       </section>
 
       {/* ══ COMPARISON TABLE ════════════════════════════════════════════════ */}
+      {(() => {
+        const comparisonRows = [
+          { feature: 'استقبال الحجوزات', before: 'واتساب، اتصالات، ورقة', after: 'صفحة حجز تلقائية 24/7' },
+          { feature: 'تأكيد الموعد', before: 'يدوي — قد ينسى', after: 'واتساب تلقائي فور الحجز' },
+          { feature: 'تضارب المواعيد', before: 'كثير — صداع يومي', after: 'صفر — النظام يمنعه' },
+          { feature: 'إدارة الموظفين', before: 'ذاكرة + مكالمات', after: 'جدول مركزي + صلاحيات' },
+          { feature: 'التقارير المالية', before: 'حساب يدوي آخر الشهر', after: 'جاهزة لحظياً بضغطة زر' },
+          { feature: 'تقييمات العملاء', before: 'لا تُجمع', after: 'طلب تلقائي بعد الخدمة' },
+        ];
+        return (
       <section className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-transparent pointer-events-none" />
         <div className="max-w-5xl mx-auto relative z-10">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <span className="inline-block text-xs font-bold tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2 mb-4">
-              قبل وبعد Jdawil
+            <span className="inline-block text-xs font-bold tracking-widest text-slate-300 bg-white/5 border border-white/10 rounded-full px-4 py-2 mb-4">
+              قبل وبعد بوكست
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
-              الفرق واضح
-              <span className="bg-gradient-to-l from-emerald-400 to-teal-400 bg-clip-text text-transparent"> بالأرقام</span>
+              الفرق واضح بالأرقام
             </h2>
-            <p className="text-slate-400 text-lg">هذا ما يتغير فعلاً في أسلوب إدارة متجرك</p>
+            <p className="text-slate-400 text-lg">هذا اللي يتغير فعلاً في أسلوب إدارة متجرك</p>
           </motion.div>
 
           <motion.div {...fadeUp(0.1)} className="rounded-3xl border border-white/10 overflow-hidden bg-white/[0.02] backdrop-blur-sm">
@@ -1474,6 +1482,8 @@ export default function Landing() {
         </div>
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </section>
+        );
+      })()}
 
       {/* ══ FAQ ══════════════════════════════════════════════════════════════ */}
       <section id="faq" className="relative py-28 px-4 overflow-hidden">

@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import {
   CheckCircle, ArrowLeft, Zap, Star, Building2, Users,
 } from 'lucide-react';
+import MarketingLayout from '../components/marketing/MarketingLayout';
 
 const plans = [
   {
@@ -76,20 +77,20 @@ export default function Pricing() {
   const isYearly = billing === 'yearly';
 
   return (
-    <>
+    <MarketingLayout>
       <Helmet>
-        <title>الأسعار — Jdawil | مجاني للأبد أو Pro بـ 99 ر.س/شهر</title>
-        <meta name="description" content="Jdawil مجاني للأبد مع 30 حجز/شهر. باقة Pro بـ 99 ريال شهرياً لكل شيء مفتوح. بدون عمولة. بدون عقد. ألغِ وقتما تشاء." />
+        <title>الأسعار — بوكست | مجاني للأبد أو Pro بـ 99 ر.س/شهر</title>
+        <meta name="description" content="بوكست مجاني للأبد مع حجوزات غير محدودة للبزنس الصغير. باقة Pro بـ 99 ريال شهرياً لكل شيء مفتوح. بدون عمولة. بدون عقد. ألغِ وقتما تشاء." />
+        <link rel="canonical" href="https://bokset.sa/pricing" />
       </Helmet>
 
-      <div dir="rtl" className="min-h-screen bg-surface-1 text-white">
-        {/* Nav */}
-        <div className="max-w-6xl mx-auto px-4 pt-6 pb-4">
-          <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-white text-sm transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            الرئيسية
-          </Link>
-        </div>
+      <div className="max-w-6xl mx-auto px-4 pt-4 pb-4">
+        <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-white text-sm transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          الرئيسية
+        </Link>
+      </div>
+      <div>
 
         {/* Header */}
         <div className="text-center px-4 pb-12">
@@ -219,6 +220,6 @@ export default function Pricing() {
           </div>
         </div>
       </div>
-    </>
+    </MarketingLayout>
   );
 }

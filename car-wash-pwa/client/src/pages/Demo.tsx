@@ -6,6 +6,7 @@ import {
   ArrowLeft, Smartphone, Layout, Shield, MessageCircle, TrendingUp,
   Package, Star, Clock, CalendarCheck, Phone, Zap, ChevronLeft,
 } from 'lucide-react';
+import MarketingLayout from '../components/marketing/MarketingLayout';
 
 // ─── Industry Data ───────────────────────────────────────────────────────────
 
@@ -196,10 +197,10 @@ export default function Demo() {
   const industry = industries[selectedIndustry];
 
   return (
-    <div dir="rtl" className="min-h-screen bg-surface-1 text-white">
+    <MarketingLayout>
 
       {/* Top bar */}
-      <div className="sticky top-0 z-50 bg-surface-1/90 backdrop-blur-xl border-b border-white/[0.06]">
+      <div className="sticky top-16 z-30 bg-[#0b1220]/90 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 text-slate-400 hover:text-white text-sm transition-colors">
             <ArrowLeft className="w-4 h-4" />
@@ -332,6 +333,6 @@ export default function Demo() {
           </div>
         </div>
       </div>
-    </div>
+    </MarketingLayout>
   );
 }

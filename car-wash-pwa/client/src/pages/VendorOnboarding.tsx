@@ -10,6 +10,7 @@ import {
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
+import MarketingLayout from '../components/marketing/MarketingLayout';
 
 interface OnboardForm {
   ownerName: string;
@@ -341,12 +342,11 @@ export default function VendorOnboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-1 font-arabic" dir="rtl">
-      {/* Background */}
+    <MarketingLayout>
+      {/* Subtle background glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-900/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-blue-900/15 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[200px] bg-indigo-900/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-900/15 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-indigo-900/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 py-10">
@@ -812,6 +812,6 @@ export default function VendorOnboarding() {
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </MarketingLayout>
   );
 }
