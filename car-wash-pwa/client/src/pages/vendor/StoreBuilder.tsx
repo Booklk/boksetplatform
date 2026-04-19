@@ -13,7 +13,8 @@ import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// THEME SYSTEM — 20 Professional Templates (5 Free + 15 Premium)
+// THEME SYSTEM — 20 Professional Templates (1 Free + 19 Pro)
+// Free plan: single default template ("clean-modern"). All others require Pro.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 interface StoreTheme {
@@ -39,39 +40,41 @@ interface StoreTheme {
 }
 
 const THEMES: StoreTheme[] = [
-  // ── FREE THEMES (5) ── Available during trial
+  // ── FREE THEME (1) ── Default template — available on every plan
   {
-    id: 'premium-dark', name: 'بريميوم داكن', desc: 'تصميم فاخر مع تأثيرات ضوئية', category: 'free',
+    id: 'clean-modern', name: 'عصري نظيف', desc: 'تصميم نظيف بسيط — يناسب كل القطاعات', category: 'free',
+    gradient: 'from-slate-800 to-slate-900', accent: '#3b82f6',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // ── PRO THEMES (19) ── Subscribers only
+  {
+    id: 'premium-dark', name: 'بريميوم داكن', desc: 'تصميم فاخر مع تأثيرات ضوئية', category: 'premium',
     gradient: 'from-blue-900 to-slate-900', accent: '#2563eb',
     preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'mesh',
       showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
   {
-    id: 'clean-modern', name: 'عصري نظيف', desc: 'بسيط وأنيق بخطوط واضحة', category: 'free',
-    gradient: 'from-slate-800 to-slate-900', accent: '#3b82f6',
-    preview: { heroStyle: 'minimal-clean', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
-  },
-  {
-    id: 'bold-gradient', name: 'تدرج جريء', desc: 'تدرجات لونية جريئة', category: 'free',
+    id: 'bold-gradient', name: 'تدرج جريء', desc: 'تدرجات لونية جريئة', category: 'premium',
     gradient: 'from-purple-900 to-blue-900', accent: '#8b5cf6',
     preview: { heroStyle: 'gradient-split', cardStyle: 'gradient-border', ctaStyle: 'pill', bgPattern: 'gradient',
       showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
   {
-    id: 'wave-water', name: 'موجة مائية', desc: 'مستوحى من الماء مع تموجات', category: 'free',
+    id: 'wave-water', name: 'موجة مائية', desc: 'مستوحى من الماء مع تموجات', category: 'premium',
     gradient: 'from-cyan-900 to-blue-950', accent: '#06b6d4',
     preview: { heroStyle: 'wave-bg', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'wave',
       showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
   {
-    id: 'minimal-speed', name: 'سريع ومختصر', desc: 'أقل عناصر — حجز أسرع', category: 'free',
+    id: 'minimal-speed', name: 'سريع ومختصر', desc: 'أقل عناصر — حجز أسرع', category: 'premium',
     gradient: 'from-zinc-800 to-zinc-900', accent: '#a1a1aa',
     preview: { heroStyle: 'minimal-clean', cardStyle: 'solid', ctaStyle: 'pill', bgPattern: 'clean',
       showRating: true, showAreas: false, showSlots: true, showReviews: false, showWhatsApp: false, showCallButton: false, accentGlow: false },
   },
 
-  // ── PREMIUM THEMES (15) ── Subscribers only
+  // ── Existing Pro themes (continued)
   {
     id: 'neon-glow', name: 'نيون متوهج', desc: 'تأثيرات نيون مع توهج كهربائي', category: 'premium',
     gradient: 'from-violet-950 to-black', accent: '#a855f7',
@@ -389,21 +392,21 @@ export default function StoreBuilder() {
                       ))}
                     </div>
                     <span className="text-xs text-slate-500">
-                      {isPaidSubscriber ? '20 ثيم متاح' : '5 ثيمات مجانية'}
+                      {isPaidSubscriber ? '20 ثيم متاح' : 'ثيم واحد مجاني — الباقي مع اشتراك برو'}
                     </span>
                   </div>
 
                   {/* Premium upsell banner */}
                   {!isPaidSubscriber && themeFilter !== 'free' && (
-                    <div className="p-4 rounded-xl bg-gradient-to-l from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                    <div className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
                       <div className="flex items-center gap-3">
                         <Crown className="w-8 h-8 text-amber-400 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-white">فعّل اشتراكك للوصول لـ 20 ثيم احترافي</p>
-                          <p className="text-xs text-slate-400 mt-0.5">ثيمات حصرية تميّز مغسلتك عن المنافسين</p>
+                          <p className="text-sm font-bold text-white">اشتراك برو يفتح 19 قالب احترافي + إخفاء علامة بوكست</p>
+                          <p className="text-xs text-slate-400 mt-0.5">قوالب حصرية + دومين مخصص + white-label لعلامتك التجارية</p>
                         </div>
-                        <Link to="/vendor/platform-sub" className="px-4 py-2 rounded-xl bg-amber-500/20 text-amber-400 text-xs font-bold hover:bg-amber-500/30 transition-colors shrink-0">
-                          اشترك الآن
+                        <Link to="/vendor/platform-sub" className="px-4 py-2 rounded-xl bg-white text-[#0b1220] text-xs font-black hover:bg-slate-100 transition-colors shrink-0">
+                          ترقية لبرو
                         </Link>
                       </div>
                     </div>
