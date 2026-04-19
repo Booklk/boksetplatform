@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: jdawil
+      POSTGRES_USER: jdawil
+      POSTGRES_PASSWORD: jdawil_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jdawil"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://jdawil:jdawil_password@postgres:5432/jdawil
+      JWT_SECRET: ${JWT_SECRET:-change_this_to_a_long_random_secret_key_minimum_32_chars}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-change_this_in_production}
+      NODE_ENV: production
+      PORT: 3001
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:3001}
+      DOMAIN: ${DOMAIN:-jdawil.sa}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/api/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
