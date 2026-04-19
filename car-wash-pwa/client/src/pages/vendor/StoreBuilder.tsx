@@ -1,16 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ChevronLeft, Eye, Save, Palette, Layout, Type,
   CheckCircle, Globe, Star, Lock,
   MapPin, Phone, CalendarCheck, Sparkles, Monitor,
-  MessageCircle, ExternalLink, Copy, Crown,
+  MessageCircle, ExternalLink, Copy, Crown, RefreshCw,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
+import {
+  CustomTheme, CustomThemeRadius, CustomThemeMode,
+  PALETTE_PRESETS, getPreset, paletteToTheme,
+  TEMPLATE_DEFAULT_PALETTE, DEFAULT_CUSTOM_THEME,
+} from '../../lib/customTheme';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // THEME SYSTEM — 12 Industry-Specific Templates (1 Free + 11 Pro)
@@ -347,7 +352,7 @@ export default function StoreBuilder() {
   const [selectedTheme, setSelectedTheme] = useState('universal-clean');
   const [heroTextId, setHeroTextId] = useState('classic');
   const [customTagline, setCustomTagline] = useState('');
-  const [tab, setTab] = useState<'theme' | 'content' | 'sections'>('theme');
+  const [tab, setTab] = useState<'theme' | 'design' | 'content' | 'sections'>('theme');
   const [themeFilter, setThemeFilter] = useState('all');
 
   // Section toggles
@@ -356,11 +361,74 @@ export default function StoreBuilder() {
     showReviews: true, showWhatsApp: true, showCallButton: true,
   });
 
+  // ─── Theme Customizer state ────────────────────────────────────────────────
+  const [customTheme, setCustomTheme] = useState<CustomTheme>(DEFAULT_CUSTOM_THEME);
+  const [activePresetId, setActivePresetId] = useState<string | null>(PALETTE_PRESETS[0].id);
+
+  const [hydrated, setHydrated] = useState(false);
+
+  function applyPreset(presetId: string) {
+    const preset = getPreset(presetId);
+    if (!preset) return;
+    setCustomTheme((prev) => paletteToTheme(preset, prev.radius));
+    setActivePresetId(preset.id);
+  }
+
+  function updateColor(key: keyof Omit<CustomTheme, 'radius' | 'mode'>, value: string) {
+    setCustomTheme((prev) => ({ ...prev, [key]: value }));
+    setActivePresetId(null); // user diverged from any preset
+  }
+
+  function updateRadius(radius: CustomThemeRadius) {
+    setCustomTheme((prev) => ({ ...prev, radius }));
+  }
+
+  function updateMode(mode: CustomThemeMode) {
+    setCustomTheme((prev) => ({ ...prev, mode }));
+    setActivePresetId(null);
+  }
+
+  function resetToTemplateDefault() {
+    const presetId = TEMPLATE_DEFAULT_PALETTE[selectedTheme] ?? PALETTE_PRESETS[0].id;
+    applyPreset(presetId);
+    toast.success('تمت إعادة الألوان إلى الافتراضي للقالب');
+  }
+
   // Load vendor data
   const { data: vendor } = useQuery({
     queryKey: ['vendor-branding'],
     queryFn: () => api.get('/vendors/my').then(r => r.data),
   });
+
+  // Hydrate state from vendor.settings once the vendor loads.
+  useEffect(() => {
+    if (hydrated || !vendor?.settings) return;
+    const s = vendor.settings as Record<string, unknown>;
+    if (typeof s.storeTheme === 'string') setSelectedTheme(s.storeTheme);
+    if (typeof s.heroTextId === 'string') setHeroTextId(s.heroTextId);
+    if (typeof s.customTagline === 'string') setCustomTagline(s.customTagline);
+    if (s.storeSections && typeof s.storeSections === 'object') {
+      setSections((prev) => ({ ...prev, ...(s.storeSections as typeof prev) }));
+    }
+    if (s.customTheme && typeof s.customTheme === 'object') {
+      setCustomTheme(s.customTheme as CustomTheme);
+      setActivePresetId(null);
+    }
+    setHydrated(true);
+  }, [vendor, hydrated]);
+
+  // Seed customizer with the palette that fits the selected template —
+  // but only after initial hydration, so user edits aren't clobbered.
+  useEffect(() => {
+    if (!hydrated) return;
+    const presetId = TEMPLATE_DEFAULT_PALETTE[selectedTheme];
+    const preset = presetId ? getPreset(presetId) : undefined;
+    if (preset) {
+      setCustomTheme((prev) => paletteToTheme(preset, prev.radius));
+      setActivePresetId(preset.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedTheme]);
 
   const isSubscribed = vendor?.subscriptionStatus === 'active' || vendor?.subscriptionStatus === 'trial';
   const isPaidSubscriber = vendor?.subscriptionStatus === 'active';
@@ -392,17 +460,20 @@ export default function StoreBuilder() {
   // Save
   const saveMutation = useMutation({
     mutationFn: () => api.put('/vendors/my', {
-      primaryColor: activeTheme.accent,
+      // Keep the top-level primaryColor in sync with the chosen button
+      // colour so anything reading vendor.primaryColor stays working.
+      primaryColor: customTheme.button,
       settings: {
         ...(vendor?.settings ?? {}),
         storeTheme: selectedTheme,
         heroTextId,
         customTagline,
         storeSections: sections,
+        customTheme,
       },
     }),
     onSuccess: () => {
-      toast.success('تم حفظ الثيم بنجاح!');
+      toast.success('تم حفظ التصميم بنجاح!');
       queryClient.invalidateQueries({ queryKey: ['vendor-branding'] });
     },
     onError: () => toast.error('فشل في الحفظ'),
@@ -452,7 +523,8 @@ export default function StoreBuilder() {
             {/* Tabs */}
             <div className="flex gap-1 p-1 bg-white/[0.04] rounded-xl">
               {[
-                { id: 'theme' as const, icon: Layout, label: `الثيمات (${THEMES.length})` },
+                { id: 'theme' as const, icon: Layout, label: `القوالب (${THEMES.length})` },
+                { id: 'design' as const, icon: Palette, label: 'الألوان والتصميم' },
                 { id: 'content' as const, icon: Type, label: 'المحتوى' },
                 { id: 'sections' as const, icon: Sparkles, label: 'الأقسام' },
               ].map(t => (
@@ -520,6 +592,199 @@ export default function StoreBuilder() {
                         onClick={() => handleThemeSelect(theme)}
                       />
                     ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* DESIGN TAB — colors, shape, mode */}
+              {tab === 'design' && (
+                <motion.div
+                  key="design"
+                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                  className="space-y-5"
+                >
+                  {/* Presets row */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-bold text-slate-300">ألوان جاهزة</p>
+                      <button
+                        onClick={resetToTemplateDefault}
+                        className="text-[11px] font-semibold text-slate-400 hover:text-white flex items-center gap-1 transition-colors"
+                        title="إرجاع الألوان للافتراضي لهذا القالب"
+                      >
+                        <RefreshCw className="w-3 h-3" /> الافتراضي للقالب
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {PALETTE_PRESETS.map((preset) => {
+                        const active = activePresetId === preset.id;
+                        return (
+                          <button
+                            key={preset.id}
+                            onClick={() => applyPreset(preset.id)}
+                            className={`relative p-2 rounded-lg border-2 transition-all ${
+                              active ? 'border-white shadow-lg' : 'border-white/[0.06] hover:border-white/20'
+                            }`}
+                            style={{ background: preset.palette.surface }}
+                          >
+                            <div className="flex gap-1 mb-1.5">
+                              <span className="w-3 h-3 rounded-full" style={{ background: preset.palette.button }} />
+                              <span className="w-3 h-3 rounded-full" style={{ background: preset.palette.accent }} />
+                              <span className="w-3 h-3 rounded-full" style={{ background: preset.palette.bg, border: '1px solid rgba(255,255,255,0.1)' }} />
+                            </div>
+                            <p className="text-[10px] font-bold leading-tight truncate" style={{ color: preset.palette.text }}>
+                              {preset.name}
+                            </p>
+                            {active && (
+                              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white flex items-center justify-center">
+                                <CheckCircle className="w-3 h-3 text-slate-900" />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Color pickers grid */}
+                  <div>
+                    <p className="text-xs font-bold text-slate-300 mb-2">تخصيص الألوان</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { key: 'bg', label: 'خلفية الموقع' },
+                        { key: 'surface', label: 'خلفية البطاقات' },
+                        { key: 'button', label: 'لون الأزرار' },
+                        { key: 'accent', label: 'لون التفاصيل' },
+                        { key: 'text', label: 'لون النص' },
+                        { key: 'calendar', label: 'لون الكالندر' },
+                      ].map((field) => (
+                        <label
+                          key={field.key}
+                          className="flex items-center gap-2 p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-colors cursor-pointer"
+                        >
+                          <input
+                            type="color"
+                            value={customTheme[field.key as keyof CustomTheme] as string}
+                            onChange={(e) => updateColor(field.key as keyof Omit<CustomTheme, 'radius' | 'mode'>, e.target.value)}
+                            className="w-8 h-8 rounded border border-white/10 bg-transparent cursor-pointer shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[11px] font-bold text-white truncate">{field.label}</p>
+                            <p className="text-[10px] font-mono text-slate-500 truncate">
+                              {customTheme[field.key as keyof CustomTheme] as string}
+                            </p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Shape / radius */}
+                  <div>
+                    <p className="text-xs font-bold text-slate-300 mb-2">شكل الزوايا</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {([
+                        { id: 'square', label: 'حادة', radius: '4px' },
+                        { id: 'rounded', label: 'متوسطة', radius: '12px' },
+                        { id: 'pill', label: 'كبسولة', radius: '9999px' },
+                      ] as const).map((opt) => {
+                        const active = customTheme.radius === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            onClick={() => updateRadius(opt.id)}
+                            className={`p-3 border-2 transition-all ${
+                              active ? 'border-white bg-white/[0.05]' : 'border-white/[0.06] hover:border-white/[0.15]'
+                            }`}
+                            style={{ borderRadius: opt.radius }}
+                          >
+                            <div
+                              className="w-full h-6 mb-1.5"
+                              style={{ background: customTheme.button, borderRadius: opt.radius }}
+                            />
+                            <p className="text-[11px] font-bold text-white">{opt.label}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Mode */}
+                  <div>
+                    <p className="text-xs font-bold text-slate-300 mb-2">وضع الخلفية</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { id: 'dark', label: 'داكن', desc: 'مناسب للعرض على الجوال' },
+                        { id: 'light', label: 'فاتح', desc: 'رسمي وهادئ' },
+                      ] as const).map((opt) => {
+                        const active = customTheme.mode === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            onClick={() => updateMode(opt.id)}
+                            className={`p-3 rounded-lg border-2 text-right transition-all ${
+                              active ? 'border-white bg-white/[0.05]' : 'border-white/[0.06] hover:border-white/[0.15]'
+                            }`}
+                          >
+                            <p className="text-xs font-bold text-white">{opt.label}</p>
+                            <p className="text-[10px] text-slate-500 mt-0.5">{opt.desc}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Live mini preview */}
+                  <div
+                    className="p-4 border border-white/[0.08]"
+                    style={{
+                      background: customTheme.bg,
+                      borderRadius: customTheme.radius === 'pill' ? '24px' : customTheme.radius === 'rounded' ? '16px' : '6px',
+                    }}
+                  >
+                    <p className="text-[10px] font-bold mb-2 opacity-60" style={{ color: customTheme.text }}>معاينة مباشرة</p>
+                    <div
+                      className="p-3 mb-3"
+                      style={{
+                        background: customTheme.surface,
+                        borderRadius: customTheme.radius === 'pill' ? '18px' : customTheme.radius === 'rounded' ? '12px' : '4px',
+                      }}
+                    >
+                      <p className="text-sm font-bold mb-1" style={{ color: customTheme.text }}>
+                        اسم الخدمة
+                      </p>
+                      <p className="text-xs mb-2 opacity-70" style={{ color: customTheme.text }}>وصف مختصر للخدمة</p>
+                      <div className="flex gap-2 items-center">
+                        <button
+                          className="px-4 py-1.5 text-xs font-bold text-white"
+                          style={{
+                            background: customTheme.button,
+                            borderRadius: customTheme.radius === 'pill' ? '9999px' : customTheme.radius === 'rounded' ? '8px' : '3px',
+                          }}
+                        >
+                          احجز الآن
+                        </button>
+                        <span className="text-xs font-semibold" style={{ color: customTheme.accent }}>
+                          اعرف المزيد ←
+                        </span>
+                      </div>
+                    </div>
+                    {/* Calendar slot preview */}
+                    <div className="flex gap-1.5">
+                      {['09:00', '10:00', '11:00'].map((t, i) => (
+                        <div
+                          key={t}
+                          className="flex-1 py-1.5 text-center text-[10px] font-bold font-mono"
+                          style={{
+                            background: i === 1 ? customTheme.calendar : customTheme.surface,
+                            color: i === 1 ? '#fff' : customTheme.text,
+                            borderRadius: customTheme.radius === 'pill' ? '9999px' : customTheme.radius === 'rounded' ? '6px' : '3px',
+                          }}
+                        >
+                          {t}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </motion.div>
               )}
