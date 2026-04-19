@@ -405,12 +405,59 @@ export default function VendorLanding() {
                 <p className="text-slate-500 text-xs leading-relaxed mb-5 max-w-xl">{vendor.descriptionAr}</p>
               )}
 
+              {/* Feature badges driven by theme.features */}
+              {(features.gps || features.privacy || features.b2b) && (
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {features.gps && (
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
+                      style={{ background: `${customTheme.accent}15`, borderColor: `${customTheme.accent}40`, color: customTheme.accent }}
+                    >
+                      <MapPin size={11} />
+                      تتبّع الموظف مباشرة بعد الحجز
+                    </span>
+                  )}
+                  {features.privacy && (
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
+                      style={{ background: `${customTheme.accent}15`, borderColor: `${customTheme.accent}40`, color: customTheme.accent }}
+                    >
+                      🔒 سرّية تامّة — خدمة موثوقة
+                    </span>
+                  )}
+                  {features.b2b && (
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
+                      style={{ background: `${customTheme.accent}15`, borderColor: `${customTheme.accent}40`, color: customTheme.accent }}
+                    >
+                      🏢 عقود شركات متاحة
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* CTAs */}
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
+                {features.quote && (
+                  <a
+                    href={`${whatsappUrl}${whatsappUrl.includes('?') ? '&' : '?'}text=${encodeURIComponent('مرحباً، أرغب في طلب عرض سعر لخدمتكم — ')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
+                    style={{ background: customTheme.button }}
+                  >
+                    <MessageCircle size={15} />
+                    اطلب عرض سعر
+                  </a>
+                )}
                 {sections.showWhatsApp !== false && (
                   <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
-                    style={{ background: color }}>
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95"
+                    style={{
+                      background: features.quote ? 'transparent' : color,
+                      border: features.quote ? `1px solid ${customTheme.accent}40` : 'none',
+                      color: features.quote ? customTheme.accent : '#fff',
+                    }}>
                     <MessageCircle size={15} />
                     تواصل معنا
                   </a>
