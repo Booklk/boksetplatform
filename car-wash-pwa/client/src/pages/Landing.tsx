@@ -78,12 +78,12 @@ const features = [
     glow: 'shadow-violet-500/25',
     border: 'border-violet-500/20',
     title: 'برامج ولاء تخليهم يرجعون',
-    desc: 'نقاط أو بطاقة مخرَّمة بألوان مغسلتك — العميل يرجع لأنه يجمع مكافآت.',
+    desc: 'نقاط أو بطاقة مخرَّمة بألوان متجرك — العميل يرجع لأنه يجمع مكافآت.',
   },
 ];
 
 const stats = [
-  { to: 120, suffix: '+', label: 'مغسلة مسجلة', color: 'from-blue-400 to-cyan-400' },
+  { to: 120, suffix: '+', label: 'متجر مسجل', color: 'from-blue-400 to-cyan-400' },
   { to: 15000, suffix: '+', label: 'حجز مكتمل', color: 'from-purple-400 to-pink-400' },
   { to: 4.9, suffix: '', label: 'تقييم', color: 'from-amber-400 to-orange-400', isDecimal: true },
   { to: 2, suffix: '+ مليون ر.س', label: 'إيرادات عملائنا', color: 'from-emerald-400 to-teal-400' },
@@ -92,7 +92,7 @@ const stats = [
 const testimonials = [
   {
     name: 'أحمد الشمري',
-    role: 'صاحب مغسلة الفخامة — الرياض',
+    role: 'صاحب الفخامة — الرياض',
     text: 'قبل Jdawil كنت أدير كل شيء على واتساب! الآن الحجوزات تنظم نفسها والإيرادات زادت ٤٠٪ في أول شهرين.',
     rating: 5,
     avatar: 'أ',
@@ -100,7 +100,7 @@ const testimonials = [
   },
   {
     name: 'محمد العتيبي',
-    role: 'صاحب مغسلة الكريستال — جدة',
+    role: 'صاحب الكريستال — جدة',
     text: 'الميزة اللي أحبها هي تتبع الموظفين. العميل يشوف الموظف وين هو. الثقة اللي بنيناها مع عملائنا لا تقدر بثمن.',
     rating: 5,
     avatar: 'م',
@@ -108,7 +108,7 @@ const testimonials = [
   },
   {
     name: 'خالد الدوسري',
-    role: 'مدير مغسلة النجمة — الدمام',
+    role: 'مدير النجمة — الدمام',
     text: 'إعداد بسيط جداً — حطيت مفتاح API للدفع وبدأنا نستقبل مدفوعات STC Pay في نفس اليوم. مافي كود ولا تعقيد.',
     rating: 5,
     avatar: 'خ',
@@ -122,11 +122,11 @@ const marqueeText = 'حجوزات ذكية ✦ GPS مباشر ✦ برامج ا�
 const faqs = [
   {
     q: 'ما هو Jdawil؟',
-    a: 'Jdawil هو برنامج SaaS متكامل لإدارة مغاسل السيارات في المملكة العربية السعودية. يوفر حجوزات ذكية، تتبع GPS مباشر للموظفين والسيارات، مدفوعات STC Pay ومدى، إدارة رواتب، وفواتير PDF — كل شيء في مكان واحد بدون تعقيد.',
+    a: 'Jdawil هو برنامج SaaS متكامل لإدارة الحجوزات والخدمات في المملكة العربية السعودية. يوفر حجوزات ذكية، تتبع GPS مباشر للموظفين والسيارات، مدفوعات STC Pay ومدى، إدارة رواتب، وفواتير PDF — كل شيء في مكان واحد بدون تعقيد.',
   },
   {
     q: 'هل يناسب المغاسل المتنقلة والثابتة معاً؟',
-    a: 'نعم. Jdawil مُصمَّم من اليوم الأول لكلا النوعين. المغسلة المتنقلة تستفيد من تتبع GPS، حساب وقت الوصول، وتوزيع الحجوزات على السيارات المتاحة. المغسلة الثابتة تستفيد من نظام الطابور والكاشير وإدارة العملاء.',
+    a: 'نعم. Jdawil مُصمَّم من اليوم الأول لكلا النوعين. الخدمة المتنقلة تستفيد من تتبع GPS، حساب وقت الوصول، وتوزيع الحجوزات على السيارات المتاحة. المتجر الثابت تستفيد من نظام الطابور والكاشير وإدارة العملاء.',
   },
   {
     q: 'كم سعر الاشتراك وهل توجد رسوم إضافية؟',
@@ -146,10 +146,10 @@ const faqs = [
   },
   {
     q: 'هل البيانات آمنة؟',
-    a: 'نعم. كل مغسلة معزولة تماماً عن الأخرى (Multi-tenant isolation). البيانات مشفرة أثناء النقل وعند التخزين. يتم نسخ احتياطي يومي تلقائي.',
+    a: 'نعم. كل متجر معزول تماماً عن الأخرى (Multi-tenant isolation). البيانات مشفرة أثناء النقل وعند التخزين. يتم نسخ احتياطي يومي تلقائي.',
   },
   {
-    q: 'هل أستطيع إدارة أكثر من مغسلة؟',
+    q: 'هل أستطيع إدارة أكثر من متجر؟',
     a: 'نعم. تتوفر خطط للفروع المتعددة (2-3 فروع، 4-10 فروع) بلوحة تحكم موحدة تتيح مقارنة أداء كل فرع وإدارة الموظفين والمخزون من مكان واحد.',
   },
 ];
@@ -292,7 +292,7 @@ export default function Landing() {
             </motion.div>
             <div className="leading-tight">
               <p className="font-black text-white text-[15px] tracking-tight">Jdawil</p>
-              <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">Car Wash SaaS</p>
+              <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">منصة الحجوزات</p>
             </div>
           </Link>
 
@@ -315,7 +315,7 @@ export default function Landing() {
             ) : (
               <div className="flex items-center gap-3">
                 <Link to="/onboard" className="border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/10 px-4 py-2.5 rounded-xl text-sm font-medium transition-all">
-                  انضم بمغسلتك
+                  انضم بمتجرك
                 </Link>
                 <Link to="/login" className="bg-gradient-to-l from-blue-600 to-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105">
                   ادخل
@@ -345,7 +345,7 @@ export default function Landing() {
                   <Link to={dashboardHref(user.role)} onClick={() => setMenuOpen(false)} className="block bg-gradient-to-l from-blue-600 to-blue-500 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">لوحتي</Link>
                 ) : (
                   <>
-                    <Link to="/onboard" onClick={() => setMenuOpen(false)} className="block border border-indigo-500/40 text-indigo-400 px-4 py-3 rounded-xl text-sm font-medium text-center">انضم بمغسلتك</Link>
+                    <Link to="/onboard" onClick={() => setMenuOpen(false)} className="block border border-indigo-500/40 text-indigo-400 px-4 py-3 rounded-xl text-sm font-medium text-center">انضم بمتجرك</Link>
                     <Link to="/login" onClick={() => setMenuOpen(false)} className="block bg-gradient-to-l from-blue-600 to-blue-500 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">ادخل</Link>
                   </>
                 )}
@@ -426,7 +426,7 @@ export default function Landing() {
             <span className="w-px h-3 bg-white/[0.08]" />
             <span>جاهز خلال 5 دقائق</span>
             <span className="w-px h-3 bg-white/[0.08]" />
-            <span>+120 مغسلة تثق فينا</span>
+            <span>+120 متجر يثق فينا</span>
           </motion.div>
 
           {/* Stats */}
@@ -535,7 +535,7 @@ export default function Landing() {
             <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
               بدون نظام vs مع Jdawil
             </h2>
-            <p className="text-slate-500 text-base">الفرق اللي يحسه كل صاحب مغسلة من أول أسبوع</p>
+            <p className="text-slate-500 text-base">الفرق اللي يحسه كل تاجر من أول أسبوع</p>
           </motion.div>
 
           {/* Clean before/after table */}
@@ -926,7 +926,7 @@ export default function Landing() {
               {[
                 {
                   num: '١',
-                  title: 'سجّل مغسلتك',
+                  title: 'سجّل متجرك',
                   subtitle: '٣٠ ثانية',
                   desc: 'أدخل الاسم والجوال والمدينة',
                   gradient: 'from-blue-600 to-cyan-500',
@@ -998,7 +998,7 @@ export default function Landing() {
               شاهد بنفسك
             </span>
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
-              داشبورد مغسلتك
+              داشبورد متجرك
               <span className="bg-gradient-to-l from-blue-400 to-cyan-300 bg-clip-text text-transparent"> في ثانية واحدة</span>
             </h2>
             <p className="text-slate-400 text-lg">هذا ما تراه كل صباح عند فتح Jdawil</p>
@@ -1118,7 +1118,7 @@ export default function Landing() {
 
           {/* Caption */}
           <motion.p {...fadeUp(0.2)} className="text-center text-slate-500 text-sm mt-6">
-            هذا داشبورد حقيقي — تراه فوراً بعد تسجيل مغسلتك
+            هذا داشبورد حقيقي — تراه فوراً بعد تسجيل متجرك
           </motion.p>
         </div>
       </section>
@@ -1198,7 +1198,7 @@ export default function Landing() {
             <div className="hidden md:block absolute top-11 right-[17%] left-[17%] h-px border-t-2 border-dashed border-white/10 z-0" />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
               {[
-                { Icon: Building2, num: '١', title: 'سجّل مغسلتك', desc: 'أنشئ حسابك وأضف بيانات مغسلتك في أقل من دقيقتين' },
+                { Icon: Building2, num: '١', title: 'سجّل متجرك', desc: 'أنشئ حسابك وأضف بيانات متجرك في أقل من دقيقتين' },
                 { Icon: Settings, num: '٢', title: 'فعّل مزاياك', desc: 'أضف مفتاح الدفع وخدماتك وموظفيك من لوحة إعداد واحدة' },
                 { Icon: CheckCircle, num: '٣', title: 'استقبل وأدر', desc: 'ابدأ في استقبال الحجوزات والمدفوعات فوراً' },
               ].map(({ Icon, num, title, desc }, i) => (
@@ -1224,7 +1224,7 @@ export default function Landing() {
               onClick={() => navigate('/onboard')}
               className="bg-gradient-to-l from-purple-600 to-blue-600 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-shadow"
             >
-              سجّل مغسلتك مجاناً
+              سجّل متجرك مجاناً
             </motion.button>
           </motion.div>
         </div>
@@ -1240,9 +1240,9 @@ export default function Landing() {
             </div>
             <h2 className="text-3xl sm:text-4xl font-black mb-4">
               ابحث عن{' '}
-              <span className="bg-gradient-to-l from-cyan-400 to-blue-400 bg-clip-text text-transparent">مغسلة بالقرب منك</span>
+              <span className="bg-gradient-to-l from-cyan-400 to-blue-400 bg-clip-text text-transparent">متجر بالقرب منك</span>
             </h2>
-            <p className="text-slate-400 text-lg mb-10">اكتشف أفضل مغاسل السيارات في مدينتك واحجز بضغطة واحدة</p>
+            <p className="text-slate-400 text-lg mb-10">اكتشف أفضل مزودي الخدمات في مدينتك واحجز بضغطة واحدة</p>
           </motion.div>
           <motion.form {...fadeUp(0.1)} onSubmit={handleSearch} className="flex gap-3 max-w-xl mx-auto">
             <div className="relative flex-1">
@@ -1251,7 +1251,7 @@ export default function Landing() {
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="ابحث بالمدينة أو اسم المغسلة..."
+                placeholder="ابحث بالمدينة أو اسم المتجر..."
                 className="w-full bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 pr-11 pl-4 py-4 rounded-2xl focus:outline-none focus:border-indigo-500/60 focus:bg-white/8 transition-all text-sm backdrop-blur-sm"
               />
             </div>
@@ -1310,7 +1310,7 @@ export default function Landing() {
                     أنت من العملاء المؤسسين — سعرك محفوظ للأبد
                   </p>
                   <p className="text-amber-100 text-sm mt-0.5">
-                    أول 100 مغسلة تسجل في Jdawil تحتفظ بسعر اليوم حتى لو رفعنا الأسعار لاحقاً
+                    أول 100 متجر تسجل في Jdawil تحتفظ بسعر اليوم حتى لو رفعنا الأسعار لاحقاً
                   </p>
                   {foundingSeats !== null && (
                     <div className="mt-1.5 inline-flex items-center gap-1.5">
@@ -1350,14 +1350,14 @@ export default function Landing() {
             </span>
             <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
               باقة تناسب
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-300 bg-clip-text text-transparent"> كل مغسلة</span>
+              <span className="bg-gradient-to-l from-blue-400 to-cyan-300 bg-clip-text text-transparent"> كل متجر</span>
             </h2>
             <p className="text-slate-400 text-lg max-w-xl mx-auto mb-4">
               بدون رسوم إعداد — بدون عقود — يمكنك الإلغاء في أي وقت
             </p>
             <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-5 py-2.5">
               <span className="text-amber-400 text-lg">🔥</span>
-              <span className="text-amber-300 text-sm font-black">أول 100 مغسلة = سعر مثبّت للأبد</span>
+              <span className="text-amber-300 text-sm font-black">أول 100 متجر = سعر مثبّت للأبد</span>
             </div>
           </motion.div>
 
@@ -1525,7 +1525,7 @@ export default function Landing() {
               الفرق واضح
               <span className="bg-gradient-to-l from-emerald-400 to-teal-400 bg-clip-text text-transparent"> بالأرقام</span>
             </h2>
-            <p className="text-slate-400 text-lg">هذا ما يتغير فعلاً في أسلوب إدارة مغسلتك</p>
+            <p className="text-slate-400 text-lg">هذا ما يتغير فعلاً في أسلوب إدارة متجرك</p>
           </motion.div>
 
           <motion.div {...fadeUp(0.1)} className="rounded-3xl border border-white/10 overflow-hidden bg-white/[0.02] backdrop-blur-sm">
@@ -1660,7 +1660,7 @@ export default function Landing() {
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
               سيارة عميلك تستاهل
               <br />
-              <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">ومغسلتك تستاهل Jdawil</span>
+              <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">ومتجرك يستاهل Jdawil</span>
             </h2>
             <p className="text-slate-300 text-xl mb-12">١٤ يوم مجاناً — بدون بطاقة ائتمان — الإعداد يأخذ ٣ دقائق</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
@@ -1728,7 +1728,7 @@ export default function Landing() {
                 </div>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
-                المنصة الأولى في السعودية لإدارة مغاسل السيارات المتنقلة والثابتة.
+                المنصة الأولى في السعودية لإدارة الحجوزات والخدمات — مغاسل، صالونات، خدمات منزلية.
               </p>
             </div>
 
@@ -1748,7 +1748,7 @@ export default function Landing() {
             <div>
               <h4 className="text-sm font-bold text-white mb-4">لأصحاب المغاسل</h4>
               <ul className="space-y-2.5 text-sm text-slate-500">
-                <li><Link to="/onboard" className="hover:text-white transition-colors">انضم بمغسلتك</Link></li>
+                <li><Link to="/onboard" className="hover:text-white transition-colors">انضم بمتجرك</Link></li>
                 <li><Link to="/login" className="hover:text-white transition-colors">تسجيل الدخول</Link></li>
                 <li><Link to="/onboard" className="hover:text-white transition-colors">تجربة مجانية ١٤ يوم</Link></li>
               </ul>
