@@ -16,6 +16,7 @@ import {
 } from '../lib/customTheme';
 import { getThemeFeatures } from '../lib/storeThemes';
 import QueueWidget from '../components/storefront/QueueWidget';
+import GallerySection from '../components/storefront/GallerySection';
 
 interface TimeSlot {
   time: string;
@@ -599,6 +600,17 @@ export default function VendorLanding() {
         </section>
 
         <div className="max-w-3xl mx-auto px-5"><div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" /></div>
+
+        {/* ═══ GALLERY (spa / studio / salon / beauty-at-home) ═══════ */}
+        {features.gallery && slug && (
+          <GallerySection
+            vendorSlug={slug}
+            surface={customTheme.surface}
+            text={customTheme.text}
+            accent={customTheme.accent}
+            radius={RADIUS_VALUES[customTheme.radius]}
+          />
+        )}
 
         {/* ═══ QUICK BOOK ───────────────────────────────────────────── */}
         <div className="max-w-4xl mx-auto px-4"><div className="h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent my-8" /></div>
