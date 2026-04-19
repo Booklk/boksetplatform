@@ -11,6 +11,9 @@ import {
 import api from '../lib/api';
 import { formatCurrency } from '../lib/utils';
 import { VendorThemeProvider } from '../components/VendorThemeProvider';
+import {
+  CustomTheme, DEFAULT_CUSTOM_THEME, RADIUS_VALUES,
+} from '../lib/customTheme';
 
 interface TimeSlot {
   time: string;
@@ -173,7 +176,12 @@ export default function VendorLanding() {
   const isAppointmentMode = slotsData?.appointmentMode ?? false;
   const availableSlots = (slotsData?.slots ?? []).filter((s) => s.available).slice(0, 3);
 
-  const color = vendor?.primaryColor || '#2563eb';
+  // Single source for dynamic brand colour — prefer the customizer's button
+  // colour (kept in sync with primaryColor on save), then fall back to the
+  // legacy primaryColor field, then a neutral default.
+  const color = ((vendor?.settings as any)?.customTheme?.button as string | undefined)
+    ?? vendor?.primaryColor
+    ?? '#1e3a8a';
 
   // ─── Read Store Builder settings ───────────────────────────────────────────
   const storeSettings = vendor?.settings ?? {};
@@ -184,6 +192,19 @@ export default function VendorLanding() {
   };
   const heroTextId = storeSettings.heroTextId ?? 'classic';
   const customTagline = storeSettings.customTagline as string | undefined;
+
+  // Vendor's custom theme (colours / radius / mode), if they configured one.
+  const customTheme: CustomTheme = (storeSettings.customTheme as CustomTheme | undefined) ?? DEFAULT_CUSTOM_THEME;
+  const customThemeStyle = {
+    '--jadawel-bg': customTheme.bg,
+    '--jadawel-surface': customTheme.surface,
+    '--jadawel-button': customTheme.button,
+    '--jadawel-accent': customTheme.accent,
+    '--jadawel-text': customTheme.text,
+    '--jadawel-calendar': customTheme.calendar,
+    '--jadawel-radius': RADIUS_VALUES[customTheme.radius],
+    colorScheme: customTheme.mode,
+  } as React.CSSProperties;
 
   // Hero subtitle based on settings
   const HERO_SUBS: Record<string, string> = {
@@ -294,10 +315,21 @@ export default function VendorLanding() {
         {vendor.logoUrl && <link rel="apple-touch-icon" href={vendor.logoUrl} />}
       </Helmet>
     <VendorThemeProvider slug={slug}>
-    <div className="min-h-screen bg-surface-1 font-arabic" dir="rtl">
-      {/* Subtle background */}
+    <div
+      className="min-h-screen font-arabic"
+      dir="rtl"
+      style={{
+        ...customThemeStyle,
+        background: customTheme.bg,
+        color: customTheme.text,
+      }}
+    >
+      {/* Subtle background glow using the vendor's chosen accent */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[180px] opacity-[0.07]" style={{ background: color }} />
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[180px] opacity-[0.07]"
+          style={{ background: customTheme.accent }}
+        />
       </div>
 
       <div className="relative z-10">
