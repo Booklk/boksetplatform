@@ -508,7 +508,7 @@ export default function Login() {
             transition={{ delay: 0.4, duration: 0.5 }}
           >
             <h1 className="text-3xl font-black">
-              <span className="gradient-text">Jdawil</span>{' '}
+              <span className="gradient-text">Jadawel</span>{' '}
               <span className="text-white"></span>
             </h1>
             <p className="text-slate-500 text-sm mt-2 font-medium">تسجيل الدخول إلى حسابك</p>

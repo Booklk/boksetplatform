@@ -21,7 +21,7 @@ function RegisterCTA() {
             باقة مجانية دائمة
           </span>
           <h3 className="text-white font-black text-2xl leading-tight mb-3">
-            جرّب بوكست — نظام حجوزات بدون تعب
+            جرّب جداول — نظام حجوزات بدون تعب
           </h3>
           <p className="text-slate-400 text-[15px] leading-relaxed mb-6">
             لو مشروعك صغير، اشترك في الباقة المجانية وابدأ بدون ما تدفع ريال واحد.
@@ -96,8 +96,8 @@ export default function BlogArticle() {
     inLanguage: 'ar',
     datePublished: article.date,
     dateModified: article.date,
-    author: { '@type': 'Organization', name: 'Bokset', url: DOMAIN },
-    publisher: { '@type': 'Organization', name: 'Bokset', url: DOMAIN, logo: `${DOMAIN}/icons/icon-192x192.png` },
+    author: { '@type': 'Organization', name: 'Jadawel', url: DOMAIN },
+    publisher: { '@type': 'Organization', name: 'Jadawel', url: DOMAIN, logo: `${DOMAIN}/icons/icon-192x192.png` },
     mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
   };
 
@@ -106,7 +106,7 @@ export default function BlogArticle() {
   return (
     <MarketingLayout>
       <Helmet>
-        <title>{article.title} | مدونة بوكست</title>
+        <title>{article.title} | مدونة جداول</title>
         <meta name="description" content={article.description} />
         <link rel="canonical" href={articleUrl} />
         <meta property="og:type" content="article" />

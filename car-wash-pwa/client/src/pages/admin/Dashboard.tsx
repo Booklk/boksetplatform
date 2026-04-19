@@ -37,7 +37,7 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-black text-white">لوحة التحكم</h1>
-          <p className="text-slate-400 text-sm">مغسلة Jdawil</p>
+          <p className="text-slate-400 text-sm">مغسلة Jadawel</p>
         </div>
         <div className="text-2xl animate-float">💧</div>
       </div>

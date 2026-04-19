@@ -659,7 +659,7 @@ export default function VendorLanding() {
         {/* ─── FOOTER ─────────────────────────────────────────── */}
         <div className="max-w-4xl mx-auto px-4 py-8 pb-16">
           <p className="text-center text-slate-600 text-[10px] mt-8 opacity-40">
-            Powered by Jdawil
+            Powered by Jadawel
           </p>
         </div>
       </div>

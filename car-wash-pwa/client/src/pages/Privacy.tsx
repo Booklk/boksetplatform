@@ -13,7 +13,7 @@ export default function Privacy() {
         <section className="mb-10">
           <h2 className="text-xl font-semibold mb-3">١. من نحن</h2>
           <p className="text-gray-300 leading-relaxed">
-            منصة <span className="font-bold text-white">بوكست (Jdawil)</span> هي
+            منصة <span className="font-bold text-white">جداول (Jadawel)</span> هي
             منصة سعودية متخصصة في تمكين مقدّمي الخدمات من إدارة أعمالهم رقميًا،
             بما يشمل الحجوزات والمدفوعات وإدارة العملاء والتسويق. يشار إليها
             فيما يلي بـ «المنصة» أو «نحن». نلتزم بحماية خصوصيتك وفقًا لنظام
@@ -147,7 +147,7 @@ export default function Privacy() {
         </section>
 
         <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-          &copy; {new Date().getFullYear()} بوكست. جميع الحقوق محفوظة.
+          &copy; {new Date().getFullYear()} جداول. جميع الحقوق محفوظة.
         </div>
       </div>
     </MarketingLayout>

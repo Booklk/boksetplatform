@@ -222,7 +222,7 @@ export default function Marketplace() {
               <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
                 منصة{' '}
                 <span className="bg-gradient-to-l from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Jdawil
+                  Jadawel
                 </span>
               </h1>
               <motion.div
@@ -408,7 +408,7 @@ export default function Marketplace() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-5 h-5 text-purple-400" />
-                <span className="text-purple-300 text-sm font-bold">انضم إلى منصة Jdawil</span>
+                <span className="text-purple-300 text-sm font-bold">انضم إلى منصة Jadawel</span>
               </div>
               <h3 className="text-2xl md:text-3xl font-black text-white mb-2">
                 هل تمتلك مغسلة سيارات؟

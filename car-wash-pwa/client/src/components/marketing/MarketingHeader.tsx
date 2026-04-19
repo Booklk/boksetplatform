@@ -36,11 +36,11 @@ export default function MarketingHeader() {
         {/* Brand */}
         <Link to="/" className="flex items-center gap-2.5 group">
           <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
-            <span className="text-[#0b1220] font-black text-lg">ب</span>
+            <span className="text-[#0b1220] font-black text-lg">ج</span>
           </div>
           <div className="leading-none">
-            <p className="text-white font-black text-base">بوكست</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Bokset</p>
+            <p className="text-white font-black text-base">جداول</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Jadawel</p>
           </div>
         </Link>
 

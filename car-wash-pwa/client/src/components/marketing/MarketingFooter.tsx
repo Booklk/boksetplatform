@@ -54,11 +54,11 @@ export default function MarketingFooter() {
           <div className="col-span-2">
             <Link to="/" className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
-                <span className="text-[#0b1220] font-black text-lg">ب</span>
+                <span className="text-[#0b1220] font-black text-lg">ج</span>
               </div>
               <div className="leading-none">
-                <p className="text-white font-black text-base">بوكست</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">Bokset</p>
+                <p className="text-white font-black text-base">جداول</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Jadawel</p>
               </div>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mt-4 max-w-sm">
@@ -124,7 +124,7 @@ export default function MarketingFooter() {
 
         {/* Bottom row */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p>© {year} بوكست — جميع الحقوق محفوظة.</p>
+          <p>© {year} جداول — جميع الحقوق محفوظة.</p>
           <p>صُنع في المملكة العربية السعودية 🇸🇦</p>
         </div>
       </div>

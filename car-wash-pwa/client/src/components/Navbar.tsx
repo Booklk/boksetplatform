@@ -267,7 +267,7 @@ export default function Navbar() {
             )}
             <div className="min-w-0">
               <p className="font-black text-white text-sm truncate">
-                {isVendorPage ? vendorName : 'Jdawil'}
+                {isVendorPage ? vendorName : 'Jadawel'}
               </p>
               <p className="text-xs text-slate-400">{roleLabel(user.role)}</p>
             </div>
@@ -317,7 +317,7 @@ export default function Navbar() {
             )}
             <div>
               <p className="font-black text-white text-sm leading-none">
-                {isVendorPage ? vendorName : 'Jdawil'}
+                {isVendorPage ? vendorName : 'Jadawel'}
               </p>
               <p className="text-xs text-slate-400 leading-none">{roleLabel(user.role)}</p>
             </div>

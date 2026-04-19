@@ -402,7 +402,7 @@ export default function StoreBuilder() {
                       <div className="flex items-center gap-3">
                         <Crown className="w-8 h-8 text-amber-400 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-white">اشتراك برو يفتح 19 قالب احترافي + إخفاء علامة بوكست</p>
+                          <p className="text-sm font-bold text-white">اشتراك برو يفتح 19 قالب احترافي + إخفاء علامة جداول</p>
                           <p className="text-xs text-slate-400 mt-0.5">قوالب حصرية + دومين مخصص + white-label لعلامتك التجارية</p>
                         </div>
                         <Link to="/vendor/platform-sub" className="px-4 py-2 rounded-xl bg-white text-[#0b1220] text-xs font-black hover:bg-slate-100 transition-colors shrink-0">

@@ -16,8 +16,8 @@ export default function Terms() {
           <h2 className="text-xl font-semibold mb-3">١. تعريفات</h2>
           <ul className="list-disc list-inside text-gray-300 space-y-2 leading-relaxed">
             <li>
-              <span className="font-medium text-white">المنصة:</span> منصة بوكست
-              (Jdawil) الإلكترونية وتطبيقاتها.
+              <span className="font-medium text-white">المنصة:</span> منصة جداول
+              (Jadawel) الإلكترونية وتطبيقاتها.
             </li>
             <li>
               <span className="font-medium text-white">المستخدم:</span> أي شخص
@@ -136,7 +136,7 @@ export default function Terms() {
           <h2 className="text-xl font-semibold mb-3">٨. الملكية الفكرية</h2>
           <p className="text-gray-300 leading-relaxed">
             جميع حقوق الملكية الفكرية للمنصة — بما في ذلك التصميم والشعارات
-            والكود البرمجي والمحتوى — مملوكة لشركة بوكست. لا يجوز نسخ أو
+            والكود البرمجي والمحتوى — مملوكة لشركة جداول. لا يجوز نسخ أو
             استنساخ أو توزيع أي جزء من المنصة دون إذن كتابي مسبق. يحتفظ التاجر
             بملكية محتواه وبياناته المرفوعة على المنصة.
           </p>
@@ -175,7 +175,7 @@ export default function Terms() {
         </section>
 
         <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-          &copy; {new Date().getFullYear()} بوكست. جميع الحقوق محفوظة.
+          &copy; {new Date().getFullYear()} جداول. جميع الحقوق محفوظة.
         </div>
       </div>
     </MarketingLayout>

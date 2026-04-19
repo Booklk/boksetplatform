@@ -49,7 +49,7 @@ export default function AdminLogin() {
           <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center">
             <Shield className="w-7 h-7 text-blue-400" />
           </div>
-          <h1 className="text-xl font-black text-white">Jdawil Admin</h1>
+          <h1 className="text-xl font-black text-white">Jadawel Admin</h1>
           <p className="text-sm text-slate-600 mt-1">لوحة تحكم المنصة</p>
         </div>
 
@@ -108,7 +108,7 @@ export default function AdminLogin() {
         </form>
 
         <p className="text-center text-[11px] text-slate-700 mt-6">
-          هذه اللوحة مخصصة لمدراء منصة Jdawil فقط
+          هذه اللوحة مخصصة لمدراء منصة Jadawel فقط
         </p>
       </motion.div>
     </div>

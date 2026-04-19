@@ -326,20 +326,20 @@ export default function Blog() {
   return (
     <MarketingLayout>
       <Helmet>
-        <title>مدونة بوكست — دلائل لأصحاب المشاريع الخدمية السعودية</title>
+        <title>مدونة جداول — دلائل لأصحاب المشاريع الخدمية السعودية</title>
         <meta name="description" content="مقالات ودلائل عملية لصاحب المشروع السعودي — مغاسل سيارات، صالونات، خدمات منزلية، سبا. تسعير، إدارة، نظام حجوزات." />
-        <meta property="og:title" content="مدونة بوكست — دلائل لأصحاب المشاريع" />
+        <meta property="og:title" content="مدونة جداول — دلائل لأصحاب المشاريع" />
         <meta property="og:description" content="دلائل ومقالات لصاحب المشروع السعودي." />
         <meta property="og:locale" content="ar_SA" />
         <link rel="canonical" href="https://bokset.sa/blog" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Blog',
-          name: 'مدونة بوكست',
+          name: 'مدونة جداول',
           url: 'https://bokset.sa/blog',
           description: 'دلائل لأصحاب المشاريع الخدمية السعودية',
           inLanguage: 'ar',
-          publisher: { '@type': 'Organization', name: 'Bokset', url: 'https://bokset.sa' },
+          publisher: { '@type': 'Organization', name: 'Jadawel', url: 'https://bokset.sa' },
         })}</script>
       </Helmet>
       <div>
@@ -348,7 +348,7 @@ export default function Blog() {
           <div className="relative max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-6">
               <BookOpen size={14} className="text-slate-300" />
-              <span className="text-xs text-slate-300 font-bold">مدونة بوكست</span>
+              <span className="text-xs text-slate-300 font-bold">مدونة جداول</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black mb-4 text-white">
               أدلة عملية لأصحاب
