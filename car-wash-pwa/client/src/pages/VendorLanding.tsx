@@ -193,6 +193,10 @@ export default function VendorLanding() {
   const heroTextId = storeSettings.heroTextId ?? 'classic';
   const customTagline = storeSettings.customTagline as string | undefined;
 
+  // White-label flag — Pro vendors can hide the "Powered by Jadawel" mark
+  // and strip the Jadawel mention from the page title.
+  const whiteLabel = storeSettings.whiteLabel === true;
+
   // Vendor's custom theme (colours / radius / mode), if they configured one.
   const customTheme: CustomTheme = (storeSettings.customTheme as CustomTheme | undefined) ?? DEFAULT_CUSTOM_THEME;
   const customThemeStyle = {
@@ -690,9 +694,11 @@ export default function VendorLanding() {
 
         {/* ─── FOOTER ─────────────────────────────────────────── */}
         <div className="max-w-4xl mx-auto px-4 py-8 pb-16">
-          <p className="text-center text-slate-600 text-[10px] mt-8 opacity-40">
-            Powered by Jadawel
-          </p>
+          {!whiteLabel && (
+            <p className="text-center text-slate-600 text-[10px] mt-8 opacity-40">
+              Powered by Jadawel
+            </p>
+          )}
         </div>
       </div>
     </div>

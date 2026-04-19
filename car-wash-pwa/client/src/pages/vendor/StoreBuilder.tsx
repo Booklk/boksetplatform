@@ -365,6 +365,9 @@ export default function StoreBuilder() {
   const [customTheme, setCustomTheme] = useState<CustomTheme>(DEFAULT_CUSTOM_THEME);
   const [activePresetId, setActivePresetId] = useState<string | null>(PALETTE_PRESETS[0].id);
 
+  // White-label: Pro feature — hides the "Powered by Jadawel" mark on /store/:slug
+  const [whiteLabel, setWhiteLabel] = useState(false);
+
   const [hydrated, setHydrated] = useState(false);
 
   function applyPreset(presetId: string) {
@@ -414,6 +417,7 @@ export default function StoreBuilder() {
       setCustomTheme(s.customTheme as CustomTheme);
       setActivePresetId(null);
     }
+    if (typeof s.whiteLabel === 'boolean') setWhiteLabel(s.whiteLabel);
     setHydrated(true);
   }, [vendor, hydrated]);
 
@@ -470,6 +474,10 @@ export default function StoreBuilder() {
         customTagline,
         storeSections: sections,
         customTheme,
+        // White-label is only honoured when the vendor is actually on Pro;
+        // the UI also prevents toggling it for free vendors, but the server
+        // is the source of truth for entitlement.
+        whiteLabel: isPaidSubscriber ? whiteLabel : false,
       },
     }),
     onSuccess: () => {
@@ -732,6 +740,50 @@ export default function StoreBuilder() {
                         );
                       })}
                     </div>
+                  </div>
+
+                  {/* White-label (Pro-only) */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs font-bold text-slate-300">العلامة التجارية</p>
+                      {!isPaidSubscriber && (
+                        <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-1.5 py-0.5 flex items-center gap-1">
+                          <Crown className="w-3 h-3" /> برو فقط
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (!isPaidSubscriber) {
+                          toast.error('إخفاء علامة جداول متاح لمشتركي برو فقط');
+                          return;
+                        }
+                        setWhiteLabel((v) => !v);
+                      }}
+                      className={`w-full flex items-center justify-between p-3 rounded-lg border-2 text-right transition-all ${
+                        !isPaidSubscriber
+                          ? 'border-white/[0.04] opacity-60 cursor-not-allowed'
+                          : whiteLabel
+                          ? 'border-emerald-500/40 bg-emerald-500/10'
+                          : 'border-white/[0.06] hover:border-white/[0.15]'
+                      }`}
+                    >
+                      <div>
+                        <p className="text-xs font-bold text-white">إخفاء علامة "جداول"</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">
+                          {whiteLabel && isPaidSubscriber
+                            ? 'علامة جداول مخفيّة — موقعك يظهر باسمك فقط'
+                            : 'يظهر "Powered by Jadawel" في أسفل صفحة موقعك'}
+                        </p>
+                      </div>
+                      <div
+                        className={`w-10 h-6 rounded-full flex items-center transition-colors ${
+                          whiteLabel && isPaidSubscriber ? 'bg-emerald-500 justify-end' : 'bg-slate-700 justify-start'
+                        } p-0.5`}
+                      >
+                        <div className="w-5 h-5 rounded-full bg-white" />
+                      </div>
+                    </button>
                   </div>
 
                   {/* Live mini preview */}
