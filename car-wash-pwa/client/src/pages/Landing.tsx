@@ -366,8 +366,8 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/[0.08] rounded-full px-4 py-1.5 mb-8"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-            <span className="text-xs text-slate-400 font-medium">مغاسل سيارات · صالونات · تجميل منزلي · تنظيف · صيانة · كهرباء · سباكة · فري لانسر</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs text-slate-400 font-medium">+9 قطاعات خدمية · مغاسل · صالونات · تنظيف · صيانة · تجميل · سباكة · كهرباء · فري لانسر</span>
           </motion.div>
 
           {/* H1 — clean, direct */}
@@ -377,9 +377,9 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-[64px] font-black leading-[1.15] tracking-tight mb-6"
           >
-            <span className="text-white">أنشئ موقع حجوزاتك</span>
+            <span className="text-white">عندك خدمة وتبي عملاء؟</span>
             <br />
-            <span className="text-indigo-400">بجميع المميزات اللي يحتاجها مشروعك</span>
+            <span className="text-indigo-400">جداول يبني لك نظام حجوزات كامل</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -387,9 +387,11 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg text-slate-500 max-w-xl mx-auto mb-10 leading-relaxed"
+            className="text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            موقع حجز احترافي + إدارة موظفين + مدفوعات إلكترونية + تقارير مالية — كل شيء جاهز خلال 5 دقائق. جرّب 14 يوم مجاناً.
+            المشكلة مو بخدمتك — المشكلة إن عملاءك ما يلقون طريقة سهلة يحجزون.
+            <br className="hidden sm:block" />
+            <span className="text-white font-semibold">جداول يعطيك موقع حجز + إدارة موظفين + مدفوعات + تقارير — خلال 5 دقائق.</span>
           </motion.p>
 
           {/* CTAs — clean */}
@@ -426,7 +428,7 @@ export default function Landing() {
             <span className="w-px h-3 bg-white/[0.08]" />
             <span>جاهز خلال 5 دقائق</span>
             <span className="w-px h-3 bg-white/[0.08]" />
-            <span>+120 متجر يثق فينا</span>
+            <span>باقة مجانية للأبد</span>
           </motion.div>
 
           {/* Stats */}
@@ -504,9 +506,9 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
-              كل شيء تحتاجه في مكان واحد
+              مو بس حجوزات — نظام إدارة كامل
             </h2>
-            <p className="text-slate-500 text-base max-w-lg mx-auto">بُنيت كل ميزة بناءً على احتياجات حقيقية من أصحاب مغاسل</p>
+            <p className="text-slate-500 text-base max-w-lg mx-auto">كل ميزة بُنيت من مشكلة حقيقية يواجهها صاحب مشروع خدمي كل يوم</p>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -533,9 +535,9 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
-              بدون نظام vs مع Jdawil
+              وش يتغير لما تستخدم جداول؟
             </h2>
-            <p className="text-slate-500 text-base">الفرق اللي يحسه كل تاجر من أول أسبوع</p>
+            <p className="text-slate-500 text-base">الفرق اللي يحسه كل صاحب مشروع من أول أسبوع</p>
           </motion.div>
 
           {/* Clean before/after table */}
@@ -546,13 +548,13 @@ export default function Landing() {
               <span className="text-center text-indigo-400/70">مع Jdawil</span>
             </div>
             {[
-              { area: 'استقبال الحجوزات', before: 'واتساب + اتصالات + فوضى', after: 'نظام أونلاين 24/7' },
-              { area: 'تتبع الموظفين', before: 'ما تعرف وين هم', after: 'خريطة GPS مباشرة' },
-              { area: 'المدفوعات', before: 'كاش فقط', after: 'STC Pay · مدى · Apple Pay' },
-              { area: 'التقارير المالية', before: 'حسابات يدوية آخر الشهر', after: 'تقارير فورية + تصدير' },
-              { area: 'تذكير العملاء', before: 'تتصل يدوياً أو ينسون', after: 'واتساب تلقائي' },
-              { area: 'فواتير ضريبية', before: 'تسويها يدوياً', after: 'PDF تلقائي مع VAT 15%' },
-              { area: 'المخزون', before: 'تكتشف النقص وقت العمل', after: 'تنبيه + طلب تلقائي' },
+              { area: 'استقبال الحجوزات', before: 'واتساب فوضى — تنسى رد', after: 'العميل يحجز بنفسه 24/7' },
+              { area: 'تتبع الموظفين', before: 'تتصل وما يرد — وين راح؟', after: 'خريطة GPS لحظية لكل موظف' },
+              { area: 'التحصيل', before: 'كاش ويتأخرون بالدفع', after: 'الدفع قبل الخدمة إلكترونياً' },
+              { area: 'حساباتك', before: 'آخر الشهر تقعد تحسب بيدك', after: 'تقارير فورية — إيرادات ومصاريف' },
+              { area: 'العملاء الضايعين', before: 'حجز مرة وما رجعوا', after: 'تذكير واتساب + برنامج ولاء' },
+              { area: 'الضريبة', before: 'هيئة الزكاة تطالبك وأنت مو جاهز', after: 'فاتورة VAT تلقائية لكل حجز' },
+              { area: 'المخزون', before: 'تكتشف إن المادة خلصت قدام العميل', after: 'تنبيه قبل ما تخلص + طلب تلقائي' },
             ].map((row, i) => (
               <div key={i} className="grid grid-cols-3 items-center px-6 py-4 border-b border-white/[0.03] last:border-0 hover:bg-white/[0.01] transition-colors">
                 <span className="text-sm text-white font-bold">{row.area}</span>
@@ -581,9 +583,9 @@ export default function Landing() {
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
-              يناسب أي مشروع خدمي
+              مهما كان مجالك — جداول يفهمه
             </h2>
-            <p className="text-slate-500 text-base max-w-lg mx-auto">اختر مجالك — وابدأ بقوالب وخدمات جاهزة خلال دقائق</p>
+            <p className="text-slate-500 text-base max-w-lg mx-auto">كل قطاع له قوالب خدمات وأسعار جاهزة. اختر مجالك وابدأ فوراً</p>
           </motion.div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -623,9 +625,9 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
-              3 خطوات وموقعك جاهز
+              من الصفر لموقع حجوزات كامل — 3 خطوات
             </h2>
-            <p className="text-slate-500 text-base">بدون مبرمج. بدون مصمم. بدون انتظار.</p>
+            <p className="text-slate-500 text-base">بدون مبرمج. بدون مصمم. بدون ما تدفع ريال.</p>
           </motion.div>
 
           <div className="grid sm:grid-cols-3 gap-6">
@@ -688,12 +690,12 @@ export default function Landing() {
               <div className="space-y-8">
                 {/* Washes per day */}
                 <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-6">
-                  <label className="block text-sm font-bold text-slate-300 mb-4">كم غسلة تُنجز يومياً؟</label>
+                  <label className="block text-sm font-bold text-slate-300 mb-4">كم حجز/خدمة تُنجز يومياً؟</label>
                   <div className="flex items-center gap-4 mb-4">
                     <span className="text-5xl font-black bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent min-w-[3rem] text-center">
                       {washesPerDay}
                     </span>
-                    <span className="text-slate-500 text-sm">غسلة / يوم</span>
+                    <span className="text-slate-500 text-sm">خدمة / يوم</span>
                   </div>
                   <input
                     type="range"
@@ -714,7 +716,7 @@ export default function Landing() {
 
                 {/* Price per wash */}
                 <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-6">
-                  <label className="block text-sm font-bold text-slate-300 mb-4">متوسط سعر الغسلة (ر.س)؟</label>
+                  <label className="block text-sm font-bold text-slate-300 mb-4">متوسط سعر الخدمة (ر.س)؟</label>
                   <div className="flex items-center gap-4 mb-4">
                     <span className="text-5xl font-black bg-gradient-to-l from-emerald-400 to-teal-400 bg-clip-text text-transparent min-w-[4rem] text-center">
                       {pricePerWash}
@@ -776,7 +778,7 @@ export default function Landing() {
                         {washesPerDay * 8}
                         <span className="text-base font-bold text-purple-500 mr-2">دقيقة</span>
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">٨ دقائق إدارة موفّرة لكل غسلة</p>
+                      <p className="text-xs text-slate-500 mt-1">٨ دقائق إدارة موفّرة لكل خدمة</p>
                     </div>
 
                     {/* Plan Cost */}
