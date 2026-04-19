@@ -13,15 +13,33 @@ import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// THEME SYSTEM — 20 Professional Templates (1 Free + 19 Pro)
-// Free plan: single default template ("clean-modern"). All others require Pro.
+// THEME SYSTEM — 12 Industry-Specific Templates (1 Free + 11 Pro)
+// Each template targets a real Saudi business segment with the features
+// that segment actually needs (queue, GPS, gallery, B2B, privacy, quote).
 // ═══════════════════════════════════════════════════════════════════════════════
+
+type StoreIndustry =
+  | 'universal' | 'barber' | 'salon' | 'b2b_cleaning' | 'home_services'
+  | 'spa' | 'mobile_wash' | 'fixed_wash' | 'clinic' | 'studio'
+  | 'movers' | 'general_cleaning';
+
+interface ThemeFeatures {
+  queue?: boolean;        // 🎫 رقم طابور لحظي
+  gps?: boolean;          // 📍 تتبع GPS مباشر
+  gallery?: boolean;      // 📸 معرض أعمال / صور
+  b2b?: boolean;          // 🏢 عقود شركات / عروض أسعار جملة
+  privacy?: boolean;      // 🔒 سرّية (صالون نسائي / عيادات)
+  quote?: boolean;        // 💬 طلب عرض سعر مخصص
+}
 
 interface StoreTheme {
   id: string;
   name: string;
   desc: string;
   category: 'free' | 'premium';
+  industry: StoreIndustry;
+  industryLabel: string;
+  features: ThemeFeatures;
   gradient: string; // CSS gradient for preview card
   accent: string;   // Primary accent hex
   preview: {
@@ -40,124 +58,188 @@ interface StoreTheme {
 }
 
 const THEMES: StoreTheme[] = [
-  // ── FREE THEME (1) ── Default template — available on every plan
+  // ── FREE (1) ─ Universal default for any small business ─
   {
-    id: 'clean-modern', name: 'عصري نظيف', desc: 'تصميم نظيف بسيط — يناسب كل القطاعات', category: 'free',
-    gradient: 'from-slate-800 to-slate-900', accent: '#3b82f6',
+    id: 'universal-clean',
+    name: 'العام النظيف',
+    desc: 'يناسب أي بزنس صغير يحتاج موقع حجوزات بسيط',
+    category: 'free',
+    industry: 'universal',
+    industryLabel: 'لأي بزنس صغير',
+    features: {},
+    gradient: 'from-slate-800 to-slate-900', accent: '#475569',
     preview: { heroStyle: 'minimal-clean', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
       showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
   },
 
-  // ── PRO THEMES (19) ── Subscribers only
+  // ── PRO (12) ─ Industry-specific templates ─
+
+  // 1. Barber — حلاق رجالي + queue
   {
-    id: 'premium-dark', name: 'بريميوم داكن', desc: 'تصميم فاخر مع تأثيرات ضوئية', category: 'premium',
-    gradient: 'from-blue-900 to-slate-900', accent: '#2563eb',
-    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'mesh',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+    id: 'barber-queue',
+    name: 'صالون حلاقة رجالي',
+    desc: 'تصميم كلاسيكي للحلاقين — مع نظام طابور رقمي',
+    category: 'premium',
+    industry: 'barber',
+    industryLabel: 'حلاق رجالي',
+    features: { queue: true },
+    gradient: 'from-amber-950 to-stone-900', accent: '#b45309',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'pattern',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
   },
+
+  // 2. Salon — صالون نسائي + queue + privacy
   {
-    id: 'bold-gradient', name: 'تدرج جريء', desc: 'تدرجات لونية جريئة', category: 'premium',
-    gradient: 'from-purple-900 to-blue-900', accent: '#8b5cf6',
-    preview: { heroStyle: 'gradient-split', cardStyle: 'gradient-border', ctaStyle: 'pill', bgPattern: 'gradient',
-      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+    id: 'salon-queue',
+    name: 'صالون نسائي',
+    desc: 'أنيق وراقٍ — طابور رقمي وخصوصية تامة',
+    category: 'premium',
+    industry: 'salon',
+    industryLabel: 'صالون نسائي',
+    features: { queue: true, privacy: true, gallery: true },
+    gradient: 'from-rose-950 to-pink-950', accent: '#be185d',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'elevated', ctaStyle: 'pill', bgPattern: 'clean',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
   },
+
+  // 3. Beauty At Home — مساج / ميك اب منزلي للنساء
   {
-    id: 'wave-water', name: 'موجة مائية', desc: 'مستوحى من الماء مع تموجات', category: 'premium',
-    gradient: 'from-cyan-900 to-blue-950', accent: '#06b6d4',
+    id: 'beauty-at-home',
+    name: 'تجميل منزلي للنساء',
+    desc: 'ميك اب ومساج وخدمات تجميل بمنزل العميلة',
+    category: 'premium',
+    industry: 'spa',
+    industryLabel: 'ميك اب / مساج منزلي',
+    features: { privacy: true, gallery: true },
+    gradient: 'from-fuchsia-950 to-rose-950', accent: '#a21caf',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'elevated', ctaStyle: 'pill', bgPattern: 'dots',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // 4. B2B Cleaning — شركة تنظيف مباني
+  {
+    id: 'cleaning-pro-b2b',
+    name: 'شركة تنظيف مباني',
+    desc: 'صفحة شركات احترافية — عقود تنظيف وعروض أسعار جملة',
+    category: 'premium',
+    industry: 'b2b_cleaning',
+    industryLabel: 'تنظيف مباني (B2B)',
+    features: { b2b: true, quote: true },
+    gradient: 'from-teal-950 to-slate-900', accent: '#0f766e',
+    preview: { heroStyle: 'full-cover', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'grid',
+      showRating: true, showAreas: true, showSlots: false, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 5. Home Services — سباكة/كهرباء/مكيفات
+  {
+    id: 'home-services',
+    name: 'خدمات منزلية',
+    desc: 'سباكة، كهرباء، مكيفات — مواعيد منزلية بسرعة',
+    category: 'premium',
+    industry: 'home_services',
+    industryLabel: 'خدمات منزلية',
+    features: {},
+    gradient: 'from-orange-950 to-red-950', accent: '#c2410c',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 6. Spa — مراكز سبا + gallery + باقات
+  {
+    id: 'spa-sanctuary',
+    name: 'مركز سبا',
+    desc: 'هادئ ومريح — معرض صور وباقات استرخاء',
+    category: 'premium',
+    industry: 'spa',
+    industryLabel: 'مراكز سبا',
+    features: { gallery: true, privacy: true },
+    gradient: 'from-emerald-950 to-teal-950', accent: '#047857',
+    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'pill', bgPattern: 'pattern',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // 7. Mobile Wash — مغاسل سيارات متنقلة + GPS
+  {
+    id: 'mobile-wash-gps',
+    name: 'مغسلة سيارات متنقلة',
+    desc: 'تصميم ديناميكي مع تتبع GPS مباشر للموظفين',
+    category: 'premium',
+    industry: 'mobile_wash',
+    industryLabel: 'مغسلة متنقلة',
+    features: { gps: true },
+    gradient: 'from-cyan-950 to-blue-950', accent: '#0e7490',
     preview: { heroStyle: 'wave-bg', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'wave',
       showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
-  {
-    id: 'minimal-speed', name: 'سريع ومختصر', desc: 'أقل عناصر — حجز أسرع', category: 'premium',
-    gradient: 'from-zinc-800 to-zinc-900', accent: '#a1a1aa',
-    preview: { heroStyle: 'minimal-clean', cardStyle: 'solid', ctaStyle: 'pill', bgPattern: 'clean',
-      showRating: true, showAreas: false, showSlots: true, showReviews: false, showWhatsApp: false, showCallButton: false, accentGlow: false },
-  },
 
-  // ── Existing Pro themes (continued)
+  // 8. Fixed Wash — مغسلة سيارات ثابتة + queue
   {
-    id: 'neon-glow', name: 'نيون متوهج', desc: 'تأثيرات نيون مع توهج كهربائي', category: 'premium',
-    gradient: 'from-violet-950 to-black', accent: '#a855f7',
-    preview: { heroStyle: 'bold-centered', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'neon',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
-  },
-  {
-    id: 'saudi-royal', name: 'ملكي سعودي', desc: 'مستوحى من التراث السعودي — أخضر وذهبي', category: 'premium',
-    gradient: 'from-emerald-950 to-green-900', accent: '#059669',
-    preview: { heroStyle: 'full-cover', cardStyle: 'elevated', ctaStyle: 'rounded', bgPattern: 'pattern',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
-  },
-  {
-    id: 'desert-sand', name: 'رمال الصحراء', desc: 'دافئ بألوان الصحراء والرمال', category: 'premium',
-    gradient: 'from-amber-950 to-orange-950', accent: '#d97706',
-    preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'dots',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
-  },
-  {
-    id: 'ice-crystal', name: 'كريستال ثلجي', desc: 'بارد ونقي بألوان جليدية', category: 'premium',
-    gradient: 'from-sky-950 to-cyan-950', accent: '#0ea5e9',
-    preview: { heroStyle: 'minimal-clean', cardStyle: 'glass', ctaStyle: 'pill', bgPattern: 'mesh',
-      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: true },
-  },
-  {
-    id: 'carbon-fiber', name: 'ألياف كربونية', desc: 'تقني وعصري بنمط كربوني', category: 'premium',
-    gradient: 'from-neutral-900 to-neutral-950', accent: '#525252',
+    id: 'fixed-wash-queue',
+    name: 'مغسلة سيارات ثابتة',
+    desc: 'صفحة موقع ثابت — رقم طابور السيارة الحالي',
+    category: 'premium',
+    industry: 'fixed_wash',
+    industryLabel: 'مغسلة ثابتة',
+    features: { queue: true },
+    gradient: 'from-blue-950 to-indigo-950', accent: '#1d4ed8',
     preview: { heroStyle: 'bold-centered', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'grid',
       showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
   },
+
+  // 9. Clinic — عيادات (طبية / تجميلية)
   {
-    id: 'sunset-horizon', name: 'غروب الأفق', desc: 'دافئ بألوان الغروب البرتقالية والبنفسجية', category: 'premium',
-    gradient: 'from-orange-950 to-purple-950', accent: '#f97316',
-    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'gradient',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+    id: 'clinic-pro',
+    name: 'عيادة طبية',
+    desc: 'صفحة عيادة احترافية — سرّية وثقة طبية',
+    category: 'premium',
+    industry: 'clinic',
+    industryLabel: 'عيادات',
+    features: { privacy: true },
+    gradient: 'from-sky-950 to-slate-900', accent: '#0369a1',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: false, showCallButton: true, accentGlow: false },
   },
+
+  // 10. Studio — استوديوهات تصوير + portfolio
   {
-    id: 'forest-green', name: 'غابة خضراء', desc: 'طبيعي ومريح بدرجات الأخضر', category: 'premium',
-    gradient: 'from-green-950 to-emerald-950', accent: '#10b981',
+    id: 'studio-portfolio',
+    name: 'استوديو تصوير',
+    desc: 'معرض أعمال كبير — صور قبل/بعد لكل جلسة',
+    category: 'premium',
+    industry: 'studio',
+    industryLabel: 'استوديوهات تصوير',
+    features: { gallery: true, quote: true },
+    gradient: 'from-neutral-900 to-zinc-950', accent: '#27272a',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'elevated', ctaStyle: 'square', bgPattern: 'grid',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // 11. Movers — نقل عفش + طلب عرض سعر
+  {
+    id: 'movers-quote',
+    name: 'نقل عفش',
+    desc: 'طلب عرض سعر فوري + جدولة موعد النقل',
+    category: 'premium',
+    industry: 'movers',
+    industryLabel: 'نقل العفش',
+    features: { quote: true, gps: true },
+    gradient: 'from-amber-950 to-orange-950', accent: '#b45309',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'pattern',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 12. General Cleaning — نظافة عامة (afterclean / event)
+  {
+    id: 'cleaning-general',
+    name: 'نظافة عامة',
+    desc: 'نظافة منازل وفلل ومناسبات — مواعيد ونطاقات تغطية',
+    category: 'premium',
+    industry: 'general_cleaning',
+    industryLabel: 'نظافة عامة',
+    features: { quote: true },
+    gradient: 'from-sky-950 to-cyan-950', accent: '#0284c7',
     preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
-  },
-  {
-    id: 'rose-gold', name: 'وردي ذهبي', desc: 'أنيق وفخم بالوردي والذهبي', category: 'premium',
-    gradient: 'from-rose-950 to-pink-950', accent: '#e11d48',
-    preview: { heroStyle: 'minimal-clean', cardStyle: 'gradient-border', ctaStyle: 'pill', bgPattern: 'dots',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
-  },
-  {
-    id: 'ocean-deep', name: 'أعماق المحيط', desc: 'أزرق عميق مثل قاع البحر', category: 'premium',
-    gradient: 'from-blue-950 to-indigo-950', accent: '#1d4ed8',
-    preview: { heroStyle: 'wave-bg', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'wave',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
-  },
-  {
-    id: 'marble-luxury', name: 'رخام فاخر', desc: 'كلاسيكي فاخر بتأثير رخامي', category: 'premium',
-    gradient: 'from-stone-900 to-stone-950', accent: '#78716c',
-    preview: { heroStyle: 'bold-centered', cardStyle: 'elevated', ctaStyle: 'rounded', bgPattern: 'pattern',
       showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
-  },
-  {
-    id: 'midnight-purple', name: 'بنفسج منتصف الليل', desc: 'غامق وغامض بدرجات البنفسجي', category: 'premium',
-    gradient: 'from-purple-950 to-indigo-950', accent: '#7c3aed',
-    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'neon',
-      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
-  },
-  {
-    id: 'golden-hour', name: 'الساعة الذهبية', desc: 'دافئ بإضاءة ذهبية', category: 'premium',
-    gradient: 'from-yellow-950 to-amber-950', accent: '#ca8a04',
-    preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'gradient',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
-  },
-  {
-    id: 'arctic-frost', name: 'صقيع قطبي', desc: 'أبيض مزرق هادئ ونظيف', category: 'premium',
-    gradient: 'from-sky-950 to-slate-900', accent: '#38bdf8',
-    preview: { heroStyle: 'minimal-clean', cardStyle: 'bordered', ctaStyle: 'pill', bgPattern: 'clean',
-      showRating: true, showAreas: false, showSlots: true, showReviews: false, showWhatsApp: true, showCallButton: false, accentGlow: true },
-  },
-  {
-    id: 'volcanic-red', name: 'أحمر بركاني', desc: 'جريء وقوي بالأحمر الداكن', category: 'premium',
-    gradient: 'from-red-950 to-rose-950', accent: '#dc2626',
-    preview: { heroStyle: 'bold-centered', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'gradient',
-      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
 ];
 
@@ -233,9 +315,24 @@ function ThemeCard({ theme, selected, locked, onClick }: {
         )}
       </div>
 
-      <div className="p-2.5 bg-surface-2">
-        <p className={`text-xs font-bold ${selected ? 'text-blue-400' : 'text-white'} truncate`}>{theme.name}</p>
-        <p className="text-[10px] text-slate-500 truncate">{theme.desc}</p>
+      <div className="p-3 bg-surface-2 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <p className={`text-xs font-bold ${selected ? 'text-blue-400' : 'text-white'} truncate`}>{theme.name}</p>
+          <span className="text-[9px] font-semibold text-slate-400 bg-white/[0.04] border border-white/[0.06] rounded px-1.5 py-0.5 shrink-0">
+            {theme.industryLabel}
+          </span>
+        </div>
+        <p className="text-[10px] text-slate-500 leading-snug line-clamp-2">{theme.desc}</p>
+        {Object.keys(theme.features).length > 0 && (
+          <div className="flex flex-wrap gap-1 pt-1">
+            {theme.features.queue && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">طابور</span>}
+            {theme.features.gps && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">GPS</span>}
+            {theme.features.gallery && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-400 border border-pink-500/20">معرض</span>}
+            {theme.features.b2b && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20">B2B</span>}
+            {theme.features.privacy && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">سرّية</span>}
+            {theme.features.quote && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">عرض سعر</span>}
+          </div>
+        )}
       </div>
     </motion.button>
   );
@@ -247,7 +344,7 @@ export default function StoreBuilder() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  const [selectedTheme, setSelectedTheme] = useState('premium-dark');
+  const [selectedTheme, setSelectedTheme] = useState('universal-clean');
   const [heroTextId, setHeroTextId] = useState('classic');
   const [customTagline, setCustomTagline] = useState('');
   const [tab, setTab] = useState<'theme' | 'content' | 'sections'>('theme');
@@ -278,7 +375,7 @@ export default function StoreBuilder() {
   function handleThemeSelect(theme: StoreTheme) {
     const locked = theme.category === 'premium' && !isPaidSubscriber;
     if (locked) {
-      toast.error('هذا الثيم متاح للمشتركين فقط. فعّل اشتراكك للوصول لـ 20 ثيم!');
+      toast.error('هذا القالب متاح لمشتركي برو فقط. فعّل اشتراكك للوصول لكل القوالب الـ 12 المخصصة لقطاعك.');
       return;
     }
     setSelectedTheme(theme.id);
@@ -392,7 +489,7 @@ export default function StoreBuilder() {
                       ))}
                     </div>
                     <span className="text-xs text-slate-500">
-                      {isPaidSubscriber ? '20 ثيم متاح' : 'ثيم واحد مجاني — الباقي مع اشتراك برو'}
+                      {isPaidSubscriber ? '13 قالب مخصص لقطاعك' : 'قالب واحد مجاني — 12 قالب احترافي مع برو'}
                     </span>
                   </div>
 
@@ -402,7 +499,7 @@ export default function StoreBuilder() {
                       <div className="flex items-center gap-3">
                         <Crown className="w-8 h-8 text-amber-400 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-white">اشتراك برو يفتح 19 قالب احترافي + إخفاء علامة جداول</p>
+                          <p className="text-sm font-bold text-white">اشتراك برو يفتح 12 قالب مخصص لقطاعك + إخفاء علامة جداول</p>
                           <p className="text-xs text-slate-400 mt-0.5">قوالب حصرية + دومين مخصص + white-label لعلامتك التجارية</p>
                         </div>
                         <Link to="/vendor/platform-sub" className="px-4 py-2 rounded-xl bg-white text-[#0b1220] text-xs font-black hover:bg-slate-100 transition-colors shrink-0">
