@@ -14,6 +14,8 @@ import { VendorThemeProvider } from '../components/VendorThemeProvider';
 import {
   CustomTheme, DEFAULT_CUSTOM_THEME, RADIUS_VALUES,
 } from '../lib/customTheme';
+import { getThemeFeatures } from '../lib/storeThemes';
+import QueueWidget from '../components/storefront/QueueWidget';
 
 interface TimeSlot {
   time: string;
@@ -196,6 +198,11 @@ export default function VendorLanding() {
   // White-label flag — Pro vendors can hide the "Powered by Jadawel" mark
   // and strip the Jadawel mention from the page title.
   const whiteLabel = storeSettings.whiteLabel === true;
+
+  // Features declared by the vendor's selected template (queue, GPS,
+  // gallery, B2B, privacy, quote). VendorLanding renders extra sections
+  // based on these.
+  const features = getThemeFeatures(themeId);
 
   // Vendor's custom theme (colours / radius / mode), if they configured one.
   const customTheme: CustomTheme = (storeSettings.customTheme as CustomTheme | undefined) ?? DEFAULT_CUSTOM_THEME;
@@ -421,6 +428,19 @@ export default function VendorLanding() {
 
           <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
         </section>
+
+        {/* ═══ QUEUE (barber / salon / fixed-wash) ═══════════════════════ */}
+        {features.queue && slug && (
+          <section className="max-w-3xl mx-auto px-5 pt-6">
+            <QueueWidget
+              vendorSlug={slug}
+              accent={customTheme.button}
+              surface={customTheme.surface}
+              text={customTheme.text}
+              radius={RADIUS_VALUES[customTheme.radius]}
+            />
+          </section>
+        )}
 
         {/* ═══ SERVICES ═══════════════════════════════════════════════ */}
         <section className="max-w-3xl mx-auto px-5 py-10">
