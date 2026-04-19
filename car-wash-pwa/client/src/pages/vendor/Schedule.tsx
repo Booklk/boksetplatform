@@ -8,14 +8,15 @@
  * - Config drawer: working hours, slot duration, capacity, etc.
  */
 
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 import {
   ChevronLeft, ChevronRight, Settings, Plus, CalendarDays, Clock,
   Car, User, Phone, CheckCircle, AlertCircle, Loader2, X,
   Calendar, ToggleLeft, ToggleRight,
-  Lightbulb, TrendingUp, Sunrise, ArrowLeft,
+  Lightbulb, TrendingUp, Sunrise, ArrowLeft, Search, UserPlus,
 } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
@@ -405,6 +406,489 @@ function BookingDetailDrawer({
   );
 }
 
+// ─── Manual Booking Drawer ───────────────────────────────────────────────────
+
+interface CustomerSearchResult {
+  id: number;
+  name: string | null;
+  phone: string;
+  vehiclePlate: string | null;
+  vehicleType: string | null;
+  defaultAddress: string | null;
+}
+
+interface ServiceListItem {
+  id: number;
+  name: string;
+  packages: {
+    id: number;
+    name: string;
+    price: string;
+    duration: number;
+  }[];
+}
+
+interface SlotListItem {
+  time: string;
+  available: boolean;
+  bookedCount: number;
+  capacity: number;
+  isBlocked: boolean;
+  isPast: boolean;
+}
+
+interface AvailableSlotsResponse {
+  appointmentMode: boolean;
+  slots: SlotListItem[];
+  closedDay?: boolean;
+  tooFarAhead?: boolean;
+}
+
+function ManualBookingDrawer({
+  open,
+  onClose,
+  vendorId,
+  defaultDate,
+  color,
+}: {
+  open: boolean;
+  onClose: () => void;
+  vendorId: number | undefined;
+  defaultDate: string;
+  color: string;
+}) {
+  const qc = useQueryClient();
+  const [mode, setMode] = useState<'search' | 'new'>('search');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<CustomerSearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerSearchResult | null>(null);
+  const [newCustomer, setNewCustomer] = useState({
+    name: '', phone: '', vehicleType: '', vehiclePlate: '',
+  });
+  const [selectedPackageId, setSelectedPackageId] = useState<number | null>(null);
+  const [date, setDate] = useState(defaultDate);
+  const [time, setTime] = useState('');
+  const [vehicleType, setVehicleType] = useState('');
+  const [vehiclePlate, setVehiclePlate] = useState('');
+  const [notes, setNotes] = useState('');
+
+  useEffect(() => {
+    if (open) {
+      // Reset form each time drawer opens
+      setMode('search');
+      setSearchQuery('');
+      setSearchResults([]);
+      setSelectedCustomer(null);
+      setNewCustomer({ name: '', phone: '', vehicleType: '', vehiclePlate: '' });
+      setSelectedPackageId(null);
+      setDate(defaultDate);
+      setTime('');
+      setVehicleType('');
+      setVehiclePlate('');
+      setNotes('');
+    }
+  }, [open, defaultDate]);
+
+  const { data: services = [] } = useQuery<ServiceListItem[]>({
+    queryKey: ['services-for-manual-booking', vendorId],
+    queryFn: () => api.get('/services').then((r) => r.data),
+    enabled: open && !!vendorId,
+  });
+
+  const { data: slotData } = useQuery<AvailableSlotsResponse>({
+    queryKey: ['manual-booking-slots', vendorId, date],
+    queryFn: () =>
+      api
+        .get(`/appointments/available?vendorId=${vendorId}&date=${date}`)
+        .then((r) => r.data),
+    enabled: open && !!vendorId && !!date,
+  });
+
+  async function runSearch(q: string) {
+    setSearchQuery(q);
+    if (q.trim().length < 3) {
+      setSearchResults([]);
+      return;
+    }
+    setSearching(true);
+    try {
+      const { data } = await api.get(`/customers/search/phone?q=${encodeURIComponent(q)}`);
+      setSearchResults(data);
+    } catch {
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  const createCustomer = useMutation({
+    mutationFn: () => api.post('/customers', newCustomer).then((r) => r.data),
+    onSuccess: (customer: { id: number; name: string; phone: string }) => {
+      toast.success('تم إنشاء العميل');
+      setSelectedCustomer({
+        id: customer.id,
+        name: customer.name,
+        phone: customer.phone,
+        vehiclePlate: newCustomer.vehiclePlate || null,
+        vehicleType: newCustomer.vehicleType || null,
+        defaultAddress: null,
+      });
+      setVehicleType(newCustomer.vehicleType);
+      setVehiclePlate(newCustomer.vehiclePlate);
+      setMode('search');
+    },
+    onError: (err: { response?: { status?: number; data?: { existingCustomer?: CustomerSearchResult; error?: string } } }) => {
+      if (err?.response?.status === 409 && err.response.data?.existingCustomer) {
+        toast.success('العميل موجود مسبقاً — تم اختياره');
+        setSelectedCustomer({
+          ...err.response.data.existingCustomer,
+          vehiclePlate: err.response.data.existingCustomer.vehiclePlate ?? null,
+          vehicleType: err.response.data.existingCustomer.vehicleType ?? null,
+          defaultAddress: err.response.data.existingCustomer.defaultAddress ?? null,
+        });
+        setMode('search');
+      } else {
+        toast.error(err?.response?.data?.error ?? 'فشل إنشاء العميل');
+      }
+    },
+  });
+
+  const createBooking = useMutation({
+    mutationFn: () => {
+      if (!selectedPackageId || !selectedCustomer || !date || !time) {
+        throw new Error('بيانات ناقصة');
+      }
+      const scheduledAt = new Date(`${date}T${time}:00.000Z`).toISOString();
+      return api
+        .post('/bookings', {
+          packageId: selectedPackageId,
+          customerId: selectedCustomer.id,
+          scheduledAt,
+          address: 'حجز يدوي — داخل المحل',
+          vehicleType: vehicleType || selectedCustomer.vehicleType || undefined,
+          vehiclePlate: vehiclePlate || selectedCustomer.vehiclePlate || undefined,
+          notes: notes || undefined,
+        })
+        .then((r) => r.data);
+    },
+    onSuccess: (booking: { bookingNumber: string }) => {
+      toast.success(`تم إنشاء الحجز #${booking.bookingNumber}`);
+      qc.invalidateQueries({ queryKey: ['vendor-schedule'] });
+      qc.invalidateQueries({ queryKey: ['vendor-schedule-week'] });
+      qc.invalidateQueries({ queryKey: ['manual-booking-slots'] });
+      onClose();
+    },
+    onError: (err: { response?: { data?: { error?: string } }; message?: string }) => {
+      toast.error(err?.response?.data?.error ?? err?.message ?? 'فشل إنشاء الحجز');
+    },
+  });
+
+  const allPackages = services.flatMap((s) =>
+    s.packages.map((p) => ({ ...p, serviceName: s.name })),
+  );
+  const selectedPkg = allPackages.find((p) => p.id === selectedPackageId);
+
+  const canSubmit =
+    !!selectedCustomer &&
+    !!selectedPackageId &&
+    !!date &&
+    !!time &&
+    !createBooking.isPending;
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-slate-900 border-l border-white/10 overflow-y-auto"
+            dir="rtl"
+          >
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-black text-white">حجز يدوي</h2>
+                <button onClick={onClose} className="text-slate-400 hover:text-white">
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* ── Step 1: Customer ─────────────────────────────── */}
+              <div className="mb-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-black text-white">① العميل</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setMode('search')}
+                      className="text-xs px-3 py-1 rounded-lg font-bold transition-colors"
+                      style={
+                        mode === 'search'
+                          ? { background: color, color: '#fff' }
+                          : { background: '#1e293b', color: '#64748b' }
+                      }
+                    >
+                      <Search size={11} className="inline ml-1" />
+                      بحث
+                    </button>
+                    <button
+                      onClick={() => setMode('new')}
+                      className="text-xs px-3 py-1 rounded-lg font-bold transition-colors"
+                      style={
+                        mode === 'new'
+                          ? { background: color, color: '#fff' }
+                          : { background: '#1e293b', color: '#64748b' }
+                      }
+                    >
+                      <UserPlus size={11} className="inline ml-1" />
+                      جديد
+                    </button>
+                  </div>
+                </div>
+
+                {mode === 'search' ? (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => runSearch(e.target.value)}
+                      placeholder="اسم أو رقم جوال..."
+                      className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                      dir="rtl"
+                    />
+                    {searching && (
+                      <p className="text-xs text-slate-400">جاري البحث...</p>
+                    )}
+                    {searchResults.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => {
+                          setSelectedCustomer(c);
+                          setSearchResults([]);
+                          setSearchQuery(c.name ?? c.phone);
+                          setVehicleType(c.vehicleType ?? '');
+                          setVehiclePlate(c.vehiclePlate ?? '');
+                        }}
+                        className="w-full text-right p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-white/8 transition-colors"
+                      >
+                        <p className="text-sm font-bold text-white">{c.name ?? '—'}</p>
+                        <p className="text-xs text-slate-400 font-mono" dir="ltr">
+                          {c.phone}
+                          {c.vehiclePlate ? ` · ${c.vehiclePlate}` : ''}
+                        </p>
+                      </button>
+                    ))}
+                    {selectedCustomer && (
+                      <div className="mt-2 rounded-xl p-3 border" style={{ background: `${color}15`, borderColor: `${color}40` }}>
+                        <p className="text-xs font-bold" style={{ color }}>العميل المختار</p>
+                        <p className="text-sm font-black text-white mt-1">{selectedCustomer.name ?? '—'}</p>
+                        <p className="text-xs text-slate-400 font-mono mt-0.5" dir="ltr">{selectedCustomer.phone}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={newCustomer.name}
+                      onChange={(e) => setNewCustomer((f) => ({ ...f, name: e.target.value }))}
+                      placeholder="الاسم الكامل"
+                      className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                    />
+                    <input
+                      type="tel"
+                      value={newCustomer.phone}
+                      onChange={(e) => setNewCustomer((f) => ({ ...f, phone: e.target.value }))}
+                      placeholder="05XXXXXXXX"
+                      className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                      dir="ltr"
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={newCustomer.vehicleType}
+                        onChange={(e) => setNewCustomer((f) => ({ ...f, vehicleType: e.target.value }))}
+                        placeholder="نوع السيارة"
+                        className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={newCustomer.vehiclePlate}
+                        onChange={(e) => setNewCustomer((f) => ({ ...f, vehiclePlate: e.target.value }))}
+                        placeholder="رقم اللوحة"
+                        className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                      />
+                    </div>
+                    <button
+                      onClick={() => createCustomer.mutate()}
+                      disabled={
+                        createCustomer.isPending ||
+                        newCustomer.name.trim().length < 2 ||
+                        newCustomer.phone.trim().length < 10
+                      }
+                      className="w-full py-2.5 rounded-xl text-sm font-black text-white transition-colors disabled:opacity-40"
+                      style={{ background: color }}
+                    >
+                      {createCustomer.isPending ? 'جاري الإنشاء...' : 'إنشاء العميل'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* ── Step 2: Package ─────────────────────────────── */}
+              <div className="mb-5">
+                <p className="text-sm font-black text-white mb-3">② الخدمة</p>
+                {allPackages.length === 0 ? (
+                  <p className="text-xs text-slate-500">لا توجد باقات متاحة</p>
+                ) : (
+                  <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                    {allPackages.map((pkg) => (
+                      <button
+                        key={pkg.id}
+                        onClick={() => setSelectedPackageId(pkg.id)}
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl border transition-colors"
+                        style={
+                          selectedPackageId === pkg.id
+                            ? { borderColor: color, background: `${color}15` }
+                            : { borderColor: '#1e293b', background: '#0f172a' }
+                        }
+                      >
+                        <div className="text-right">
+                          <p className="text-xs text-slate-500">{pkg.serviceName}</p>
+                          <p className="text-sm font-bold text-white">{pkg.name}</p>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-black text-white">{pkg.price} ر.س</p>
+                          <p className="text-[10px] text-slate-500">{toAr(pkg.duration)} د</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ── Step 3: Date + Slot ─────────────────────────── */}
+              <div className="mb-5">
+                <p className="text-sm font-black text-white mb-3">③ الموعد</p>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => { setDate(e.target.value); setTime(''); }}
+                  className="w-full mb-2 bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                />
+                {slotData?.closedDay && (
+                  <p className="text-xs text-amber-400 mb-2">هذا اليوم خارج أيام العمل</p>
+                )}
+                {slotData?.tooFarAhead && (
+                  <p className="text-xs text-amber-400 mb-2">التاريخ أبعد من نافذة الحجز المسبق</p>
+                )}
+                {slotData?.slots && slotData.slots.length > 0 ? (
+                  <div className="grid grid-cols-4 gap-1.5 max-h-40 overflow-y-auto pr-1">
+                    {slotData.slots.map((s) => {
+                      const disabled = s.isPast || s.isBlocked;
+                      const full = s.bookedCount >= s.capacity;
+                      const selected = time === s.time;
+                      return (
+                        <button
+                          key={s.time}
+                          disabled={disabled}
+                          onClick={() => setTime(s.time)}
+                          className="py-2 rounded-xl text-xs font-bold transition-colors font-mono"
+                          style={
+                            selected
+                              ? { background: color, color: '#fff' }
+                              : disabled
+                              ? { background: '#0f172a', color: '#334155' }
+                              : full
+                              ? { background: '#1e293b', color: '#f59e0b', border: '1px dashed #f59e0b55' }
+                              : { background: '#1e293b', color: '#cbd5e1' }
+                          }
+                          title={full ? 'ممتلئ — قد يتجاوز السعة' : undefined}
+                        >
+                          {s.time}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500">لا توجد خانات متاحة</p>
+                )}
+              </div>
+
+              {/* ── Step 4: Vehicle + Notes ─────────────────────── */}
+              <div className="mb-5 space-y-2">
+                <p className="text-sm font-black text-white mb-2">④ السيارة وملاحظات</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={vehicleType}
+                    onChange={(e) => setVehicleType(e.target.value)}
+                    placeholder="نوع السيارة"
+                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={vehiclePlate}
+                    onChange={(e) => setVehiclePlate(e.target.value)}
+                    placeholder="اللوحة"
+                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                  />
+                </div>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="ملاحظات (اختياري)"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none resize-none h-16"
+                />
+              </div>
+
+              {/* ── Summary ─────────────────────────────────────── */}
+              {selectedPkg && selectedCustomer && time && (
+                <div className="rounded-xl p-3 mb-4 border" style={{ background: `${color}10`, borderColor: `${color}30` }}>
+                  <p className="text-xs text-slate-400">ملخص</p>
+                  <p className="text-sm font-black text-white mt-1">
+                    {selectedCustomer.name ?? selectedCustomer.phone} — {selectedPkg.name}
+                  </p>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    {formatDateAr(date)} · {time}
+                  </p>
+                  <p className="text-sm font-black mt-1" style={{ color }}>
+                    {selectedPkg.price} ر.س
+                  </p>
+                </div>
+              )}
+
+              {/* ── Submit ──────────────────────────────────────── */}
+              <button
+                onClick={() => createBooking.mutate()}
+                disabled={!canSubmit}
+                className="w-full py-3 rounded-xl font-black text-white flex items-center justify-center gap-2 transition-colors disabled:opacity-40"
+                style={{ background: color }}
+              >
+                {createBooking.isPending ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <CheckCircle size={18} />
+                )}
+                تأكيد الحجز
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
 // ─── Smart Recommendations Panel ─────────────────────────────────────────────
 
 interface Insight {
@@ -540,6 +1024,7 @@ export default function VendorSchedule() {
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [configOpen, setConfigOpen] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<ScheduleBooking | null>(null);
 
   const dateStr = isoDate(currentDate);
@@ -760,6 +1245,13 @@ export default function VendorSchedule() {
         onClose={() => setSelectedBooking(null)}
         color={color}
       />
+      <ManualBookingDrawer
+        open={manualOpen}
+        onClose={() => setManualOpen(false)}
+        vendorId={vendorId}
+        defaultDate={dateStr}
+        color={color}
+      />
 
       {/* ── Top bar ─────────────────────────────────────────────────── */}
       <div className="sticky top-0 z-20 bg-surface-1/95 border-b border-white/8 backdrop-blur-xl">
@@ -776,9 +1268,7 @@ export default function VendorSchedule() {
               <button
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-colors"
                 style={{ background: color }}
-                onClick={() => {
-                  // TODO: manual booking drawer
-                }}
+                onClick={() => setManualOpen(true)}
               >
                 <Plus size={14} />
                 حجز يدوي

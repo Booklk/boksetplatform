@@ -24,10 +24,21 @@ import {
   vendors,
   loyaltyPoints,
   promoCodes,
+  pushSubscriptions,
 } from '../db/schema.js';
 import { eq, and, gte, lte, sql, isNull, lt, desc } from 'drizzle-orm';
 import { sendRawWhatsAppMessage } from './whatsapp.js';
 import { decrypt } from '../lib/crypto.js';
+import webpush from 'web-push';
+
+// Initialize VAPID keys once at module load
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    `mailto:${process.env.VAPID_EMAIL ?? 'admin@jdawil.sa'}`,
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY,
+  );
+}
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -360,7 +371,7 @@ export async function executeStepAction(
           : { success: false, error: 'فشل إرسال رسالة واتساب' };
       }
 
-      // ── Push notification (placeholder) ───────────────────────────────
+      // ── Push notification (Web Push / VAPID) ──────────────────────────
       case 'send_push': {
         const title = config.templateName ?? 'بوكست';
         const body = interpolateMessage(
@@ -369,15 +380,73 @@ export async function executeStepAction(
           vendor,
         );
 
-        // TODO: integrate with Firebase Cloud Messaging / Expo push
-        console.log(
-          `[Automation] Push notification (placeholder): title="${title}" body="${body}" customer=${customer.id}`,
-        );
+        if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+          return {
+            success: false,
+            error: 'VAPID keys not configured',
+            metadata: { channel: 'push', title, body },
+          };
+        }
 
-        return {
-          success: true,
-          metadata: { channel: 'push', title, body, placeholder: true },
-        };
+        const subs = await db
+          .select()
+          .from(pushSubscriptions)
+          .where(
+            and(
+              eq(pushSubscriptions.userId, customer.userId),
+              eq(pushSubscriptions.isActive, true),
+            ),
+          );
+
+        if (subs.length === 0) {
+          return {
+            success: false,
+            error: 'لا يوجد اشتراك push لهذا العميل',
+            metadata: { channel: 'push', title, body, subscriptionCount: 0 },
+          };
+        }
+
+        const payload = JSON.stringify({
+          title,
+          body,
+          icon: '/icons/icon-192.png',
+          badge: '/icons/badge-72.png',
+          data: { vendorId: vendor.id, executionId: execution.id },
+        });
+
+        let delivered = 0;
+        let failed = 0;
+
+        for (const sub of subs) {
+          try {
+            await webpush.sendNotification(
+              {
+                endpoint: sub.endpoint,
+                keys: { p256dh: sub.p256dh, auth: sub.auth },
+              },
+              payload,
+            );
+            delivered++;
+          } catch (err: unknown) {
+            failed++;
+            // Gone / expired — deactivate the subscription
+            const statusCode = (err as { statusCode?: number })?.statusCode;
+            if (statusCode === 404 || statusCode === 410) {
+              await db
+                .update(pushSubscriptions)
+                .set({ isActive: false })
+                .where(eq(pushSubscriptions.id, sub.id));
+            }
+            console.error(
+              `[Automation] Push send failed for sub ${sub.id}:`,
+              err instanceof Error ? err.message : err,
+            );
+          }
+        }
+
+        return delivered > 0
+          ? { success: true, metadata: { channel: 'push', title, body, delivered, failed } }
+          : { success: false, error: 'فشل إرسال جميع الإشعارات', metadata: { channel: 'push', delivered, failed } };
       }
 
       // ── Add loyalty points ────────────────────────────────────────────

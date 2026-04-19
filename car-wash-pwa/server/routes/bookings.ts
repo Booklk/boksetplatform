@@ -51,7 +51,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
 
     // Determine customer
     let customerId = req.user!.id;
-    if (req.user!.role === 'employee' && data.customerId) {
+    if (data.customerId && ['employee', 'vendor_admin', 'admin'].includes(req.user!.role)) {
       customerId = data.customerId;
     }
 
