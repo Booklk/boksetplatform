@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import SocialProofTicker from '../components/SocialProofTicker';
+import MarketingLayout from '../components/marketing/MarketingLayout';
 
 /* ── Water drop particle type ── */
 interface Drop { id: number; left: string; size: number; duration: number; delay: number; }
@@ -262,98 +263,14 @@ export default function Landing() {
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-surface-1 text-white overflow-x-hidden">
-
-      {/* No extra keyframes needed — clean design */}
-
-      {/* ── Background — clean, minimal ── */}
+    <MarketingLayout>
+      {/* ── Subtle background glows (formal, low opacity) ── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
-        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-indigo-600/[0.07] blur-[150px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-500/[0.04] blur-[120px]" />
+        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-indigo-600/[0.05] blur-[150px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-500/[0.03] blur-[120px]" />
       </div>
 
-      {/* ══ NAVBAR ══════════════════════════════════════════════════════════ */}
-      <motion.nav
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className={`fixed top-0 inset-x-0 z-50 border-b transition-all duration-300 ${
-          scrolled ? 'bg-surface-1/90 border-white/8 backdrop-blur-2xl shadow-xl shadow-black/30' : 'bg-transparent border-transparent'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <motion.div
-              whileHover={{ scale: 1.12, rotate: -8 }}
-              transition={{ type: 'spring', stiffness: 400 }}
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/40"
-            >
-              <Droplets size={17} className="text-white" />
-            </motion.div>
-            <div className="leading-tight">
-              <p className="font-black text-white text-[15px] tracking-tight">Jdawil</p>
-              <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">منصة الحجوزات</p>
-            </div>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-8">
-            {[{ label: 'المزايا', href: '#features' }, { label: 'الأسعار', href: '#pricing' }, { label: 'الأسئلة الشائعة', href: '#faq' }, { label: 'المدونة', href: '/blog', isLink: true }].map(item => (
-              item.isLink
-                ? <Link key={item.label} to={item.href!} className="relative text-slate-400 hover:text-white text-sm font-medium transition-colors group">
-                    {item.label}
-                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-blue-400 group-hover:w-full transition-all duration-300" />
-                  </Link>
-                : <a key={item.label} href={item.href} className="relative text-slate-400 hover:text-white text-sm font-medium transition-colors group">
-                    {item.label}
-                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-blue-400 group-hover:w-full transition-all duration-300" />
-                  </a>
-            ))}
-            {user ? (
-              <Link to={dashboardHref(user.role)} className="bg-gradient-to-l from-blue-600 to-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105">
-                لوحتي
-              </Link>
-            ) : (
-              <div className="flex items-center gap-3">
-                <Link to="/onboard" className="border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/10 px-4 py-2.5 rounded-xl text-sm font-medium transition-all">
-                  انضم بمتجرك
-                </Link>
-                <Link to="/login" className="bg-gradient-to-l from-blue-600 to-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105">
-                  ادخل
-                </Link>
-              </div>
-            )}
-          </div>
-
-          <motion.button whileTap={{ scale: 0.9 }} onClick={() => setMenuOpen(v => !v)} className="md:hidden p-2 text-slate-400 hover:text-white">
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </motion.button>
-        </div>
-
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              key="mob"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-              className="md:hidden border-t border-white/5 bg-surface-1/97 backdrop-blur-2xl overflow-hidden"
-            >
-              <div className="px-5 py-5 space-y-3">
-                {/* Marketplace hidden until 200+ vendors */}
-                {user ? (
-                  <Link to={dashboardHref(user.role)} onClick={() => setMenuOpen(false)} className="block bg-gradient-to-l from-blue-600 to-blue-500 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">لوحتي</Link>
-                ) : (
-                  <>
-                    <Link to="/onboard" onClick={() => setMenuOpen(false)} className="block border border-indigo-500/40 text-indigo-400 px-4 py-3 rounded-xl text-sm font-medium text-center">انضم بمتجرك</Link>
-                    <Link to="/login" onClick={() => setMenuOpen(false)} className="block bg-gradient-to-l from-blue-600 to-blue-500 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">ادخل</Link>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.nav>
+      {/* NAVBAR moved to MarketingHeader (global) */}
 
       {/* ══ HERO ════════════════════════════════════════════════════════════ */}
       <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center pt-16 px-4 overflow-hidden">
@@ -1479,21 +1396,11 @@ export default function Landing() {
 
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/onboard')}
-                className="w-full py-4 rounded-xl bg-gradient-to-l from-blue-600 to-cyan-500 text-white font-black text-lg shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all">
+                className="w-full py-4 rounded-xl bg-white text-[#0b1220] font-black text-lg hover:bg-slate-100 transition-all">
                 ابدأ تجربة 14 يوم مجاناً
               </motion.button>
             </motion.div>
           </div>
-                </div>
-                <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['إدارة 2-3 فروع','لوحة تحكم موحدة','موظفون غير محدودون','تقارير لكل فرع','إدارة مخزون لكل فرع','دعم فني مميز'].map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-violet-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                </div>
 
           {/* Trust note */}
           <motion.div {...fadeUp(0.3)} className="text-center mt-10 space-y-3">
@@ -1714,94 +1621,17 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ══ FOOTER ══════════════════════════════════════════════════════════ */}
-      <footer className="relative py-14 px-4 border-t border-white/[0.07]">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            {/* Brand */}
-            <div className="md:col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                  <Droplets size={20} className="text-white" />
-                </div>
-                <div className="leading-tight">
-                  <p className="font-black text-white text-lg">Jdawil</p>
-                  <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">Jdawil Platform</p>
-                </div>
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                المنصة الأولى في السعودية لإدارة الحجوزات والخدمات — مغاسل، صالونات، خدمات منزلية.
-              </p>
-            </div>
+      {/* FOOTER moved to MarketingFooter (global) */}
 
-            {/* المنصة */}
-            <div>
-              <h4 className="text-sm font-bold text-white mb-4">المنصة</h4>
-              <ul className="space-y-2.5 text-sm text-slate-500">
-                <li><a href="#features" className="hover:text-white transition-colors">المزايا</a></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">الأسعار</a></li>
-                <li><a href="#faq" className="hover:text-white transition-colors">الأسئلة الشائعة</a></li>
-                <li><Link to="/demo" className="hover:text-white transition-colors">عرض تجريبي</Link></li>
-                <li><Link to="/blog" className="hover:text-white transition-colors">المدونة</Link></li>
-              </ul>
-            </div>
+      {/* SEO keywords (hidden) */}
+      <div className="sr-only" aria-hidden="true">
+        برنامج إدارة مغسلة سيارات | نظام إدارة مغسلة متنقلة | نظام إدارة مغسلة ثابتة |
+        نظام حجوزات صالونات | نظام إدارة صالون | نظام إدارة خدمات منزلية |
+        إنشاء موقع حجوزات في 10 دقائق | نظام حجوزات سعودي | بوكست
+      </div>
 
-            {/* لأصحاب المغاسل */}
-            <div>
-              <h4 className="text-sm font-bold text-white mb-4">لأصحاب المغاسل</h4>
-              <ul className="space-y-2.5 text-sm text-slate-500">
-                <li><Link to="/onboard" className="hover:text-white transition-colors">انضم بمتجرك</Link></li>
-                <li><Link to="/login" className="hover:text-white transition-colors">تسجيل الدخول</Link></li>
-                <li><Link to="/onboard" className="hover:text-white transition-colors">تجربة مجانية ١٤ يوم</Link></li>
-              </ul>
-            </div>
-
-            {/* قانوني */}
-            <div>
-              <h4 className="text-sm font-bold text-white mb-4">قانوني</h4>
-              <ul className="space-y-2.5 text-sm text-slate-500">
-                <li><Link to="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link></li>
-                <li><Link to="/terms" className="hover:text-white transition-colors">شروط الاستخدام</Link></li>
-              </ul>
-            </div>
-
-            {/* تواصل */}
-            <div>
-              <h4 className="text-sm font-bold text-white mb-4">تواصل معنا</h4>
-              <ul className="space-y-2.5 text-sm text-slate-500">
-                <li>
-                  <a
-                    href="https://wa.me/966500000000"
-                    target="_blank" rel="noopener noreferrer"
-                    className="hover:text-green-400 transition-colors flex items-center gap-2"
-                  >
-                    <span>💬</span> واتساب — دعم فوري
-                  </a>
-                </li>
-                <li className="text-slate-600">الرياض، المملكة العربية السعودية</li>
-              </ul>
-
-              {/* Schema keywords (hidden for SEO) */}
-              <div className="sr-only" aria-hidden="true">
-                برنامج إدارة مغسلة سيارات | نظام مغسلة متنقلة | تطبيق مغسلة سيارات السعودية |
-                حجوزات مغسلة | رواتب موظفين مغسلة | فواتير ضريبة مغسلة | GPS مغسلة متنقلة
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-white/[0.05] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-slate-600">© {new Date().getFullYear()} منصة Jdawil — جميع الحقوق محفوظة</p>
-            <div className="flex gap-5 text-xs text-slate-600">
-              <span className="hover:text-slate-400 cursor-pointer transition-colors">سياسة الخصوصية</span>
-              <span className="hover:text-slate-400 cursor-pointer transition-colors">شروط الاستخدام</span>
-              <span className="hover:text-slate-400 cursor-pointer transition-colors">اتفاقية SLA</span>
-            </div>
-          </div>
-        </div>
-      </footer>
-
-      {/* Social Proof Ticker — shows recent platform activity */}
+      {/* Social Proof Ticker */}
       <SocialProofTicker />
-    </div>
+    </MarketingLayout>
   );
 }
