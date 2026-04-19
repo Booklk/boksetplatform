@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, ArrowLeft, TrendingUp, Car, Wrench, DollarSign, Users, Smartphone } from 'lucide-react';
+import MarketingLayout from '../components/marketing/MarketingLayout';
 
 export interface Article {
   slug: string;
@@ -323,40 +324,38 @@ function ArticleCard({ article }: { article: Article }) {
 
 export default function Blog() {
   return (
-    <>
+    <MarketingLayout>
       <Helmet>
-        <title>مدونة Jdawil — مقالات إدارة مغاسل السيارات الثابتة والمتنقلة</title>
-        <meta name="description" content="مقالات وأدلة عملية لأصحاب مغاسل السيارات الثابتة والمتنقلة — تكاليف، إدارة، جودة، وتقنية." />
-        <meta property="og:title" content="مدونة Jdawil — إدارة مغاسل السيارات" />
-        <meta property="og:description" content="مقالات ونصائح عملية لأصحاب مغاسل السيارات." />
-        <link rel="canonical" href="https://jdawil.sa/blog" />
+        <title>مدونة بوكست — دلائل لأصحاب المشاريع الخدمية السعودية</title>
+        <meta name="description" content="مقالات ودلائل عملية لصاحب المشروع السعودي — مغاسل سيارات، صالونات، خدمات منزلية، سبا. تسعير، إدارة، نظام حجوزات." />
+        <meta property="og:title" content="مدونة بوكست — دلائل لأصحاب المشاريع" />
+        <meta property="og:description" content="دلائل ومقالات لصاحب المشروع السعودي." />
+        <meta property="og:locale" content="ar_SA" />
+        <link rel="canonical" href="https://bokset.sa/blog" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Blog',
-          name: 'مدونة Jdawil',
-          url: 'https://jdawil.sa/blog',
-          description: 'مقالات إدارة مغاسل السيارات الثابتة والمتنقلة',
+          name: 'مدونة بوكست',
+          url: 'https://bokset.sa/blog',
+          description: 'دلائل لأصحاب المشاريع الخدمية السعودية',
           inLanguage: 'ar',
-          publisher: { '@type': 'Organization', name: 'Jdawil', url: 'https://jdawil.sa' },
+          publisher: { '@type': 'Organization', name: 'Bokset', url: 'https://bokset.sa' },
         })}</script>
       </Helmet>
-      <div className="min-h-screen bg-[#0a0f1e] text-white font-arabic" dir="rtl">
+      <div>
         {/* Hero */}
-        <div className="relative bg-gradient-to-b from-blue-950/40 to-transparent pt-20 pb-16 px-4">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
-          </div>
+        <div className="border-b border-white/8 bg-[#0b1220] pt-14 pb-12 px-4">
           <div className="relative max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 mb-6">
-              <BookOpen size={14} className="text-blue-400" />
-              <span className="text-xs text-blue-400 font-bold">مدونة Jdawil</span>
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-6">
+              <BookOpen size={14} className="text-slate-300" />
+              <span className="text-xs text-slate-300 font-bold">مدونة بوكست</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black mb-4">
+            <h1 className="text-3xl sm:text-4xl font-black mb-4 text-white">
               أدلة عملية لأصحاب
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent"> مغاسل السيارات</span>
+              <span className="text-slate-300"> المشاريع الخدمية</span>
             </h1>
             <p className="text-slate-400 text-lg max-w-xl mx-auto">
-              مقالات متخصصة في إدارة المغاسل الثابتة والمتنقلة — التكاليف، الجودة، الإدارة، والتقنية
+              دلائل ومقالات لصاحب المشروع السعودي — مغاسل، صالونات، خدمات منزلية، سبا، وأكثر.
             </p>
           </div>
         </div>
@@ -376,6 +375,6 @@ export default function Blog() {
           </div>
         </div>
       </div>
-    </>
+    </MarketingLayout>
   );
 }
