@@ -317,7 +317,7 @@ export default function VendorDashboard() {
   useEffect(() => {
     if (myVendor && !myVendor.setupCompletedAt) {
       // Check if vendor has at least 1 service
-      api.get('/api/services').then(r => {
+      api.get('/services').then(r => {
         if (!r.data || r.data.length === 0) {
           setShowSetupWizard(true);
         }
