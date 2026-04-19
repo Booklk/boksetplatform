@@ -523,15 +523,27 @@ export default function VendorOnboarding() {
                   />
                 </div>
 
-                {/* Wash type selector — only for car_wash */}
-                {form.industry === 'car_wash' && <div className="sm:col-span-2">
-                  <label className="label">نوع المتجر <span className="text-slate-600 font-normal">(اختياري — يساعدنا في اقتراح الباقة المناسبة)</span></label>
+                {/* Service type selector — car_wash + home services */}
+                {form.industry && form.industry !== 'other' && form.industry !== 'freelancer' && <div className="sm:col-span-2">
+                  <label className="label">طريقة تقديم الخدمة <span className="text-slate-600 font-normal">(اختياري)</span></label>
                   <div className="grid grid-cols-3 gap-3 mt-1">
-                    {[
+                    {(form.industry === 'car_wash' ? [
                       { value: 'bike' as const, emoji: '🏍️', label: 'متنقلة بايك' },
                       { value: 'car' as const, emoji: '🚗', label: 'متنقلة سيارة' },
-                      { value: 'fixed' as const, emoji: '🏪', label: 'ثابتة' },
-                    ].map((option) => {
+                      { value: 'fixed' as const, emoji: '🏪', label: 'موقع ثابت' },
+                    ] : form.industry === 'salon' ? [
+                      { value: 'fixed' as const, emoji: '🏪', label: 'صالون ثابت' },
+                      { value: 'car' as const, emoji: '🏠', label: 'زيارات منزلية' },
+                      { value: 'bike' as const, emoji: '🔄', label: 'الاثنين' },
+                    ] : ['beauty_home','home_cleaning','ac_maintenance','plumbing','electrical'].includes(form.industry) ? [
+                      { value: 'car' as const, emoji: '🏠', label: 'أروح للعميل' },
+                      { value: 'fixed' as const, emoji: '🏪', label: 'عندي موقع' },
+                      { value: 'bike' as const, emoji: '🔄', label: 'الاثنين' },
+                    ] : [
+                      { value: 'car' as const, emoji: '🏠', label: 'أروح للعميل' },
+                      { value: 'fixed' as const, emoji: '🏪', label: 'العميل يجيني' },
+                      { value: 'bike' as const, emoji: '🔄', label: 'الاثنين' },
+                    ]).map((option) => {
                       const isActive = form.washType === option.value;
                       return (
                         <button
