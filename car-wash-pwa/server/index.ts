@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import { validateEnv } from './lib/validate-env.js';
 validateEnv();
+import { initSentry, captureError } from './lib/sentry.js';
+initSentry();
 const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
@@ -974,7 +976,8 @@ app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   console.error(`[ERROR] ${req.method} ${req.path} [${requestId}]`, err.message);
   if (process.env.NODE_ENV !== 'production') console.error(err.stack);
 
-  // Don't leak error details in production
+  captureError(err, { requestId, method: req.method, path: req.path });
+
   const message = process.env.NODE_ENV === 'production'
     ? 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً'
     : err.message;
@@ -1028,10 +1031,12 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 process.on('unhandledRejection', (reason) => {
   console.error('[UNHANDLED REJECTION]', reason);
+  if (reason instanceof Error) captureError(reason, { source: 'unhandledRejection' });
 });
 
 process.on('uncaughtException', (error) => {
   console.error('[UNCAUGHT EXCEPTION]', error);
+  captureError(error, { source: 'uncaughtException' });
   gracefulShutdown('uncaughtException');
 });
 

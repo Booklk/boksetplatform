@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { captureError } from '../lib/sentry';
 
 interface Props {
   children: ReactNode;
@@ -20,6 +21,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[ErrorBoundary]', error, info.componentStack);
+    captureError(error, { componentStack: info.componentStack ?? '' });
   }
 
   handleRetry = () => {

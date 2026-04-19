@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { captureError } from './sentry';
 
 const api = axios.create({
   baseURL: '/api',
@@ -18,6 +19,14 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
+    }
+    // Report 5xx server errors to Sentry
+    if (err.response?.status >= 500) {
+      captureError(err, {
+        url: err.config?.url,
+        method: err.config?.method,
+        status: err.response?.status,
+      });
     }
     return Promise.reject(err);
   }
