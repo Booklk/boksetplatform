@@ -127,4 +127,79 @@ router.get('/gallery/:slug', async (req, res) => {
   }
 });
 
+/* ══════════════════════════════════════════════════════════════════════════
+   Vendor-managed gallery — curated images shown on /store/:slug
+   Stored in vendors.settings.gallery as Array<{ url, caption? }>.
+   ────────────────────────────────────────────────────────────────────────── */
+
+// GET /api/photos/gallery/mine — list curated entries
+router.get('/gallery/mine', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمتجر' });
+    const [v] = await db.select({ settings: vendors.settings })
+      .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const items = ((v?.settings as Record<string, unknown>)?.gallery as
+      Array<{ url: string; caption?: string }> | undefined) ?? [];
+    return res.json({ items });
+  } catch (e) {
+    console.error('[photos/gallery/mine]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// POST /api/photos/gallery/upload — upload one image, append to settings.gallery
+router.post('/gallery/upload', requireAuth, requireRole('vendor_admin', 'admin'),
+  upload.single('photo'), async (req: AuthRequest, res) => {
+    try {
+      const vendorId = req.user!.vendorId;
+      if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمتجر' });
+      if (!req.file) return res.status(400).json({ error: 'الصورة مطلوبة' });
+
+      const caption = typeof req.body?.caption === 'string' ? req.body.caption.trim() : '';
+      const url = `/uploads/photos/${req.file.filename}`;
+
+      const [v] = await db.select({ settings: vendors.settings })
+        .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+      const settings = (v?.settings as Record<string, unknown>) ?? {};
+      const current = (settings.gallery as Array<{ url: string; caption?: string }> | undefined) ?? [];
+      const next = [...current, { url, caption: caption || undefined }];
+
+      await db.update(vendors)
+        .set({ settings: { ...settings, gallery: next }, updatedAt: new Date() })
+        .where(eq(vendors.id, vendorId));
+
+      return res.status(201).json({ url, caption: caption || null, total: next.length });
+    } catch (e: any) {
+      console.error('[photos/gallery/upload]', e);
+      return res.status(500).json({ error: e?.message ?? 'فشل الرفع' });
+    }
+  },
+);
+
+// DELETE /api/photos/gallery — remove an entry by url
+router.delete('/gallery', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمتجر' });
+    const target = z.object({ url: z.string().min(1) }).parse(req.body);
+
+    const [v] = await db.select({ settings: vendors.settings })
+      .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const settings = (v?.settings as Record<string, unknown>) ?? {};
+    const current = (settings.gallery as Array<{ url: string; caption?: string }> | undefined) ?? [];
+    const next = current.filter((g) => g.url !== target.url);
+
+    await db.update(vendors)
+      .set({ settings: { ...settings, gallery: next }, updatedAt: new Date() })
+      .where(eq(vendors.id, vendorId));
+
+    return res.json({ total: next.length });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: 'بيانات غير صحيحة' });
+    console.error('[photos/gallery DELETE]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 export default router;

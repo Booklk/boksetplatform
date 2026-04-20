@@ -507,21 +507,30 @@ export default function Landing() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {[
-              { icon: '🚗', name: 'مغاسل سيارات', desc: 'متنقلة وثابتة — حجوزات + GPS + تتبع', link: '/onboard' },
-              { icon: '💈', name: 'صالونات وحلاقة', desc: 'مواعيد + خدمات + ولاء عملاء', link: '/onboard' },
-              { icon: '💄', name: 'تجميل منزلي وسبا', desc: 'مكياج + مساج + حمام مغربي', link: '/onboard' },
-              { icon: '🏠', name: 'تنظيف منازل', desc: 'شقق + فلل + مكاتب + بعد البناء', link: '/onboard' },
-              { icon: '❄️', name: 'صيانة مكيفات', desc: 'تنظيف + صيانة + تركيب + فريون', link: '/onboard' },
-              { icon: '🔧', name: 'سباكة', desc: 'تسليك + تسربات + صيانة عامة', link: '/onboard' },
-              { icon: '⚡', name: 'كهرباء', desc: 'صيانة + تمديدات + إنارة + كاميرات', link: '/onboard' },
-              { icon: '💼', name: 'فري لانسر', desc: 'مصور + مدرب + طباخ + معلم + أي خدمة', link: '/onboard' },
+              { icon: '🚗', name: 'مغاسل سيارات',        desc: 'متنقلة وثابتة — حجوزات + GPS + تتبع', link: '/for/car-wash', dedicated: true },
+              { icon: '💈', name: 'صالونات وحلاقة',       desc: 'مواعيد + خدمات + ولاء عملاء',          link: '/for/salon',    dedicated: true },
+              { icon: '💄', name: 'تجميل منزلي وسبا',    desc: 'مكياج + مساج + حمام مغربي',            link: '/for/salon',    dedicated: true },
+              { icon: '🏠', name: 'شركات تنظيف',          desc: 'مباني + منازل + مناسبات + عقود',       link: '/for/cleaning', dedicated: true },
+              { icon: '📦', name: 'شركات نقل العفش',     desc: 'محلي + بين المدن + تعبئة وتغليف',      link: '/for/movers',   dedicated: true },
+              { icon: '❄️', name: 'صيانة مكيفات',        desc: 'تنظيف + صيانة + تركيب + فريون',        link: '/onboard' },
+              { icon: '🔧', name: 'سباكة وكهرباء',       desc: 'تسليك + تمديدات + صيانة عامة',         link: '/onboard' },
+              { icon: '💼', name: 'أي خدمة أخرى',         desc: 'مصور، مدرب، معلم، طباخ — أي نشاط',     link: '/onboard' },
             ].map((industry, i) => (
               <motion.a
                 key={industry.name}
                 href={industry.link}
                 {...fadeUp(i * 0.04)}
-                className="group bg-white/[0.03] border border-white/[0.06] hover:border-indigo-500/30 rounded-2xl p-5 transition-all text-center"
+                className={`relative group rounded-2xl p-5 transition-all text-center ${
+                  industry.dedicated
+                    ? 'bg-gradient-to-b from-indigo-500/[0.06] to-transparent border border-indigo-500/20 hover:border-indigo-500/50'
+                    : 'bg-white/[0.03] border border-white/[0.06] hover:border-indigo-500/30'
+                }`}
               >
+                {industry.dedicated && (
+                  <span className="absolute top-2 left-2 text-[9px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.5 rounded-full">
+                    صفحة مخصّصة
+                  </span>
+                )}
                 <span className="text-3xl block mb-3">{industry.icon}</span>
                 <h3 className="text-sm font-bold text-white mb-1 group-hover:text-indigo-400 transition-colors">{industry.name}</h3>
                 <p className="text-[11px] text-slate-500 leading-relaxed">{industry.desc}</p>
@@ -530,7 +539,7 @@ export default function Landing() {
           </div>
 
           <motion.p {...fadeUp(0.3)} className="text-center text-slate-600 text-xs mt-6">
-            مشروعك مو موجود؟ اختر "خدمات أخرى" وعرّف خدماتك بنفسك
+            النشاطات الرئيسية (مغاسل، صالونات، تنظيف، نقل) لها صفحات مصمّمة خصيصاً. باقي النشاطات تبدأ مباشرة.
           </motion.p>
         </div>
       </section>
