@@ -18,6 +18,7 @@ import { getTheme, getThemeFeatures } from '../lib/storeThemes';
 import QueueWidget from '../components/storefront/QueueWidget';
 import GallerySection from '../components/storefront/GallerySection';
 import StorefrontHero from '../components/storefront/heroes/StorefrontHero';
+import PackageCard, { PackageCardStyle } from '../components/storefront/PackageCard';
 
 interface TimeSlot {
   time: string;
@@ -404,7 +405,8 @@ export default function VendorLanding() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-xl font-black text-white mb-6"
+            className="text-xl font-black mb-6"
+            style={{ color: customTheme.text }}
           >
             الخدمات والباقات
           </motion.h2>
@@ -459,45 +461,15 @@ export default function VendorLanding() {
                       {currentService.packages
                         .filter((p) => p.isActive)
                         .map((pkg, idx) => (
-                          <motion.div
+                          <PackageCard
                             key={pkg.id}
-                            initial={{ opacity: 0, scale: 0.96 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: idx * 0.06 }}
-                            className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 hover:border-white/[0.12] transition-all duration-300 flex flex-col"
-                          >
-                            <div className="flex items-start justify-between mb-3">
-                              <h3 className="font-black text-white text-base">{pkg.name}</h3>
-                              <div className="text-right">
-                                <div className="inline-block bg-gradient-to-r from-blue-600 to-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                                  {formatCurrency(pkg.price)}
-                                </div>
-                                <div className="flex items-center gap-1 text-slate-500 text-xs mt-0.5 justify-end">
-                                  <Clock size={11} />
-                                  {pkg.duration} دقيقة
-                                </div>
-                              </div>
-                            </div>
-
-                            {pkg.features && pkg.features.length > 0 && (
-                              <ul className="space-y-1.5 mb-4 flex-1">
-                                {pkg.features.map((feature, fi) => (
-                                  <li key={fi} className="flex items-center gap-2 text-sm text-slate-300">
-                                    <CheckCircle size={13} style={{ color }} className="shrink-0" />
-                                    {feature}
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-
-                            <Link
-                              to={`/app/book/${pkg.id}?vendorId=${vendor.id}`}
-                              className="mt-auto block w-full text-center font-bold text-sm py-2.5 rounded-xl transition-all active:scale-[0.97] text-white"
-                              style={{ background: color }}
-                            >
-                              احجز الآن
-                            </Link>
-                          </motion.div>
+                            pkg={pkg}
+                            vendorId={vendor.id}
+                            customTheme={customTheme}
+                            cardStyle={theme.preview.cardStyle as PackageCardStyle}
+                            index={idx}
+                            formatCurrency={formatCurrency}
+                          />
                         ))}
                     </div>
                   </motion.div>
