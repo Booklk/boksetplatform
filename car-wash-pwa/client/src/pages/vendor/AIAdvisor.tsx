@@ -10,6 +10,7 @@ import {
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 import { Link } from 'react-router-dom';
+import AIAgentChat from '../../components/vendor/AIAgentChat';
 
 interface Insight {
   type: 'positive' | 'warning' | 'critical' | 'tip';
@@ -158,6 +159,9 @@ export default function AIAdvisor() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+        {/* AI Agent Chat — industry-specialised advisor */}
+        <AIAgentChat />
 
         {/* Quick Stats Overview */}
         {quickStats && !analysis && (
