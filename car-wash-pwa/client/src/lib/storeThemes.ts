@@ -227,6 +227,190 @@ export const STORE_THEMES: StoreTheme[] = [
     preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
       showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
   },
+
+  // ── TIER 2 (13 additional templates) ─ More choice within each focus family ─
+
+  // 13. Cleaning — Carpet & upholstery
+  {
+    id: 'cleaning-carpet',
+    name: 'تنظيف سجاد وموكيت',
+    desc: 'شركات تنظيف السجاد والكنب والستائر بالبخار',
+    category: 'premium',
+    industry: 'general_cleaning',
+    industryLabel: 'تنظيف سجاد',
+    features: { quote: true },
+    gradient: 'from-cyan-950 to-teal-950', accent: '#0891b2',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 14. Cleaning — Water tanks
+  {
+    id: 'cleaning-tanks',
+    name: 'تنظيف وتعقيم خزانات',
+    desc: 'تنظيف وتعقيم خزانات المياه للمنازل والمنشآت',
+    category: 'premium',
+    industry: 'general_cleaning',
+    industryLabel: 'تنظيف خزانات',
+    features: { quote: true, b2b: true },
+    gradient: 'from-sky-950 to-blue-950', accent: '#0369a1',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'grid',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 15. Cleaning — Building facades / high-rise
+  {
+    id: 'cleaning-facade',
+    name: 'تنظيف واجهات المباني',
+    desc: 'تنظيف واجهات زجاجية وارتفاعات — معدات متخصصة',
+    category: 'premium',
+    industry: 'b2b_cleaning',
+    industryLabel: 'واجهات وارتفاعات',
+    features: { quote: true, b2b: true, gallery: true },
+    gradient: 'from-slate-900 to-zinc-900', accent: '#475569',
+    preview: { heroStyle: 'full-cover', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'grid',
+      showRating: true, showAreas: true, showSlots: false, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 16. Cleaning — Post-event cleanup
+  {
+    id: 'cleaning-postevent',
+    name: 'تنظيف ما بعد المناسبات',
+    desc: 'تنظيف قاعات وفلل بعد الأعراس والحفلات',
+    category: 'premium',
+    industry: 'general_cleaning',
+    industryLabel: 'تنظيف مناسبات',
+    features: { quote: true },
+    gradient: 'from-indigo-950 to-purple-950', accent: '#7c3aed',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'elevated', ctaStyle: 'pill', bgPattern: 'dots',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 17. Salon — Luxury women
+  {
+    id: 'salon-luxury',
+    name: 'صالون نسائي فاخر',
+    desc: 'تصميم راقٍ بلمسات ذهبية — طابور + معرض + خصوصية',
+    category: 'premium',
+    industry: 'salon',
+    industryLabel: 'صالون فاخر',
+    features: { queue: true, privacy: true, gallery: true },
+    gradient: 'from-amber-950 to-rose-950', accent: '#b45309',
+    preview: { heroStyle: 'full-cover', cardStyle: 'elevated', ctaStyle: 'pill', bgPattern: 'pattern',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // 18. Salon — Nails studio
+  {
+    id: 'nails-studio',
+    name: 'مركز عناية بالأظافر',
+    desc: 'مانيكير وباديكير وتركيب أظافر — معرض تصاميم',
+    category: 'premium',
+    industry: 'salon',
+    industryLabel: 'مركز أظافر',
+    features: { gallery: true, privacy: true },
+    gradient: 'from-pink-950 to-rose-950', accent: '#db2777',
+    preview: { heroStyle: 'minimal-clean', cardStyle: 'elevated', ctaStyle: 'pill', bgPattern: 'dots',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // 19. Salon — Brow & lash center
+  {
+    id: 'brow-lash',
+    name: 'مركز حواجب ورموش',
+    desc: 'ميكروبليدنج، رموش، وحواجب — صور قبل/بعد',
+    category: 'premium',
+    industry: 'salon',
+    industryLabel: 'حواجب ورموش',
+    features: { gallery: true, privacy: true },
+    gradient: 'from-rose-950 to-fuchsia-950', accent: '#c026d3',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'elevated', ctaStyle: 'pill', bgPattern: 'dots',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // 20. Salon — Kids salon
+  {
+    id: 'kids-salon',
+    name: 'صالون أطفال',
+    desc: 'قصات شعر وعناية للأطفال — أجواء ممتعة للعائلات',
+    category: 'premium',
+    industry: 'salon',
+    industryLabel: 'صالون أطفال',
+    features: { queue: true, gallery: true },
+    gradient: 'from-orange-950 to-amber-950', accent: '#ea580c',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'pattern',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 21. Beauty — Henna & bridal
+  {
+    id: 'henna-studio',
+    name: 'استوديو حناء ومناسبات',
+    desc: 'حناء وتزيين للعرائس والمناسبات — معرض أعمال',
+    category: 'premium',
+    industry: 'spa',
+    industryLabel: 'حناء ومناسبات',
+    features: { gallery: true, quote: true, privacy: true },
+    gradient: 'from-amber-950 to-orange-950', accent: '#a16207',
+    preview: { heroStyle: 'full-cover', cardStyle: 'elevated', ctaStyle: 'pill', bgPattern: 'pattern',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // 22. Car Wash — Fleet (multi-vehicle mobile)
+  {
+    id: 'mobile-wash-fleet',
+    name: 'مغسلة متنقلة بأسطول',
+    desc: 'عدة سيارات غسيل متنقلة — توزيع ذكي وتتبّع GPS لكل سيارة',
+    category: 'premium',
+    industry: 'mobile_wash',
+    industryLabel: 'أسطول مغاسل',
+    features: { gps: true, b2b: true },
+    gradient: 'from-blue-950 to-slate-900', accent: '#1e40af',
+    preview: { heroStyle: 'wave-bg', cardStyle: 'glass', ctaStyle: 'glow', bgPattern: 'wave',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+  },
+
+  // 23. Car Wash — Premium detail (polish, ceramic, interior)
+  {
+    id: 'premium-wash-detail',
+    name: 'مغسلة VIP وتلميع',
+    desc: 'بولش، سيراميك، وتلميع فاخر — معرض قبل/بعد',
+    category: 'premium',
+    industry: 'fixed_wash',
+    industryLabel: 'مغسلة VIP',
+    features: { gallery: true, quote: true },
+    gradient: 'from-neutral-950 to-zinc-900', accent: '#a16207',
+    preview: { heroStyle: 'full-cover', cardStyle: 'elevated', ctaStyle: 'square', bgPattern: 'grid',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 24. Movers — Intercity with packing
+  {
+    id: 'movers-intercity',
+    name: 'نقل عفش بين المدن',
+    desc: 'تعبئة، تغليف، وشحن بين المدن — طلب عرض سعر + تتبّع',
+    category: 'premium',
+    industry: 'movers',
+    industryLabel: 'نقل بين المدن',
+    features: { quote: true, gps: true, b2b: true },
+    gradient: 'from-stone-900 to-amber-950', accent: '#92400e',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'pattern',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 25. Integrated — All features on (for multi-service companies)
+  {
+    id: 'integrated-pro',
+    name: 'المتكامل',
+    desc: 'كل المميزات مفتوحة — للشركات الكبيرة متعددة الخدمات',
+    category: 'premium',
+    industry: 'universal',
+    industryLabel: 'متعدد الخدمات',
+    features: { queue: true, gps: true, gallery: true, b2b: true, privacy: true, quote: true },
+    gradient: 'from-slate-900 to-indigo-950', accent: '#6366f1',
+    preview: { heroStyle: 'full-cover', cardStyle: 'elevated', ctaStyle: 'rounded', bgPattern: 'mesh',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
+  },
 ];
 
 /** Look up a theme by id; falls back to universal-clean. */

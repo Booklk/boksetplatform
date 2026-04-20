@@ -106,6 +106,7 @@ export const DEFAULT_CUSTOM_THEME: CustomTheme = {
  * polished result from second zero.
  */
 export const TEMPLATE_DEFAULT_PALETTE: Record<string, string> = {
+  // Tier 1
   'universal-clean': 'grey-pro',
   'barber-queue': 'copper-warm',
   'salon-queue': 'rose-feminine',
@@ -119,6 +120,20 @@ export const TEMPLATE_DEFAULT_PALETTE: Record<string, string> = {
   'studio-portfolio': 'grey-pro',
   'movers-quote': 'copper-warm',
   'cleaning-general': 'water-blue',
+  // Tier 2
+  'cleaning-carpet': 'water-blue',
+  'cleaning-tanks': 'water-blue',
+  'cleaning-facade': 'navy-classic',
+  'cleaning-postevent': 'purple-premium',
+  'salon-luxury': 'gold-luxury',
+  'nails-studio': 'rose-feminine',
+  'brow-lash': 'rose-feminine',
+  'kids-salon': 'copper-warm',
+  'henna-studio': 'copper-warm',
+  'mobile-wash-fleet': 'water-blue',
+  'premium-wash-detail': 'gold-luxury',
+  'movers-intercity': 'copper-warm',
+  'integrated-pro': 'navy-classic',
 };
 
 /** Border radius per 'radius' token — used in CSS variables. */

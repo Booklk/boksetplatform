@@ -219,7 +219,7 @@ export default function StoreBuilder() {
   function handleThemeSelect(theme: StoreTheme) {
     const locked = theme.category === 'premium' && !isPaidSubscriber;
     if (locked) {
-      toast.error('هذا القالب متاح لمشتركي برو فقط. فعّل اشتراكك للوصول لكل القوالب الـ 12 المخصصة لقطاعك.');
+      toast.error('هذا القالب متاح لمشتركي برو فقط. فعّل اشتراكك للوصول لكل الـ 25 قالب الاحترافية.');
       return;
     }
     setSelectedTheme(theme.id);
@@ -341,7 +341,7 @@ export default function StoreBuilder() {
                       ))}
                     </div>
                     <span className="text-xs text-slate-500">
-                      {isPaidSubscriber ? '13 قالب مخصص لقطاعك' : 'قالب واحد مجاني — 12 قالب احترافي مع برو'}
+                      {isPaidSubscriber ? '26 قالب احترافي لاختيارك' : 'قالب واحد مجاني — 25 قالب احترافي مع برو'}
                     </span>
                   </div>
 
@@ -351,7 +351,7 @@ export default function StoreBuilder() {
                       <div className="flex items-center gap-3">
                         <Crown className="w-8 h-8 text-amber-400 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-white">اشتراك برو يفتح 12 قالب مخصص لقطاعك + إخفاء علامة جداول</p>
+                          <p className="text-sm font-bold text-white">اشتراك برو يفتح 25 قالب احترافي لقطاعك + إخفاء علامة جداول</p>
                           <p className="text-xs text-slate-400 mt-0.5">قوالب حصرية + دومين مخصص + white-label لعلامتك التجارية</p>
                         </div>
                         <Link to="/vendor/platform-sub" className="px-4 py-2 rounded-xl bg-white text-[#0b1220] text-xs font-black hover:bg-slate-100 transition-colors shrink-0">
