@@ -14,9 +14,10 @@ import { VendorThemeProvider } from '../components/VendorThemeProvider';
 import {
   CustomTheme, DEFAULT_CUSTOM_THEME, RADIUS_VALUES,
 } from '../lib/customTheme';
-import { getThemeFeatures } from '../lib/storeThemes';
+import { getTheme, getThemeFeatures } from '../lib/storeThemes';
 import QueueWidget from '../components/storefront/QueueWidget';
 import GallerySection from '../components/storefront/GallerySection';
+import StorefrontHero from '../components/storefront/heroes/StorefrontHero';
 
 interface TimeSlot {
   time: string;
@@ -204,6 +205,8 @@ export default function VendorLanding() {
   // gallery, B2B, privacy, quote). VendorLanding renders extra sections
   // based on these.
   const features = getThemeFeatures(themeId);
+  const theme = getTheme(themeId);
+  const heroStyle = theme.preview.heroStyle;
 
   // Vendor's custom theme (colours / radius / mode), if they configured one.
   const customTheme: CustomTheme = (storeSettings.customTheme as CustomTheme | undefined) ?? DEFAULT_CUSTOM_THEME;
@@ -346,136 +349,41 @@ export default function VendorLanding() {
 
       <div className="relative z-10">
 
-        {/* ═══ HERO ═══════════════════════════════════════════════════════ */}
-        <section className="relative">
-          {/* Cover */}
-          <div className="h-48 sm:h-64 relative">
-            {vendor.coverImageUrl ? (
-              <img src={vendor.coverImageUrl} alt={vendor.nameAr} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full" style={{ background: `linear-gradient(160deg, ${color}25, #0a0a14 80%)` }} />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface-1/60 to-surface-1" />
-          </div>
-
-          {/* Content */}
-          <div className="max-w-3xl mx-auto px-5 -mt-16 relative z-10 pb-8">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              {/* Logo */}
-              <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 shadow-xl mb-5" style={{ borderColor: `${color}40`, background: '#12121e' }}>
-                {vendor.logoUrl ? (
-                  <img src={vendor.logoUrl} alt={vendor.nameAr} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-3xl font-black" style={{ color }}>{vendor.nameAr.charAt(0)}</div>
-                )}
-              </div>
-
-              {/* Name */}
-              <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight mb-2">{vendor.nameAr}</h1>
-
-              {/* Subtitle */}
-              <p className="text-slate-400 text-sm leading-relaxed mb-4 max-w-xl">{heroSubtitle}</p>
-
-              {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-4 mb-5">
-                {sections.showRating !== false && vendor.rating !== null && (
-                  <div className="flex items-center gap-1.5">
-                    <StarRating rating={vendor.rating ?? 0} size={14} />
-                    <span className="text-sm font-bold text-white">{(vendor.rating ?? 0).toFixed(1)}</span>
-                    <span className="text-xs text-slate-600">({vendor.reviewsCount})</span>
-                  </div>
-                )}
-                <span className="flex items-center gap-1.5 text-sm text-slate-500">
-                  <MapPin size={13} className="opacity-60" />
-                  {vendor.city}
+        {/* ═══ HERO — theme-driven archetype ═══════════════════════════ */}
+        <StorefrontHero
+          heroStyle={heroStyle}
+          vendor={{
+            id: vendor.id,
+            slug: slug ?? '',
+            nameAr: vendor.nameAr,
+            logoUrl: vendor.logoUrl,
+            coverImageUrl: vendor.coverImageUrl,
+            descriptionAr: vendor.descriptionAr,
+            city: vendor.city,
+            rating: vendor.rating,
+            reviewsCount: vendor.reviewsCount,
+            serviceAreas: vendor.serviceAreas,
+          }}
+          customTheme={customTheme}
+          features={features}
+          sections={sections}
+          heroSubtitle={heroSubtitle}
+          whatsappUrl={whatsappUrl}
+          callUrl={callUrl}
+          ratingNode={
+            sections.showRating !== false && vendor.rating !== null ? (
+              <div className="flex items-center gap-1.5">
+                <StarRating rating={vendor.rating ?? 0} size={14} />
+                <span className="text-sm font-bold" style={{ color: customTheme.text }}>
+                  {(vendor.rating ?? 0).toFixed(1)}
+                </span>
+                <span className="text-xs opacity-60" style={{ color: customTheme.text }}>
+                  ({vendor.reviewsCount})
                 </span>
               </div>
-
-              {/* Areas */}
-              {sections.showAreas !== false && vendor.serviceAreas?.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-5">
-                  {vendor.serviceAreas.map(area => (
-                    <span key={area} className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/[0.04] border border-white/[0.06] text-slate-400">
-                      {area}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {vendor.descriptionAr && (
-                <p className="text-slate-500 text-xs leading-relaxed mb-5 max-w-xl">{vendor.descriptionAr}</p>
-              )}
-
-              {/* Feature badges driven by theme.features */}
-              {(features.gps || features.privacy || features.b2b) && (
-                <div className="flex flex-wrap gap-2 mb-5">
-                  {features.gps && (
-                    <span
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
-                      style={{ background: `${customTheme.accent}15`, borderColor: `${customTheme.accent}40`, color: customTheme.accent }}
-                    >
-                      <MapPin size={11} />
-                      تتبّع الموظف مباشرة بعد الحجز
-                    </span>
-                  )}
-                  {features.privacy && (
-                    <span
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
-                      style={{ background: `${customTheme.accent}15`, borderColor: `${customTheme.accent}40`, color: customTheme.accent }}
-                    >
-                      🔒 سرّية تامّة — خدمة موثوقة
-                    </span>
-                  )}
-                  {features.b2b && (
-                    <span
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
-                      style={{ background: `${customTheme.accent}15`, borderColor: `${customTheme.accent}40`, color: customTheme.accent }}
-                    >
-                      🏢 عقود شركات متاحة
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {/* CTAs */}
-              <div className="flex gap-3 flex-wrap">
-                {features.quote && (
-                  <a
-                    href={`${whatsappUrl}${whatsappUrl.includes('?') ? '&' : '?'}text=${encodeURIComponent('مرحباً، أرغب في طلب عرض سعر لخدمتكم — ')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all active:scale-95"
-                    style={{ background: customTheme.button }}
-                  >
-                    <MessageCircle size={15} />
-                    اطلب عرض سعر
-                  </a>
-                )}
-                {sections.showWhatsApp !== false && (
-                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95"
-                    style={{
-                      background: features.quote ? 'transparent' : color,
-                      border: features.quote ? `1px solid ${customTheme.accent}40` : 'none',
-                      color: features.quote ? customTheme.accent : '#fff',
-                    }}>
-                    <MessageCircle size={15} />
-                    تواصل معنا
-                  </a>
-                )}
-                {sections.showCallButton !== false && (
-                  <a href={callUrl}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-white/[0.05] border border-white/[0.08] text-slate-300 hover:bg-white/[0.08] transition-all active:scale-95">
-                    <Phone size={15} />
-                    اتصال
-                  </a>
-                )}
-              </div>
-            </motion.div>
-          </div>
-
-          <div className="h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
-        </section>
+            ) : undefined
+          }
+        />
 
         {/* ═══ QUEUE (barber / salon / fixed-wash) ═══════════════════════ */}
         {features.queue && slug && (
