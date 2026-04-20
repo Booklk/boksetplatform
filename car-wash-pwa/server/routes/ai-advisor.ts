@@ -1,14 +1,34 @@
 import { Router } from 'express';
 import { requireAuth, AuthRequest, requireRole } from '../middleware/auth.js';
 import { db } from '../db/index.js';
-import { bookings, users, financials, customers, inventory, customerScores, employeeStats } from '../db/schema.js';
+import { bookings, users, financials, customers, inventory, customerScores, employeeStats, vendors } from '../db/schema.js';
 import { eq, and, gte, lte, sql, count, desc } from 'drizzle-orm';
 import OpenAI from 'openai';
+import {
+  getFinancialSummary, getInventoryStatus, getTopPackages,
+  getCustomerMetrics, getEmployeeProductivity, getPeakPattern,
+  getVendorBasics,
+} from '../services/vendorContext.js';
+import {
+  buildAgentSystemPrompt, getAgentIndustry, INDUSTRY_MARKET_DATA,
+} from '../services/industryAgents.js';
 
 const router = Router();
 
 router.use(requireAuth);
 router.use(requireRole('vendor_admin', 'admin'));
+
+/* ─── Feature gate: vendor.settings.aiAdvisor.enabled must be true ─────────── */
+
+async function requireAiAdvisorEnabled(vendorId: number): Promise<{ ok: true } | { ok: false; reason: string }> {
+  const v = await getVendorBasics(vendorId);
+  if (!v) return { ok: false, reason: 'المتجر غير موجود' };
+  const enabled = (v.settings as Record<string, any>)?.aiAdvisor?.enabled === true;
+  if (!enabled) {
+    return { ok: false, reason: 'المستشار الذكي غير مفعّل. فعّله من إعدادات المتجر أولاً.' };
+  }
+  return { ok: true };
+}
 
 // Gather business data for AI analysis
 async function gatherBusinessData(vendorId: number) {
@@ -257,6 +277,227 @@ router.get('/quick-stats', async (req: AuthRequest, res) => {
   } catch (err: any) {
     console.error('[AI Advisor quick-stats]', err);
     return res.status(500).json({ error: 'فشل في جلب البيانات' });
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Industry-specialised chat agent
+   POST /api/ai-advisor/agent/chat
+   Body: { messages: [{ role: 'user'|'assistant', content: string }] }
+   ────────────────────────────────────────────────────────────────────────── */
+
+/** Tools the OpenAI function-calling loop can invoke. */
+const AGENT_TOOLS = [
+  {
+    type: 'function' as const,
+    function: {
+      name: 'get_financial_summary',
+      description: 'إيرادات، مصروفات، ربح، هامش، ومقارنة مع الفترة السابقة.',
+      parameters: {
+        type: 'object',
+        properties: {
+          periodDays: { type: 'number', description: 'عدد الأيام (7, 30, 90)', default: 30 },
+        },
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'get_inventory_status',
+      description: 'حالة المخزون الحالية — العناصر منخفضة المخزون، القيمة الإجمالية.',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'get_top_packages',
+      description: 'أعلى الباقات مبيعاً في الفترة المطلوبة.',
+      parameters: {
+        type: 'object',
+        properties: {
+          periodDays: { type: 'number', default: 30 },
+          limit: { type: 'number', default: 5 },
+        },
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'get_customer_metrics',
+      description: 'عدد العملاء، الجدد، نسبة العودة، متوسط الحجوزات لكل عميل.',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'get_employee_productivity',
+      description: 'أداء الموظفين — الحجوزات المكتملة، التقييم، الإيراد لكل موظف.',
+      parameters: {
+        type: 'object',
+        properties: { periodDays: { type: 'number', default: 30 } },
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'get_peak_pattern',
+      description: 'ساعات وأيام ذروة الحجوزات عند هذا التاجر.',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+];
+
+async function executeAgentTool(
+  vendorId: number,
+  name: string,
+  args: Record<string, unknown>,
+): Promise<unknown> {
+  const days = Math.max(1, Math.min(365, Number(args.periodDays ?? 30)));
+  switch (name) {
+    case 'get_financial_summary': return await getFinancialSummary(vendorId, days);
+    case 'get_inventory_status':  return await getInventoryStatus(vendorId);
+    case 'get_top_packages':      return await getTopPackages(vendorId, days, Number(args.limit ?? 5));
+    case 'get_customer_metrics':  return await getCustomerMetrics(vendorId);
+    case 'get_employee_productivity': return await getEmployeeProductivity(vendorId, days);
+    case 'get_peak_pattern':      return await getPeakPattern(vendorId);
+    default:                       return { error: `أداة غير معروفة: ${name}` };
+  }
+}
+
+router.post('/agent/chat', async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
+
+    const gate = await requireAiAdvisorEnabled(vendorId);
+    if (!gate.ok) return res.status(403).json({ error: gate.reason, needsEnable: true });
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) return res.status(503).json({ error: 'خدمة الذكاء الاصطناعي غير مفعّلة على السيرفر' });
+
+    const { messages } = req.body as {
+      messages: { role: 'user' | 'assistant' | 'system'; content: string }[];
+    };
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'messages مطلوبة' });
+    }
+
+    const vendor = await getVendorBasics(vendorId);
+    if (!vendor) return res.status(404).json({ error: 'المتجر غير موجود' });
+
+    const industry = getAgentIndustry(vendor.industry);
+    const systemPrompt = buildAgentSystemPrompt({
+      industry,
+      vendorNameAr: vendor.nameAr,
+      vendorCity: vendor.city,
+    });
+
+    const openai = new OpenAI({ apiKey });
+
+    // Function-calling loop: we cap at 6 iterations to be safe.
+    const conversation: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      { role: 'system', content: systemPrompt },
+      ...messages.filter((m) => m.role === 'user' || m.role === 'assistant').map((m) => ({
+        role: m.role,
+        content: m.content,
+      } as OpenAI.Chat.ChatCompletionMessageParam)),
+    ];
+
+    const toolCallLog: { name: string; args: unknown }[] = [];
+
+    for (let step = 0; step < 6; step++) {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: conversation,
+        tools: AGENT_TOOLS,
+        tool_choice: 'auto',
+        temperature: 0.4,
+        max_tokens: 900,
+      });
+
+      const choice = completion.choices[0];
+      const msg = choice?.message;
+      if (!msg) break;
+
+      if (msg.tool_calls && msg.tool_calls.length > 0) {
+        conversation.push(msg);
+        for (const tc of msg.tool_calls) {
+          if (tc.type !== 'function') continue;
+          let parsed: Record<string, unknown> = {};
+          try { parsed = JSON.parse(tc.function.arguments || '{}'); } catch { /* ignore */ }
+          toolCallLog.push({ name: tc.function.name, args: parsed });
+          const result = await executeAgentTool(vendorId, tc.function.name, parsed);
+          conversation.push({
+            role: 'tool',
+            tool_call_id: tc.id,
+            content: JSON.stringify(result),
+          });
+        }
+        continue; // Let the model see tool results and respond.
+      }
+
+      // No more tool calls — final answer.
+      return res.json({
+        reply: msg.content ?? '',
+        toolCalls: toolCallLog,
+        industry,
+        industryLabel: INDUSTRY_MARKET_DATA[industry].label,
+      });
+    }
+
+    return res.status(500).json({ error: 'المستشار لم يُنهِ الرد بعد 6 خطوات' });
+  } catch (err: any) {
+    console.error('[AI Advisor agent/chat]', err);
+    return res.status(500).json({ error: err?.message ?? 'فشل في المحادثة. حاول لاحقاً.' });
+  }
+});
+
+/* GET /api/ai-advisor/agent/status — check whether the advisor is enabled */
+router.get('/agent/status', async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
+    const v = await getVendorBasics(vendorId);
+    const enabled = (v?.settings as Record<string, any>)?.aiAdvisor?.enabled === true;
+    const industry = getAgentIndustry(v?.industry);
+    return res.json({
+      enabled,
+      industry,
+      industryLabel: INDUSTRY_MARKET_DATA[industry].label,
+      serverHasApiKey: Boolean(process.env.OPENAI_API_KEY),
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: 'فشل في جلب الحالة' });
+  }
+});
+
+/* PUT /api/ai-advisor/agent/toggle — enable or disable */
+router.put('/agent/toggle', async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمشروع' });
+    const enable = Boolean(req.body?.enabled);
+
+    const [current] = await db.select({ settings: vendors.settings })
+      .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const settings = (current?.settings as Record<string, unknown>) ?? {};
+    const updated = {
+      ...settings,
+      aiAdvisor: { ...((settings as any).aiAdvisor ?? {}), enabled: enable },
+    };
+    await db.update(vendors)
+      .set({ settings: updated, updatedAt: new Date() })
+      .where(eq(vendors.id, vendorId));
+
+    return res.json({ enabled: enable });
+  } catch (err: any) {
+    console.error('[AI Advisor toggle]', err);
+    return res.status(500).json({ error: 'فشل في تحديث الإعداد' });
   }
 });
 
