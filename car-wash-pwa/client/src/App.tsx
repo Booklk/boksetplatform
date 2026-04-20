@@ -43,6 +43,7 @@ const Marketplace = lazy(() => import('./pages/Marketplace'));
 const VendorLanding = lazy(() => import('./pages/VendorLanding'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogArticle = lazy(() => import('./pages/BlogArticle'));
+const IndustryLandingPage = lazy(() => import('./pages/IndustryLanding'));
 const VendorOnboarding = lazy(() => import('./pages/VendorOnboarding'));
 
 // Business pages
@@ -239,6 +240,7 @@ function AppRoutes() {
         {/* <Route path="/marketplace" element={<S><Marketplace /></S>} /> */}
         <Route path="/blog" element={<S><Blog /></S>} />
         <Route path="/blog/:slug" element={<S><BlogArticle /></S>} />
+        <Route path="/for/:industry" element={<S><IndustryLandingPage /></S>} />
         <Route path="/store/:slug" element={<S><VendorLanding /></S>} />
         <Route path="/store/:slug/book" element={<S><AppointmentBooking /></S>} />
         <Route path="/onboard" element={<S><VendorOnboarding /></S>} />

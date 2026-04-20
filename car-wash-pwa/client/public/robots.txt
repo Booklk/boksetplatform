@@ -1,5 +1,5 @@
-# Jdawil — برنامج إدارة مغاسل السيارات
-# https://jdawil.sa
+# جداول (Jadawel) — منصة الحجوزات للأعمال الخدمية السعودية
+# https://bokset.sa
 
 User-agent: *
 Allow: /
@@ -8,7 +8,9 @@ Allow: /store/
 Allow: /onboard
 Allow: /blog
 Allow: /blog/
+Allow: /for/
 Allow: /demo
+Allow: /pricing
 Allow: /privacy
 Allow: /terms
 Allow: /city/
@@ -24,7 +26,7 @@ Disallow: /login
 Disallow: /register
 
 # Sitemaps
-Sitemap: https://jdawil.sa/sitemap.xml
+Sitemap: https://bokset.sa/sitemap.xml
 
 # Google-specific
 User-agent: Googlebot

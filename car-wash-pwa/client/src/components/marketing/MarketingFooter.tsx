@@ -9,10 +9,10 @@ const PRODUCT_LINKS = [
 ];
 
 const INDUSTRY_LINKS = [
-  { to: '/blog/category/car_wash', label: 'مغاسل السيارات' },
-  { to: '/blog/category/salon', label: 'الصالونات' },
-  { to: '/blog/category/home_services', label: 'الخدمات المنزلية' },
-  { to: '/blog/category/beauty_home', label: 'السبا والتجميل' },
+  { to: '/for/car-wash', label: 'مغاسل السيارات' },
+  { to: '/for/salon', label: 'الصالونات والتجميل' },
+  { to: '/for/cleaning', label: 'شركات التنظيف' },
+  { to: '/for/movers', label: 'شركات نقل العفش' },
 ];
 
 const RESOURCE_LINKS = [

@@ -384,14 +384,18 @@ app.get('/sitemap.xml', async (_req, res) => {
     const citySlugs = [
       'الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة', 'الخبر', 'الطائف', 'تبوك',
     ];
+    // Industry-specific landing pages — high SEO priority
+    const industrySlugs = ['car-wash', 'salon', 'cleaning', 'movers'];
     const staticUrls = [
       { loc: `https://${DOMAIN}/`, priority: '1.0', changefreq: 'weekly' },
       { loc: `https://${DOMAIN}/marketplace`, priority: '0.9', changefreq: 'daily' },
       { loc: `https://${DOMAIN}/blog`, priority: '0.9', changefreq: 'weekly' },
       { loc: `https://${DOMAIN}/onboard`, priority: '0.8', changefreq: 'monthly' },
       { loc: `https://${DOMAIN}/demo`, priority: '0.7', changefreq: 'monthly' },
+      { loc: `https://${DOMAIN}/pricing`, priority: '0.8', changefreq: 'monthly' },
       { loc: `https://${DOMAIN}/privacy`, priority: '0.3', changefreq: 'yearly' },
       { loc: `https://${DOMAIN}/terms`, priority: '0.3', changefreq: 'yearly' },
+      ...industrySlugs.map(s => ({ loc: `https://${DOMAIN}/for/${s}`, priority: '0.95', changefreq: 'weekly' })),
       ...blogSlugs.map(s => ({ loc: `https://${DOMAIN}/blog/${s}`, priority: '0.8', changefreq: 'monthly' })),
       ...citySlugs.map(c => ({ loc: `https://${DOMAIN}/city/${encodeURIComponent(c)}`, priority: '0.9', changefreq: 'monthly' })),
     ];
