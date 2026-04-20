@@ -19,6 +19,8 @@ import QueueWidget from '../components/storefront/QueueWidget';
 import GallerySection from '../components/storefront/GallerySection';
 import StorefrontHero from '../components/storefront/heroes/StorefrontHero';
 import PackageCard, { PackageCardStyle } from '../components/storefront/PackageCard';
+import MovingCalculator from '../components/storefront/MovingCalculator';
+import CorporateStrip from '../components/storefront/CorporateStrip';
 
 interface TimeSlot {
   time: string;
@@ -490,6 +492,16 @@ export default function VendorLanding() {
             accent={customTheme.accent}
             radius={RADIUS_VALUES[customTheme.radius]}
           />
+        )}
+
+        {/* ═══ MOVING CALCULATOR (movers templates only) ═══════════════ */}
+        {theme.industry === 'movers' && (
+          <MovingCalculator whatsappUrl={whatsappUrl} customTheme={customTheme} />
+        )}
+
+        {/* ═══ CORPORATE STRIP (B2B-capable templates) ════════════════ */}
+        {features.b2b && (
+          <CorporateStrip whatsappUrl={whatsappUrl} customTheme={customTheme} />
         )}
 
         {/* ═══ QUICK BOOK ───────────────────────────────────────────── */}
