@@ -1,0 +1,73 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Caddyfile — production reverse-proxy for Jadawel (جداول)
+#
+# Handles two things at once:
+#   1. Serves the platform itself on jadawel.sa / app.jadawel.sa (auto SSL).
+#   2. Issues Let's Encrypt certificates on-demand for any vendor custom
+#      domain pointed at this server — but only after confirming with the
+#      Node.js app that the domain is a real vendor domain.
+#
+# How vendors hook their domain:
+#   - Vendor sets an A record:  crystalwash.sa → <server IP>
+#     (or CNAME: crystalwash.sa → app.jadawel.sa)
+#   - First HTTPS request triggers Caddy → asks /api/internal/domain/ask
+#     → if 200, Caddy issues a cert and proxies to Node.
+#
+# Prerequisites:
+#   - Ports 80 + 443 open to the internet.
+#   - `jadawel.sa` and `app.jadawel.sa` DNS already point at this host
+#     (regular cert, not on-demand).
+#   - The Node app is reachable at `app:3001` (docker-compose network) or
+#     `127.0.0.1:3001` (bare metal). Adjust `reverse_proxy` target below.
+# ─────────────────────────────────────────────────────────────────────────────
+
+{
+	email admin@jadawel.sa
+	on_demand_tls {
+		# Caddy asks this endpoint before issuing a cert for an
+		# unknown host. Expected: HTTP 200 → issue, 404 → refuse.
+		# Loopback URL because Caddy runs on the same machine as the app.
+		ask http://127.0.0.1:3001/api/internal/domain/ask
+		# Protect against abuse / Let's Encrypt rate limits.
+		rate_limit 100 per_minute
+		burst 10
+	}
+}
+
+# ─── Platform domain (apex + www) ──────────────────────────────────────────
+jadawel.sa, www.jadawel.sa {
+	# Prefer the www → apex redirect if you like; default keeps both.
+	reverse_proxy 127.0.0.1:3001
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+}
+
+# ─── App / console domain ──────────────────────────────────────────────────
+app.jadawel.sa {
+	reverse_proxy 127.0.0.1:3001
+	encode zstd gzip
+}
+
+# ─── Vendor custom domains — on-demand TLS ─────────────────────────────────
+# Matches any host NOT declared above. Caddy issues a cert at first request,
+# then proxies traffic to the Node app. The app's detectVendorDomain
+# middleware uses the Host header to serve /store/<slug>.
+#
+# IMPORTANT: the empty-matcher block must come AFTER the platform blocks,
+# otherwise it would swallow them.
+:443 {
+	tls {
+		on_demand
+	}
+	reverse_proxy 127.0.0.1:3001
+	encode zstd gzip
+}
+
+# ─── HTTP → HTTPS redirect ─────────────────────────────────────────────────
+:80 {
+	redir https://{host}{uri} permanent
+}

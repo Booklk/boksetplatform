@@ -438,6 +438,89 @@ app.get('/api/domain/detect', (req: any, res) => {
   res.json({ vendorSlug: req.detectedVendorSlug ?? null });
 });
 
+/* ══════════════════════════════════════════════════════════════════════════
+   Custom domain support (Caddy on_demand_tls gate + DNS checker)
+
+   Caddy issues a Let's Encrypt certificate on-demand for any domain a
+   customer visits, but only after asking this endpoint whether the
+   domain is a legitimate vendor domain. We return 200 if it's in our
+   DB (so Caddy proceeds) and 404 otherwise (so Caddy refuses). This
+   stops random domains pointed at the server from exhausting the
+   Let's Encrypt rate limit.
+   ────────────────────────────────────────────────────────────────────────── */
+
+// GET /api/internal/domain/ask?domain=example.sa — called only by Caddy.
+// Must match the hostname a Host header would carry (lowercase, no port).
+app.get('/api/internal/domain/ask', async (req, res) => {
+  try {
+    const raw = String(req.query.domain ?? '').trim().toLowerCase();
+    if (!raw) return res.status(400).send('domain query required');
+
+    // Never issue certs for platform/self domains — Caddy handles those
+    // with its own site blocks.
+    const platformDoms = (process.env.PLATFORM_DOMAINS ?? 'jadawel.sa,localhost,127.0.0.1')
+      .split(',').map(d => d.trim().toLowerCase());
+    if (platformDoms.some(d => raw === d || raw.endsWith(`.${d}`))) {
+      return res.status(404).send('platform domain');
+    }
+
+    const { vendors } = await import('./db/schema.js');
+    const [v] = await db.select({ id: vendors.id })
+      .from(vendors)
+      .where(eq(vendors.customDomain, raw))
+      .limit(1);
+
+    if (!v) return res.status(404).send('unknown domain');
+    return res.status(200).send('ok');
+  } catch (e) {
+    console.error('[domain/ask]', e);
+    return res.status(500).send('error');
+  }
+});
+
+// GET /api/domain/check?domain=example.sa — called from the Branding UI so
+// a vendor can verify their DNS is pointing at the platform before they
+// consider the setup "done". Does a plain A-record lookup and compares to
+// PLATFORM_IP (or any IP in a comma-separated PLATFORM_IPS env var).
+app.get('/api/domain/check', async (req, res) => {
+  try {
+    const raw = String(req.query.domain ?? '').trim().toLowerCase();
+    if (!raw || !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(raw)) {
+      return res.status(400).json({ ok: false, error: 'صيغة الدومين غير صحيحة' });
+    }
+
+    const expected = (process.env.PLATFORM_IPS ?? process.env.PLATFORM_IP ?? '')
+      .split(',').map(s => s.trim()).filter(Boolean);
+
+    const dns = await import('dns/promises');
+    let a: string[] = [];
+    let cname: string | null = null;
+    try { a = await dns.resolve4(raw); } catch { /* no A record */ }
+    try {
+      const records = await dns.resolveCname(raw);
+      cname = records[0] ?? null;
+    } catch { /* no CNAME */ }
+
+    const matches = expected.length > 0 && a.some(ip => expected.includes(ip));
+
+    return res.json({
+      ok: matches,
+      domain: raw,
+      aRecords: a,
+      cname,
+      expectedIps: expected,
+      hint: matches
+        ? 'الدومين يشير للمنصة بشكل صحيح ✓'
+        : expected.length === 0
+          ? 'IP المنصة غير مُعد — راسل الدعم'
+          : 'الدومين لسه ما يشير للمنصة. راجع DNS وأعد المحاولة بعد قليل.',
+    });
+  } catch (e) {
+    console.error('[domain/check]', e);
+    return res.status(500).json({ ok: false, error: 'فشل الفحص' });
+  }
+});
+
 // Serve client build in production
 if (process.env.NODE_ENV === 'production') {
   const clientDist = path.join(__dirname, '..', 'client', 'dist');
