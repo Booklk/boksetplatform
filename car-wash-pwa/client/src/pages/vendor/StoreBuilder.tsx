@@ -684,71 +684,168 @@ export default function StoreBuilder() {
                 <Monitor className="w-4 h-4" /> معاينة — {activeTheme.name}
               </p>
 
-              {/* Phone frame */}
+              {/* Phone frame — renders the real CustomTheme tokens so every
+                  colour / radius / mode change updates instantly, exactly
+                  as the customer will see it on /store/:slug. */}
               <div className="mx-auto w-full max-w-[280px]">
                 <div className="rounded-[2.5rem] border-2 border-white/10 bg-surface-2 p-2 shadow-2xl">
-                  <div className="relative rounded-[2rem] overflow-hidden bg-surface-1" style={{ aspectRatio: '9/19' }}>
+                  <div
+                    className="relative rounded-[2rem] overflow-hidden"
+                    style={{ aspectRatio: '9/19', background: customTheme.bg, color: customTheme.text }}
+                  >
                     <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3.5 bg-black rounded-full z-20" />
 
-                    {/* Mini page */}
-                    <div className="h-full overflow-hidden">
-                      {/* Hero */}
-                      <div className={`h-28 relative bg-gradient-to-br ${activeTheme.gradient}`}>
-                        {activeTheme.preview.accentGlow && (
-                          <div className="absolute top-0 right-0 w-16 h-16 rounded-full blur-xl opacity-40" style={{ background: activeTheme.accent }} />
-                        )}
-                        <div className="absolute inset-0 bg-black/20" />
-                        <div className="absolute bottom-3 right-3 left-3">
-                          <div className="w-7 h-7 rounded-lg mb-1" style={{ background: `${activeTheme.accent}40` }} />
-                          <div className="h-2 w-3/4 bg-white/40 rounded-full mb-1" />
-                          <div className="h-1.5 w-1/2 bg-white/20 rounded-full" />
+                    {/* ── Mini hero — shape varies by heroStyle ── */}
+                    {(() => {
+                      const hs = activeTheme.preview.heroStyle;
+                      const br = customTheme.radius === 'pill' ? '9999px'
+                        : customTheme.radius === 'square' ? '4px' : '10px';
+
+                      // Hero background per archetype
+                      const heroBg = hs === 'full-cover' || hs === 'wave-bg'
+                        ? `linear-gradient(135deg, ${customTheme.accent}55, ${customTheme.button}44, ${customTheme.bg})`
+                        : hs === 'gradient-split'
+                        ? `linear-gradient(100deg, ${customTheme.surface} 40%, ${customTheme.accent}22)`
+                        : hs === 'bold-centered'
+                        ? customTheme.surface
+                        : customTheme.bg;
+
+                      return (
+                        <div className="h-28 relative" style={{ background: heroBg }}>
+                          {hs === 'wave-bg' && (
+                            <svg viewBox="0 0 100 40" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 w-full h-10 opacity-40">
+                              <path d="M0 20 C 30 5, 60 35, 100 15 L 100 40 L 0 40 Z" fill={customTheme.accent} />
+                            </svg>
+                          )}
+                          {activeTheme.preview.accentGlow && (
+                            <div
+                              className="absolute top-0 right-0 w-16 h-16 rounded-full blur-xl opacity-50"
+                              style={{ background: customTheme.accent }}
+                            />
+                          )}
+                          <div className="absolute bottom-3 right-3 left-3">
+                            {/* Logo square */}
+                            <div
+                              className="w-7 h-7 mb-1"
+                              style={{
+                                background: customTheme.accent,
+                                borderRadius: br,
+                                opacity: 0.85,
+                              }}
+                            />
+                            {/* Title */}
+                            <div
+                              className="h-2 w-3/4 rounded-full mb-1"
+                              style={{ background: `${customTheme.text}aa` }}
+                            />
+                            {/* Subtitle */}
+                            <div
+                              className="h-1.5 w-1/2 rounded-full"
+                              style={{ background: `${customTheme.text}55` }}
+                            />
+                          </div>
                         </div>
+                      );
+                    })()}
+
+                    {/* ── Content — cards, calendar slots, CTA ── */}
+                    <div className="p-2.5 space-y-2">
+                      {sections.showRating && (
+                        <div className="flex items-center gap-0.5">
+                          {[...Array(5)].map((_, i) => (
+                            <div key={i} className="w-2 h-2 rounded-sm" style={{ background: `${customTheme.accent}b0` }} />
+                          ))}
+                        </div>
+                      )}
+
+                      {sections.showAreas && (
+                        <div className="flex gap-1">
+                          {['', '', ''].map((_, i) => (
+                            <span
+                              key={i}
+                              className="h-3 w-10"
+                              style={{
+                                background: `${customTheme.text}08`,
+                                border: `1px solid ${customTheme.text}12`,
+                                borderRadius: customTheme.radius === 'pill' ? '9999px' : '4px',
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Package cards — reflect cardStyle */}
+                      <div className="space-y-1.5">
+                        {[1, 2].map((i) => {
+                          const cs = activeTheme.preview.cardStyle;
+                          const cardBr = customTheme.radius === 'pill' ? '14px' : customTheme.radius === 'square' ? '3px' : '8px';
+                          const cardStyle: React.CSSProperties = {
+                            borderRadius: cardBr,
+                            ...(cs === 'glass'
+                              ? { background: `${customTheme.surface}cc`, border: `1px solid ${customTheme.text}10`, backdropFilter: 'blur(6px)' }
+                              : cs === 'elevated'
+                              ? { background: customTheme.surface, boxShadow: `0 4px 10px -4px ${customTheme.accent}30` }
+                              : cs === 'solid'
+                              ? { background: customTheme.surface }
+                              : cs === 'gradient-border'
+                              ? { background: `linear-gradient(${customTheme.surface}, ${customTheme.surface}) padding-box, linear-gradient(135deg, ${customTheme.accent}, ${customTheme.button}) border-box`, border: '1px solid transparent' }
+                              : { background: customTheme.surface, border: `1px solid ${customTheme.text}12` }),
+                          };
+                          return (
+                            <div key={i} className="p-2" style={cardStyle}>
+                              <div className="h-1.5 w-2/3 rounded-full mb-1" style={{ background: `${customTheme.text}aa` }} />
+                              <div className="h-1 w-1/3 rounded-full" style={{ background: customTheme.button }} />
+                            </div>
+                          );
+                        })}
                       </div>
 
-                      {/* Content */}
-                      <div className="p-2.5 space-y-2">
-                        {sections.showRating && (
-                          <div className="flex items-center gap-0.5">
-                            {[...Array(5)].map((_, i) => (
-                              <div key={i} className="w-2 h-2 rounded-sm bg-amber-400/70" />
-                            ))}
-                          </div>
-                        )}
-                        {sections.showAreas && (
-                          <div className="flex gap-1">
-                            {['', '', ''].map((_, i) => (
-                              <span key={i} className="h-3 w-10 rounded-full border border-white/10 bg-white/[0.04]" />
-                            ))}
-                          </div>
-                        )}
-                        <div className="space-y-1.5">
-                          {[1, 2].map(i => (
-                            <div key={i} className={`p-2 rounded-lg border border-white/[0.06] ${
-                              activeTheme.preview.cardStyle === 'glass' ? 'bg-white/[0.04]' : 'bg-surface-3/50'
-                            }`}>
-                              <div className="h-1.5 w-2/3 bg-white/20 rounded-full mb-1" />
-                              <div className="h-1 w-1/3 rounded-full" style={{ background: `${activeTheme.accent}50` }} />
+                      {/* CTA */}
+                      <div
+                        className="h-6 flex items-center justify-center"
+                        style={{
+                          background: customTheme.button,
+                          borderRadius: customTheme.radius === 'pill' ? '9999px' : customTheme.radius === 'square' ? '3px' : '8px',
+                          boxShadow: activeTheme.preview.accentGlow ? `0 4px 16px ${customTheme.button}66` : 'none',
+                        }}
+                      >
+                        <span className="text-[8px] text-white font-bold">احجز الآن</span>
+                      </div>
+
+                      {/* Calendar slots preview — picks up customTheme.calendar */}
+                      {sections.showSlots && (
+                        <div className="flex gap-1">
+                          {['09', '10', '11'].map((t, i) => (
+                            <div
+                              key={t}
+                              className="flex-1 py-1 text-center font-mono"
+                              style={{
+                                background: i === 1 ? customTheme.calendar : customTheme.surface,
+                                color: i === 1 ? '#fff' : customTheme.text,
+                                borderRadius: customTheme.radius === 'pill' ? '9999px' : customTheme.radius === 'square' ? '3px' : '6px',
+                                fontSize: '7px',
+                                border: i === 1 ? 'none' : `1px solid ${customTheme.text}15`,
+                              }}
+                            >
+                              {t}:00
                             </div>
                           ))}
                         </div>
+                      )}
+
+                      {sections.showReviews && (
                         <div
-                          className={`h-6 flex items-center justify-center ${
-                            activeTheme.preview.ctaStyle === 'pill' ? 'rounded-full' : 'rounded-lg'
-                          }`}
+                          className="p-1.5"
                           style={{
-                            background: activeTheme.accent,
-                            boxShadow: activeTheme.preview.accentGlow ? `0 4px 16px ${activeTheme.accent}50` : 'none',
+                            background: `${customTheme.surface}cc`,
+                            border: `1px solid ${customTheme.text}08`,
+                            borderRadius: customTheme.radius === 'pill' ? '9999px' : customTheme.radius === 'square' ? '3px' : '6px',
                           }}
                         >
-                          <span className="text-[8px] text-white font-bold">احجز الآن</span>
+                          <div className="h-1 w-full rounded-full mb-0.5" style={{ background: `${customTheme.text}20` }} />
+                          <div className="h-1 w-3/4 rounded-full" style={{ background: `${customTheme.text}0d` }} />
                         </div>
-                        {sections.showReviews && (
-                          <div className="p-1.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-                            <div className="h-1 w-full bg-white/10 rounded-full mb-0.5" />
-                            <div className="h-1 w-3/4 bg-white/[0.05] rounded-full" />
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
