@@ -930,4 +930,107 @@ router.get('/:id/platform-subscribe/verify', async (req, res) => {
   }
 });
 
+/* ══════════════════════════════════════════════════════════════════════════
+   Pro trial (30 days, once per vendor)
+
+   Anyone on the free plan can flip themselves into a 30-day Pro trial,
+   once. After it expires we quietly flip them back to free — no fees,
+   no surprise charges, no required payment info. The intent is "على
+   حسابنا — شوف Pro وقرّر بنفسك".
+   ────────────────────────────────────────────────────────────────────────── */
+
+// GET /api/vendors/my/trial-status
+router.get('/my/trial-status', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمتجر' });
+
+    const [v] = await db.select({
+      status: vendors.subscriptionStatus,
+      trialEndsAt: vendors.trialEndsAt,
+      plan: vendors.subscriptionPlan,
+    }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+
+    if (!v) return res.status(404).json({ error: 'المتجر غير موجود' });
+
+    // Auto-revert: trial expired → flip to free
+    if (v.status === 'trial' && v.trialEndsAt && v.trialEndsAt < new Date()) {
+      await db.update(vendors)
+        .set({ subscriptionStatus: 'free', updatedAt: new Date() })
+        .where(eq(vendors.id, vendorId));
+      return res.json({
+        eligible: false,
+        status: 'free',
+        trialEndsAt: null,
+        daysRemaining: 0,
+        justExpired: true,
+      });
+    }
+
+    const now = new Date();
+    const daysRemaining = v.trialEndsAt
+      ? Math.max(0, Math.ceil((v.trialEndsAt.getTime() - now.getTime()) / 86_400_000))
+      : 0;
+
+    return res.json({
+      // Only vendors who've never touched the trial are eligible.
+      eligible: v.status === 'free' && !v.trialEndsAt,
+      status: v.status,
+      trialEndsAt: v.trialEndsAt,
+      daysRemaining,
+    });
+  } catch (err) {
+    console.error('[trial-status]', err);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// POST /api/vendors/my/start-trial
+// Flips a free vendor into a 30-day Pro trial. One-shot per vendor.
+router.post('/my/start-trial', requireAuth, requireRole('vendor_admin', 'admin'),
+  async (req: AuthRequest, res) => {
+    try {
+      const vendorId = req.user!.vendorId;
+      if (!vendorId) return res.status(403).json({ error: 'مطلوب ارتباط بمتجر' });
+
+      const [v] = await db.select({
+        status: vendors.subscriptionStatus,
+        trialEndsAt: vendors.trialEndsAt,
+      }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+
+      if (!v) return res.status(404).json({ error: 'المتجر غير موجود' });
+      if (v.trialEndsAt) {
+        return res.status(409).json({
+          error: 'استخدمت التجربة المجانية سابقاً — نشكرك على ثقتك',
+        });
+      }
+      if (v.status === 'active') {
+        return res.status(409).json({ error: 'أنت مشترك في Pro بالفعل' });
+      }
+
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+
+      await db.update(vendors)
+        .set({
+          subscriptionStatus: 'trial',
+          subscriptionPlan: 'pro',
+          trialEndsAt,
+          updatedAt: new Date(),
+        })
+        .where(eq(vendors.id, vendorId));
+
+      return res.json({
+        success: true,
+        trialEndsAt,
+        daysRemaining: 30,
+        message: 'أهلاً بك في Pro لمدة 30 يوم — على حسابنا، وبدون التزام.',
+      });
+    } catch (err) {
+      console.error('[start-trial]', err);
+      return res.status(500).json({ error: 'خطأ في الخادم' });
+    }
+  },
+);
+
 export default router;

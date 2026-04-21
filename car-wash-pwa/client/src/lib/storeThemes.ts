@@ -434,11 +434,14 @@ export const FREE_TEMPLATES_BY_INDUSTRY: Record<string, string[]> = {
   car_wash_mobile:  ['mobile-wash-gps', 'mobile-wash-fleet', 'universal-clean'],
   car_wash_fixed:   ['fixed-wash-queue', 'premium-wash-detail', 'universal-clean'],
 
-  // Beauty family
+  // Beauty family — beauty_home covers both "تجميل منزلي" (makeup /
+  // henna / brows) and "سبا منزلي" (massage / relaxation), so we
+  // include spa-sanctuary here too so home-spa vendors have a real
+  // match in their free picks.
   salon:            ['salon-queue', 'salon-luxury', 'nails-studio'],
   barber:           ['barber-queue', 'kids-salon', 'universal-clean'],
-  beauty_home:      ['beauty-at-home', 'henna-studio', 'brow-lash'],
-  spa:              ['spa-sanctuary', 'henna-studio', 'beauty-at-home'],
+  beauty_home:      ['beauty-at-home', 'spa-sanctuary', 'henna-studio'],
+  spa:              ['spa-sanctuary', 'beauty-at-home', 'henna-studio'],
 
   // Cleaning family
   home_cleaning:    ['cleaning-general', 'cleaning-carpet', 'cleaning-postevent'],

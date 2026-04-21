@@ -16,6 +16,7 @@ import { useAuth } from '../../hooks/useAuth';
 import SetupChecklist from '../../components/SetupChecklist';
 import SmartInsights from '../../components/SmartInsights';
 import TrialBanner from '../../components/TrialBanner';
+import ProTrialBanner from '../../components/vendor/ProTrialBanner';
 import MilestoneCelebration from '../../components/MilestoneCelebration';
 import PushPrompt from '../../components/PushPrompt';
 import { SetupWizardModal } from '../../components/SetupWizardModal';
@@ -585,6 +586,9 @@ export default function VendorDashboard() {
 
         {/* Trial countdown banner */}
         <TrialBanner />
+
+        {/* "Try Pro free for a month" offer — renders nothing if not eligible */}
+        <ProTrialBanner />
 
         {/* Vendor Brand Greeting */}
         <div className="flex items-center gap-3 mb-6">

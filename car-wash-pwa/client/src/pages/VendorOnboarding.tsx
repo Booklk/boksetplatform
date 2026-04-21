@@ -32,7 +32,7 @@ const INDUSTRY_OPTIONS = [
   { id: 'plumbing', label: 'سباكة', icon: '🔧' },
   { id: 'electrical', label: 'كهرباء', icon: '⚡' },
   { id: 'salon', label: 'صالون / حلاق', icon: '💈' },
-  { id: 'beauty_home', label: 'تجميل منزلي / سبا', icon: '💄' },
+  { id: 'beauty_home', label: 'تجميل منزلي / سبا / مساج', icon: '💄' },
   { id: 'freelancer', label: 'فري لانسر', icon: '💼' },
   { id: 'other', label: 'خدمات أخرى', icon: '⭐' },
 ];
