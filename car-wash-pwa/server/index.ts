@@ -325,12 +325,58 @@ app.get('/api/plans', async (_req, res) => {
     const plans = await db.select().from(platformPlans)
       .where(eq(platformPlans.isActive, true))
       .orderBy(asc(platformPlans.sortOrder));
-    return res.json(plans);
+    if (plans.length > 0) return res.json(plans);
+    throw new Error('no plans seeded');
   } catch {
-    // Fallback if table doesn't exist yet
+    // Fallback: return the canonical 2-plan structure so the UI never
+    // shows blank pricing. Mirrors Jadawel's re-tier strategy:
+    //   Free  — everything storefront needs (40 templates, unlimited
+    //           bookings, queue, gallery, white-label, custom domain,
+    //           custom pages). Enough to run a real service business.
+    //   Pro   — adds the owner-side power features: Google Maps,
+    //           financial statements, multi-employee + GPS tracking,
+    //           advanced dashboard analytics, AI Advisor.
     return res.json([
-      { id: 1, slug: 'free', nameAr: 'مجاني', price: '0', features: ['موقع حجز خاص', 'حتى 30 حجز/شهر', 'إشعارات واتساب', '3 ثيمات'], isPopular: false, maxEmployees: 1, trialDays: 0, featureGates: {} },
-      { id: 2, slug: 'pro', nameAr: 'Pro', price: '99', features: ['حجوزات غير محدودة', 'موظفون غير محدودون', 'GPS + كاشير + مدفوعات', 'CRM + ولاء + AI', 'كل الثيمات', 'تقارير VAT + رواتب'], isPopular: true, maxEmployees: -1, trialDays: 14, featureGates: {} },
+      {
+        id: 1, slug: 'free', nameAr: 'مجاني', price: '0',
+        isPopular: false, maxEmployees: 1, trialDays: 0, sortOrder: 1,
+        features: [
+          'كل القوالب الـ 40 مفتوحة',
+          'حجوزات غير محدودة',
+          'طابور رقمي + معرض أعمال',
+          'Customizer كامل (ألوان وشكل)',
+          'White-label (بدون علامة جداول)',
+          'دومين مخصص باسم متجرك',
+          'صفحات مخصصة (أسعار، شروط، FAQ…)',
+          'إشعارات واتساب تلقائية',
+        ],
+        featureGates: {
+          queue: true, gallery: true, whiteLabel: true, customDomain: true,
+          customPages: true, whatsappBasic: true,
+          // Pro-only below
+          googleMaps: false, financialStatements: false,
+          employeeManagement: false, advancedDashboard: false, aiAdvisor: false,
+        },
+      },
+      {
+        id: 2, slug: 'pro', nameAr: 'Pro', price: '99',
+        isPopular: true, maxEmployees: -1, trialDays: 14, sortOrder: 2,
+        features: [
+          'كل مميزات الباقة المجانية',
+          '🗺️ Google Maps متكامل',
+          '📊 قوائم مالية متقدمة (P&L، Cashflow، VAT)',
+          '👥 إدارة موظفين متعددين + GPS للموظفين',
+          '📈 لوحة تحكم متقدمة + تحليلات',
+          '🤖 المستشار الذكي بالـ AI',
+          'دعم فني ذو أولوية',
+        ],
+        featureGates: {
+          queue: true, gallery: true, whiteLabel: true, customDomain: true,
+          customPages: true, whatsappBasic: true,
+          googleMaps: true, financialStatements: true,
+          employeeManagement: true, advancedDashboard: true, aiAdvisor: true,
+        },
+      },
     ]);
   }
 });

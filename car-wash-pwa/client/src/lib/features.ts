@@ -18,7 +18,17 @@ export const FEATURE_REGISTRY: FeatureDef[] = [
   { id: 'store_page', nameAr: 'موقع حجز خاص', category: 'أساسي', description: 'صفحة حجز بتصميم خاص' },
   { id: 'whatsapp', nameAr: 'إشعارات واتساب', category: 'أساسي', description: 'إرسال تأكيدات وتذكيرات' },
   { id: 'basic_reports', nameAr: 'تقارير مبسطة', category: 'أساسي', description: 'إحصائيات وتقارير أساسية' },
-  { id: 'basic_themes', nameAr: 'ثيمات مجانية', category: 'أساسي', description: '5 ثيمات لموقع الحجز' },
+  { id: 'basic_themes', nameAr: 'ثيمات مجانية', category: 'أساسي', description: 'قوالب موقع الحجز' },
+  { id: 'custom_pages', nameAr: 'صفحات مخصصة', category: 'أساسي', description: 'أسعار، شروط، FAQ، أي صفحة تبي' },
+  { id: 'white_label', nameAr: 'إخفاء علامة جداول', category: 'أساسي', description: 'موقعك بعلامتك فقط' },
+  { id: 'custom_domain', nameAr: 'دومين مخصص', category: 'أساسي', description: 'اربط دومينك الخاص' },
+
+  // Pro — ميزات المالك المتقدمة
+  { id: 'google_maps', nameAr: 'Google Maps', category: 'Pro', description: 'تفعيل خرائط Google داخل موقعك' },
+  { id: 'financial_statements', nameAr: 'قوائم مالية متقدمة', category: 'Pro', description: 'P&L + Cashflow + VAT مفصّلة' },
+  { id: 'employee_management', nameAr: 'إدارة موظفين متعدد', category: 'Pro', description: 'موظفون غير محدودون + GPS + رواتب' },
+  { id: 'advanced_dashboard', nameAr: 'لوحة تحكم متقدمة', category: 'Pro', description: 'تحليلات + تنبؤات + Benchmarks' },
+  { id: 'ai_advisor', nameAr: 'المستشار الذكي AI', category: 'Pro', description: 'مستشار مالي وتشغيلي بالـ AI' },
 
   // احترافي
   { id: 'gps_tracking', nameAr: 'تتبع GPS', category: 'احترافي', description: 'تتبع مواقع الموظفين' },
@@ -28,30 +38,55 @@ export const FEATURE_REGISTRY: FeatureDef[] = [
   { id: 'campaigns', nameAr: 'حملات واتساب', category: 'احترافي', description: 'إرسال حملات تسويقية' },
   { id: 'dispatch', nameAr: 'التوزيع والإرسال', category: 'احترافي', description: 'توزيع الحجوزات على الموظفين' },
 
-  // أعمال
+  // أعمال — كلها مجانية الآن
   { id: 'queue', nameAr: 'طابور ذكي', category: 'أعمال', description: 'نظام طابور انتظار للمواقع الثابتة' },
   { id: 'loyalty', nameAr: 'برنامج ولاء', category: 'أعمال', description: 'نقاط وبطاقات ختم للعملاء' },
   { id: 'crm', nameAr: 'CRM عملاء', category: 'أعمال', description: 'إدارة علاقات العملاء المتقدمة' },
-  { id: 'ai_advisor', nameAr: 'مستشار ذكي AI', category: 'أعمال', description: 'تحليل وتوصيات بالذكاء الاصطناعي' },
   { id: 'vat_reports', nameAr: 'تقارير VAT', category: 'أعمال', description: 'تقارير ضريبة القيمة المضافة' },
-  { id: 'financial_statements', nameAr: 'قوائم مالية', category: 'أعمال', description: 'قائمة دخل وميزانية' },
-  { id: 'premium_themes', nameAr: 'ثيمات بريميوم', category: 'أعمال', description: 'كل الثيمات (20 ثيم)' },
+  { id: 'premium_themes', nameAr: 'كل القوالب (40)', category: 'أعمال', description: 'كل قوالب المنصة مفتوحة' },
   { id: 'automations', nameAr: 'أتمتة تسويقية', category: 'أعمال', description: 'أتمتة الرسائل والعروض' },
   { id: 'customer_segments', nameAr: 'تصنيف عملاء', category: 'أعمال', description: 'تصنيف ذكي للعملاء' },
 
-  // مؤسسي
-  { id: 'unlimited_employees', nameAr: 'موظفون غير محدودون', category: 'مؤسسي', description: 'بدون حد لعدد الموظفين' },
-  { id: 'payroll', nameAr: 'رواتب تلقائية', category: 'مؤسسي', description: 'حساب وصرف الرواتب' },
-  { id: 'multi_branch', nameAr: 'فروع متعددة', category: 'مؤسسي', description: 'إدارة عدة فروع' },
-  { id: 'webhooks', nameAr: 'Webhooks / API', category: 'مؤسسي', description: 'ربط مع أنظمة خارجية' },
-  { id: 'advanced_analytics', nameAr: 'تحليلات متقدمة', category: 'مؤسسي', description: 'تحليلات وتقارير متقدمة' },
-  { id: 'priority_support', nameAr: 'أولوية دعم', category: 'مؤسسي', description: 'دعم فني بأولوية عالية' },
+  // ميزات تابعة لـ Pro (دعم قانوني / فني)
+  { id: 'gps_tracking', nameAr: 'تتبع GPS للموظفين', category: 'Pro', description: 'جزء من إدارة الموظفين' },
+  { id: 'unlimited_employees', nameAr: 'موظفون غير محدودون', category: 'Pro', description: 'جزء من إدارة الموظفين' },
+  { id: 'payroll', nameAr: 'رواتب تلقائية', category: 'Pro', description: 'جزء من إدارة الموظفين' },
+  { id: 'multi_branch', nameAr: 'فروع متعددة', category: 'Pro', description: 'إدارة عدة فروع' },
+  { id: 'webhooks', nameAr: 'Webhooks / API', category: 'Pro', description: 'ربط مع أنظمة خارجية' },
+  { id: 'priority_support', nameAr: 'أولوية دعم', category: 'Pro', description: 'دعم فني بأولوية عالية' },
+
+  // احترافي — مجانية
+  { id: 'pos', nameAr: 'نقطة بيع (كاشير)', category: 'احترافي', description: 'كاشير متكامل للبيع المباشر' },
+  { id: 'payments', nameAr: 'مدفوعات إلكترونية', category: 'احترافي', description: 'STC Pay, مدى, Apple Pay' },
+  { id: 'inventory', nameAr: 'إدارة مخزون', category: 'احترافي', description: 'تتبع المخزون والمواد' },
+  { id: 'campaigns', nameAr: 'حملات واتساب', category: 'احترافي', description: 'إرسال حملات تسويقية' },
+  { id: 'dispatch', nameAr: 'التوزيع والإرسال', category: 'احترافي', description: 'توزيع الحجوزات على الموظفين' },
 ];
 
-// Feature IDs grouped by plan
+// Feature IDs grouped by plan.
+// Re-tiered: the vast majority of storefront + ops features are FREE so
+// any vendor can run a complete online shop. Only five owner-side
+// analytics + advanced-ops tools are Pro-gated.
 export const FEATURE_CATEGORIES = {
-  free: ['bookings', 'store_page', 'whatsapp', 'basic_reports', 'basic_themes'],
-  pro: ['gps_tracking', 'pos', 'payments', 'inventory', 'campaigns', 'dispatch', 'queue', 'loyalty', 'crm', 'ai_advisor', 'vat_reports', 'financial_statements', 'premium_themes', 'automations', 'customer_segments', 'unlimited_employees', 'payroll', 'multi_branch', 'webhooks', 'advanced_analytics', 'priority_support'],
+  free: [
+    // Storefront
+    'bookings', 'store_page', 'whatsapp', 'basic_reports',
+    'basic_themes', 'premium_themes', // all 40 templates open to everyone
+    // Operations
+    'queue', 'loyalty', 'crm', 'inventory', 'pos', 'payments',
+    'dispatch', 'campaigns', 'automations', 'customer_segments',
+    'vat_reports',
+  ],
+  pro: [
+    'google_maps',          // Google Maps integration
+    'financial_statements', // P&L + cashflow + detailed VAT
+    'employee_management',  // multi-employee + GPS + payroll umbrella
+    'advanced_dashboard',   // advanced_analytics rebranded
+    'ai_advisor',           // industry AI consultant
+    // Kept for continuity — these depend on Pro tier too:
+    'gps_tracking', 'unlimited_employees', 'payroll',
+    'multi_branch', 'webhooks', 'priority_support',
+  ],
 };
 
 // Default feature gates for 2-plan model
@@ -66,22 +101,16 @@ export const DEFAULT_PLAN_FEATURES: Record<string, Record<string, boolean>> = {
   ]),
 };
 
-// Map route paths to feature IDs
+// Route → feature gate. Only Pro-gated routes listed; everything else
+// is open on every plan (free included).
 export const ROUTE_FEATURE_MAP: Record<string, string> = {
-  '/vendor/pos': 'pos',
-  '/vendor/queue': 'queue',
-  '/vendor/livemap': 'gps_tracking',
-  '/vendor/dispatch': 'dispatch',
-  '/vendor/inventory': 'inventory',  // not exact but covers the concept
-  '/vendor/crm': 'crm',
-  '/vendor/segments': 'customer_segments',
-  '/vendor/automations': 'automations',
-  '/vendor/campaigns': 'campaigns',
-  '/vendor/ai-advisor': 'ai_advisor',
-  '/vendor/advanced-analytics': 'advanced_analytics',
-  '/vendor/financial-statements': 'financial_statements',
-  '/vendor/vat-report': 'vat_reports',
-  '/vendor/payroll': 'payroll',
-  '/vendor/webhooks': 'webhooks',
-  '/vendor/leaderboard': 'gps_tracking', // comes with pro
+  '/vendor/ai-advisor':          'ai_advisor',
+  '/vendor/advanced-analytics':  'advanced_dashboard',
+  '/vendor/financial-statements':'financial_statements',
+  '/vendor/livemap':             'gps_tracking',        // employee GPS map
+  '/vendor/employees':           'employee_management',
+  '/vendor/payroll':             'employee_management',
+  '/vendor/employee-performance':'employee_management',
+  '/vendor/leaderboard':         'employee_management',
+  '/vendor/webhooks':            'webhooks',
 };
