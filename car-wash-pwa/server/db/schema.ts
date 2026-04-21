@@ -1437,3 +1437,39 @@ export const activityFeed = pgTable('activity_feed', {
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  CUSTOM PAGES (Vendor-authored content on their storefront)              ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Lets a vendor add free-form pages to their /store/:slug — things like
+// pricing, FAQ, "about us", refund policy, or any copy they want. Content
+// is stored as plain markdown/HTML-ish text; we render it sanitised on
+// the storefront.
+//
+// Special-cased kinds:
+//   - 'terms'    : vendor picks a pre-baked industry template, edits,
+//                  publishes. Only one terms page per vendor (enforced
+//                  by (vendor_id, kind='terms') unique).
+//   - 'custom'   : anything else; multiple allowed per vendor.
+// Privacy policy is NOT per-vendor — it's served platform-wide from the
+// marketing /privacy page, so it doesn't live here.
+
+export const customPages = pgTable('custom_pages', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  kind: varchar('kind', { length: 20 }).notNull().default('custom'),
+  // 'custom' | 'terms'
+  slug: varchar('slug', { length: 100 }).notNull(),
+  // URL slug, unique per vendor: /store/<vendor>/p/<slug>
+  title: varchar('title', { length: 200 }).notNull(),
+  content: text('content').notNull().default(''),
+  // Markdown / plain text — rendered sanitised on storefront
+  isPublished: boolean('is_published').notNull().default(true),
+  showInNav: boolean('show_in_nav').notNull().default(false),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const customPagesVendorSlugIdx = index('idx_custom_pages_vendor_slug').on(customPages.vendorId, customPages.slug);
