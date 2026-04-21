@@ -159,6 +159,134 @@ function ToggleSwitch({
   );
 }
 
+// ─── Domain setup card — DNS instructions + live checker ─────────────────────
+
+interface DomainCheckResponse {
+  ok: boolean;
+  domain: string;
+  aRecords: string[];
+  cname: string | null;
+  expectedIps: string[];
+  hint: string;
+}
+
+function DomainSetupCard({ domain }: { domain: string }) {
+  const [checking, setChecking] = useState(false);
+  const [result, setResult] = useState<DomainCheckResponse | null>(null);
+  const hasDomain = domain.trim().length > 3;
+  const platformHost = 'app.jadawel.sa';
+
+  async function runCheck() {
+    if (!hasDomain) return;
+    setChecking(true);
+    setResult(null);
+    try {
+      const { data } = await api.get<DomainCheckResponse>('/domain/check', {
+        params: { domain: domain.trim().toLowerCase() },
+      });
+      setResult(data);
+    } catch (err: any) {
+      setResult({
+        ok: false,
+        domain: domain.trim(),
+        aRecords: [],
+        cname: null,
+        expectedIps: [],
+        hint: err?.response?.data?.error ?? 'فشل الفحص — حاول لاحقاً',
+      });
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-blue-500/30 bg-blue-500/8 p-5 space-y-4">
+      <div className="flex items-center gap-2">
+        <Info className="w-4 h-4 text-blue-400 flex-shrink-0" />
+        <h4 className="font-bold text-blue-300 text-sm">كيفية ربط الدومين الخاص</h4>
+      </div>
+      <ol className="space-y-2 text-blue-200/80 text-sm leading-relaxed list-none">
+        <li className="flex gap-2">
+          <span className="font-bold text-blue-400 w-5 flex-shrink-0">١.</span>
+          <span>اشترِ دومين من أي مزوّد (GoDaddy, Namecheap, SaudiDomains, …)</span>
+        </li>
+        <li className="flex gap-2">
+          <span className="font-bold text-blue-400 w-5 flex-shrink-0">٢.</span>
+          <span>
+            أضف DNS Record من نوع{' '}
+            <code className="bg-blue-500/20 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs">CNAME</code>{' '}
+            يشير إلى:{' '}
+            <code className="bg-blue-500/20 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs">
+              {platformHost}
+            </code>
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="font-bold text-blue-400 w-5 flex-shrink-0">٣.</span>
+          <span>
+            أو سجّل{' '}
+            <code className="bg-blue-500/20 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs">A</code>{' '}
+            مباشرةً على IP المنصة (يظهر أسفل بعد الفحص).
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <span className="font-bold text-blue-400 w-5 flex-shrink-0">٤.</span>
+          <span>احفظ الدومين هنا، ثم انتظر 5-30 دقيقة لانتشار الـ DNS، واضغط "اختبر الدومين".</span>
+        </li>
+      </ol>
+
+      {/* Live DNS checker */}
+      <div className="border-t border-blue-500/20 pt-4 space-y-3">
+        <button
+          type="button"
+          onClick={runCheck}
+          disabled={!hasDomain || checking}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm disabled:opacity-40 transition-colors"
+        >
+          {checking ? 'جاري الفحص…' : hasDomain ? `اختبر DNS لـ ${domain}` : 'أدخل دومين أولاً'}
+        </button>
+
+        {result && (
+          <div
+            className={`rounded-lg p-3 text-sm border ${
+              result.ok
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                : 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+            }`}
+          >
+            <p className="font-bold mb-1">{result.hint}</p>
+            <dl className="space-y-1 text-xs font-mono">
+              {result.aRecords.length > 0 && (
+                <div className="flex gap-2">
+                  <dt className="opacity-70 min-w-[80px]">A records:</dt>
+                  <dd>{result.aRecords.join(', ')}</dd>
+                </div>
+              )}
+              {result.cname && (
+                <div className="flex gap-2">
+                  <dt className="opacity-70 min-w-[80px]">CNAME:</dt>
+                  <dd>{result.cname}</dd>
+                </div>
+              )}
+              {result.expectedIps.length > 0 && (
+                <div className="flex gap-2">
+                  <dt className="opacity-70 min-w-[80px]">المتوقع:</dt>
+                  <dd>{result.expectedIps.join(', ')}</dd>
+                </div>
+              )}
+            </dl>
+          </div>
+        )}
+      </div>
+
+      <p className="text-[11px] text-blue-200/60 leading-relaxed">
+        المنصة تُصدر شهادة SSL (https) تلقائياً لدومينك بعد ما يصير DNS صحيح ويفتحه أول زائر —
+        ما فيه أي إعداد يدوي من طرفك.
+      </p>
+    </div>
+  );
+}
+
 export default function VendorBranding() {
   const { user } = useAuth();
   const vendorId = user?.vendorId;
@@ -688,43 +816,8 @@ export default function VendorBranding() {
                       />
                     </div>
 
-                    {/* DNS instructions info box */}
-                    <div className="rounded-xl border border-blue-500/30 bg-blue-500/8 p-5 space-y-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Info className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                        <h4 className="font-bold text-blue-300 text-sm">كيفية ربط الدومين الخاص</h4>
-                      </div>
-                      <ol className="space-y-2 text-blue-200/80 text-sm leading-relaxed list-none">
-                        <li className="flex gap-2">
-                          <span className="font-bold text-blue-400 w-5 flex-shrink-0">1.</span>
-                          <span>اشترِ دومين من أي مزود (GoDaddy, Namecheap, STC...)</span>
-                        </li>
-                        <li className="flex gap-2">
-                          <span className="font-bold text-blue-400 w-5 flex-shrink-0">2.</span>
-                          <span>
-                            أضف DNS Record من نوع{' '}
-                            <code className="bg-blue-500/20 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs">A</code>{' '}
-                            يشير إلى:{' '}
-                            <code className="bg-blue-500/20 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs">
-                              {process.env.PLATFORM_IP ?? '[IP المنصة]'}
-                            </code>
-                          </span>
-                        </li>
-                        <li className="flex gap-2">
-                          <span className="font-bold text-blue-400 w-5 flex-shrink-0">3.</span>
-                          <span>
-                            أو{' '}
-                            <code className="bg-blue-500/20 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs">CNAME</code>{' '}
-                            يشير إلى:{' '}
-                            <code className="bg-blue-500/20 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs">app.rathath.sa</code>
-                          </span>
-                        </li>
-                        <li className="flex gap-2">
-                          <span className="font-bold text-blue-400 w-5 flex-shrink-0">4.</span>
-                          <span>أدخل الدومين هنا واضغط حفظ، ثم انتظر حتى 24 ساعة للتفعيل</span>
-                        </li>
-                      </ol>
-                    </div>
+                    {/* DNS instructions + live tester */}
+                    <DomainSetupCard domain={form.customDomain ?? ''} />
                   </>
                 )}
 

@@ -202,7 +202,15 @@ export default function VendorLanding() {
 
   // White-label flag — Pro vendors can hide the "Powered by Jadawel" mark
   // and strip the Jadawel mention from the page title.
-  const whiteLabel = storeSettings.whiteLabel === true;
+  // White-label is either an explicit Pro opt-in, OR implied when the
+  // customer reached us on the vendor's own custom domain (no Jadawel
+  // brand should leak on someone else's domain).
+  const onCustomDomain = typeof window !== 'undefined' && (() => {
+    const h = window.location.hostname.toLowerCase();
+    const platform = ['jadawel.sa', 'bokset.sa', 'localhost', '127.0.0.1'];
+    return !platform.some((d) => h === d || h.endsWith(`.${d}`));
+  })();
+  const whiteLabel = storeSettings.whiteLabel === true || onCustomDomain;
 
   // Features declared by the vendor's selected template (queue, GPS,
   // gallery, B2B, privacy, quote). VendorLanding renders extra sections
