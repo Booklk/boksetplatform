@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   FileText, Download, TrendingUp, TrendingDown, DollarSign, Receipt,
   AlertTriangle, Building2, Edit3, Save, X, Landmark, CreditCard, Hash,
-  MapPin, User, Briefcase, ArrowUpRight, ArrowDownRight, Wallet, PieChart, Printer
+  MapPin, User, Briefcase, ArrowUpRight, ArrowDownRight, Wallet, PieChart, Printer,
+  Sparkles,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
@@ -81,6 +82,44 @@ export default function FinancialStatements() {
     } catch { toast.error('خطأ في التصدير'); }
   }
 
+  // Professional multi-sheet export (P&L + monthly + cashflow + YoY).
+  const currentYear = new Date().getFullYear();
+  const availableYears = Array.from({ length: 6 }, (_, i) => currentYear - i);
+  const [selectedYears, setSelectedYears] = useState<number[]>([currentYear]);
+  const [proExporting, setProExporting] = useState(false);
+
+  function toggleYear(y: number) {
+    setSelectedYears((prev) =>
+      prev.includes(y) ? prev.filter((x) => x !== y) : [...prev, y].sort((a, b) => b - a),
+    );
+  }
+
+  async function handleProExport() {
+    if (selectedYears.length === 0) {
+      toast.error('اختر سنة واحدة على الأقل');
+      return;
+    }
+    setProExporting(true);
+    try {
+      const res = await api.get(
+        `/financial-statements/export-professional?years=${selectedYears.join(',')}`,
+        { responseType: 'blob' },
+      );
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `القوائم-المالية-${selectedYears.join('-')}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('تم تحميل القوائم المالية الكاملة');
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error;
+      toast.error(msg ?? 'تعذّر التصدير');
+    } finally {
+      setProExporting(false);
+    }
+  }
+
   const TABS = [
     { id: 'income' as const, label: 'قائمة الدخل', icon: TrendingUp },
     { id: 'balance' as const, label: 'المركز المالي', icon: PieChart },
@@ -121,6 +160,56 @@ export default function FinancialStatements() {
           </div>
         </div>
       </div>
+
+      {/* ── Professional Financial Statements export (Pro) ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="mb-6 rounded-xl border border-indigo-500/25 bg-gradient-to-br from-indigo-900/20 via-slate-900/40 to-transparent p-5"
+      >
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center shrink-0">
+            <Sparkles className="w-5 h-5 text-indigo-300" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-black text-white">القوائم المالية الكاملة — ملف Excel واحد</p>
+            <p className="text-slate-400 text-sm mt-1 leading-relaxed">
+              قائمة الدخل السنوية + التفصيل الشهري + تحليل المصروفات حسب الفئة +
+              التدفقات النقدية + المقارنة السنوية — كلها ورقة ورقة في ملف واحد.
+            </p>
+
+            {/* Year chips */}
+            <div className="flex flex-wrap gap-2 mt-3">
+              {availableYears.map((y) => {
+                const active = selectedYears.includes(y);
+                return (
+                  <button
+                    key={y}
+                    onClick={() => toggleYear(y)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
+                      active
+                        ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-200'
+                        : 'bg-white/[0.03] border-white/10 text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    {active ? '✓ ' : ''}{y}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-slate-500 mt-2">
+              اختر سنة واحدة أو أكثر — لو اخترت أكثر من سنة، تنضاف ورقة "مقارنة سنوية" تلقائياً.
+            </p>
+          </div>
+          <button
+            onClick={handleProExport}
+            disabled={proExporting || selectedYears.length === 0}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm disabled:opacity-50 transition-colors shrink-0"
+          >
+            <Download size={14} />
+            {proExporting ? 'جاري الإنشاء...' : 'تصدير القوائم الكاملة'}
+          </button>
+        </div>
+      </motion.div>
 
       {/* Identity Warning */}
       {!identityComplete && identity && (
