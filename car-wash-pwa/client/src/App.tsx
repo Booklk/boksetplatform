@@ -105,6 +105,8 @@ const VendorLeaderboard = lazy(() => import('./pages/vendor/Leaderboard'));
 const VendorReferVendor = lazy(() => import('./pages/vendor/ReferVendor'));
 const VendorStoreBuilder = lazy(() => import('./pages/vendor/StoreBuilder'));
 const VendorGallery = lazy(() => import('./pages/vendor/Gallery'));
+const VendorPages = lazy(() => import('./pages/vendor/Pages'));
+const VendorPageRenderer = lazy(() => import('./pages/VendorPage'));
 const VendorCustomerImport = lazy(() => import('./pages/vendor/CustomerImport'));
 
 const AdminLogin = lazy(() => import('./pages/super-admin/AdminLogin'));
@@ -243,6 +245,7 @@ function AppRoutes() {
         <Route path="/blog/:slug" element={<S><BlogArticle /></S>} />
         <Route path="/for/:industry" element={<S><IndustryLandingPage /></S>} />
         <Route path="/store/:slug" element={<S><VendorLanding /></S>} />
+        <Route path="/store/:slug/p/:pageSlug" element={<S><VendorPageRenderer /></S>} />
         <Route path="/store/:slug/book" element={<S><AppointmentBooking /></S>} />
         <Route path="/onboard" element={<S><VendorOnboarding /></S>} />
         <Route path="/demo" element={<S><Demo /></S>} />
@@ -588,6 +591,11 @@ function AppRoutes() {
         <Route path="/vendor/gallery" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <AppLayout withSidebar><S><VendorGallery /></S></AppLayout>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/pages" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <AppLayout withSidebar><S><VendorPages /></S></AppLayout>
           </RequireAuth>
         } />
         <Route path="/vendor/customer-import" element={

@@ -271,6 +271,15 @@
 .prose-article li::marker { color: #60a5fa; }
 .prose-article strong { @apply text-white font-bold; }
 
+/* Vendor-authored page content — inherits colour from the vendor's CustomTheme,
+   so we only set structure/rhythm here. */
+.vendor-page-content h2 { @apply text-xl font-black mt-8 mb-3; }
+.vendor-page-content h3 { @apply text-lg font-bold mt-6 mb-2 opacity-90; }
+.vendor-page-content p  { @apply leading-relaxed mb-4 opacity-85; }
+.vendor-page-content ul { @apply space-y-2 mb-4 pr-4; list-style: disc; padding-inline-start: 1.25rem; }
+.vendor-page-content li { @apply leading-relaxed opacity-85; }
+.vendor-page-content strong { @apply font-bold; }
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    ANIMATIONS
    ═══════════════════════════════════════════════════════════════════════════════ */

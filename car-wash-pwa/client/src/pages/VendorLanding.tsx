@@ -18,6 +18,7 @@ import { getTheme, getThemeFeatures } from '../lib/storeThemes';
 import QueueWidget from '../components/storefront/QueueWidget';
 import GallerySection from '../components/storefront/GallerySection';
 import StorefrontHero from '../components/storefront/heroes/StorefrontHero';
+import StorefrontFooter from '../components/storefront/StorefrontFooter';
 import PackageCard, { PackageCardStyle } from '../components/storefront/PackageCard';
 import MovingCalculator from '../components/storefront/MovingCalculator';
 import CorporateStrip from '../components/storefront/CorporateStrip';
@@ -672,13 +673,11 @@ export default function VendorLanding() {
         </>)}
 
         {/* ─── FOOTER ─────────────────────────────────────────── */}
-        <div className="max-w-4xl mx-auto px-4 py-8 pb-16">
-          {!whiteLabel && (
-            <p className="text-center text-slate-600 text-[10px] mt-8 opacity-40">
-              Powered by Jadawel
-            </p>
-          )}
-        </div>
+        <StorefrontFooter
+          vendorSlug={slug ?? ''}
+          customTheme={customTheme}
+          whiteLabel={whiteLabel}
+        />
       </div>
     </div>
     </VendorThemeProvider>
