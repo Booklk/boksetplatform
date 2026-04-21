@@ -16,7 +16,7 @@ import {
   PALETTE_PRESETS, getPreset, paletteToTheme,
   TEMPLATE_DEFAULT_PALETTE, DEFAULT_CUSTOM_THEME,
 } from '../../lib/customTheme';
-import { STORE_THEMES as THEMES, StoreTheme } from '../../lib/storeThemes';
+import { STORE_THEMES as THEMES, StoreTheme, getFreeTemplateIds } from '../../lib/storeThemes';
 // Theme catalogue (STORE_THEMES + StoreTheme) lives in src/lib/storeThemes.ts
 
 
@@ -211,15 +211,23 @@ export default function StoreBuilder() {
   const vendorSlug = vendor?.slug;
   const activeTheme = THEMES.find(t => t.id === selectedTheme) ?? THEMES[0];
 
+  // Free plan: restrict picker to the 3 templates curated for the
+  // vendor's industry. Pro opens the entire catalogue. A vendor in trial
+  // is treated like Pro so they can evaluate anything.
+  const freeTemplateIds = getFreeTemplateIds(vendor?.industry);
+  const canUseAnyTemplate = isPaidSubscriber || vendor?.subscriptionStatus === 'trial';
+  const isFreeTemplate = (t: StoreTheme) => freeTemplateIds.includes(t.id);
+
   // Filter themes
-  const filteredThemes = themeFilter === 'all' ? THEMES
-    : THEMES.filter(t => t.category === themeFilter);
+  const filteredThemes = (themeFilter === 'all' ? THEMES
+    : themeFilter === 'free' ? THEMES.filter(isFreeTemplate)
+    : THEMES.filter(t => t.category === themeFilter && !isFreeTemplate(t)));
 
   // Handle theme selection
   function handleThemeSelect(theme: StoreTheme) {
-    const locked = theme.category === 'premium' && !isPaidSubscriber;
+    const locked = !canUseAnyTemplate && !isFreeTemplate(theme);
     if (locked) {
-      toast.error('هذا القالب متاح لمشتركي برو فقط. فعّل اشتراكك للوصول لكل الـ 25 قالب الاحترافية.');
+      toast.error('هذا القالب متاح لمشتركي برو. الباقة المجانية تعرض 3 قوالب مخصصة لنشاطك.');
       return;
     }
     setSelectedTheme(theme.id);
@@ -341,7 +349,7 @@ export default function StoreBuilder() {
                       ))}
                     </div>
                     <span className="text-xs text-slate-500">
-                      {isPaidSubscriber ? '26 قالب احترافي لاختيارك' : 'قالب واحد مجاني — 25 قالب احترافي مع برو'}
+                      {canUseAnyTemplate ? `${THEMES.length} قالب احترافي مفتوح لك` : '3 قوالب مختارة لنشاطك — الباقي مع برو'}
                     </span>
                   </div>
 
@@ -351,7 +359,7 @@ export default function StoreBuilder() {
                       <div className="flex items-center gap-3">
                         <Crown className="w-8 h-8 text-amber-400 shrink-0" />
                         <div className="flex-1">
-                          <p className="text-sm font-bold text-white">اشتراك برو يفتح 25 قالب احترافي لقطاعك + إخفاء علامة جداول</p>
+                          <p className="text-sm font-bold text-white">اشتراك برو يفتح كل الـ {THEMES.length} قالب + كل أدوات التشغيل</p>
                           <p className="text-xs text-slate-400 mt-0.5">قوالب حصرية + دومين مخصص + white-label لعلامتك التجارية</p>
                         </div>
                         <Link to="/vendor/platform-sub" className="px-4 py-2 rounded-xl bg-white text-[#0b1220] text-xs font-black hover:bg-slate-100 transition-colors shrink-0">
@@ -368,7 +376,7 @@ export default function StoreBuilder() {
                         key={theme.id}
                         theme={theme}
                         selected={selectedTheme === theme.id}
-                        locked={theme.category === 'premium' && !isPaidSubscriber}
+                        locked={!canUseAnyTemplate && !isFreeTemplate(theme)}
                         onClick={() => handleThemeSelect(theme)}
                       />
                     ))}

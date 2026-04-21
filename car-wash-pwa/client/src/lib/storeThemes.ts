@@ -422,3 +422,44 @@ export function getTheme(id: string | undefined | null): StoreTheme {
 export function getThemeFeatures(id: string | undefined | null): ThemeFeatures {
   return getTheme(id).features;
 }
+
+/**
+ * Three hand-picked templates offered to vendors on the Free plan,
+ * keyed by their `vendors.industry` value. The rest (40 total) are
+ * Pro-only. On Pro the catalogue opens up entirely.
+ */
+export const FREE_TEMPLATES_BY_INDUSTRY: Record<string, string[]> = {
+  // Car wash: 3 covering mobile / fixed / premium
+  car_wash:         ['mobile-wash-gps', 'fixed-wash-queue', 'premium-wash-detail'],
+  car_wash_mobile:  ['mobile-wash-gps', 'mobile-wash-fleet', 'universal-clean'],
+  car_wash_fixed:   ['fixed-wash-queue', 'premium-wash-detail', 'universal-clean'],
+
+  // Beauty family
+  salon:            ['salon-queue', 'salon-luxury', 'nails-studio'],
+  barber:           ['barber-queue', 'kids-salon', 'universal-clean'],
+  beauty_home:      ['beauty-at-home', 'henna-studio', 'brow-lash'],
+  spa:              ['spa-sanctuary', 'henna-studio', 'beauty-at-home'],
+
+  // Cleaning family
+  home_cleaning:    ['cleaning-general', 'cleaning-carpet', 'cleaning-postevent'],
+  cleaning:         ['cleaning-pro-b2b', 'cleaning-general', 'cleaning-facade'],
+
+  // Movers
+  movers:           ['movers-quote', 'movers-intercity', 'universal-clean'],
+
+  // Services out of focus — three safe defaults
+  home_services:    ['home-services', 'universal-clean', 'integrated-pro'],
+  clinic:           ['clinic-pro', 'universal-clean', 'integrated-pro'],
+  studio:           ['studio-portfolio', 'universal-clean', 'integrated-pro'],
+
+  // Fallback when industry is unknown / 'other' / 'freelancer'
+  universal:        ['universal-clean', 'integrated-pro', 'barber-queue'],
+};
+
+/** Resolve the 3 free template IDs for an industry, with a safe fallback. */
+export function getFreeTemplateIds(industry?: string | null): string[] {
+  if (industry && FREE_TEMPLATES_BY_INDUSTRY[industry]) {
+    return FREE_TEMPLATES_BY_INDUSTRY[industry];
+  }
+  return FREE_TEMPLATES_BY_INDUSTRY.universal;
+}

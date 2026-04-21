@@ -331,31 +331,35 @@ app.get('/api/plans', async (_req, res) => {
     throw new Error('no plans seeded');
   } catch {
     // Fallback: return the canonical 2-plan structure so the UI never
-    // shows blank pricing. Mirrors Jadawel's re-tier strategy:
-    //   Free  — everything storefront needs (40 templates, unlimited
-    //           bookings, queue, gallery, white-label, custom domain,
-    //           custom pages). Enough to run a real service business.
-    //   Pro   — adds the owner-side power features: Google Maps,
-    //           financial statements, multi-employee + GPS tracking,
-    //           advanced dashboard analytics, AI Advisor.
+    // shows blank pricing.
+    //   Free — the storefront essentials that get a vendor online:
+    //          40 templates, unlimited bookings, queue, gallery, full
+    //          Customizer, white-label, custom domain, custom pages,
+    //          terms templates. No messaging, no ops tooling.
+    //   Pro  — the full operations toolkit: WhatsApp channel (incl.
+    //          campaigns + automations), POS, inventory, CRM, loyalty,
+    //          Google Maps, advanced financials, multi-employee + GPS,
+    //          advanced dashboard, AI advisor.
     return res.json([
       {
         id: 1, slug: 'free', nameAr: 'مجاني', price: '0',
         isPopular: false, maxEmployees: 1, trialDays: 0, sortOrder: 1,
         features: [
-          'كل القوالب الـ 40 مفتوحة',
+          '3 قوالب مختارة لنشاطك',
           'حجوزات غير محدودة',
           'طابور رقمي + معرض أعمال',
           'Customizer كامل (ألوان وشكل)',
           'White-label (بدون علامة جداول)',
           'دومين مخصص باسم متجرك',
           'صفحات مخصصة (أسعار، شروط، FAQ…)',
-          'إشعارات واتساب تلقائية',
+          'قوالب شروط جاهزة حسب نشاطك',
         ],
         featureGates: {
           queue: true, gallery: true, whiteLabel: true, customDomain: true,
-          customPages: true, whatsappBasic: true,
+          customPages: true,
           // Pro-only below
+          whatsapp: false, pos: false, inventory: false,
+          crm: false, loyalty: false, automations: false, campaigns: false,
           googleMaps: false, financialStatements: false,
           employeeManagement: false, advancedDashboard: false, aiAdvisor: false,
         },
@@ -365,16 +369,23 @@ app.get('/api/plans', async (_req, res) => {
         isPopular: true, maxEmployees: -1, trialDays: 14, sortOrder: 2,
         features: [
           'كل مميزات الباقة المجانية',
+          '🎨 40 قالب احترافي (بدل 3 للمجانية)',
+          '💬 إشعارات واتساب + حملات + أتمتة',
+          '🧾 نقطة بيع (POS) + كاشير',
+          '📦 إدارة مخزون وموردين',
+          '👤 CRM + تصنيف عملاء + ولاء',
           '🗺️ Google Maps متكامل',
           '📊 قوائم مالية متقدمة (P&L، Cashflow، VAT)',
-          '👥 إدارة موظفين متعددين + GPS للموظفين',
+          '👥 إدارة موظفين + رواتب + بونصات + GPS',
           '📈 لوحة تحكم متقدمة + تحليلات',
           '🤖 المستشار الذكي بالـ AI',
           'دعم فني ذو أولوية',
         ],
         featureGates: {
           queue: true, gallery: true, whiteLabel: true, customDomain: true,
-          customPages: true, whatsappBasic: true,
+          customPages: true,
+          whatsapp: true, pos: true, inventory: true,
+          crm: true, loyalty: true, automations: true, campaigns: true,
           googleMaps: true, financialStatements: true,
           employeeManagement: true, advancedDashboard: true, aiAdvisor: true,
         },

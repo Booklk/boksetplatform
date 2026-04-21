@@ -64,27 +64,37 @@ export const FEATURE_REGISTRY: FeatureDef[] = [
 ];
 
 // Feature IDs grouped by plan.
-// Re-tiered: the vast majority of storefront + ops features are FREE so
-// any vendor can run a complete online shop. Only five owner-side
-// analytics + advanced-ops tools are Pro-gated.
+//
+// FREE = the storefront essentials. A vendor can publish a beautiful
+// store, take unlimited bookings, run a queue + gallery, paint the
+// whole UI with their own colours, and add custom pages (FAQ, prices,
+// terms). That's it — no messaging, no ops tooling, no analytics.
+//
+// PRO = the full operations toolkit. Everything related to talking to
+// customers (WhatsApp, campaigns, automations), running the register
+// (POS, inventory), managing people (employees, GPS, payroll, bonuses),
+// and understanding the business (Google Maps, financial statements,
+// advanced dashboard, AI advisor).
 export const FEATURE_CATEGORIES = {
   free: [
-    // Storefront
-    'bookings', 'store_page', 'whatsapp', 'basic_reports',
-    'basic_themes', 'premium_themes', // all 40 templates open to everyone
-    // Operations
-    'queue', 'loyalty', 'crm', 'inventory', 'pos', 'payments',
-    'dispatch', 'campaigns', 'automations', 'customer_segments',
-    'vat_reports',
+    'bookings', 'store_page', 'basic_reports',
+    'basic_themes', 'queue', // 3 free templates per industry, queue + gallery included
   ],
   pro: [
-    'google_maps',          // Google Maps integration
-    'financial_statements', // P&L + cashflow + detailed VAT
-    'employee_management',  // multi-employee + GPS + payroll umbrella
-    'advanced_dashboard',   // advanced_analytics rebranded
-    'ai_advisor',           // industry AI consultant
-    // Kept for continuity — these depend on Pro tier too:
-    'gps_tracking', 'unlimited_employees', 'payroll',
+    // Messaging
+    'whatsapp', 'campaigns', 'automations',
+    // Point of sale + inventory
+    'pos', 'payments', 'inventory',
+    // CRM
+    'crm', 'loyalty', 'customer_segments',
+    // Templates
+    'premium_themes',
+    // Ops
+    'dispatch', 'vat_reports',
+    // Owner tools
+    'google_maps', 'financial_statements',
+    'employee_management', 'unlimited_employees', 'payroll', 'gps_tracking',
+    'advanced_dashboard', 'ai_advisor',
     'multi_branch', 'webhooks', 'priority_support',
   ],
 };
@@ -101,16 +111,35 @@ export const DEFAULT_PLAN_FEATURES: Record<string, Record<string, boolean>> = {
   ]),
 };
 
-// Route → feature gate. Only Pro-gated routes listed; everything else
-// is open on every plan (free included).
+// Route → feature gate. Only Pro-gated routes listed here; anything
+// not mapped is open on every plan.
 export const ROUTE_FEATURE_MAP: Record<string, string> = {
-  '/vendor/ai-advisor':          'ai_advisor',
-  '/vendor/advanced-analytics':  'advanced_dashboard',
-  '/vendor/financial-statements':'financial_statements',
-  '/vendor/livemap':             'gps_tracking',        // employee GPS map
-  '/vendor/employees':           'employee_management',
-  '/vendor/payroll':             'employee_management',
-  '/vendor/employee-performance':'employee_management',
-  '/vendor/leaderboard':         'employee_management',
-  '/vendor/webhooks':            'webhooks',
+  // Messaging / marketing (Pro)
+  '/vendor/campaigns':            'campaigns',
+  '/vendor/automations':          'automations',
+  // POS + inventory (Pro)
+  '/vendor/pos':                  'pos',
+  '/vendor/inventory':            'inventory',
+  '/vendor/suppliers':            'inventory',
+  // CRM + loyalty (Pro)
+  '/vendor/crm':                  'crm',
+  '/vendor/segments':             'customer_segments',
+  '/vendor/customer-import':      'crm',
+  '/vendor/gift-cards':           'loyalty',
+  // Ops (Pro)
+  '/vendor/dispatch':             'dispatch',
+  '/vendor/livemap':              'gps_tracking',
+  // Employees / payroll (Pro)
+  '/vendor/employees':            'employee_management',
+  '/vendor/payroll':              'employee_management',
+  '/vendor/employee-performance': 'employee_management',
+  '/vendor/leaderboard':          'employee_management',
+  '/vendor/shifts':               'employee_management',
+  // Financials (Pro)
+  '/vendor/financial-statements': 'financial_statements',
+  '/vendor/vat-report':           'vat_reports',
+  // Owner tools (Pro)
+  '/vendor/advanced-analytics':   'advanced_dashboard',
+  '/vendor/ai-advisor':           'ai_advisor',
+  '/vendor/webhooks':             'webhooks',
 };
