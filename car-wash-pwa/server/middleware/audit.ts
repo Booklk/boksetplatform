@@ -27,6 +27,12 @@ export function audit(action: string) {
               body: sanitizeBody(req.body),
               statusCode: res.statusCode,
               userAgent: req.headers['user-agent'],
+              // When a super admin is impersonating a vendor, tag the
+              // audit row with the original admin's id so "who actually
+              // did this" is never ambiguous later.
+              ...(req.user?.impersonation
+                ? { impersonation: true, impersonatedBy: req.user.impersonatedBy }
+                : {}),
             },
             ip: req.ip ?? req.socket.remoteAddress ?? 'unknown',
           });

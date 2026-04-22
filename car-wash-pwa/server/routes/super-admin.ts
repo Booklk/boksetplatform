@@ -1,7 +1,8 @@
 import { Router } from 'express';
+import jwt from 'jsonwebtoken';
 import { db } from '../db/index.js';
 import { vendors, users, bookings, financials, vendorSubscriptionPayments, auditLogs, inAppNotifications, platformPlans } from '../db/schema.js';
-import { eq, sql, count, sum, desc, gte, like, or, asc } from 'drizzle-orm';
+import { eq, sql, count, sum, desc, gte, like, or, asc, and } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
@@ -528,6 +529,77 @@ router.get('/export/users', requireAuth, requireRole('super_admin'), async (_req
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'خطأ في التصدير' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// IMPERSONATION — super admin steps into a vendor_admin's shoes for support
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// POST /api/super-admin/impersonate/:vendorId
+// Returns a short-lived JWT that authenticates as the given vendor's
+// vendor_admin. The token carries impersonatedBy + impersonation=true so
+// every downstream request is auditable back to the real super admin.
+router.post('/impersonate/:vendorId', requireAuth, requireRole('super_admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = Number(req.params.vendorId);
+    if (!Number.isFinite(vendorId) || vendorId <= 0) {
+      return res.status(400).json({ error: 'معرّف المتجر غير صحيح' });
+    }
+    const adminId = req.user!.id;
+
+    const [vendor] = await db.select({
+      id: vendors.id,
+      nameAr: vendors.nameAr,
+      slug: vendors.slug,
+    }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    if (!vendor) return res.status(404).json({ error: 'المتجر غير موجود' });
+
+    const [admin] = await db.select({
+      id: users.id, name: users.name, phone: users.phone, role: users.role,
+    }).from(users)
+      .where(and(eq(users.vendorId, vendorId), eq(users.role, 'vendor_admin')))
+      .limit(1);
+    if (!admin) return res.status(404).json({ error: 'لا يوجد مالك لهذا المتجر' });
+
+    // Short-lived (30 min) token with impersonation flag. The server
+    // uses this flag (see middleware/auth.ts) to tag audit entries.
+    const token = jwt.sign(
+      {
+        id: admin.id,
+        role: admin.role,
+        phone: admin.phone,
+        vendorId,
+        impersonation: true,
+        impersonatedBy: adminId,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: '30m', algorithm: 'HS256' },
+    );
+
+    // Unconditionally log the action — even if something fails afterwards.
+    try {
+      await db.insert(auditLogs).values({
+        vendorId,
+        userId: adminId,
+        action: 'super_admin.impersonate',
+        resource: `/super-admin/impersonate/${vendorId}`,
+        resourceId: vendorId,
+        method: 'POST',
+        metadata: { targetUser: admin.id, vendorName: vendor.nameAr },
+        ip: req.ip ?? req.socket.remoteAddress ?? 'unknown',
+      });
+    } catch (e) { console.error('[impersonate audit]', e); }
+
+    return res.json({
+      token,
+      expiresInSeconds: 30 * 60,
+      user: { id: admin.id, name: admin.name, phone: admin.phone, role: admin.role, vendorId },
+      vendor,
+    });
+  } catch (e) {
+    console.error('[impersonate]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 

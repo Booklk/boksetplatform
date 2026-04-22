@@ -8,6 +8,10 @@ export interface AuthRequest extends Request {
     role: string;
     phone: string;
     vendorId?: number;
+    /** True when the token was issued via the super-admin impersonation
+     *  flow — the request acts as user.id but originated from impersonatedBy. */
+    impersonation?: boolean;
+    impersonatedBy?: number;
   };
 }
 
@@ -18,15 +22,16 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET!, { algorithms: ['HS256'] }) as {
       id: number; role: string; phone: string; vendorId?: number;
+      impersonation?: boolean; impersonatedBy?: number;
     };
     req.user = payload;
-    // Attach to Sentry scope so any exception thrown in this request
-    // carries the user + vendor context alongside it.
     try {
       Sentry.getCurrentScope().setUser({
         id: String(payload.id),
         segment: payload.role,
         vendorId: payload.vendorId ?? undefined,
+        impersonation: payload.impersonation ?? false,
+        impersonatedBy: payload.impersonatedBy,
       } as unknown as import('@sentry/node').User);
     } catch { /* no-op when Sentry not initialised */ }
     next();

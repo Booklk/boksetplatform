@@ -12,6 +12,7 @@ import {
   AlertCircle,
   XCircle,
   Clock,
+  UserCog,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
@@ -205,6 +206,29 @@ export default function SuperAdminDashboard() {
     },
     onError: () => showToast('حدث خطأ أثناء التعليق', 'error'),
   });
+
+  // Impersonation: swap our super-admin token for a 30-min vendor_admin
+  // token, stash the original so "exit impersonation" can restore it,
+  // then open the vendor dashboard in a new tab.
+  async function impersonate(vendorId: number) {
+    try {
+      const { data } = await api.post<{ token: string; user: any; vendor: any }>(
+        `/super-admin/impersonate/${vendorId}`,
+      );
+      const originalToken = localStorage.getItem('token');
+      const originalUser = localStorage.getItem('user');
+      if (originalToken) sessionStorage.setItem('impersonation_origin_token', originalToken);
+      if (originalUser) sessionStorage.setItem('impersonation_origin_user', originalUser);
+      sessionStorage.setItem('impersonation_vendor', data.vendor?.nameAr ?? String(vendorId));
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      showToast(`دخلت كـ ${data.vendor?.nameAr ?? 'التاجر'}`);
+      // Full reload so useAuth re-initializes with the new token.
+      window.location.href = '/vendor/dashboard';
+    } catch (e: any) {
+      showToast(e?.response?.data?.error ?? 'فشل الدخول كالتاجر', 'error');
+    }
+  }
 
   const formatNumber = (n?: number) => {
     if (n === undefined || n === null) return '—';
@@ -466,6 +490,13 @@ export default function SuperAdminDashboard() {
                                     >
                                       <AlertCircle className="w-4 h-4" />
                                       تعليق
+                                    </button>
+                                    <button
+                                      onClick={() => impersonate(vendor.id)}
+                                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-indigo-300 hover:bg-indigo-500/10 transition-colors border-t border-white/5"
+                                    >
+                                      <UserCog className="w-4 h-4" />
+                                      دخول كالتاجر (للدعم)
                                     </button>
                                   </motion.div>
                                 )}
