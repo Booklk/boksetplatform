@@ -115,6 +115,8 @@ export const users = pgTable('users', {
   isActive: boolean('is_active').notNull().default(true),
   isOnDuty: boolean('is_on_duty').default(false),
   lastReminderSentAt: timestamp('last_reminder_sent_at'), // proactive wash reminder throttle
+  // Branch assignment for employees. NULL = works across all branches.
+  branchId: integer('branch_id').references((): AnyPgColumn => vendorBranches.id, { onDelete: 'set null' }),
   // Phone verification (OTP during signup / anti-abuse)
   phoneVerified: boolean('phone_verified').notNull().default(false),
   otpCode: varchar('otp_code', { length: 10 }),
@@ -123,6 +125,28 @@ export const users = pgTable('users', {
   // Password reset (WhatsApp-delivered token)
   passwordResetToken: varchar('password_reset_token', { length: 128 }),
   passwordResetExpiresAt: timestamp('password_reset_expires_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+// ─── VENDOR BRANCHES (multi-location vendors) ───────────────────────────────
+// A vendor can have 0..N branches. Bookings and employees may be scoped
+// to a branch; NULL means "shared across the whole vendor" and preserves
+// the single-branch UX for vendors that haven't opted into multi-branch.
+
+export const vendorBranches = pgTable('vendor_branches', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  nameAr: varchar('name_ar', { length: 255 }).notNull(),
+  nameEn: varchar('name_en', { length: 255 }),
+  city: varchar('city', { length: 100 }),
+  address: text('address'),
+  phone: varchar('phone', { length: 20 }),
+  lat: decimal('lat', { precision: 10, scale: 6 }),
+  lng: decimal('lng', { precision: 10, scale: 6 }),
+  workingHours: jsonb('working_hours').$type<Record<string, { open: string; close: string; closed?: boolean }>>().default({}),
+  isActive: boolean('is_active').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
@@ -196,6 +220,8 @@ export const vehicles = pgTable('vehicles', {
 export const bookings = pgTable('bookings', {
   id: serial('id').primaryKey(),
   vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  // Optional — NULL keeps the single-branch workflow working unchanged.
+  branchId: integer('branch_id').references((): AnyPgColumn => vendorBranches.id, { onDelete: 'set null' }),
   bookingNumber: varchar('booking_number', { length: 20 }).notNull().unique(),
   customerId: integer('customer_id').notNull().references(() => users.id),
   employeeId: integer('employee_id').references(() => users.id),

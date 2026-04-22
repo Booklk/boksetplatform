@@ -83,6 +83,7 @@ import vendorReferralRoutes from './routes/vendor-referral.js';
 import onboardingTemplatesRoutes from './routes/onboarding-templates.js';
 import webhooksRoutes from './routes/webhooks.js';
 import moyasarWebhookRoutes from './routes/moyasar-webhook.js';
+import branchesRoutes from './routes/branches.js';
 import customerImportRoutes from './routes/customer-import.js';
 import vendorDataExportRoutes from './routes/vendor-data-export.js';
 
@@ -345,6 +346,7 @@ app.use('/api/gamification', requireAuth, gamificationRoutes);
 app.use('/api/vendor-referral', vendorReferralRoutes);
 app.use('/api/onboarding-templates', onboardingTemplatesRoutes);
 app.use('/api/webhooks', requireAuth, webhooksRoutes);
+app.use('/api/branches', branchesRoutes);
 app.use('/api/customer-import', requireAuth, customerImportRoutes);
 app.use('/api/vendor-data', requireAuth, vendorDataExportRoutes);
 

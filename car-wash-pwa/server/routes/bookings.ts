@@ -24,6 +24,7 @@ function generateBookingNumber(): string {
 
 const createBookingSchema = z.object({
   packageId: z.number(),
+  branchId: z.number().optional(),
   scheduledAt: z.string(),
   address: z.string().min(5),
   lat: z.string().optional(),
@@ -61,6 +62,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       bookingNumber: generateBookingNumber(),
       customerId,
       vendorId: pkg.vendorId,
+      branchId: data.branchId ?? null,
       packageId: data.packageId,
       scheduledAt: new Date(data.scheduledAt),
       address: data.address,
