@@ -10,9 +10,27 @@ import './index.css';
 
 initSentry();
 
+// React Query defaults tuned for near-real-time feel:
+//   staleTime 30s    — anything fetched is considered stale after half a
+//                      minute, so the next render refetches.
+//   gcTime   5min    — but we keep it in memory long enough that tab
+//                      switches don't show blank loaders.
+//   refetchOnWindowFocus: coming back to the tab refetches stale queries.
+//   refetchOnReconnect   : network comes back → refresh.
+//   refetchOnMount 'always': mounting a component always rechecks freshness.
+// Per-query hooks can still pass a longer staleTime for rarely-changing
+// data (e.g. the storefront gallery uses 5min).
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: 1, staleTime: 5 * 60 * 1000 },
+    queries: {
+      retry: 1,
+      staleTime: 30 * 1000,
+      gcTime: 5 * 60 * 1000,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      refetchOnMount: 'always',
+    },
+    mutations: { retry: 0 },
   },
 });
 

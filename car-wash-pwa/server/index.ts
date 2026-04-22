@@ -249,6 +249,16 @@ app.use('/api/vendors/onboard', onboardLimiter);
 
 app.use('/api/', apiLimiter);
 
+// No HTTP caching on API JSON by default. Individual routes can still opt
+// in with res.set('Cache-Control', …) before sending (e.g. /sitemap.xml
+// already does this). Prevents the browser from reusing stale bodies
+// after a vendor updates their services / colours / pages.
+app.use('/api/', (_req: Request, res: Response, next: NextFunction) => {
+  res.setHeader('Cache-Control', 'no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  next();
+});
+
 // Serve uploaded files with caching
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   maxAge: '7d',

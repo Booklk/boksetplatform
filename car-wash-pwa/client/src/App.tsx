@@ -17,6 +17,7 @@ import Navbar from './components/Navbar';
 import NotFound from './pages/NotFound';
 import NetworkStatus from './components/NetworkStatus';
 import UpgradeGate from './components/UpgradeGate';
+import UpdateToast from './components/UpdateToast';
 
 // Lazy loaded pages
 const CustomerHome = lazy(() => import('./pages/customer/Home'));
@@ -234,6 +235,7 @@ function AppRoutes() {
     <>
     <NetworkStatus />
     <InstallPrompt />
+    <UpdateToast />
     <CommandPalette />
     <AnimatePresence mode="wait">
     <Routes location={location} key={location.pathname}>
