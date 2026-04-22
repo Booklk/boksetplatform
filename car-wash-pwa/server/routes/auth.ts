@@ -1,11 +1,21 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { db } from '../db/index.js';
 import { users, customers, vendors, customerLifecycleEvents } from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
+import { sendPlatformWhatsApp } from '../services/whatsapp.js';
+
+function normalizePhone(phone: string): string {
+  let p = (phone || '').replace(/[\s\-\(\)]/g, '');
+  if (p.startsWith('+966')) p = '0' + p.slice(4);
+  else if (p.startsWith('966')) p = '0' + p.slice(3);
+  if (!p.startsWith('0')) p = '0' + p;
+  return p;
+}
 
 const router = Router();
 
@@ -241,6 +251,176 @@ router.post('/change-password', requireAuth, async (req: AuthRequest, res) => {
     return res.json({ success: true, message: 'تم تغيير كلمة المرور بنجاح' });
   } catch (e) {
     console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// ─── OTP (WhatsApp phone verification) ──────────────────────────────────────
+// Used during Fast-Onboard before the vendor is created, and any time we need
+// to confirm that a phone really belongs to the person typing it.
+
+const otpRequestSchema = z.object({
+  phone: z.string().min(9, 'رقم الجوال غير صحيح'),
+  purpose: z.enum(['signup', 'reset', 'verify']).default('signup'),
+});
+
+router.post('/send-otp', async (req, res) => {
+  try {
+    const data = otpRequestSchema.parse(req.body);
+    const phone = normalizePhone(data.phone);
+
+    // Find-or-create a lightweight user row to hold the OTP.
+    const [existing] = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    if (existing) {
+      // Don't allow spamming: at most one OTP per 60 seconds
+      if (existing.otpExpiresAt && existing.otpExpiresAt.getTime() - Date.now() > 9 * 60 * 1000) {
+        return res.status(429).json({ error: 'تم إرسال رمز مؤخراً. انتظر دقيقة قبل المحاولة' });
+      }
+      await db.update(users).set({
+        otpCode: code,
+        otpExpiresAt: expires,
+        otpAttempts: 0,
+        updatedAt: new Date(),
+      }).where(eq(users.id, existing.id));
+    } else {
+      // Placeholder row until registration finishes. Role is 'customer'
+      // by default — will be bumped to vendor_admin when FastOnboard completes.
+      await db.insert(users).values({
+        name: 'زائر',
+        phone,
+        role: 'customer',
+        otpCode: code,
+        otpExpiresAt: expires,
+        phoneVerified: false,
+      });
+    }
+
+    const msg = `رمز التحقق الخاص بك في جداول: ${code}\nالرمز صالح لمدة 10 دقائق. لا تشاركه مع أحد.`;
+    await sendPlatformWhatsApp(phone, msg);
+    return res.json({ success: true, expiresIn: 600 });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error('[send-otp]', e);
+    return res.status(500).json({ error: 'تعذر إرسال الرمز' });
+  }
+});
+
+const otpVerifySchema = z.object({
+  phone: z.string(),
+  code: z.string().length(6, 'الرمز يجب أن يكون 6 أرقام'),
+});
+
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const data = otpVerifySchema.parse(req.body);
+    const phone = normalizePhone(data.phone);
+    const [user] = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+    if (!user || !user.otpCode || !user.otpExpiresAt) {
+      return res.status(400).json({ error: 'لم يتم إرسال رمز لهذا الرقم' });
+    }
+    if (user.otpExpiresAt.getTime() < Date.now()) {
+      return res.status(400).json({ error: 'انتهت صلاحية الرمز. اطلب رمزاً جديداً' });
+    }
+    if ((user.otpAttempts ?? 0) >= 5) {
+      return res.status(429).json({ error: 'محاولات كثيرة. اطلب رمزاً جديداً' });
+    }
+    if (user.otpCode !== data.code) {
+      await db.update(users)
+        .set({ otpAttempts: (user.otpAttempts ?? 0) + 1 })
+        .where(eq(users.id, user.id));
+      return res.status(400).json({ error: 'الرمز غير صحيح' });
+    }
+    await db.update(users).set({
+      phoneVerified: true,
+      otpCode: null,
+      otpExpiresAt: null,
+      otpAttempts: 0,
+      updatedAt: new Date(),
+    }).where(eq(users.id, user.id));
+    // Short-lived proof-of-verification token: FastOnboard sends this with
+    // the final vendor-create call so we know the phone is real.
+    const verifyToken = jwt.sign(
+      { phone, verified: true },
+      process.env.JWT_SECRET!,
+      { expiresIn: '30m', algorithm: 'HS256' }
+    );
+    return res.json({ success: true, verifyToken });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error('[verify-otp]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// ─── PASSWORD RESET (WhatsApp-delivered token) ──────────────────────────────
+
+const resetRequestSchema = z.object({ phone: z.string().min(9) });
+
+router.post('/request-password-reset', async (req, res) => {
+  try {
+    const data = resetRequestSchema.parse(req.body);
+    const phone = normalizePhone(data.phone);
+    const [user] = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+    // Don't reveal whether the phone is registered.
+    if (!user || !user.isActive) return res.json({ success: true });
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
+
+    await db.update(users).set({
+      passwordResetToken: token,
+      passwordResetExpiresAt: expires,
+      updatedAt: new Date(),
+    }).where(eq(users.id, user.id));
+
+    const shortCode = token.slice(0, 8).toUpperCase();
+    const msg = `طلب إعادة تعيين كلمة المرور في جداول.\nرمز الاسترجاع: ${shortCode}\n\nإذا لم تطلب ذلك، تجاهل هذه الرسالة.`;
+    await sendPlatformWhatsApp(phone, msg);
+    return res.json({ success: true });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error('[request-password-reset]', e);
+    // Still return success to avoid leaking details
+    return res.json({ success: true });
+  }
+});
+
+const resetSchema = z.object({
+  phone: z.string(),
+  code: z.string().min(6, 'الرمز غير صحيح'),
+  newPassword: z.string().min(6, 'كلمة المرور 6 أحرف على الأقل'),
+});
+
+router.post('/reset-password', async (req, res) => {
+  try {
+    const data = resetSchema.parse(req.body);
+    const phone = normalizePhone(data.phone);
+    const [user] = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+    if (!user || !user.passwordResetToken || !user.passwordResetExpiresAt) {
+      return res.status(400).json({ error: 'رمز الاسترجاع غير صحيح أو منتهي' });
+    }
+    if (user.passwordResetExpiresAt.getTime() < Date.now()) {
+      return res.status(400).json({ error: 'انتهت صلاحية رمز الاسترجاع' });
+    }
+    const expected = user.passwordResetToken.slice(0, 8).toUpperCase();
+    if (data.code.toUpperCase() !== expected) {
+      return res.status(400).json({ error: 'رمز الاسترجاع غير صحيح' });
+    }
+    const hash = await bcrypt.hash(data.newPassword, 12);
+    await db.update(users).set({
+      passwordHash: hash,
+      passwordResetToken: null,
+      passwordResetExpiresAt: null,
+      updatedAt: new Date(),
+    }).where(eq(users.id, user.id));
+    return res.json({ success: true, message: 'تم تغيير كلمة المرور. سجّل الدخول الآن' });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error('[reset-password]', e);
     return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });

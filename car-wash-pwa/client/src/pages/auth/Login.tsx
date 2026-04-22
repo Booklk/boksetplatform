@@ -697,6 +697,15 @@ export default function Login() {
                     >
                       {loading ? <Spinner /> : 'تسجيل الدخول'}
                     </motion.button>
+
+                    <div className="text-center">
+                      <Link
+                        to={`/forgot-password${phone ? `?phone=${encodeURIComponent(phone)}` : ''}`}
+                        className="text-xs text-slate-400 hover:text-brand-300 transition-colors"
+                      >
+                        نسيت كلمة المرور؟
+                      </Link>
+                    </div>
                   </motion.form>
                 )}
               </AnimatePresence>

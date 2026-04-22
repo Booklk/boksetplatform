@@ -81,6 +81,13 @@ export default function FastOnboard() {
   const [customTheme, setCustomTheme] = useState<CustomTheme>(DEFAULT_CUSTOM_THEME);
   const [activePresetId, setActivePresetId] = useState<string | null>(null);
 
+  // OTP verification state — step 0 cannot finish until the phone is proven.
+  const [otpOpen, setOtpOpen] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [verifyToken, setVerifyToken] = useState<string>('');
+
   // Templates the free plan can choose from, seeded from the industry
   // picked in step 0. Updated whenever the vendor changes their industry.
   const freeTemplateIds = useMemo(() => getFreeTemplateIds(form.industry), [form.industry]);
@@ -107,7 +114,7 @@ export default function FastOnboard() {
   /* ─── Mutations ───────────────────────────────────────────────────── */
 
   const registerMutation = useMutation({
-    mutationFn: (payload: AccountForm) => api.post<OnboardResp>('/vendors/onboard', {
+    mutationFn: (payload: AccountForm & { verifyToken?: string }) => api.post<OnboardResp>('/vendors/onboard', {
       nameAr: payload.nameAr,
       phone: payload.phone,
       email: payload.email || undefined,
@@ -116,6 +123,7 @@ export default function FastOnboard() {
       password: payload.password,
       industry: payload.industry,
       plan: 'free',
+      verifyToken: payload.verifyToken,
     }).then((r) => r.data),
     onSuccess: (res) => {
       login(res.token, res.user as any);
@@ -138,7 +146,7 @@ export default function FastOnboard() {
 
   /* ─── Actions ─────────────────────────────────────────────────────── */
 
-  function submitAccount() {
+  async function submitAccount() {
     // Basic validation, concise Arabic errors matching the backend style.
     if (!form.ownerName.trim()) return toast.error('اسمك الكامل مطلوب');
     if (!form.nameAr.trim()) return toast.error('اسم متجرك مطلوب');
@@ -149,7 +157,55 @@ export default function FastOnboard() {
     if (form.password.length < 8) return toast.error('كلمة المرور ٨ أحرف أو أكثر');
     if (!/[A-Z]/.test(form.password) || !/[0-9]/.test(form.password))
       return toast.error('كلمة المرور تحتاج حرف كبير ورقم واحد على الأقل');
-    registerMutation.mutate(form);
+
+    // Already verified? Straight to register.
+    if (verifyToken) {
+      registerMutation.mutate({ ...form, verifyToken });
+      return;
+    }
+
+    // Otherwise send OTP via WhatsApp and open the verify modal.
+    setOtpSending(true);
+    try {
+      await api.post('/auth/send-otp', { phone: form.phone, purpose: 'signup' });
+      setOtpOpen(true);
+      toast.success('أرسلنا رمز تحقق على واتساب');
+    } catch (e: any) {
+      toast.error(e?.response?.data?.error ?? 'تعذر إرسال رمز التحقق');
+    } finally {
+      setOtpSending(false);
+    }
+  }
+
+  async function verifyOtp() {
+    if (otpCode.length !== 6) return toast.error('الرمز 6 أرقام');
+    setOtpVerifying(true);
+    try {
+      const { data } = await api.post<{ verifyToken: string }>('/auth/verify-otp', {
+        phone: form.phone,
+        code: otpCode,
+      });
+      setVerifyToken(data.verifyToken);
+      setOtpOpen(false);
+      toast.success('تم التحقق من رقمك');
+      registerMutation.mutate({ ...form, verifyToken: data.verifyToken });
+    } catch (e: any) {
+      toast.error(e?.response?.data?.error ?? 'الرمز غير صحيح');
+    } finally {
+      setOtpVerifying(false);
+    }
+  }
+
+  async function resendOtp() {
+    setOtpSending(true);
+    try {
+      await api.post('/auth/send-otp', { phone: form.phone, purpose: 'signup' });
+      toast.success('أعدنا إرسال الرمز');
+    } catch (e: any) {
+      toast.error(e?.response?.data?.error ?? 'تعذر إعادة الإرسال');
+    } finally {
+      setOtpSending(false);
+    }
   }
 
   function applyPreset(presetId: string) {
@@ -253,13 +309,16 @@ export default function FastOnboard() {
 
               <button
                 onClick={submitAccount}
-                disabled={registerMutation.isPending}
+                disabled={registerMutation.isPending || otpSending}
                 className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-base transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
               >
-                {registerMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : null}
-                التالي — اختيار قالبك
+                {(registerMutation.isPending || otpSending) ? <Loader2 size={16} className="animate-spin" /> : null}
+                {verifyToken ? 'التالي — اختيار قالبك' : 'التحقق من رقم جوالي'}
                 <ArrowLeft size={16} />
               </button>
+              <p className="text-[11px] text-slate-500 text-center">
+                بنرسل لك رمز تحقق بواتساب للتأكد من رقمك — خطوة واحدة بس.
+              </p>
             </motion.div>
           )}
 
@@ -503,6 +562,68 @@ export default function FastOnboard() {
             </Link>
           </p>
         )}
+
+        {/* OTP verify modal */}
+        <AnimatePresence>
+          {otpOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+              onClick={() => !otpVerifying && setOtpOpen(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-2xl p-6"
+                dir="rtl"
+              >
+                <h3 className="text-xl font-black text-white mb-1 text-center">تحقق من رقمك</h3>
+                <p className="text-center text-slate-400 text-sm mb-5">
+                  أرسلنا رمزاً من 6 أرقام على واتساب إلى{' '}
+                  <span dir="ltr" className="text-white font-bold">{form.phone}</span>
+                </p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="------"
+                  dir="ltr"
+                  className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-indigo-500/40 rounded-xl px-4 py-3 text-2xl text-center tracking-[0.5em] font-mono text-white outline-none mb-4"
+                  autoFocus
+                />
+                <button
+                  onClick={verifyOtp}
+                  disabled={otpVerifying || otpCode.length !== 6}
+                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                >
+                  {otpVerifying ? <Loader2 size={16} className="animate-spin" /> : null}
+                  تأكيد وإنشاء المتجر
+                </button>
+                <div className="flex items-center justify-between mt-4 text-[11px]">
+                  <button
+                    onClick={resendOtp}
+                    disabled={otpSending}
+                    className="text-slate-400 hover:text-indigo-300 disabled:opacity-50"
+                  >
+                    ما وصلني — إعادة الإرسال
+                  </button>
+                  <button
+                    onClick={() => setOtpOpen(false)}
+                    className="text-slate-500 hover:text-white"
+                  >
+                    إغلاق
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </MarketingLayout>
   );

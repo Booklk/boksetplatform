@@ -20,6 +20,13 @@ interface WhatsAppCredentials {
   phoneId: string;
 }
 
+function platformCredentials(): WhatsAppCredentials | null {
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_ID;
+  if (!token || !phoneId) return null;
+  return { token, phoneId };
+}
+
 /** Get WhatsApp credentials for a vendor — vendor MUST have own credentials */
 async function getCredentials(vendorId?: number | null): Promise<WhatsAppCredentials | null> {
   if (!vendorId) return null;
@@ -42,6 +49,45 @@ async function getCredentials(vendorId?: number | null): Promise<WhatsAppCredent
   } catch (e) {
     console.warn(`[WhatsApp] Failed to decrypt vendor ${vendorId} credentials`);
     return null;
+  }
+}
+
+/**
+ * Platform-level send for auth flows (OTP, password reset).
+ * Uses WHATSAPP_TOKEN / WHATSAPP_PHONE_ID from env. If unset,
+ * we log the message so dev/staging can still complete the flow.
+ */
+export async function sendPlatformWhatsApp(phone: string, message: string): Promise<boolean> {
+  const creds = platformCredentials();
+  const formatted = formatSaudiPhone(phone);
+  if (!creds) {
+    // Fallback for dev: log the code. Never do this in real prod.
+    console.log(`[WhatsApp:dev] → ${formatted}\n${message}\n`);
+    return true;
+  }
+  try {
+    const res = await fetch(`${WHATSAPP_API_URL}/${creds.phoneId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${creds.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: formatted,
+        type: 'text',
+        text: { body: message },
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error('[WhatsApp:platform] Send failed:', err);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('[WhatsApp:platform] Error:', e);
+    return false;
   }
 }
 

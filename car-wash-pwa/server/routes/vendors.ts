@@ -239,7 +239,7 @@ router.get('/count/registered', async (_req, res) => {
 // POST /api/vendors/onboard — Self-service vendor registration (creates vendor + vendor_admin user)
 router.post('/onboard', async (req, res) => {
   try {
-    const { nameAr, nameEn, phone, email, city, address, plan, password, ownerName, industry } = req.body;
+    const { nameAr, nameEn, phone, email, city, address, plan, password, ownerName, industry, verifyToken } = req.body;
 
     if (!nameAr?.trim()) return res.status(400).json({ error: 'اسم المنشأة مطلوب' });
     if (!phone?.trim()) return res.status(400).json({ error: 'رقم الجوال مطلوب' });
@@ -248,12 +248,41 @@ router.post('/onboard', async (req, res) => {
       return res.status(400).json({ error: 'كلمة المرور يجب أن تحتوي على حرف كبير ورقم على الأقل' });
     }
 
-    // Check phone uniqueness (vendor admins share the global users table)
-    const existingUser = await db.select({ id: users.id }).from(users)
-      .where(eq(users.phone, phone)).limit(1);
-    if (existingUser.length > 0) return res.status(409).json({ error: 'رقم الجوال مسجل مسبقاً' });
+    // Normalize phone the same way the rest of the auth flow does.
+    let normalizedPhone = String(phone).replace(/[\s\-\(\)]/g, '');
+    if (normalizedPhone.startsWith('+966')) normalizedPhone = '0' + normalizedPhone.slice(4);
+    else if (normalizedPhone.startsWith('966')) normalizedPhone = '0' + normalizedPhone.slice(3);
+    if (!normalizedPhone.startsWith('0')) normalizedPhone = '0' + normalizedPhone;
 
-    const slug = autoSlug(nameAr, phone);
+    // Trial anti-abuse: require a verified phone. Either the user's row
+    // already has phoneVerified=true (from a prior /verify-otp) OR they
+    // pass us the short-lived verifyToken we hand out at verify time.
+    let phoneProven = false;
+    if (verifyToken) {
+      try {
+        const payload = jwt.verify(verifyToken, process.env.JWT_SECRET!) as any;
+        if (payload?.verified && payload?.phone === normalizedPhone) phoneProven = true;
+      } catch { /* fall through */ }
+    }
+
+    // Look up any existing users rows sharing this phone.
+    const existingUsers = await db.select().from(users)
+      .where(eq(users.phone, normalizedPhone));
+
+    // A real vendor_admin / super_admin row with this phone blocks the trial.
+    const realOwner = existingUsers.find(u => u.role !== 'customer' || u.vendorId !== null);
+    if (realOwner) return res.status(409).json({ error: 'رقم الجوال مسجل مسبقاً' });
+
+    // The only acceptable existing row is the OTP placeholder (role=customer,
+    // vendorId=null). If phoneVerified on that row, we've proven the phone.
+    const placeholder = existingUsers.find(u => u.role === 'customer' && u.vendorId === null);
+    if (placeholder?.phoneVerified) phoneProven = true;
+
+    if (!phoneProven) {
+      return res.status(401).json({ error: 'الرجاء التحقق من رقم الجوال عبر رمز الواتساب أولاً' });
+    }
+
+    const slug = autoSlug(nameAr, normalizedPhone);
     const passwordHash = await bcrypt.hash(password, 12);
     const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
@@ -270,7 +299,7 @@ router.post('/onboard', async (req, res) => {
         nameAr,
         nameEn: nameEn || null,
         slug,
-        phone,
+        phone: normalizedPhone,
         email: email || null,
         city: city || null,
         address: address || null,
@@ -283,15 +312,36 @@ router.post('/onboard', async (req, res) => {
         foundingMemberSince: isFoundingMember ? now : undefined,
       }).returning();
 
-      // 2. Create vendor_admin user linked to the new vendor
-      const [user] = await tx.insert(users).values({
-        name: ownerName?.trim() || nameAr,
-        phone,
-        email: email || null,
-        passwordHash,
-        role: 'vendor_admin',
-        vendorId: vendor.id,
-      }).returning();
+      // 2. Create or upgrade the vendor_admin user.
+      // If an OTP-placeholder row already exists for this phone (role=customer,
+      // no vendor), upgrade it in place — prevents the unique-phone conflict
+      // and lets the phoneVerified flag survive.
+      let user;
+      if (placeholder) {
+        const [updated] = await tx.update(users).set({
+          name: ownerName?.trim() || nameAr,
+          email: email || null,
+          passwordHash,
+          role: 'vendor_admin',
+          vendorId: vendor.id,
+          phoneVerified: true,
+          otpCode: null,
+          otpExpiresAt: null,
+          updatedAt: new Date(),
+        }).where(eq(users.id, placeholder.id)).returning();
+        user = updated;
+      } else {
+        const [created] = await tx.insert(users).values({
+          name: ownerName?.trim() || nameAr,
+          phone: normalizedPhone,
+          email: email || null,
+          passwordHash,
+          role: 'vendor_admin',
+          vendorId: vendor.id,
+          phoneVerified: true,
+        }).returning();
+        user = created;
+      }
 
       // 3. Auto-seed default services & packages from industry template
       try {

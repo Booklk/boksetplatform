@@ -13,6 +13,7 @@ import WhatsAppFAB from './components/WhatsAppFAB';
 import Landing from './pages/Landing';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
 import Navbar from './components/Navbar';
 import NotFound from './pages/NotFound';
 import NetworkStatus from './components/NetworkStatus';
@@ -243,6 +244,7 @@ function AppRoutes() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<S><ForgotPassword /></S>} />
         {/* Marketplace hidden until 200+ vendors — uncomment to enable */}
         {/* <Route path="/marketplace" element={<S><Marketplace /></S>} /> */}
         <Route path="/blog" element={<S><Blog /></S>} />

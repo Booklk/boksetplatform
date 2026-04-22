@@ -115,6 +115,14 @@ export const users = pgTable('users', {
   isActive: boolean('is_active').notNull().default(true),
   isOnDuty: boolean('is_on_duty').default(false),
   lastReminderSentAt: timestamp('last_reminder_sent_at'), // proactive wash reminder throttle
+  // Phone verification (OTP during signup / anti-abuse)
+  phoneVerified: boolean('phone_verified').notNull().default(false),
+  otpCode: varchar('otp_code', { length: 10 }),
+  otpExpiresAt: timestamp('otp_expires_at'),
+  otpAttempts: integer('otp_attempts').notNull().default(0),
+  // Password reset (WhatsApp-delivered token)
+  passwordResetToken: varchar('password_reset_token', { length: 128 }),
+  passwordResetExpiresAt: timestamp('password_reset_expires_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
