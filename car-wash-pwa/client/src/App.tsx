@@ -16,6 +16,7 @@ import Register from './pages/auth/Register';
 import Navbar from './components/Navbar';
 import NotFound from './pages/NotFound';
 import NetworkStatus from './components/NetworkStatus';
+import UpgradeGate from './components/UpgradeGate';
 
 // Lazy loaded pages
 const CustomerHome = lazy(() => import('./pages/customer/Home'));
@@ -368,12 +369,12 @@ function AppRoutes() {
         } />
         <Route path="/vendor/campaigns" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorCampaigns /></S>
+            <UpgradeGate featureId="campaigns"><S><VendorCampaigns /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/gift-cards" element={
           <RequireAuth roles={['vendor_admin', 'admin', 'employee']}>
-            <S><VendorGiftCards /></S>
+            <UpgradeGate featureId="loyalty"><S><VendorGiftCards /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/shop" element={
@@ -383,7 +384,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/employee-performance" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorEmployeePerformance /></S>
+            <UpgradeGate featureId="employee_management"><S><VendorEmployeePerformance /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/time-blocks" element={
@@ -413,7 +414,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/livemap" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorLiveMap /></S>
+            <UpgradeGate featureId="gps_tracking"><S><VendorLiveMap /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/subscriptions" element={
@@ -438,7 +439,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/pos" element={
           <RequireAuth roles={['vendor_admin', 'admin', 'employee']}>
-            <S><VendorPOS /></S>
+            <UpgradeGate featureId="pos"><S><VendorPOS /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/schedule" element={
@@ -453,7 +454,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/employees" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorEmployees /></S>
+            <UpgradeGate featureId="employee_management"><S><VendorEmployees /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/setup" element={
@@ -463,12 +464,12 @@ function AppRoutes() {
         } />
         <Route path="/vendor/payroll" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorPayroll /></S>
+            <UpgradeGate featureId="employee_management"><S><VendorPayroll /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/vat-report" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorVatReport /></S>
+            <UpgradeGate featureId="vat_reports"><S><VendorVatReport /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/ratings" element={
@@ -478,7 +479,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/shifts" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorShifts /></S>
+            <UpgradeGate featureId="employee_management"><S><VendorShifts /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/support" element={
@@ -488,7 +489,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/dispatch" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorDispatch /></S>
+            <UpgradeGate featureId="dispatch"><S><VendorDispatch /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/settings" element={
@@ -508,7 +509,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/suppliers" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorSuppliers /></S>
+            <UpgradeGate featureId="inventory"><S><VendorSuppliers /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/expenses" element={
@@ -535,27 +536,27 @@ function AppRoutes() {
         {/* ── Phase 1: Customer Acquisition ─────────────────────────────── */}
         <Route path="/vendor/automations" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorAutomations /></S>
+            <UpgradeGate featureId="automations"><S><VendorAutomations /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/segments" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorCustomerSegments /></S>
+            <UpgradeGate featureId="customer_segments"><S><VendorCustomerSegments /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/financial-statements" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorFinancialStatements /></S>
+            <UpgradeGate featureId="financial_statements"><S><VendorFinancialStatements /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/crm" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorCRM /></S>
+            <UpgradeGate featureId="crm"><S><VendorCRM /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/advanced-analytics" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorAdvancedAnalytics /></S>
+            <UpgradeGate featureId="advanced_dashboard"><S><VendorAdvancedAnalytics /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/help" element={
@@ -570,12 +571,12 @@ function AppRoutes() {
         } />
         <Route path="/vendor/ai-advisor" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorAIAdvisor /></S>
+            <UpgradeGate featureId="ai_advisor"><S><VendorAIAdvisor /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/leaderboard" element={
           <RequireAuth roles={['vendor_admin', 'admin', 'employee']}>
-            <S><VendorLeaderboard /></S>
+            <UpgradeGate featureId="employee_management"><S><VendorLeaderboard /></S></UpgradeGate>
           </RequireAuth>
         } />
         <Route path="/vendor/refer" element={
@@ -600,7 +601,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/customer-import" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorCustomerImport /></S>
+            <UpgradeGate featureId="crm"><S><VendorCustomerImport /></S></UpgradeGate>
           </RequireAuth>
         } />
 
