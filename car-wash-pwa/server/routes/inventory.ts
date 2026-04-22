@@ -56,6 +56,56 @@ router.post('/', requireAuth, requireRole('admin', 'vendor_admin'), async (req: 
   }
 });
 
+// Admin: bulk inventory import from parsed rows.
+// Existing items matching by (vendorId, name) get their quantity incremented
+// and metadata refreshed. New items are inserted.
+router.post('/bulk', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد منشأة' });
+    const rows = z.array(z.object({
+      name: z.string().min(1),
+      unit: z.string().min(1),
+      quantity: z.union([z.string(), z.number()]).transform(String),
+      minQuantity: z.union([z.string(), z.number()]).transform(String).default('0'),
+      costPerUnit: z.union([z.string(), z.number()]).transform(String).default('0'),
+      supplier: z.string().optional(),
+      notes: z.string().optional(),
+    })).max(1000).parse(req.body.rows ?? []);
+
+    const existing = await db.select().from(inventory).where(eq(inventory.vendorId, vendorId));
+    const byName = new Map(existing.map((i) => [i.name.trim(), i]));
+
+    let created = 0;
+    let merged = 0;
+
+    for (const row of rows) {
+      const match = byName.get(row.name.trim());
+      if (match) {
+        const currentQty = parseFloat(match.quantity ?? '0');
+        const addQty = parseFloat(row.quantity);
+        await db.update(inventory).set({
+          quantity: (currentQty + addQty).toString(),
+          minQuantity: row.minQuantity,
+          costPerUnit: row.costPerUnit,
+          supplier: row.supplier ?? match.supplier,
+          notes: row.notes ?? match.notes,
+          updatedAt: new Date(),
+        }).where(eq(inventory.id, match.id));
+        merged++;
+      } else {
+        await db.insert(inventory).values({ ...row, vendorId });
+        created++;
+      }
+    }
+    return res.json({ success: true, created, merged, total: rows.length });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error('[inventory/bulk]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // Admin: update inventory item
 router.put('/:id', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {

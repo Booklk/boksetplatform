@@ -55,6 +55,62 @@ router.post('/', requireAuth, requireRole('admin', 'vendor_admin'), async (req: 
   }
 });
 
+// Admin: bulk-create services (+ optional packages) from parsed CSV rows.
+// Row shape: { serviceName, packageName?, price?, duration?, features? }.
+// Services are de-duplicated by name within this request + the vendor.
+router.post('/bulk', requireAuth, requireRole('admin', 'vendor_admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بحسابك' });
+    const rows = z.array(z.object({
+      serviceName: z.string().min(1),
+      description: z.string().optional(),
+      packageName: z.string().optional(),
+      price: z.union([z.string(), z.number()]).optional(),
+      duration: z.number().int().positive().optional(),
+      features: z.array(z.string()).optional(),
+    })).max(500).parse(req.body.rows ?? []);
+
+    const existing = await db.select().from(services).where(eq(services.vendorId, vendorId));
+    const byName = new Map(existing.map((s) => [s.name.trim(), s]));
+
+    let servicesCreated = 0;
+    let packagesCreated = 0;
+
+    for (const row of rows) {
+      let svc = byName.get(row.serviceName.trim());
+      if (!svc) {
+        const [created] = await db.insert(services).values({
+          vendorId,
+          name: row.serviceName.trim(),
+          description: row.description ?? null,
+          isActive: true,
+        }).returning();
+        svc = created;
+        byName.set(svc.name.trim(), svc);
+        servicesCreated++;
+      }
+      if (row.packageName && row.price !== undefined && row.duration !== undefined) {
+        await db.insert(packages).values({
+          vendorId,
+          serviceId: svc.id,
+          name: row.packageName,
+          price: String(row.price),
+          duration: row.duration,
+          features: row.features ?? [],
+          isActive: true,
+        });
+        packagesCreated++;
+      }
+    }
+    return res.json({ success: true, servicesCreated, packagesCreated, total: rows.length });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error('[services/bulk]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // Admin: update service
 router.put('/:id', requireAuth, requireRole('admin', 'vendor_admin'), async (req, res) => {
   try {
