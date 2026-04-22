@@ -288,6 +288,73 @@ router.post('/announce', requireAuth, requireRole('super_admin'), async (req: Au
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// GROWTH FUNNEL & COHORTS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// GET /api/super-admin/funnel — signup → activation → paid conversion snapshot
+router.get('/funnel', requireAuth, requireRole('super_admin'), async (_req, res) => {
+  try {
+    const [signed] = await db.select({ count: count() }).from(vendors);
+    const [trialing] = await db.select({ count: count() }).from(vendors)
+      .where(eq(vendors.subscriptionStatus, 'trial'));
+    // "activated" = has at least 1 booking OR at least 1 service
+    const activated = await db.execute<{ count: number }>(sql`
+      SELECT COUNT(DISTINCT v.id)::int AS count
+      FROM vendors v
+      WHERE EXISTS (SELECT 1 FROM bookings b WHERE b.vendor_id = v.id)
+    `);
+    const paid = await db.execute<{ count: number }>(sql`
+      SELECT COUNT(DISTINCT v.id)::int AS count
+      FROM vendors v
+      WHERE v.subscription_status = 'active'
+        AND v.subscription_plan IN ('pro', 'enterprise', 'basic')
+    `);
+    const churned = await db.execute<{ count: number }>(sql`
+      SELECT COUNT(DISTINCT v.id)::int AS count
+      FROM vendors v
+      WHERE v.subscription_plan = 'free'
+        AND v.subscription_end_date IS NOT NULL
+        AND v.subscription_end_date < NOW()
+    `);
+
+    const row = (x: any) => Number((x as any).rows?.[0]?.count ?? (Array.isArray(x) ? x[0]?.count : 0)) || 0;
+    return res.json({
+      signups: signed.count,
+      trialing: trialing.count,
+      activated: row(activated),
+      paid: row(paid),
+      churned: row(churned),
+    });
+  } catch (e) {
+    console.error('[super-admin/funnel]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// GET /api/super-admin/cohorts — monthly signup cohorts with retention
+router.get('/cohorts', requireAuth, requireRole('super_admin'), async (_req, res) => {
+  try {
+    const result = await db.execute<{
+      cohort: string; signups: number; still_active: number; upgraded_to_pro: number;
+    }>(sql`
+      SELECT
+        TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS cohort,
+        COUNT(*)::int AS signups,
+        SUM(CASE WHEN is_active THEN 1 ELSE 0 END)::int AS still_active,
+        SUM(CASE WHEN subscription_plan IN ('pro','enterprise','basic') THEN 1 ELSE 0 END)::int AS upgraded_to_pro
+      FROM vendors
+      WHERE created_at >= NOW() - INTERVAL '12 months'
+      GROUP BY 1
+      ORDER BY 1 DESC
+    `);
+    return res.json((result as any).rows ?? result ?? []);
+  } catch (e) {
+    console.error('[super-admin/cohorts]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // AUDIT LOG VIEWER
 // ═══════════════════════════════════════════════════════════════════════════════
 

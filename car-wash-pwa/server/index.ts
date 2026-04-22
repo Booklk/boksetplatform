@@ -674,17 +674,75 @@ cron.schedule('30 * * * *', async () => {
   }
 });
 
-// Every day at midnight: expire trial vendors
-cron.schedule('0 0 * * *', async () => {
+// Every day at 00:05: auto-downgrade vendors whose trial or paid period
+// ended. We never hard-suspend on expiry — the vendor stays active on the
+// free plan so they don't lose their storefront or customers. Pro routes
+// are gated client-side by UpgradeGate, so this is the right "free fall".
+cron.schedule('5 0 * * *', async () => {
   try {
+    // Trial → free when trial_ends_at passed
     await db.execute(sql`
       UPDATE vendors
-      SET subscription_status = 'expired', is_active = false
+      SET subscription_status = 'active',
+          subscription_plan   = 'free',
+          updated_at          = NOW()
       WHERE subscription_status = 'trial'
+        AND trial_ends_at IS NOT NULL
         AND trial_ends_at < NOW()
     `);
+    // Paid subscription lapsed (no renewal) → free
+    await db.execute(sql`
+      UPDATE vendors
+      SET subscription_status = 'active',
+          subscription_plan   = 'free',
+          updated_at          = NOW()
+      WHERE subscription_status = 'active'
+        AND subscription_plan  IN ('pro', 'enterprise', 'basic')
+        AND subscription_end_date IS NOT NULL
+        AND subscription_end_date < NOW()
+    `);
   } catch (e) {
-    console.error('[Cron trial expiry]', e);
+    console.error('[Cron subscription downgrade]', e);
+  }
+});
+
+// Daily at 09:00 AM — WhatsApp reminders 3 days and 1 day before
+// trial or paid-plan expiry. Idempotent via DATE(trial_ends_at) — runs
+// once per day, sends at most one message per vendor per day.
+cron.schedule('0 9 * * *', async () => {
+  try {
+    const soon = await db.execute<{
+      id: number; name_ar: string; phone: string;
+      days_left: number; sub_plan: string | null;
+    }>(sql`
+      SELECT id, name_ar, phone,
+        FLOOR(EXTRACT(EPOCH FROM (trial_ends_at - NOW())) / 86400) AS days_left,
+        subscription_plan AS sub_plan
+      FROM vendors
+      WHERE subscription_status = 'trial'
+        AND trial_ends_at IS NOT NULL
+        AND trial_ends_at > NOW()
+        AND FLOOR(EXTRACT(EPOCH FROM (trial_ends_at - NOW())) / 86400) IN (3, 1, 0)
+      UNION ALL
+      SELECT id, name_ar, phone,
+        FLOOR(EXTRACT(EPOCH FROM (subscription_end_date - NOW())) / 86400) AS days_left,
+        subscription_plan AS sub_plan
+      FROM vendors
+      WHERE subscription_status = 'active'
+        AND subscription_plan  IN ('pro', 'enterprise', 'basic')
+        AND subscription_end_date IS NOT NULL
+        AND subscription_end_date > NOW()
+        AND FLOOR(EXTRACT(EPOCH FROM (subscription_end_date - NOW())) / 86400) IN (3, 1, 0)
+    `);
+    const { sendPlatformWhatsApp } = await import('./services/whatsapp.js');
+    for (const row of (soon as any).rows ?? soon ?? []) {
+      const days = Number(row.days_left);
+      const when = days <= 0 ? 'اليوم' : days === 1 ? 'بكرة' : `خلال ${days} أيام`;
+      const msg = `مرحبا ${row.name_ar} 👋\nباقتك الحالية في جداول تنتهي ${when}. جدّد عشان ما تنقص المميزات المتقدمة (الإشعارات/POS/الولاء/...).\nتجديد بضغطة: https://jadawel.sa/vendor/platform-sub`;
+      await sendPlatformWhatsApp(row.phone, msg);
+    }
+  } catch (e) {
+    console.error('[Cron expiry reminders]', e);
   }
 });
 

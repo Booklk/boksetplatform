@@ -177,6 +177,13 @@ export default function SuperAdminDashboard() {
     },
   });
 
+  const { data: funnel } = useQuery<{
+    signups: number; trialing: number; activated: number; paid: number; churned: number;
+  }>({
+    queryKey: ['super-admin-funnel'],
+    queryFn: async () => (await api.get('/super-admin/funnel')).data,
+  });
+
   const activateMutation = useMutation({
     mutationFn: (id: number) => api.post(`/vendors/${id}/activate`),
     onSuccess: () => {
@@ -283,6 +290,39 @@ export default function SuperAdminDashboard() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Growth Funnel */}
+        {funnel && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 mb-10"
+          >
+            <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-indigo-300" />
+              مسار التحويل
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {[
+                { label: 'تسجيل', value: funnel.signups, tint: 'text-blue-300' },
+                { label: 'تجريبي نشط', value: funnel.trialing, tint: 'text-cyan-300' },
+                { label: 'مفعّل (حجز)', value: funnel.activated, tint: 'text-emerald-300' },
+                { label: 'مدفوع', value: funnel.paid, tint: 'text-yellow-300' },
+                { label: 'منخفض', value: funnel.churned, tint: 'text-rose-300' },
+              ].map((s) => {
+                const pct = funnel.signups > 0 ? Math.round((s.value / funnel.signups) * 100) : 0;
+                return (
+                  <div key={s.label} className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4">
+                    <p className="text-white/50 text-xs font-medium mb-1">{s.label}</p>
+                    <p className={`text-2xl font-black ${s.tint}`}>{s.value.toLocaleString('ar-SA')}</p>
+                    <p className="text-white/30 text-[10px]">{pct}% من التسجيلات</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
 
         {/* Vendors Table */}
         <motion.div

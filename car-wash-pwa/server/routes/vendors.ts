@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import QRCode from 'qrcode';
 import { db } from '../db/index.js';
-import { vendors, users, vendorSubscriptionPayments, services, packages, fleetVehicles, bookings, loyaltyPrograms, payrollRecords } from '../db/schema.js';
+import { vendors, users, vendorSubscriptionPayments, services, packages, fleetVehicles, bookings, loyaltyPrograms, payrollRecords, auditLogs } from '../db/schema.js';
 import { eq, desc, sql, and, isNotNull, count } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { encrypt, decrypt } from '../lib/crypto.js';
@@ -1086,5 +1086,39 @@ router.post('/my/start-trial', requireAuth, requireRole('vendor_admin', 'admin')
     }
   },
 );
+
+// ─── GET /api/vendors/my/audit-logs ──────────────────────────────────────────
+// Vendor-scoped audit log — shows the last 100 sensitive actions taken by
+// anyone inside this vendor (owner + employees). Gives the store owner a
+// quick read on "who did what, when" for refunds, deletes, PoS overrides.
+router.get('/my/audit-logs', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بحسابك' });
+    const page = Math.max(1, Number(req.query.page ?? 1));
+    const limit = Math.min(100, Number(req.query.limit ?? 50));
+    const logs = await db.select({
+      id: auditLogs.id,
+      action: auditLogs.action,
+      resource: auditLogs.resource,
+      method: auditLogs.method,
+      ip: auditLogs.ip,
+      metadata: auditLogs.metadata,
+      createdAt: auditLogs.createdAt,
+      userName: users.name,
+      userRole: users.role,
+    })
+      .from(auditLogs)
+      .leftJoin(users, eq(auditLogs.userId, users.id))
+      .where(eq(auditLogs.vendorId, vendorId))
+      .orderBy(desc(auditLogs.createdAt))
+      .limit(limit)
+      .offset((page - 1) * limit);
+    return res.json({ logs, page, limit });
+  } catch (e) {
+    console.error('[my/audit-logs]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
 
 export default router;

@@ -582,6 +582,21 @@ function SecurityTab() {
         <SaveBtn loading={changePwMutation.isPending} onClick={handleChangePassword} />
       </div>
 
+      {/* Audit log link */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-5">
+        <h3 className="text-white font-bold mb-1">سجل الأنشطة</h3>
+        <p className="text-white/40 text-sm mb-4">
+          شوف من عمل إيش ومتى — استرجاع، حذف، تعديلات موظفين، إرسال حملات.
+        </p>
+        <Link
+          to="/vendor/audit-log"
+          className="inline-flex items-center gap-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 font-bold px-5 py-2.5 rounded-xl transition-all text-sm"
+        >
+          <Shield className="w-4 h-4" />
+          فتح سجل الأنشطة
+        </Link>
+      </div>
+
       {/* Logout all devices */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
         <h3 className="text-white font-bold mb-1">تسجيل الخروج من كل الأجهزة</h3>
