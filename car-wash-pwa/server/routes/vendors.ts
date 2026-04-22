@@ -891,6 +891,13 @@ router.post('/:id/platform-subscribe', requireAuth, requireRole('vendor_admin', 
         description: planInfo.label + ` - متجر #${vendorId}`,
         callback_url: callbackUrl,
         source: { type: 'creditcard' },
+        // Metadata is echoed by Moyasar on every webhook event so our
+        // handler can resolve the vendor without a DB lookup on the ref.
+        metadata: {
+          vendorId: String(vendorId),
+          plan,
+          cycle: billingCycle,
+        },
       }),
     });
 
