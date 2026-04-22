@@ -90,6 +90,8 @@ import paymentWebhookRoutes from './routes/payment-webhook.js';
 import './services/payments/bookingHandler.js';
 import customerImportRoutes from './routes/customer-import.js';
 import vendorDataExportRoutes from './routes/vendor-data-export.js';
+import copilotRoutes from './routes/copilot.js';
+import { attachRealtime } from './services/realtime/server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -354,6 +356,7 @@ app.use('/api/onboarding-templates', onboardingTemplatesRoutes);
 app.use('/api/webhooks', requireAuth, webhooksRoutes);
 app.use('/api/branches', branchesRoutes);
 app.use('/api/payment-gateway', paymentGatewayRoutes);
+app.use('/api/copilot', copilotRoutes);
 app.use('/api/customer-import', requireAuth, customerImportRoutes);
 app.use('/api/vendor-data', requireAuth, vendorDataExportRoutes);
 
@@ -1282,9 +1285,14 @@ process.on('uncaughtException', (error) => {
   gracefulShutdown('uncaughtException');
 });
 
+// Vendor real-time WebSocket — attached before listen so the upgrade
+// handler is registered on the same HTTP server instance.
+attachRealtime(server);
+
 server.listen(PORT, () => {
-  console.log(`🚗 Jdawil SaaS Server running on http://localhost:${PORT}`);
+  console.log(`🚗 Jadawel SaaS Server running on http://localhost:${PORT}`);
   console.log(`🔌 WebSocket server ready on ws://localhost:${PORT}/ws`);
+  console.log(`⚡ Realtime ready on ws://localhost:${PORT}/realtime`);
   console.log(`📡 Environment: ${process.env.NODE_ENV ?? 'development'}`);
 });
 

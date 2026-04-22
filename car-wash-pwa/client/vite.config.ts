@@ -53,8 +53,10 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': { target: 'http://localhost:3001', changeOrigin: true },
-      '/uploads': { target: 'http://localhost:3001', changeOrigin: true },
+      '/api':      { target: 'http://localhost:3001', changeOrigin: true },
+      '/uploads':  { target: 'http://localhost:3001', changeOrigin: true },
+      // WebSocket upgrade for the vendor real-time layer.
+      '/realtime': { target: 'ws://localhost:3001', ws: true, changeOrigin: true },
     },
   },
 });

@@ -10,6 +10,7 @@ import {
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
+import PresenceIndicator from './PresenceIndicator';
 import { useVendorTheme } from '../store/vendorTheme';
 
 // ─── Nav definitions ──────────────────────────────────────────────────────────
@@ -327,8 +328,9 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Right: search + menu */}
+          {/* Right: presence + search + menu */}
           <div className="flex items-center gap-2">
+            <PresenceIndicator />
             <button
               onClick={() => {
                 const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true });

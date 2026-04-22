@@ -180,6 +180,19 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       });
     } catch (e) { console.error('[bookings push owner]', e); }
 
+    // Real-time broadcast — every connected dashboard tab for this vendor
+    // sees the new booking instantly, no polling required.
+    try {
+      const { broadcast } = await import('../services/realtime/server.js');
+      broadcast(pkg.vendorId, 'booking.created', {
+        id: booking.id,
+        bookingNumber: booking.bookingNumber,
+        packageName: pkg.name,
+        scheduledAt: booking.scheduledAt,
+        status: booking.status,
+      });
+    } catch (e) { console.error('[bookings realtime]', e); }
+
     return res.status(201).json(booking);
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
@@ -532,6 +545,17 @@ router.post('/:id/status', requireAuth, requireRole('employee', 'admin', 'vendor
         await createNotification(vendorAdmin.id, notifTitle, notifBody, 'booking', `/vendor/operations`, booking.vendorId);
       }
     } catch (_e) { console.error('[booking-notification]', _e); }
+
+    // Real-time update to every dashboard in the vendor room.
+    try {
+      const { broadcast } = await import('../services/realtime/server.js');
+      broadcast(booking.vendorId, 'booking.updated', {
+        id: booking.id,
+        bookingNumber: booking.bookingNumber,
+        status,
+        updatedAt: new Date().toISOString(),
+      }, req.user?.id);
+    } catch (e) { console.error('[bookings realtime update]', e); }
 
     // Customer push for status transitions the user actually cares about.
     try {

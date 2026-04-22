@@ -9,6 +9,8 @@ import PushNotificationBanner from './components/PushNotificationBanner';
 import CommandPalette from './components/CommandPalette';
 import WhatsAppFAB from './components/WhatsAppFAB';
 import ImpersonationBanner from './components/ImpersonationBanner';
+import Copilot from './components/Copilot';
+import LiveBookingNotifier from './components/LiveBookingNotifier';
 
 // Eagerly loaded (critical path)
 import Landing from './pages/Landing';
@@ -243,6 +245,8 @@ function AppRoutes() {
     <InstallPrompt />
     <UpdateToast />
     <ImpersonationBanner />
+    <LiveBookingNotifier />
+    <Copilot />
     <CommandPalette />
     <AnimatePresence mode="wait">
     <Routes location={location} key={location.pathname}>
