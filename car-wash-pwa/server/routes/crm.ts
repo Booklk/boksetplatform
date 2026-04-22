@@ -513,8 +513,10 @@ router.get('/dashboard', ...crmAuth, async (req: AuthRequest, res) => {
         .limit(20),
     ]);
 
-    const churningRows = churningResult.rows ?? churningResult;
-    const ltvRows = ltvResult.rows ?? ltvResult;
+    // drizzle's sql`...` result shape differs slightly between clients —
+    // some expose `.rows`, some return the array directly. Normalize.
+    const churningRows = (churningResult as any).rows ?? churningResult;
+    const ltvRows = (ltvResult as any).rows ?? ltvResult;
 
     return res.json({
       totalCustomers: totalCustomersResult[0]?.total ?? 0,

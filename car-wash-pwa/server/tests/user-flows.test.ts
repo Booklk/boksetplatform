@@ -35,7 +35,7 @@ describe('Flow: Vendor Onboarding → Setup → Live', () => {
   });
 
   it('Step 2: Pro plan maps correctly', () => {
-    const proData = { ...registrationData, plan: 'pro' as const };
+    const proData = { ...registrationData, plan: 'pro' as string };
     const planMapping = proData.plan === 'free' ? 'free' : 'pro';
     expect(planMapping).toBe('pro');
   });

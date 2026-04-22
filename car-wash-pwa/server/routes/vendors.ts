@@ -364,7 +364,9 @@ router.post('/onboard', async (req, res) => {
                 name: pkg.nameAr,
                 price: String(pkg.price),
                 duration: pkg.duration,
-                features: pkg.features ?? [],
+                // INDUSTRIES exports features as `readonly string[]` tuples;
+                // spread to get a mutable array drizzle accepts.
+                features: pkg.features ? [...pkg.features] : [],
                 isActive: true,
               });
             }

@@ -21,10 +21,10 @@ function generateBookingNumber(): string {
  * preferredDay: "0"-"6" (Sunday-Saturday)
  * preferredTime: "HH:mm"
  */
-function calculateNextScheduledAt(frequency: string, preferredDay: string, preferredTime: string, fromDate?: Date): Date {
+function calculateNextScheduledAt(frequency: string, preferredDay: number | string | null, preferredTime: string | null, fromDate?: Date): Date {
   const now = fromDate ?? new Date();
-  const [hours, minutes] = preferredTime.split(':').map(Number);
-  const targetDay = Number(preferredDay);
+  const [hours, minutes] = (preferredTime ?? '09:00').split(':').map(Number);
+  const targetDay = Number(preferredDay ?? 0);
 
   // Find the next occurrence of the preferred day
   const next = new Date(now);
@@ -175,14 +175,15 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       customerId: data.customerId,
       packageId: data.packageId,
       frequency: data.frequency,
-      preferredDay: data.preferredDay,
+      // Zod parses preferredDay as the regex string "0".."6" — coerce to int.
+      preferredDay: parseInt(data.preferredDay, 10),
       preferredTime: data.preferredTime,
       address: data.address,
-      lat: data.lat,
-      lng: data.lng,
-      vehicleType: data.vehicleType,
-      vehiclePlate: data.vehiclePlate,
-      notes: data.notes,
+      lat: data.lat ?? null,
+      lng: data.lng ?? null,
+      vehicleType: data.vehicleType ?? null,
+      vehiclePlate: data.vehiclePlate ?? null,
+      notes: data.notes ?? null,
       isActive: true,
       nextScheduledAt,
     }).returning();
@@ -273,7 +274,7 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
     };
 
     if (data.frequency !== undefined) updateValues.frequency = data.frequency;
-    if (data.preferredDay !== undefined) updateValues.preferredDay = data.preferredDay;
+    if (data.preferredDay !== undefined) updateValues.preferredDay = parseInt(data.preferredDay, 10);
     if (data.preferredTime !== undefined) updateValues.preferredTime = data.preferredTime;
     if (data.address !== undefined) updateValues.address = data.address;
     if (data.isActive !== undefined) updateValues.isActive = data.isActive;
@@ -367,14 +368,19 @@ router.post('/:id/generate', requireAuth, async (req: AuthRequest, res) => {
 
     const trackingToken = randomBytes(24).toString('hex');
 
-    // Create the booking
+    // Create the booking. The bookings.address column is NOT NULL, but
+    // recurring.address is nullable — guard with an empty-string fallback
+    // so we never violate the constraint.
+    if (customer.userId == null) {
+      return res.status(404).json({ error: 'حساب العميل غير موجود' });
+    }
     const [newBooking] = await db.insert(bookings).values({
       bookingNumber: generateBookingNumber(),
       vendorId: recurring.vendorId,
       customerId: customer.userId,
       packageId: recurring.packageId,
       scheduledAt,
-      address: recurring.address,
+      address: recurring.address ?? '',
       lat: recurring.lat,
       lng: recurring.lng,
       vehicleType: recurring.vehicleType,

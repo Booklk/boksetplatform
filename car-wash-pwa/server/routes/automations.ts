@@ -316,9 +316,16 @@ router.post('/:id/test', requireAuth, requireRole('vendor_admin', 'admin'), asyn
 
     const { processAutomationTrigger } = await import('../services/automationEngine.js');
 
-    const execution = await processAutomationTrigger(workflowId, data.customerId);
+    // Run the workflow's trigger against the test customer. Test mode still
+    // obeys the vendor scope and logs to the same automation_executions table.
+    const executions = await processAutomationTrigger(
+      vendorId,
+      workflow.triggerType,
+      data.customerId,
+      { workflowId, testRun: true },
+    );
 
-    return res.json({ message: 'تم تشغيل السير التجريبي بنجاح', execution });
+    return res.json({ message: 'تم تشغيل السير التجريبي بنجاح', executions });
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
     console.error(e);
