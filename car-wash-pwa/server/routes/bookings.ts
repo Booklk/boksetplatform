@@ -166,6 +166,18 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       });
     }
 
+    // Fire-and-forget vendor owner push — lets the owner know a new
+    // booking landed even if the dashboard tab is closed.
+    try {
+      const { sendPushToVendorOwners } = await import('../services/push.js');
+      await sendPushToVendorOwners(pkg.vendorId, {
+        title: 'حجز جديد 🔔',
+        body: `حجز ${booking.bookingNumber} — ${pkg.name}`,
+        url: '/vendor/operations',
+        tag: `booking-${booking.id}`,
+      });
+    } catch (e) { console.error('[bookings push owner]', e); }
+
     return res.status(201).json(booking);
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
@@ -518,6 +530,26 @@ router.post('/:id/status', requireAuth, requireRole('employee', 'admin', 'vendor
         await createNotification(vendorAdmin.id, notifTitle, notifBody, 'booking', `/vendor/operations`, booking.vendorId);
       }
     } catch (_e) { console.error('[booking-notification]', _e); }
+
+    // Customer push for status transitions the user actually cares about.
+    try {
+      const { sendPush } = await import('../services/push.js');
+      const titleMap: Record<string, [string, string]> = {
+        on_the_way:  ['مقدم الخدمة في الطريق 🚗', `رقم الحجز ${booking.bookingNumber}`],
+        arrived:     ['وصل مقدم الخدمة 📍', `رقم الحجز ${booking.bookingNumber}`],
+        in_progress: ['بدأت الخدمة ✨', `رقم الحجز ${booking.bookingNumber}`],
+        completed:   ['اكتملت خدمتك 🌟', `شكراً — قيّم تجربتك متى ما تقدر`],
+      };
+      const entry = titleMap[status];
+      if (entry && booking.customerId) {
+        await sendPush(booking.customerId, {
+          title: entry[0],
+          body: entry[1],
+          url: `/track/${booking.id}/${booking.trackingToken ?? ''}`,
+          tag: `booking-${booking.id}`,
+        });
+      }
+    } catch (_e) { console.error('[booking-push-customer]', _e); }
 
     return res.json(updated);
   } catch (e: any) {

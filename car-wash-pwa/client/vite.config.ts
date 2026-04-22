@@ -13,6 +13,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+      },
       includeAssets: ['icons/*.png', 'favicon.ico'],
       manifest: {
         name: 'جداول — Jadawel',
@@ -37,72 +43,8 @@ export default defineConfig({
         ],
         categories: ['lifestyle', 'utilities'],
       },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
-        // Take over every open tab as soon as a new SW is installed,
-        // so the next API call / navigation already uses the new build.
-        // Without these, the old SW keeps serving the old app until
-        // every tab is closed.
-        skipWaiting: true,
-        clientsClaim: true,
-        // Never cache API JSON at the service-worker layer by default.
-        // Specific endpoints can opt-in below with NetworkFirst.
-        navigateFallbackDenylist: [/^\/api\//, /^\/uploads\//],
-        runtimeCaching: [
-          {
-            // Google Fonts — safe to cache for a year; immutable by URL.
-            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: { maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-          {
-            // Services catalogue. NetworkFirst: try the network, fall
-            // back to a tiny 2-minute cache only when offline/slow.
-            urlPattern: /\/api\/services/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-services',
-              networkTimeoutSeconds: 3,
-              expiration: { maxAgeSeconds: 120, maxEntries: 10 },
-            },
-          },
-          {
-            // Platform plans — price changes must be instant.
-            urlPattern: /\/api\/plans(\?|$)/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-plans',
-              networkTimeoutSeconds: 3,
-              expiration: { maxAgeSeconds: 60, maxEntries: 5 },
-            },
-          },
-          {
-            // Public vendor storefronts — their colours / templates /
-            // published pages may change; a 1-minute cache is enough
-            // to smooth out bursts but still looks "live".
-            urlPattern: /\/api\/vendors\/public\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-vendors-public',
-              networkTimeoutSeconds: 3,
-              expiration: { maxAgeSeconds: 60, maxEntries: 50 },
-            },
-          },
-          {
-            // User-uploaded images (logos, gallery, before/after). They
-            // are hash-like filenames, so CacheFirst is safe and fast.
-            urlPattern: /\/uploads\/.*\.(png|jpe?g|webp|gif|svg)$/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'user-uploads',
-              expiration: { maxAgeSeconds: 60 * 60 * 24 * 30, maxEntries: 200 },
-            },
-          },
-        ],
-      },
+      // Runtime caching + push handlers are defined in src/sw.ts so they
+      // can coexist with custom event listeners.
     }),
   ],
   build: {
