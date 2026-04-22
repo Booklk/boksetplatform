@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import SocialProofTicker from '../components/SocialProofTicker';
 import MarketingLayout from '../components/marketing/MarketingLayout';
+import { Button } from '../components/ui';
 
 /* ── Water drop particle type ── */
 interface Drop { id: number; left: string; size: number; duration: number; delay: number; }
@@ -311,27 +312,29 @@ export default function Landing() {
             <span className="text-white font-semibold">جداول يعطيك موقع حجز + إدارة موظفين + مدفوعات + تقارير — خلال 5 دقائق.</span>
           </motion.p>
 
-          {/* CTAs — clean */}
+          {/* CTAs — design-system Button, world-class focus + motion */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-3 justify-center mb-8"
           >
-            <motion.button
-              whileTap={{ scale: 0.97 }}
+            <Button
+              size="lg"
+              variant="primary"
               onClick={() => navigate('/onboard')}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="h-14 px-8 text-base"
             >
               ابدأ مجاناً — 14 يوم
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.97 }}
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
               onClick={() => navigate('/demo')}
-              className="bg-white/[0.05] border border-white/[0.1] hover:border-white/[0.2] text-slate-300 px-8 py-4 rounded-xl font-bold text-base transition-all"
+              className="h-14 px-8 text-base"
             >
               شاهد العرض التجريبي
-            </motion.button>
+            </Button>
           </motion.div>
 
           {/* Trust — minimal */}

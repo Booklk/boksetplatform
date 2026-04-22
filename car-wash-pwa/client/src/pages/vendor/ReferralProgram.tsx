@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Share2, Copy, Gift, Users, CheckCircle2, Clock, TrendingUp, MessageCircle } from 'lucide-react';
+import {
+  Share2, Copy, Gift, Users, CheckCircle2, Clock, TrendingUp, MessageCircle,
+} from 'lucide-react';
 import api from '../../lib/api';
+import {
+  Button, Card, EmptyState, PageHeader, Stat, Skeleton,
+} from '../../components/ui';
+import { fadeInUp, staggerContainer } from '../../design/motion';
 
 interface ReferralRow {
   id: number;
@@ -34,11 +41,11 @@ interface GenResp {
 }
 
 const statusConfig: Record<string, { label: string; tint: string; icon: any }> = {
-  pending:    { label: 'لم يسجل بعد',    tint: 'text-slate-400',  icon: Clock },
-  registered: { label: 'في فترة التجربة', tint: 'text-blue-300',   icon: Users },
-  converted:  { label: 'اشترك — بانتظار المكافأة', tint: 'text-amber-300', icon: CheckCircle2 },
-  rewarded:   { label: 'تمت المكافأة ✅',  tint: 'text-emerald-300', icon: Gift },
-  expired:    { label: 'انتهت',           tint: 'text-red-300',    icon: Clock },
+  pending:    { label: 'لم يسجل بعد',              tint: 'text-ink-400',     icon: Clock },
+  registered: { label: 'في فترة التجربة',          tint: 'text-primary-300', icon: Users },
+  converted:  { label: 'اشترك — بانتظار المكافأة',  tint: 'text-warn-300',    icon: CheckCircle2 },
+  rewarded:   { label: 'تمت المكافأة ✓',            tint: 'text-success-300', icon: Gift },
+  expired:    { label: 'انتهت',                     tint: 'text-danger-300',  icon: Clock },
 };
 
 export default function ReferralProgram() {
@@ -83,125 +90,147 @@ export default function ReferralProgram() {
     : '';
 
   return (
-    <div className="min-h-screen bg-[#0b1220] text-white p-4 sm:p-6" dir="rtl">
+    <div className="min-h-screen bg-ink-950 text-white p-4 sm:p-6" dir="rtl">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-black mb-1 flex items-center gap-2">
-            <Gift size={22} className="text-amber-400" />
-            برنامج الإحالات
-          </h1>
-          <p className="text-sm text-slate-400">
-            كل تاجر تحيله ويشترك — لك شهر مجاني على بكستك. مافي حد للمكافآت.
-          </p>
-        </div>
+        <PageHeader
+          icon={<Gift size={20} />}
+          title="برنامج الإحالات"
+          subtitle="كل تاجر تحيله ويشترك — لك شهر مجاني على اشتراكك. بدون حد."
+        />
 
-        {/* Stats grid */}
+        {/* Stats */}
         {data && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            {[
-              { label: 'إجمالي الإحالات',   value: data.stats.total,         icon: Users,          tint: 'text-slate-300' },
-              { label: 'في التجربة',        value: data.stats.registered,    icon: Clock,          tint: 'text-blue-300' },
-              { label: 'اشتركوا',           value: data.stats.converted,     icon: TrendingUp,     tint: 'text-amber-300' },
-              { label: 'مكافآت مستلمة',    value: data.stats.rewardsEarned, icon: Gift,           tint: 'text-emerald-300' },
-            ].map((s) => (
-              <div key={s.label} className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs text-slate-400">{s.label}</p>
-                  <s.icon size={14} className={s.tint} />
-                </div>
-                <p className={`text-2xl font-black ${s.tint}`}>{s.value}</p>
-              </div>
-            ))}
-          </div>
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={fadeInUp}>
+              <Stat label="إجمالي الإحالات" value={data.stats.total}         icon={<Users size={14} />} />
+            </motion.div>
+            <motion.div variants={fadeInUp}>
+              <Stat label="في التجربة"      value={data.stats.registered}    icon={<Clock size={14} />} />
+            </motion.div>
+            <motion.div variants={fadeInUp}>
+              <Stat label="اشتركوا"         value={data.stats.converted}     icon={<TrendingUp size={14} />} />
+            </motion.div>
+            <motion.div variants={fadeInUp}>
+              <Stat label="مكافآت مستلمة"  value={data.stats.rewardsEarned} icon={<Gift size={14} />} />
+            </motion.div>
+          </motion.div>
         )}
 
         {/* Share card */}
-        <div className="bg-gradient-to-br from-indigo-500/10 to-amber-500/10 border border-white/10 rounded-2xl p-5 mb-6">
+        <Card
+          variant="elevated"
+          padding="lg"
+          className="mb-6 bg-gradient-to-br from-primary-500/10 to-warn-500/10 border-white/10"
+        >
           <h2 className="text-lg font-black text-white mb-1">رابط الإحالة الخاص بك</h2>
-          <p className="text-xs text-slate-400 mb-4">
+          <p className="text-xs text-ink-400 mb-4 leading-relaxed">
             شاركه مع تجار تعرفهم — هم يحصلون على 7 أيام تجربة إضافية، وأنت على شهر مجاني بمجرد اشتراكهم.
           </p>
 
           {latest ? (
             <>
               <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.08] rounded-xl p-3 mb-3">
-                <code className="flex-1 text-xs text-indigo-300 truncate font-mono" dir="ltr">{shareLink}</code>
-                <button
+                <code className="flex-1 text-xs text-primary-300 truncate font-mono" dir="ltr">
+                  {shareLink}
+                </code>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<Copy size={12} />}
                   onClick={() => copyLink(shareLink)}
-                  className="px-3 py-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-xs font-bold text-indigo-300 inline-flex items-center gap-1.5 transition-colors"
                 >
-                  <Copy size={12} />
                   {copied ? 'تم' : 'نسخ'}
-                </button>
+                </Button>
               </div>
               <div className="flex items-center gap-2">
-                <button
+                <Button
+                  variant="success"
+                  fullWidth
+                  leftIcon={<MessageCircle size={14} />}
                   onClick={() => shareWhatsApp(shareMsg)}
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold text-sm inline-flex items-center justify-center gap-2 transition-colors"
                 >
-                  <MessageCircle size={14} />
                   مشاركة عبر واتساب
-                </button>
+                </Button>
                 {typeof navigator !== 'undefined' && 'share' in navigator && (
-                  <button
+                  <Button
+                    variant="secondary"
+                    leftIcon={<Share2 size={14} />}
                     onClick={() => (navigator as any).share({ title: 'جداول', text: shareMsg, url: shareLink })}
-                    className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-sm font-bold inline-flex items-center gap-2 transition-colors"
                   >
-                    <Share2 size={14} />
                     مشاركة
-                  </button>
+                  </Button>
                 )}
               </div>
             </>
           ) : (
-            <button
+            <Button
               onClick={() => generate.mutate()}
-              disabled={generate.isPending}
-              className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black transition-colors disabled:opacity-50"
+              loading={generate.isPending}
+              fullWidth
+              size="lg"
             >
-              {generate.isPending ? '...' : 'أنشئ كود الإحالة الآن'}
-            </button>
+              أنشئ كود الإحالة الآن
+            </Button>
           )}
-        </div>
+        </Card>
 
-        {/* Referrals list */}
-        <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden">
+        {/* History */}
+        <Card variant="default" padding="none">
           <div className="p-4 border-b border-white/[0.06]">
             <h3 className="font-bold">الإحالات السابقة</h3>
           </div>
           {isLoading ? (
-            <div className="p-6 space-y-2">
+            <div className="p-4 space-y-2">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-12 bg-white/[0.03] rounded-xl animate-pulse" />
+                <Skeleton key={i} className="h-12 rounded-xl" />
               ))}
             </div>
           ) : !data || data.referrals.length === 0 ? (
-            <div className="p-10 text-center text-slate-500 text-sm">
-              ما في إحالات بعد — شارك كودك وابدأ.
+            <div className="p-4">
+              <EmptyState
+                compact
+                icon={<Gift size={18} />}
+                title="ما في إحالات بعد"
+                body="شارك كودك مع تاجر تعرفه — الكل يستفيد."
+              />
             </div>
           ) : (
-            <div className="divide-y divide-white/[0.04]">
+            <motion.ul
+              className="divide-y divide-white/[0.04]"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
               {data.referrals.map((r) => {
                 const cfg = statusConfig[r.status] ?? statusConfig.pending;
                 const Icon = cfg.icon;
                 return (
-                  <div key={r.id} className="p-4 flex items-center justify-between gap-4">
+                  <motion.li
+                    key={r.id}
+                    variants={fadeInUp}
+                    className="p-4 flex items-center justify-between gap-4"
+                  >
                     <div className="min-w-0">
                       <p className="font-bold text-sm truncate">
                         {r.referredVendorName ?? 'لم يُستخدم بعد'}
                       </p>
-                      <p className="text-[11px] text-slate-500 font-mono" dir="ltr">{r.code}</p>
+                      <p className="text-[11px] text-ink-500 font-mono" dir="ltr">{r.code}</p>
                     </div>
                     <div className={`inline-flex items-center gap-1.5 text-xs font-bold ${cfg.tint}`}>
                       <Icon size={13} />
                       {cfg.label}
                     </div>
-                  </div>
+                  </motion.li>
                 );
               })}
-            </div>
+            </motion.ul>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

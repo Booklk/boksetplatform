@@ -9,6 +9,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
+import { EmptyState } from '../../components/ui';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -635,10 +636,12 @@ export default function VendorOperations() {
               ))}
             </div>
           ) : todayBookings.length === 0 ? (
-            <div className="p-6 rounded-xl bg-slate-800/40 border border-slate-700/40 text-center">
-              <Clock size={24} className="text-slate-600 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm">لا توجد حجوزات لهذا اليوم</p>
-            </div>
+            <EmptyState
+              compact
+              icon={<Clock size={18} />}
+              title="ما في حجوزات لهذا اليوم"
+              body="أول ما ينزل حجز بتلقاه هنا — أو ابدأ حملة تسويق قصيرة عشان تستقطب."
+            />
           ) : (
             <div className="relative">
               {/* Timeline vertical line */}
@@ -689,11 +692,20 @@ export default function VendorOperations() {
               ))}
             </div>
           ) : vehicles.length === 0 ? (
-            <div className="p-4 rounded-xl bg-slate-800/40 border border-slate-700/40 text-center">
-              <Car size={20} className="text-slate-600 mx-auto mb-1.5" />
-              <p className="text-slate-500 text-sm">لا توجد مركبات مسجلة</p>
-              <Link to="/vendor/fleet" className="text-xs text-blue-400 mt-1 block">إضافة مركبة</Link>
-            </div>
+            <EmptyState
+              compact
+              icon={<Car size={18} />}
+              title="ما في مركبات مسجلة"
+              body="أضف أول مركبة لأسطولك عشان تقدر توزّع عليها."
+              action={
+                <Link
+                  to="/vendor/fleet"
+                  className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-bold text-xs transition-colors"
+                >
+                  إضافة مركبة
+                </Link>
+              }
+            />
           ) : (
             <div className="space-y-2">
               <AnimatePresence>

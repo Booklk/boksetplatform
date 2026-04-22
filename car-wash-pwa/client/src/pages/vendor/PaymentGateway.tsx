@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
   CreditCard, CheckCircle2, AlertCircle, Copy, ShieldCheck,
   Power, TestTube2, Save,
 } from 'lucide-react';
 import api from '../../lib/api';
+import {
+  Button, Card, Input, Badge, PageHeader, Skeleton,
+} from '../../components/ui';
+import { fadeInUp, staggerContainer } from '../../design/motion';
 
 interface FieldSpec {
   key: string;
@@ -59,7 +64,6 @@ export default function PaymentGateway() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [sandbox, setSandbox] = useState(true);
 
-  // Seed form state from saved config once it loads.
   useEffect(() => {
     if (!stored) return;
     if (stored.provider && !providerSlug) setProviderSlug(stored.provider);
@@ -69,7 +73,7 @@ export default function PaymentGateway() {
       merchantId: stored.credentials.merchantId || v.merchantId || '',
     }));
     setSandbox(stored.credentials.sandboxMode ?? true);
-  }, [stored]);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [stored]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const provider = useMemo(
     () => providers.find((p) => p.slug === providerSlug) ?? null,
@@ -79,11 +83,7 @@ export default function PaymentGateway() {
   const save = useMutation({
     mutationFn: async () => {
       if (!provider) throw new Error('اختر مزوّد الدفع');
-      // Only send secret fields if the user actually typed something —
-      // empty strings preserve the saved value server-side.
-      const credentials: Record<string, unknown> = {
-        sandboxMode: sandbox,
-      };
+      const credentials: Record<string, unknown> = { sandboxMode: sandbox };
       for (const f of provider.requiredFields) {
         const v = values[f.key];
         if (f.type === 'password') {
@@ -92,14 +92,10 @@ export default function PaymentGateway() {
           credentials[f.key] = v ?? '';
         }
       }
-      await api.put('/payment-gateway/config', {
-        provider: provider.slug,
-        credentials,
-      });
+      await api.put('/payment-gateway/config', { provider: provider.slug, credentials });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['payment-config'] });
-      // Clear the just-entered secrets so "●●●●" reflects reality.
       setValues((v) => {
         const next = { ...v };
         for (const f of provider?.requiredFields ?? []) {
@@ -141,65 +137,66 @@ export default function PaymentGateway() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b1220] text-white p-4 sm:p-6" dir="rtl">
+    <div className="min-h-screen bg-ink-950 text-white p-4 sm:p-6" dir="rtl">
       <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-black mb-1 flex items-center gap-2">
-            <CreditCard size={22} className="text-indigo-400" />
-            بوابة الدفع
-          </h1>
-          <p className="text-sm text-slate-400">
-            اختر مزوّد الدفع اللي تستخدمه، الصق مفاتيح API، واستخدم رابط الويبهوك اللي نعطيك — من غير ما تحتاج مبرمج.
-          </p>
-        </div>
+        <PageHeader
+          icon={<CreditCard size={20} />}
+          title="بوابة الدفع"
+          subtitle="اختر مزوّد الدفع، الصق مفاتيح API، واستخدم رابط الويبهوك اللي نعطيك — من غير ما تحتاج مبرمج."
+        />
 
         {/* Provider picker */}
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 mb-4">
-          <label className="block text-xs font-bold text-slate-400 mb-2">
-            المزوّد
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <Card variant="default" padding="md" className="mb-4">
+          <label className="block text-xs font-bold text-ink-400 mb-3">المزوّد</label>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
             {providers.map((p) => {
               const active = p.slug === providerSlug;
               return (
-                <button
+                <motion.button
                   key={p.slug}
+                  variants={fadeInUp}
                   type="button"
                   onClick={() => setProviderSlug(p.slug)}
-                  className={`text-right p-3 rounded-xl border-2 transition-all ${
+                  className={`text-right p-3 rounded-xl border-2 transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ${
                     active
-                      ? 'border-indigo-500/60 bg-indigo-500/10'
+                      ? 'border-primary-500/60 bg-primary-500/10'
                       : 'border-white/[0.06] bg-white/[0.02] hover:border-white/[0.15]'
                   }`}
+                  aria-pressed={active}
                 >
                   <p className="font-bold text-white text-sm">{p.labelAr}</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
+                  <p className="text-[11px] text-ink-400 mt-0.5 leading-relaxed">
                     {p.descriptionAr}
                   </p>
-                </button>
+                </motion.button>
               );
             })}
-          </div>
-        </div>
+          </motion.div>
+        </Card>
 
         {/* Credentials */}
         {provider && (
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 mb-4 space-y-3">
+          <Card variant="default" padding="md" className="mb-4 space-y-3">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-black">المفاتيح والبيانات</h3>
-              <label className="inline-flex items-center gap-2 text-[11px] text-slate-300 cursor-pointer">
+              <label className="inline-flex items-center gap-2 text-[11px] text-ink-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={sandbox}
                   onChange={(e) => setSandbox(e.target.checked)}
-                  className="accent-indigo-500"
+                  className="accent-primary-500"
                 />
                 وضع الاختبار (Sandbox)
               </label>
             </div>
 
             {provider.requiredFields.length === 0 ? (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-ink-500">
                 لا تحتاج أي مفاتيح — التسجيل اليدوي للدفعات من لوحة التحكم.
               </p>
             ) : (
@@ -209,127 +206,116 @@ export default function PaymentGateway() {
                   (f.key === 'secretKey' && stored?.credentials.secretKeySet) ||
                   (f.key === 'webhookSecret' && stored?.credentials.webhookSecretSet);
                 return (
-                  <div key={f.key}>
-                    <label className="block text-xs font-bold text-slate-400 mb-1">
-                      {f.labelAr}
-                      {f.optional && <span className="text-slate-600"> (اختياري)</span>}
-                      {saved && (
-                        <span className="text-emerald-400 mr-2 font-mono">●●●● محفوظ</span>
-                      )}
-                    </label>
-                    <input
-                      type={isPassword ? 'password' : 'text'}
-                      value={values[f.key] ?? ''}
-                      onChange={(e) =>
-                        setValues((v) => ({ ...v, [f.key]: e.target.value }))
-                      }
-                      placeholder={saved ? 'اتركه فاضي للإبقاء على القيمة السابقة' : ''}
-                      dir="ltr"
-                      className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-indigo-500/40 rounded-xl px-4 py-2.5 text-sm outline-none font-mono"
-                    />
-                    {f.helpAr && (
-                      <p className="text-[10px] text-slate-500 mt-1">{f.helpAr}</p>
-                    )}
-                  </div>
+                  <Input
+                    key={f.key}
+                    type={isPassword ? 'password' : 'text'}
+                    dir="ltr"
+                    label={
+                      <span className="flex items-center gap-2">
+                        {f.labelAr}
+                        {f.optional && <span className="text-ink-600 font-normal">(اختياري)</span>}
+                        {saved && <Badge tone="success" size="sm">●●●● محفوظ</Badge>}
+                      </span>
+                    }
+                    help={f.helpAr}
+                    placeholder={saved ? 'اتركه فاضي للإبقاء على القيمة السابقة' : ''}
+                    value={values[f.key] ?? ''}
+                    onChange={(e) =>
+                      setValues((v) => ({ ...v, [f.key]: e.target.value }))
+                    }
+                  />
                 );
               })
             )}
 
             <div className="flex items-center gap-2 pt-2">
-              <button
+              <Button
                 onClick={() => save.mutate()}
-                disabled={save.isPending || !providerSlug}
-                className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm transition-colors disabled:opacity-50"
+                loading={save.isPending}
+                disabled={!providerSlug}
+                leftIcon={<Save size={14} />}
+                fullWidth
               >
-                <Save size={14} />
-                {save.isPending ? '...' : 'حفظ المفاتيح'}
-              </button>
-              <button
+                حفظ المفاتيح
+              </Button>
+              <Button
+                variant="secondary"
                 onClick={() => test.mutate()}
-                disabled={test.isPending || !stored?.provider}
-                className="inline-flex items-center gap-2 py-2.5 px-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-sm font-bold transition-colors disabled:opacity-50"
+                loading={test.isPending}
+                disabled={!stored?.provider}
+                leftIcon={<TestTube2 size={14} />}
               >
-                <TestTube2 size={14} />
                 اختبار الاتصال
-              </button>
+              </Button>
             </div>
 
             {stored?.lastVerifiedAt && (
-              <div className="flex items-center gap-2 text-[11px] text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 text-[11px] text-success-300 bg-success-500/10 border border-success-500/20 rounded-lg px-3 py-2">
                 <ShieldCheck size={12} />
-                آخر اختبار ناجح:{' '}
-                {new Date(stored.lastVerifiedAt).toLocaleString('ar-SA')}
+                آخر اختبار ناجح: {new Date(stored.lastVerifiedAt).toLocaleString('ar-SA')}
               </div>
             )}
-          </div>
+          </Card>
         )}
 
-        {/* Webhook URL + Enable */}
+        {/* Webhook URL */}
         {provider?.supportsWebhook && configData?.webhookUrl && (
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 mb-4">
+          <Card variant="default" padding="md" className="mb-4">
             <h3 className="text-sm font-black mb-1">رابط الويبهوك</h3>
-            <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-              الصق هذا الرابط في لوحة تحكم <strong>{provider.labelAr}</strong> تحت Webhooks. يخليك تستقبل تحديثات الدفع لحظياً بدون ما تحتاج تفتح متجرك كل مرة.
+            <p className="text-xs text-ink-400 mb-3 leading-relaxed">
+              الصق هذا الرابط في لوحة تحكم <strong>{provider.labelAr}</strong> تحت Webhooks.
             </p>
             <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl p-2.5">
-              <code
-                className="flex-1 text-[11px] text-indigo-300 font-mono truncate"
-                dir="ltr"
-              >
+              <code className="flex-1 text-[11px] text-primary-300 font-mono truncate" dir="ltr">
                 {configData.webhookUrl}
               </code>
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
+                leftIcon={<Copy size={11} />}
                 onClick={copyWebhook}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 text-[11px] font-bold text-indigo-300"
               >
-                <Copy size={11} />
                 نسخ
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         )}
 
         {/* Enable / disable */}
         {stored?.provider && (
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-5 flex items-center justify-between">
+          <Card variant="default" padding="md" className="flex items-center justify-between">
             <div>
               <h3 className="text-sm font-black mb-0.5 flex items-center gap-2">
                 {stored.enabled ? (
                   <>
-                    <CheckCircle2 size={15} className="text-emerald-400" />
+                    <CheckCircle2 size={15} className="text-success-400" />
                     البوابة مفعّلة
                   </>
                 ) : (
                   <>
-                    <AlertCircle size={15} className="text-amber-400" />
+                    <AlertCircle size={15} className="text-warn-400" />
                     البوابة موقوفة
                   </>
                 )}
               </h3>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-ink-400">
                 {stored.enabled
                   ? 'العملاء يقدرون يدفعون مباشرة من صفحة الحجز.'
                   : 'المدفوعات الإلكترونية معطّلة — فعّلها لما تتأكد من الإعدادات.'}
               </p>
             </div>
-            <button
+            <Button
+              variant={stored.enabled ? 'secondary' : 'success'}
               onClick={() => toggleEnabled.mutate(!stored.enabled)}
-              disabled={toggleEnabled.isPending}
-              className={`inline-flex items-center gap-2 py-2 px-4 rounded-xl text-sm font-bold transition-colors ${
-                stored.enabled
-                  ? 'bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300'
-                  : 'bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300'
-              } disabled:opacity-50`}
+              loading={toggleEnabled.isPending}
+              leftIcon={<Power size={14} />}
             >
-              <Power size={14} />
               {stored.enabled ? 'إيقاف' : 'تفعيل'}
-            </button>
-          </div>
+            </Button>
+          </Card>
         )}
 
-        {isLoading && !stored && (
-          <div className="h-24 bg-white/[0.03] border border-white/[0.06] rounded-2xl animate-pulse" />
-        )}
+        {isLoading && !stored && <Skeleton className="h-24 rounded-2xl" />}
       </div>
     </div>
   );

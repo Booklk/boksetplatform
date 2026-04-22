@@ -20,6 +20,7 @@ import {
 import api from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import MarketingLayout from '../components/marketing/MarketingLayout';
+import { Button, Input, Card } from '../components/ui';
 import {
   STORE_THEMES, getFreeTemplateIds, StoreTheme,
 } from '../lib/storeThemes';
@@ -307,15 +308,15 @@ export default function FastOnboard() {
                 </p>
               </div>
 
-              <button
+              <Button
+                size="lg"
+                fullWidth
+                loading={registerMutation.isPending || otpSending}
                 onClick={submitAccount}
-                disabled={registerMutation.isPending || otpSending}
-                className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-base transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                rightIcon={<ArrowLeft size={16} />}
               >
-                {(registerMutation.isPending || otpSending) ? <Loader2 size={16} className="animate-spin" /> : null}
                 {verifyToken ? 'التالي — اختيار قالبك' : 'التحقق من رقم جوالي'}
-                <ArrowLeft size={16} />
-              </button>
+              </Button>
               <p className="text-[11px] text-slate-500 text-center">
                 بنرسل لك رمز تحقق بواتساب للتأكد من رقمك — خطوة واحدة بس.
               </p>
@@ -597,14 +598,14 @@ export default function FastOnboard() {
                   className="w-full bg-white/[0.04] border border-white/[0.08] focus:border-indigo-500/40 rounded-xl px-4 py-3 text-2xl text-center tracking-[0.5em] font-mono text-white outline-none mb-4"
                   autoFocus
                 />
-                <button
+                <Button
                   onClick={verifyOtp}
-                  disabled={otpVerifying || otpCode.length !== 6}
-                  className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                  disabled={otpCode.length !== 6}
+                  loading={otpVerifying}
+                  fullWidth
                 >
-                  {otpVerifying ? <Loader2 size={16} className="animate-spin" /> : null}
                   تأكيد وإنشاء المتجر
-                </button>
+                </Button>
                 <div className="flex items-center justify-between mt-4 text-[11px]">
                   <button
                     onClick={resendOtp}
