@@ -46,6 +46,7 @@ const Blog = lazy(() => import('./pages/Blog'));
 const BlogArticle = lazy(() => import('./pages/BlogArticle'));
 const IndustryLandingPage = lazy(() => import('./pages/IndustryLanding'));
 const VendorOnboarding = lazy(() => import('./pages/VendorOnboarding'));
+const FastOnboard = lazy(() => import('./pages/FastOnboard'));
 
 // Business pages
 const Demo = lazy(() => import('./pages/Demo'));
@@ -248,7 +249,9 @@ function AppRoutes() {
         <Route path="/store/:slug" element={<S><VendorLanding /></S>} />
         <Route path="/store/:slug/p/:pageSlug" element={<S><VendorPageRenderer /></S>} />
         <Route path="/store/:slug/book" element={<S><AppointmentBooking /></S>} />
-        <Route path="/onboard" element={<S><VendorOnboarding /></S>} />
+        <Route path="/onboard" element={<S><FastOnboard /></S>} />
+        <Route path="/start" element={<S><FastOnboard /></S>} />
+        <Route path="/onboard-legacy" element={<S><VendorOnboarding /></S>} />
         <Route path="/demo" element={<S><Demo /></S>} />
         <Route path="/privacy" element={<S><Privacy /></S>} />
         <Route path="/terms" element={<S><Terms /></S>} />
