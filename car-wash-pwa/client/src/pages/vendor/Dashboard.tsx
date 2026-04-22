@@ -608,7 +608,7 @@ export default function VendorDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <div className="font-black text-lg">مركز العمليات اليومية</div>
-              <div className="text-blue-100 text-sm">شاهد كل ما يحدث الآن في مغسلتك</div>
+              <div className="text-blue-100 text-sm">شاهد كل ما يحدث الآن في متجرك</div>
             </div>
             <Activity size={32} className="opacity-80" />
           </div>
@@ -646,7 +646,7 @@ export default function VendorDashboard() {
                 <Rocket size={22} className="text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-white text-base">أكمل إعداد مغسلتك</p>
+                <p className="font-bold text-white text-base">أكمل إعداد متجرك</p>
                 <p className="text-blue-200/70 text-sm mt-0.5">
                   أضف مفتاح الدفع وبيانات واتساب وخدماتك — يستغرق ٣ دقائق فقط
                 </p>

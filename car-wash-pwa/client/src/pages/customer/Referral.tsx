@@ -89,7 +89,7 @@ export default function CustomerReferral() {
           className="bg-gradient-to-br from-brand-900/80 to-purple-900/40 border border-brand-700/30 rounded-3xl p-6 text-center"
         >
           <div className="text-5xl mb-3">🎁</div>
-          <h2 className="text-white font-black text-xl mb-1">شارك مغسلتك المفضلة</h2>
+          <h2 className="text-white font-black text-xl mb-1">شارك متجرك المفضل</h2>
           <p className="text-slate-300 text-sm">
             كل صديق يسجل باستخدام كودك — تحصل أنت وهو على خصم في الحجز القادم!
           </p>

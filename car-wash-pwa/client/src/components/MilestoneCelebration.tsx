@@ -13,7 +13,7 @@ interface Props {
 
 const INCOME_MILESTONES = [
   { threshold: 1000,   label: 'أول ألف ريال 🎉',          sub: 'بداية رائعة! واصل الزخم' },
-  { threshold: 5000,   label: '5,000 ريال هذا الشهر 🔥',  sub: 'مغسلتك تنمو بقوة!' },
+  { threshold: 5000,   label: '5,000 ريال هذا الشهر 🔥',  sub: 'متجرك ينمو بقوة!' },
   { threshold: 10000,  label: '10,000 ريال 🚀',            sub: 'وصلت لعشرة آلاف — أنت محترف' },
   { threshold: 25000,  label: '25,000 ريال 💎',            sub: 'ربع مليون في المتناول!' },
   { threshold: 50000,  label: '50,000 ريال 👑',            sub: 'نصف مليون سنوياً — ملك الغسيل' },

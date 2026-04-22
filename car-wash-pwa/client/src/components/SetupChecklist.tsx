@@ -1,5 +1,5 @@
 // A compact checklist widget shown in Dashboard until 100% complete
-// After 100%, it collapses and shows a "🎉 إعداد مغسلتك مكتمل" badge
+// After 100%, it collapses and shows a "🎉 إعداد متجرك مكتمل" badge
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -34,7 +34,7 @@ export default function SetupChecklist() {
             <Zap size={16} className="text-blue-400" />
           </div>
           <div>
-            <div className="text-white font-bold text-sm">إعداد مغسلتك</div>
+            <div className="text-white font-bold text-sm">إعداد متجرك</div>
             <div className="text-slate-400 text-xs">{data.completedCount} من {data.totalSteps} خطوات مكتملة</div>
           </div>
         </div>

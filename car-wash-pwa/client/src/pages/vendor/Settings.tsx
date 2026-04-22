@@ -784,7 +784,7 @@ export default function VendorSettings() {
               <SettingsIcon className="w-6 h-6 text-blue-400" />
               الإعدادات
             </h1>
-            <p className="text-white/40 text-sm mt-0.5">إدارة جميع إعدادات مغسلتك في مكان واحد</p>
+            <p className="text-white/40 text-sm mt-0.5">إدارة جميع إعدادات متجرك في مكان واحد</p>
           </div>
         </div>
 

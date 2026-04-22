@@ -143,7 +143,7 @@ export function SetupWizardModal({ isOpen, onClose, vendorSlug, vendorId }: Setu
       case 2:
         return (
           <div className="space-y-4">
-            <p className="text-slate-400 text-sm">خصّص هوية مغسلتك حتى يتعرف عليها العملاء.</p>
+            <p className="text-slate-400 text-sm">خصّص هوية متجرك حتى يتعرف عليها العملاء.</p>
             {/* Logo placeholder */}
             <div className="border-2 border-dashed border-white/10 rounded-xl p-6 text-center">
               <Sparkles size={28} className="text-slate-500 mx-auto mb-2" />
@@ -207,7 +207,7 @@ export function SetupWizardModal({ isOpen, onClose, vendorSlug, vendorId }: Setu
             <div className="text-6xl">🎉</div>
             <h3 className="text-xl font-bold text-white">مبروك!</h3>
             <p className="text-slate-400 text-sm leading-relaxed">
-              مغسلتك جاهزة! ابدأ استقبل الحجوزات<br />وتابع كل شي من لوحة التحكم.
+              متجرك جاهز! ابدأ استقبل الحجوزات<br />وتابع كل شي من لوحة التحكم.
             </p>
             <button
               onClick={onClose}

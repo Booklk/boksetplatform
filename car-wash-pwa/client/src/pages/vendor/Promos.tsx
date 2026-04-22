@@ -221,7 +221,7 @@ export default function VendorPromos() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">أكواد الخصم</h1>
-              <p className="text-white/40 text-sm">إدارة عروض مغسلتك</p>
+              <p className="text-white/40 text-sm">إدارة عروض متجرك</p>
             </div>
           </div>
           <motion.button

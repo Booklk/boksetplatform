@@ -132,7 +132,7 @@ export default function FinancialStatements() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2"><FileText size={28} /> القوائم المالية</h1>
-          <p className="text-slate-400 mt-1">تقارير مالية احترافية بهوية مغسلتك — جاهزة للتصدير</p>
+          <p className="text-slate-400 mt-1">تقارير مالية احترافية بهوية متجرك — جاهزة للتصدير</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <input type="date" value={from} onChange={e => setFrom(e.target.value)} className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" />

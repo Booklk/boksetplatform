@@ -30,7 +30,7 @@ interface SetupCard {
 }
 
 const CARDS: SetupCard[] = [
-  { id: 'info',     title: 'المعلومات الأساسية', subtitle: 'اسم مغسلتك، شعارها، لونها', icon: <Store size={20}/>, required: true, color: 'blue' },
+  { id: 'info',     title: 'المعلومات الأساسية', subtitle: 'اسم متجرك، شعارها، لونها', icon: <Store size={20}/>, required: true, color: 'blue' },
   { id: 'payment',  title: 'بوابة الدفع الإلكتروني', subtitle: 'استقبل المدفوعات مباشرة في حسابك', icon: <CreditCard size={20}/>, required: false, color: 'green' },
   { id: 'whatsapp', title: 'واتساب للإشعارات', subtitle: 'أرسل رسائل من رقمك أنت', icon: <MessageCircle size={20}/>, required: false, color: 'emerald' },
   { id: 'areas',    title: 'منطقة الخدمة', subtitle: 'أين تقدم خدمتك؟', icon: <Globe size={20}/>, required: true, color: 'purple' },
@@ -128,7 +128,7 @@ export default function VendorSetup() {
           <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Zap className="text-blue-400" size={28} />
           </div>
-          <h1 className="text-2xl font-black text-white">إعداد مغسلتك</h1>
+          <h1 className="text-2xl font-black text-white">إعداد متجرك</h1>
           <p className="text-slate-400 mt-1">أكمل الخطوات التالية لتبدأ باستقبال الحجوزات</p>
 
           {/* Progress */}
@@ -385,7 +385,7 @@ export default function VendorSetup() {
               className="mt-8 bg-gradient-to-l from-green-900/40 to-emerald-900/40 border border-green-500/40 rounded-2xl p-6 text-center"
             >
               <div className="text-4xl mb-3">🎉</div>
-              <h2 className="text-xl font-black text-white mb-2">مغسلتك جاهزة!</h2>
+              <h2 className="text-xl font-black text-white mb-2">متجرك جاهز!</h2>
               <p className="text-slate-400 text-sm mb-5">يمكنك الآن استقبال الحجوزات وإدارة فريقك</p>
               <Link to="/vendor"
                 className="inline-block bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold transition-colors">

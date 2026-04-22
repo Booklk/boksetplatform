@@ -208,7 +208,7 @@ export default function CityLanding() {
             className="mb-16"
           >
             <h2 className="text-2xl font-black text-white mb-6 text-center">
-              لماذا Jadawel لمغسلتك في {data.nameAr}؟
+              لماذا جداول لمتجرك في {data.nameAr}؟
             </h2>
             <div className="grid sm:grid-cols-2 gap-4">
               {[

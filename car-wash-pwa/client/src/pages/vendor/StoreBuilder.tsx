@@ -281,7 +281,7 @@ export default function StoreBuilder() {
                 <Globe className="w-5 h-5 text-blue-400" />
                 منشئ صفحة الحجز
               </h1>
-              <p className="text-xs text-slate-500">اختر ثيم وصمّم صفحة حجز احترافية لمغسلتك</p>
+              <p className="text-xs text-slate-500">اختر ثيم وصمّم صفحة حجز احترافية لمتجرك</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -636,7 +636,7 @@ export default function StoreBuilder() {
                           }`}
                         >
                           <p className={`text-sm font-bold ${heroTextId === ht.id ? 'text-blue-400' : 'text-white'}`}>
-                            {ht.subtitle.replace('{name}', vendor?.nameAr ?? 'مغسلتك').replace('{rating}', '4.9')}
+                            {ht.subtitle.replace('{name}', vendor?.nameAr ?? 'متجرك').replace('{rating}', '4.9')}
                           </p>
                         </button>
                       ))}

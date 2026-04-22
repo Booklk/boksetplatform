@@ -377,12 +377,12 @@ export default function VendorOnboarding() {
 
           <div className="flex items-center justify-center gap-2 mb-2">
             <Sparkles size={24} className="text-purple-400" />
-            <h1 className="text-3xl sm:text-4xl font-black text-white">انضم بمغسلتك</h1>
+            <h1 className="text-3xl sm:text-4xl font-black text-white">انضم بمتجرك</h1>
             <Sparkles size={24} className="text-blue-400" />
           </div>
 
           <p className="text-slate-300 text-base font-semibold mb-1">
-            سجّل مغسلتك في 3 دقائق وابدأ فوراً
+            سجّل متجرك في 3 دقائق وابدأ فوراً
           </p>
           <p className="text-slate-500 text-xs">
             كل يوم بدون Jadawel هو يوم تخسر فيه حجوزات
@@ -592,7 +592,7 @@ export default function VendorOnboarding() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-emerald-400 text-xs mt-1.5 font-semibold"
                   >
-                    تم اقتراح الباقة المناسبة بناءً على نوع مغسلتك
+                    تم اقتراح الباقة المناسبة بناءً على نوع نشاطك
                   </motion.p>
                 )}
               </div>
@@ -773,7 +773,7 @@ export default function VendorOnboarding() {
                 <div>
                   <p className="text-green-300 font-bold text-sm">سيتم التواصل معك عبر واتساب</p>
                   <p className="text-slate-400 text-xs mt-0.5">
-                    سيقوم فريقنا بالتواصل معك خلال 24 ساعة على الرقم {form.phone} لإتمام تسجيل مغسلتك
+                    سيقوم فريقنا بالتواصل معك خلال 24 ساعة على الرقم {form.phone} لإتمام تسجيل متجرك
                   </p>
                 </div>
               </div>

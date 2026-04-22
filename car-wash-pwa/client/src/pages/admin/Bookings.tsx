@@ -176,7 +176,7 @@ export default function AdminBookings() {
             <EmptyState
               emoji="📅"
               title="لا توجد حجوزات بعد"
-              description="شارك رابط مغسلتك مع عملائك لاستقبال أول حجز"
+              description="شارك رابط متجرك مع عملائك لاستقبال أول حجز"
               actionLabel="عرض رابط الحجز"
               actionPath="/vendor/branding"
             />

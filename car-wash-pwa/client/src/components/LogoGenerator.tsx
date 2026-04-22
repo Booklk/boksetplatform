@@ -344,7 +344,7 @@ export default function LogoGenerator({ onSave, initialLetter = '' }: LogoGenera
                 className="input-field text-lg font-bold"
                 maxLength={20}
               />
-              <p className="text-xs text-slate-500 mt-1">اكتب اسم مغسلتك كما تريده أن يظهر</p>
+              <p className="text-xs text-slate-500 mt-1">اكتب اسم متجرك كما تريده أن يظهر</p>
             </div>
 
             <div>

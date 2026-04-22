@@ -204,7 +204,7 @@ function SidebarSections({
 // ─── Role label helper ────────────────────────────────────────────────────────
 function roleLabel(role: string) {
   const map: Record<string, string> = {
-    vendor_admin: 'مالك المغسلة',
+    vendor_admin: 'مالك المتجر',
     admin: 'المدير',
     employee: 'موظف',
     customer: 'عميل',

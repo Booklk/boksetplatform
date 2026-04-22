@@ -50,29 +50,67 @@ export default function ProTrialBanner() {
   if (data.status === 'active') return null;
 
   // Currently in trial — show countdown card.
+  // Tone ramps up gently as the deadline approaches:
+  //   > 3 days    : relaxed "enjoy Pro"
+  //   2-3 days    : soft nudge "3 days left — hope it's useful"
+  //   1 day       : explicit "tomorrow we flip back to free"
+  //   0 days same : last-day call to action
   if (data.status === 'trial' && data.daysRemaining > 0) {
+    const d = data.daysRemaining;
+    const urgent = d <= 3;
+    const lastDay = d <= 1;
+    const headline =
+      lastDay ? 'آخر يوم في تجربة Pro'
+      : urgent ? `باقي ${d} ${d === 2 ? 'يومين' : 'أيام'} في تجربة Pro`
+      : 'أنت في تجربة Pro — استمتع 🌿';
+    const body =
+      lastDay
+        ? 'بكرا نرجعك للباقة المجانية تلقائياً. بياناتك كلها محفوظة — ما تخسر شي. إذا عجبتك Pro، تقدر تشترك من صفحة الاشتراك.'
+      : urgent
+        ? `بعد ${d} ${d === 2 ? 'يومين' : 'أيام'} نرجعك للباقة المجانية تلقائياً بدون أي خصومات. اذا حبيت Pro تقدر تكمّل بـ 99 ر.س/شهر.`
+        : 'كل أدوات Pro مفتوحة — واتساب، POS، مخزون، CRM، المستشار الذكي، وكل الـ 40 قالب. نبيك تجرّب براحتك قبل أي قرار.';
+
+    const tone = lastDay
+      ? 'border-amber-500/30 from-amber-500/10'
+      : urgent
+      ? 'border-amber-500/20 from-amber-500/5'
+      : 'border-indigo-500/20 from-indigo-500/10';
+    const iconWrap = urgent
+      ? 'bg-amber-500/20 border-amber-500/30'
+      : 'bg-indigo-500/20 border-indigo-500/30';
+    const iconCls = urgent ? 'text-amber-300' : 'text-indigo-300';
+    const badge = urgent
+      ? 'bg-amber-500/20 text-amber-200 border-amber-500/30'
+      : 'bg-indigo-500/20 text-indigo-200 border-indigo-500/30';
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 via-slate-900/40 to-transparent p-5"
+        className={`rounded-2xl border bg-gradient-to-br via-slate-900/40 to-transparent p-5 ${tone}`}
       >
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
-            <Sparkles className="w-5 h-5 text-indigo-300" />
+          <div className={`w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 ${iconWrap}`}>
+            <Sparkles className={`w-5 h-5 ${iconCls}`} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1.5">
-              <p className="font-black text-white">أنت في تجربة Pro — استمتع 🌿</p>
-              <span className="text-[10px] font-bold bg-indigo-500/20 text-indigo-200 border border-indigo-500/30 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+              <p className="font-black text-white">{headline}</p>
+              <span className={`text-[10px] font-bold border px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${badge}`}>
                 <Clock size={10} />
-                {data.daysRemaining} {data.daysRemaining === 1 ? 'يوم' : 'يوم'} متبقي
+                {d} {d === 1 ? 'يوم' : 'يوم'} متبقي
               </span>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              كل أدوات Pro مفتوحة — واتساب، POS، مخزون، CRM، المستشار الذكي، وكل
-              الـ 40 قالب. نبيك تجرّب براحتك قبل أي قرار.
-            </p>
+            <p className="text-slate-400 text-sm leading-relaxed">{body}</p>
+            {urgent && (
+              <a
+                href="/vendor/platform-sub"
+                className="inline-flex items-center gap-1.5 mt-3 text-indigo-300 hover:text-white text-sm font-bold transition-colors"
+              >
+                كمّل على Pro
+                <ArrowLeft size={12} />
+              </a>
+            )}
           </div>
         </div>
       </motion.div>

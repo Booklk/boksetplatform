@@ -76,7 +76,7 @@ export default function SmartInsights() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-lg">🧠</span>
-          <h2 className="text-white font-black text-sm">رؤى ذكية مخصصة لمغسلتك</h2>
+          <h2 className="text-white font-black text-sm">رؤى ذكية مخصصة لمتجرك</h2>
         </div>
         {meta && (
           <span className="text-xs text-slate-500">
