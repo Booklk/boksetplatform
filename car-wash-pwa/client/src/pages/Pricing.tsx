@@ -2,18 +2,32 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { useQuery } from '@tanstack/react-query';
 import {
-  CheckCircle, ArrowLeft, Zap, Star, Building2, Users,
+  CheckCircle, ArrowLeft, Zap, Star, Building2, Users, Loader2,
 } from 'lucide-react';
 import MarketingLayout from '../components/marketing/MarketingLayout';
+import api from '../lib/api';
 
-const plans = [
+/** Shape returned by GET /api/plans. */
+interface PlatformPlan {
+  id: number;
+  slug: string;
+  nameAr: string;
+  description?: string | null;
+  price: string;
+  isPopular: boolean;
+  trialDays: number;
+  sortOrder: number;
+  features: string[];
+}
+
+/** Fallback — used while the API is loading or if the server is down. */
+const FALLBACK_PLANS: PlatformPlan[] = [
   {
-    id: 'free',
-    name: 'مجاني',
-    desc: 'ابدأ موقعك الإلكتروني بدون تكلفة',
-    price: 0,
-    popular: false,
+    id: 1, slug: 'free', nameAr: 'مجاني',
+    description: 'ابدأ موقعك الإلكتروني بدون تكلفة',
+    price: '0', isPopular: false, trialDays: 0, sortOrder: 1,
     features: [
       '3 قوالب احترافية مختارة لنشاطك',
       'حجوزات غير محدودة',
@@ -26,21 +40,18 @@ const plans = [
     ],
   },
   {
-    id: 'pro',
-    name: 'Pro',
-    desc: 'كل أدوات تشغيل المتجر + 40 قالب',
-    price: 99,
-    yearlyPrice: 999,
-    popular: true,
+    id: 2, slug: 'pro', nameAr: 'Pro',
+    description: 'كل أدوات تشغيل المتجر + 40 قالب',
+    price: '99', isPopular: true, trialDays: 30, sortOrder: 2,
     features: [
       'كل مميزات الباقة المجانية',
-      '🎨 40 قالب احترافي (بدل 3 قوالب)',
+      '🎨 40 قالب احترافي',
       '💬 واتساب (إشعارات + حملات + أتمتة)',
       '🧾 نقطة بيع (POS) + كاشير',
       '📦 إدارة مخزون وموردين',
-      '👤 CRM + تصنيف العملاء + برنامج الولاء',
+      '👤 CRM + تصنيف عملاء + برنامج ولاء',
       '🗺️ Google Maps متكامل',
-      '📊 قوائم مالية متقدمة (P&L، Cashflow، VAT)',
+      '📊 قوائم مالية متقدمة',
       '👥 إدارة موظفين + رواتب + بونصات + GPS',
       '📈 لوحة تحكم متقدمة + تحليلات',
       '🤖 المستشار الذكي بالـ AI',
@@ -48,6 +59,9 @@ const plans = [
     ],
   },
 ];
+
+// Plans are now fetched live from /api/plans inside Pricing(). FALLBACK_PLANS
+// defined above this file handles the loading / offline case.
 
 const BILLING_CYCLES = [
   { id: 'monthly', label: 'شهري', suffix: '/شهر' },
@@ -72,6 +86,32 @@ const fadeUp = (delay = 0) => ({
 export default function Pricing() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const isYearly = billing === 'yearly';
+
+  // Live plans from /api/plans — falls back to FALLBACK_PLANS so the
+  // page never renders blank during load or when the API is down.
+  const { data: apiPlans, isLoading: plansLoading } = useQuery<PlatformPlan[]>({
+    queryKey: ['public-plans'],
+    queryFn: () => api.get('/plans').then((r) => r.data),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const source: PlatformPlan[] = (apiPlans && apiPlans.length > 0) ? apiPlans : FALLBACK_PLANS;
+  // Adapt API plans → UI shape expected by the rest of this component.
+  const plans = source
+    .slice()
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+    .map((p) => {
+      const monthly = parseFloat(p.price);
+      return {
+        id: p.slug,
+        name: p.nameAr,
+        desc: p.description ?? '',
+        price: monthly,
+        yearlyPrice: monthly > 0 ? monthly * 10 : 0, // two months free on annual
+        popular: p.isPopular,
+        features: p.features ?? [],
+      };
+    });
 
   return (
     <MarketingLayout>
@@ -121,6 +161,12 @@ export default function Pricing() {
             </div>
           </div>
 
+          {plansLoading && !apiPlans && (
+            <div className="flex items-center justify-center text-slate-500 text-xs py-2 -mt-4 mb-2 gap-2">
+              <Loader2 size={12} className="animate-spin" />
+              <span>نحدّث الأسعار…</span>
+            </div>
+          )}
           <div className="grid sm:grid-cols-2 gap-4">
             {plans.map((plan, i) => (
               <motion.div

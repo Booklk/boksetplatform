@@ -286,9 +286,38 @@ export default function VendorLanding() {
     return (
       <div className="min-h-screen bg-surface-1 flex flex-col items-center justify-center text-center px-4" dir="rtl">
         <div className="text-6xl mb-4">🚫</div>
-        <h2 className="text-2xl font-black text-white mb-2">المغسلة غير موجودة</h2>
-        <p className="text-slate-400 mb-6">لم نتمكن من العثور على هذه المغسلة</p>
+        <h2 className="text-2xl font-black text-white mb-2">المتجر غير موجود</h2>
+        <p className="text-slate-400 mb-6">لم نتمكن من العثور على هذا المتجر</p>
         <Link to="/marketplace" className="btn-primary">العودة للسوق</Link>
+      </div>
+    );
+  }
+
+  // Vendor exists but is paused / suspended / subscription expired.
+  // Show a friendly "closed" state instead of a broken booking page.
+  const rawVendor = vendor as VendorPublic & { isActive?: boolean; subscriptionStatus?: string };
+  const isClosed = rawVendor.isActive === false || rawVendor.subscriptionStatus === 'suspended';
+  if (isClosed) {
+    return (
+      <div className="min-h-screen bg-surface-1 flex flex-col items-center justify-center text-center px-4" dir="rtl">
+        <div className="max-w-md">
+          <div className="text-5xl mb-5">⏸️</div>
+          <h2 className="text-2xl font-black text-white mb-2">
+            {vendor.nameAr} — متوقّف مؤقتاً
+          </h2>
+          <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+            هذا المتجر غير متاح لاستقبال حجوزات في الوقت الحالي. تقدر ترجع لاحقاً،
+            أو تتواصل مع صاحب المتجر لو عندك استفسار.
+          </p>
+          {vendor.phone && (
+            <a
+              href={`tel:${vendor.phone}`}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.05] border border-white/10 text-white text-sm font-bold hover:bg-white/[0.08] transition-colors"
+            >
+              اتصل بالمتجر
+            </a>
+          )}
+        </div>
       </div>
     );
   }

@@ -273,12 +273,26 @@
 
 /* Vendor-authored page content — inherits colour from the vendor's CustomTheme,
    so we only set structure/rhythm here. */
+.vendor-page-content h1 { @apply text-2xl font-black mt-10 mb-4; }
 .vendor-page-content h2 { @apply text-xl font-black mt-8 mb-3; }
 .vendor-page-content h3 { @apply text-lg font-bold mt-6 mb-2 opacity-90; }
 .vendor-page-content p  { @apply leading-relaxed mb-4 opacity-85; }
 .vendor-page-content ul { @apply space-y-2 mb-4 pr-4; list-style: disc; padding-inline-start: 1.25rem; }
+.vendor-page-content ol { @apply space-y-2 mb-4 pr-4; list-style: decimal; padding-inline-start: 1.25rem; }
 .vendor-page-content li { @apply leading-relaxed opacity-85; }
 .vendor-page-content strong { @apply font-bold; }
+.vendor-page-content em { @apply italic opacity-90; }
+.vendor-page-content a { @apply underline underline-offset-2; color: inherit; opacity: 0.9; }
+.vendor-page-content a:hover { opacity: 1; }
+.vendor-page-content img { @apply my-5 rounded-xl max-w-full h-auto; }
+.vendor-page-content code { @apply px-1.5 py-0.5 rounded text-sm font-mono; background: rgba(255,255,255,0.06); }
+.vendor-page-content pre { @apply my-5 p-4 rounded-xl overflow-x-auto text-sm font-mono; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+.vendor-page-content pre code { @apply p-0 bg-transparent; }
+.vendor-page-content blockquote { @apply my-5 pr-4 border-r-4 opacity-80; border-color: rgba(255,255,255,0.15); }
+.vendor-page-content .table-wrap { @apply my-5 overflow-x-auto; }
+.vendor-page-content table { @apply w-full text-sm border-collapse; }
+.vendor-page-content th, .vendor-page-content td { @apply px-3 py-2 text-right; border: 1px solid rgba(255,255,255,0.08); }
+.vendor-page-content th { @apply font-bold; background: rgba(255,255,255,0.04); }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    ANIMATIONS

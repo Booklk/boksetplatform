@@ -184,6 +184,10 @@ router.get('/public/:slug', async (req, res) => {
       rating: vendors.rating,
       reviewsCount: vendors.reviewsCount,
       settings: vendors.settings,
+      // Expose these so the storefront can render a friendly "closed"
+      // state instead of a broken page when the vendor is paused.
+      isActive: vendors.isActive,
+      subscriptionStatus: vendors.subscriptionStatus,
     }).from(vendors)
       .where(eq(vendors.slug, req.params.slug))
       .limit(1);
