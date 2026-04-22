@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
+import { EmptyState } from '../../components/ui';
 import SetupChecklist from '../../components/SetupChecklist';
 import SmartInsights from '../../components/SmartInsights';
 import TrialBanner from '../../components/TrialBanner';
@@ -884,10 +885,12 @@ export default function VendorDashboard() {
               أكثر الخدمات طلباً
             </h3>
             {topServices.length === 0 ? (
-              <div className="text-center py-8 text-white/20">
-                <BarChart2 className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p className="text-xs">لا توجد بيانات بعد</p>
-              </div>
+              <EmptyState
+                compact
+                icon={<BarChart2 size={18} />}
+                title="ما في بيانات كافية بعد"
+                body="بعد أول حجوزات، أكثر الخدمات طلباً بتظهر هنا."
+              />
             ) : (
               <div className="space-y-3">
                 {topServices.slice(0, 4).map((s, i) => {
@@ -956,12 +959,21 @@ export default function VendorDashboard() {
               {[...Array(4)].map((_, i) => <div key={i} className="h-20 bg-white/5 rounded-xl animate-pulse" />)}
             </div>
           ) : inventoryItems.length === 0 ? (
-            <div className="py-10 text-center text-white/20">
-              <Package className="w-10 h-10 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">لا يوجد مخزون مضاف بعد</p>
-              <button onClick={() => setShowAddItem(true)} className="mt-3 text-xs text-cyan-400 hover:text-cyan-300 underline underline-offset-2">
-                أضف أول صنف
-              </button>
+            <div className="p-4">
+              <EmptyState
+                compact
+                icon={<Package size={20} />}
+                title="ما في مخزون مضاف بعد"
+                body="ضيف أول صنف عشان تقدر تتابع الكميات + الصلاحيات + تكاليف الوحدة."
+                action={
+                  <button
+                    onClick={() => setShowAddItem(true)}
+                    className="h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-bold text-xs transition-colors"
+                  >
+                    أضف أول صنف
+                  </button>
+                }
+              />
             </div>
           ) : (
             <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -1249,9 +1261,13 @@ export default function VendorDashboard() {
               ))}
             </div>
           ) : pendingBookings.length === 0 ? (
-            <div className="py-12 text-center text-white/30">
-              <CheckCircle className="w-10 h-10 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">لا توجد حجوزات معلقة</p>
+            <div className="p-4">
+              <EmptyState
+                compact
+                icon={<CheckCircle size={20} />}
+                title="ما في حجوزات معلقة"
+                body="كل شي محلول ✓ — أي حجز يدخل بتلقاه هنا أول ما ينزل."
+              />
             </div>
           ) : (
             <div className="divide-y divide-white/5">
