@@ -93,38 +93,47 @@ export default function CommandPalette() {
       setIsSearching(true);
       const timer = setTimeout(async () => {
         try {
-          const [bookingsRes, customersRes] = await Promise.all([
-            api.get(`/bookings?search=${encodeURIComponent(query)}&limit=3`).catch(() => ({ data: [] })),
-            api.get(`/customers?search=${encodeURIComponent(query)}&limit=3`).catch(() => ({ data: [] })),
-          ]);
+          // Unified vendor-scoped search — bookings, customers, services, invoices
+          const { data } = await api.get(`/vendors/my/search?q=${encodeURIComponent(query)}`)
+            .catch(() => ({ data: { results: [] } }));
 
-          const bookingResults: SearchResult[] = (bookingsRes.data?.bookings || bookingsRes.data || [])
-            .slice(0, 3)
-            .map((b: any) => ({
-              id: `booking-${b.id}`,
-              label: `حجز #${b.bookingNumber || b.id}`,
-              subtitle: `${b.customerName || ''} — ${b.status || ''}`,
-              group: 'حجوزات',
-              icon: CalendarPlus,
-              path: `/admin/bookings`,
+          const groupLabel: Record<string, string> = {
+            booking: 'حجوزات',
+            customer: 'عملاء',
+            service: 'الخدمات',
+            invoice: 'الفواتير',
+          };
+          const pathFor: Record<string, string> = {
+            booking: '/admin/bookings',
+            customer: '/admin/customers',
+            service: '/vendor/services',
+            invoice: '/vendor/invoices',
+          };
+          const iconFor: Record<string, any> = {
+            booking: CalendarPlus,
+            customer: Users,
+            service: Package,
+            invoice: FileText,
+          };
+
+          const apiResults: SearchResult[] = (data?.results ?? [])
+            .slice(0, 12)
+            .map((r: { kind: string; id: number; label: string; subtitle: string | null }) => ({
+              id: `${r.kind}-${r.id}`,
+              label: r.kind === 'booking' ? `حجز #${r.label}`
+                   : r.kind === 'invoice' ? `فاتورة #${r.label}`
+                   : r.label,
+              subtitle: r.subtitle ?? '',
+              group: groupLabel[r.kind] ?? 'أخرى',
+              icon: iconFor[r.kind] ?? Search,
+              path: pathFor[r.kind],
             }));
 
-          const customerResults: SearchResult[] = (customersRes.data?.customers || customersRes.data || [])
-            .slice(0, 3)
-            .map((c: any) => ({
-              id: `customer-${c.id}`,
-              label: c.name || c.nameAr || 'عميل',
-              subtitle: c.phone || '',
-              group: 'عملاء',
-              icon: Users,
-              path: `/admin/customers`,
-            }));
-
-          setSearchResults([...navResults, ...bookingResults, ...customerResults]);
+          setSearchResults([...navResults, ...apiResults]);
         } finally {
           setIsSearching(false);
         }
-      }, 300);
+      }, 250);
       return () => clearTimeout(timer);
     }
   }, [query]);

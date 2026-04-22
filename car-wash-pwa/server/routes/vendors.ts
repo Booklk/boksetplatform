@@ -1087,6 +1087,58 @@ router.post('/my/start-trial', requireAuth, requireRole('vendor_admin', 'admin')
   },
 );
 
+// ─── GET /api/vendors/my/search?q=... ────────────────────────────────────────
+// Unified vendor-scoped search — bookings by number/phone, customers by
+// name/phone, services by name, invoices by number. Returns flat results
+// for the command palette; trivially swapped for a proper search engine later.
+router.get('/my/search', requireAuth, requireRole('vendor_admin', 'admin', 'employee'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بحسابك' });
+    const q = String(req.query.q ?? '').trim();
+    if (q.length < 2) return res.json({ results: [] });
+    const like = `%${q.toLowerCase()}%`;
+
+    const results = await db.execute<{
+      kind: 'booking' | 'customer' | 'service' | 'invoice';
+      id: number; label: string; subtitle: string | null;
+    }>(sql`
+      (SELECT 'booking' AS kind, b.id, b.booking_number AS label,
+              u.name AS subtitle
+         FROM bookings b
+         LEFT JOIN users u ON u.id = b.customer_id
+        WHERE b.vendor_id = ${vendorId}
+          AND (LOWER(b.booking_number) LIKE ${like} OR u.phone LIKE ${like})
+        LIMIT 5)
+      UNION ALL
+      (SELECT 'customer' AS kind, u.id, u.name AS label, u.phone AS subtitle
+         FROM users u
+        WHERE u.vendor_id = ${vendorId}
+          AND u.role = 'customer'
+          AND (LOWER(u.name) LIKE ${like} OR u.phone LIKE ${like})
+        LIMIT 5)
+      UNION ALL
+      (SELECT 'service' AS kind, s.id, s.name AS label,
+              s.description AS subtitle
+         FROM services s
+        WHERE s.vendor_id = ${vendorId}
+          AND LOWER(s.name) LIKE ${like}
+        LIMIT 5)
+      UNION ALL
+      (SELECT 'invoice' AS kind, i.id, i.invoice_number AS label,
+              i.customer_name AS subtitle
+         FROM invoices i
+        WHERE i.vendor_id = ${vendorId}
+          AND LOWER(i.invoice_number) LIKE ${like}
+        LIMIT 5)
+    `);
+    return res.json({ results: (results as any).rows ?? results ?? [] });
+  } catch (e) {
+    console.error('[my/search]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // ─── GET /api/vendors/my/audit-logs ──────────────────────────────────────────
 // Vendor-scoped audit log — shows the last 100 sensitive actions taken by
 // anyone inside this vendor (owner + employees). Gives the store owner a

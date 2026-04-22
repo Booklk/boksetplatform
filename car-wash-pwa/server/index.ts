@@ -198,7 +198,21 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(morgan('dev'));
+// In prod, emit one JSON line per request for log aggregators. In dev,
+// the human-friendly morgan output is more useful.
+if (process.env.NODE_ENV === 'production') {
+  app.use(morgan((tokens, req, res) => JSON.stringify({
+    t: new Date().toISOString(),
+    m: tokens.method(req, res),
+    u: tokens.url(req, res),
+    s: Number(tokens.status(req, res) ?? 0),
+    ms: Number(tokens['response-time'](req, res) ?? 0),
+    ip: tokens['remote-addr'](req, res),
+    ua: req.headers['user-agent'],
+  })));
+} else {
+  app.use(morgan('dev'));
+}
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
