@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import api from '../lib/api';
+import { setSentryUser } from '../lib/sentry';
 
 export interface User {
   id: number;
@@ -37,8 +38,8 @@ export const useAuth = create<AuthStore>((set) => ({
   login: (token, user) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
-    // Set api default header
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setSentryUser({ id: user.id, role: user.role, vendorId: user.vendorId ?? null });
     set({ token, user });
   },
 
@@ -46,6 +47,7 @@ export const useAuth = create<AuthStore>((set) => ({
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     delete api.defaults.headers.common['Authorization'];
+    setSentryUser(null);
     set({ user: null, token: null });
   },
 
@@ -55,11 +57,13 @@ export const useAuth = create<AuthStore>((set) => ({
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     try {
       const { data } = await api.get('/auth/me');
+      setSentryUser({ id: data.id, role: data.role, vendorId: data.vendorId ?? null });
       set({ user: data, isLoading: false });
     } catch {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       delete api.defaults.headers.common['Authorization'];
+      setSentryUser(null);
       set({ user: null, token: null, isLoading: false });
     }
   },

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { Sentry } from '../lib/sentry.js';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -19,6 +20,15 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
       id: number; role: string; phone: string; vendorId?: number;
     };
     req.user = payload;
+    // Attach to Sentry scope so any exception thrown in this request
+    // carries the user + vendor context alongside it.
+    try {
+      Sentry.getCurrentScope().setUser({
+        id: String(payload.id),
+        segment: payload.role,
+        vendorId: payload.vendorId ?? undefined,
+      } as unknown as import('@sentry/node').User);
+    } catch { /* no-op when Sentry not initialised */ }
     next();
   } catch {
     return res.status(401).json({ error: 'الجلسة منتهية، يرجى تسجيل الدخول مجدداً' });
