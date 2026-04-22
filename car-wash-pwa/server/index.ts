@@ -84,6 +84,10 @@ import onboardingTemplatesRoutes from './routes/onboarding-templates.js';
 import webhooksRoutes from './routes/webhooks.js';
 import moyasarWebhookRoutes from './routes/moyasar-webhook.js';
 import branchesRoutes from './routes/branches.js';
+import paymentGatewayRoutes from './routes/payment-gateway.js';
+import paymentWebhookRoutes from './routes/payment-webhook.js';
+// Wire the payment → booking listener once, at boot.
+import './services/payments/bookingHandler.js';
 import customerImportRoutes from './routes/customer-import.js';
 import vendorDataExportRoutes from './routes/vendor-data-export.js';
 
@@ -218,6 +222,8 @@ if (process.env.NODE_ENV === 'production') {
 // Moyasar webhook uses its own raw-body parser for HMAC verification —
 // must be mounted BEFORE express.json() or the signature will mismatch.
 app.use('/api/moyasar-webhook', moyasarWebhookRoutes);
+// Same reason for the generic payment-gateway webhook receiver.
+app.use('/api/payment-gateway/webhook', paymentWebhookRoutes);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -347,6 +353,7 @@ app.use('/api/vendor-referral', vendorReferralRoutes);
 app.use('/api/onboarding-templates', onboardingTemplatesRoutes);
 app.use('/api/webhooks', requireAuth, webhooksRoutes);
 app.use('/api/branches', branchesRoutes);
+app.use('/api/payment-gateway', paymentGatewayRoutes);
 app.use('/api/customer-import', requireAuth, customerImportRoutes);
 app.use('/api/vendor-data', requireAuth, vendorDataExportRoutes);
 

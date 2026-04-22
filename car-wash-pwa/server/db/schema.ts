@@ -34,14 +34,10 @@ export const vendors = pgTable('vendors', {
   whatsappPhoneId: varchar('whatsapp_phone_id', { length: 255 }), // encrypted
   whatsappToken: text('whatsapp_token'), // encrypted
 
-  // BYOC: vendor's own payment gateway (jsonb encrypted)
-  paymentConfig: jsonb('payment_config').$type<{
-    provider: 'stcpay' | 'checkout' | 'tabby' | 'tamara' | 'moyasar';
-    merchantId?: string;
-    apiKey?: string;
-    secretKey?: string;
-    sandboxMode?: boolean;
-  } | null>(),
+  // BYOC: vendor's own payment gateway. Shape is defined (and enforced)
+  // by services/payments — sensitive fields are AES-encrypted before
+  // they land here, so the jsonb is intentionally left loosely typed.
+  paymentConfig: jsonb('payment_config').$type<Record<string, unknown> | null>(),
 
   // Custom domain for white-label per-vendor experiences
   customDomain: varchar('custom_domain', { length: 255 }).unique(), // e.g. crystalwash.sa
