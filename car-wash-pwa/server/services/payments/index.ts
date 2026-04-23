@@ -9,12 +9,13 @@ import { tap }       from './adapters/tap.js';
 import { hyperpay }  from './adapters/hyperpay.js';
 import { paytabs }   from './adapters/paytabs.js';
 import { stcpay }    from './adapters/stcpay.js';
+import { tabby }     from './adapters/tabby.js';
+import { tamara }    from './adapters/tamara.js';
 import { manual }    from './adapters/manual.js';
 
 const REGISTRY: Record<ProviderSlug, PaymentAdapter> = {
   moyasar, tap, hyperpay, paytabs, stcpay,
-  tabby:  manual, // BNPL stubs — same contract as manual until we add full integrations
-  tamara: manual,
+  tabby, tamara,
   manual,
 };
 

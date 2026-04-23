@@ -49,6 +49,25 @@ export interface CheckoutInput {
   metadata: Record<string, string>;
   /** Optional saved-card reference for recurring charges. */
   savedSourceId?: string;
+  /** Buyer details — required by BNPL providers (Tabby/Tamara), optional
+   *  for credit-card gateways that collect the info on the hosted page. */
+  customer?: {
+    name?: string;
+    phone?: string;
+    email?: string;
+    /** Address is mandatory for Tamara; keep both street and city when available. */
+    addressLine?: string;
+    city?: string;
+    country?: string; // defaults to "SA"
+  };
+  /** Line items — BNPL providers itemise the purchase. */
+  items?: Array<{
+    name: string;
+    quantity: number;
+    /** Unit price in SAR (not halalah). */
+    unitPriceSar: number;
+    reference?: string;
+  }>;
 }
 
 export interface CheckoutResult {

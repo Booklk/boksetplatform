@@ -10,7 +10,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { db } from '../db/index.js';
-import { vendors, bookings } from '../db/schema.js';
+import { vendors, bookings, users, packages, services } from '../db/schema.js';
 import { and, eq } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import {
@@ -121,6 +121,8 @@ router.post('/checkout', requireAuth, async (req: AuthRequest, res: Response) =>
     const [booking] = await db.select({
       id: bookings.id, vendorId: bookings.vendorId, customerId: bookings.customerId,
       total: bookings.totalPrice, bookingNumber: bookings.bookingNumber,
+      packageId: bookings.packageId,
+      address: bookings.address,
     }).from(bookings).where(eq(bookings.id, data.bookingId)).limit(1);
     if (!booking) return res.status(404).json({ error: 'الحجز غير موجود' });
 
@@ -136,17 +138,49 @@ router.post('/checkout', requireAuth, async (req: AuthRequest, res: Response) =>
     const vp = await getVendorPayment(booking.vendorId);
     if (!vp) return res.status(409).json({ error: 'المتجر لم يفعّل بوابة الدفع بعد' });
 
+    // Pull buyer details + vendor city — BNPL providers need them.
+    const [customer] = await db.select({
+      name: users.name, phone: users.phone, email: users.email,
+    }).from(users).where(eq(users.id, booking.customerId)).limit(1);
+    const [vendor] = await db.select({ city: vendors.city })
+      .from(vendors).where(eq(vendors.id, booking.vendorId)).limit(1);
+    const [pkg] = await db.select({
+      name: packages.name,
+      serviceName: services.name,
+    })
+      .from(packages)
+      .leftJoin(services, eq(services.id, packages.serviceId))
+      .where(eq(packages.id, booking.packageId))
+      .limit(1);
+
     const clientUrl = (process.env.CLIENT_URL ?? 'http://localhost:5173').replace(/\/$/, '');
     const returnUrl = data.returnUrl ?? `${clientUrl}/booking/${booking.id}/payment-return`;
+    const amount = Number(booking.total ?? 0);
+    const itemName = [pkg?.serviceName, pkg?.name].filter(Boolean).join(' — ')
+      || `حجز #${booking.bookingNumber}`;
 
     const checkout = await vp.adapter.createCheckout(vp.creds, {
-      amountSar: Number(booking.total ?? 0),
+      amountSar: amount,
       description: `حجز #${booking.bookingNumber}`,
       returnUrl,
       metadata: {
         bookingId: String(booking.id),
         vendorId:  String(booking.vendorId),
       },
+      customer: {
+        name:        customer?.name ?? undefined,
+        phone:       customer?.phone ?? undefined,
+        email:       customer?.email ?? undefined,
+        addressLine: booking.address ?? undefined,
+        city:        vendor?.city ?? 'الرياض',
+        country:     'SA',
+      },
+      items: [{
+        name: itemName,
+        quantity: 1,
+        unitPriceSar: amount,
+        reference: booking.bookingNumber,
+      }],
     });
     return res.json({
       provider: vp.config.provider,
