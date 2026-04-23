@@ -47,6 +47,16 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       .from(packages).where(eq(packages.id, data.packageId)).limit(1);
     if (!pkg) return res.status(404).json({ error: 'الباقة غير موجودة' });
 
+    // Enforce the vendor's operational preferences: working hours,
+    // holidays, lead time, max lead days. validateBookingTime is pure
+    // so we can reuse it from the storefront earliest-slot helper.
+    try {
+      const { readPreferences, validateBookingTime } = await import('../services/vendorPreferences.js');
+      const prefs = await readPreferences(pkg.vendorId);
+      const check = validateBookingTime(prefs, new Date(data.scheduledAt));
+      if (!check.ok) return res.status(400).json({ error: check.reason });
+    } catch (e) { console.error('[bookings prefs-validate]', e); }
+
     const [svc] = await db.select({ name: services.name })
       .from(services).where(eq(services.id, pkg.serviceId)).limit(1);
 
