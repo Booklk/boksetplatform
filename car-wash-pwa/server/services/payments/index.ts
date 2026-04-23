@@ -14,21 +14,29 @@ import { tamara }    from './adapters/tamara.js';
 import { manual }    from './adapters/manual.js';
 
 const REGISTRY: Record<ProviderSlug, PaymentAdapter> = {
-  moyasar, tap, hyperpay, paytabs, stcpay,
-  tabby, tamara,
-  manual,
+  moyasar, tap, hyperpay, paytabs, stcpay, tabby, tamara, manual,
 };
 
-/** List every provider for the dashboard picker. Excludes aliases. */
-export function listProviders(): Array<{
-  slug: ProviderSlug;
-  labelAr: string;
-  descriptionAr: string;
-  supportsWebhook: boolean;
-  requiredFields: PaymentAdapter['requiredFields'];
-}> {
+// Providers fall into two buyer-facing buckets — used for UI grouping
+// ("ادفع بالبطاقة" vs "قسّم على دفعات").
+const BNPL_SLUGS: readonly ProviderSlug[] = ['tabby', 'tamara'];
+export const PROVIDER_KINDS: Record<ProviderSlug, 'card' | 'bnpl' | 'wallet' | 'manual'> = {
+  moyasar: 'card', tap: 'card', hyperpay: 'card', paytabs: 'card',
+  stcpay:  'wallet',
+  tabby:   'bnpl', tamara:  'bnpl',
+  manual:  'manual',
+};
+
+export function listProviders() {
   const seen = new Set<string>();
-  const result: ReturnType<typeof listProviders> = [];
+  const result: Array<{
+    slug: ProviderSlug;
+    labelAr: string;
+    descriptionAr: string;
+    supportsWebhook: boolean;
+    requiredFields: PaymentAdapter['requiredFields'];
+    kind: 'card' | 'bnpl' | 'wallet' | 'manual';
+  }> = [];
   for (const adapter of Object.values(REGISTRY)) {
     if (seen.has(adapter.slug)) continue;
     seen.add(adapter.slug);
@@ -38,6 +46,7 @@ export function listProviders(): Array<{
       descriptionAr: adapter.descriptionAr,
       supportsWebhook: adapter.supportsWebhook,
       requiredFields: adapter.requiredFields,
+      kind: PROVIDER_KINDS[adapter.slug],
     });
   }
   return result;
@@ -50,17 +59,12 @@ export function getAdapter(slug: string | undefined | null): PaymentAdapter | nu
 
 // ─── Stored vendor credentials ─────────────────────────────────────────────
 
-/** Shape we store in vendors.paymentConfig. Sensitive fields are encrypted. */
-export interface StoredPaymentConfig {
-  provider: ProviderSlug | null;
+export interface ProviderEntry {
   enabled: boolean;
-  /** Last time "Test connection" succeeded — shown to the vendor. */
   lastVerifiedAt?: string;
   credentials: {
     publicKey?: string;
-    /** AES-GCM base64. */
     secretKeyEnc?: string;
-    /** AES-GCM base64. */
     webhookSecretEnc?: string;
     merchantId?: string;
     sandboxMode?: boolean;
@@ -68,9 +72,47 @@ export interface StoredPaymentConfig {
   };
 }
 
-export function decryptCreds(stored: StoredPaymentConfig | null | undefined): PaymentCredentials {
-  if (!stored) return {};
-  const c = stored.credentials ?? {};
+export interface StoredPaymentConfig {
+  /** Which provider should be used by default (e.g. for platform-initiated
+   *  recurring charges). If null, checkout requires an explicit provider. */
+  defaultProvider: ProviderSlug | null;
+  /** Each configured provider with its own credentials + enable toggle.
+   *  One vendor can run Moyasar + Tabby + Tamara simultaneously. */
+  providers: Partial<Record<ProviderSlug, ProviderEntry>>;
+}
+
+/** Migrate the old single-provider shape
+ *      { provider, enabled, credentials, lastVerifiedAt }
+ *  into the new multi-provider map. Safe to call on every read. */
+function coerce(raw: unknown): StoredPaymentConfig {
+  const r = (raw && typeof raw === 'object') ? (raw as any) : {};
+  // New shape path
+  if (r.providers && typeof r.providers === 'object') {
+    return {
+      defaultProvider: r.defaultProvider ?? null,
+      providers: r.providers,
+    };
+  }
+  // Legacy shape path
+  if (r.provider && r.credentials) {
+    const slug = r.provider as ProviderSlug;
+    return {
+      defaultProvider: slug,
+      providers: {
+        [slug]: {
+          enabled: Boolean(r.enabled),
+          lastVerifiedAt: r.lastVerifiedAt,
+          credentials: r.credentials ?? {},
+        },
+      },
+    };
+  }
+  return { defaultProvider: null, providers: {} };
+}
+
+export function decryptCreds(entry: ProviderEntry | undefined | null): PaymentCredentials {
+  if (!entry) return {};
+  const c = entry.credentials ?? {};
   return {
     publicKey:     c.publicKey,
     secretKey:     c.secretKeyEnc     ? safeDecrypt(c.secretKeyEnc)     : undefined,
@@ -81,48 +123,76 @@ export function decryptCreds(stored: StoredPaymentConfig | null | undefined): Pa
   };
 }
 
-/** Redacted view safe to return to the dashboard. */
-export function redactForClient(stored: StoredPaymentConfig | null | undefined) {
-  if (!stored) return null;
-  const c = stored.credentials ?? {};
+/** Redacted view safe to return to the dashboard. Never contains
+ *  plaintext secrets — just "set or not" booleans. */
+export function redactForClient(stored: StoredPaymentConfig): {
+  defaultProvider: ProviderSlug | null;
+  providers: Array<{
+    slug: ProviderSlug;
+    kind: 'card' | 'bnpl' | 'wallet' | 'manual';
+    enabled: boolean;
+    lastVerifiedAt: string | null;
+    publicKey: string;
+    merchantId: string;
+    sandboxMode: boolean;
+    secretKeySet: boolean;
+    webhookSecretSet: boolean;
+    extra: Record<string, string>;
+  }>;
+} {
   return {
-    provider: stored.provider,
-    enabled: stored.enabled,
-    lastVerifiedAt: stored.lastVerifiedAt ?? null,
-    credentials: {
-      publicKey:       c.publicKey ?? '',
-      merchantId:      c.merchantId ?? '',
-      sandboxMode:     c.sandboxMode ?? false,
-      secretKeySet:    Boolean(c.secretKeyEnc),
-      webhookSecretSet: Boolean(c.webhookSecretEnc),
-      extra:           c.extra ?? {},
-    },
+    defaultProvider: stored.defaultProvider,
+    providers: Object.entries(stored.providers).map(([slug, entry]) => ({
+      slug: slug as ProviderSlug,
+      kind: PROVIDER_KINDS[slug as ProviderSlug],
+      enabled: Boolean(entry?.enabled),
+      lastVerifiedAt: entry?.lastVerifiedAt ?? null,
+      publicKey:       entry?.credentials?.publicKey ?? '',
+      merchantId:      entry?.credentials?.merchantId ?? '',
+      sandboxMode:     entry?.credentials?.sandboxMode ?? false,
+      secretKeySet:    Boolean(entry?.credentials?.secretKeyEnc),
+      webhookSecretSet: Boolean(entry?.credentials?.webhookSecretEnc),
+      extra:           entry?.credentials?.extra ?? {},
+    })),
   };
 }
 
-export interface SaveCredsInput {
-  provider: ProviderSlug;
+export interface SaveProviderInput {
   enabled?: boolean;
   credentials: {
     publicKey?: string;
-    secretKey?: string;       // plain — will be encrypted
-    webhookSecret?: string;   // plain — will be encrypted
+    secretKey?: string;       // plain — encrypted on write
+    webhookSecret?: string;   // plain — encrypted on write
     merchantId?: string;
     sandboxMode?: boolean;
     extra?: Record<string, string>;
   };
 }
 
-/** Upsert a vendor's payment config, encrypting secrets. When the vendor
- *  doesn't send a new secret, the previous encrypted value is preserved. */
-export async function savePaymentConfig(vendorId: number, input: SaveCredsInput): Promise<void> {
+async function readConfig(vendorId: number): Promise<StoredPaymentConfig> {
   const [row] = await db.select({ paymentConfig: vendors.paymentConfig })
     .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-  const prev = (row?.paymentConfig ?? null) as StoredPaymentConfig | null;
+  return coerce(row?.paymentConfig);
+}
 
-  const next: StoredPaymentConfig = {
-    provider: input.provider,
-    enabled:  input.enabled ?? prev?.enabled ?? false,
+async function writeConfig(vendorId: number, cfg: StoredPaymentConfig) {
+  await db.update(vendors)
+    .set({ paymentConfig: cfg as any, updatedAt: new Date() })
+    .where(eq(vendors.id, vendorId));
+}
+
+/** Insert-or-update one provider. When the caller sends an empty
+ *  secret field, we preserve the previous encrypted value — so the UI
+ *  can safely render "●●●●" without leaking the secret. */
+export async function saveProvider(
+  vendorId: number,
+  slug: ProviderSlug,
+  input: SaveProviderInput,
+): Promise<void> {
+  const cfg = await readConfig(vendorId);
+  const prev = cfg.providers[slug];
+  const next: ProviderEntry = {
+    enabled: input.enabled ?? prev?.enabled ?? false,
     lastVerifiedAt: prev?.lastVerifiedAt,
     credentials: {
       publicKey:   input.credentials.publicKey   ?? prev?.credentials?.publicKey,
@@ -137,43 +207,84 @@ export async function savePaymentConfig(vendorId: number, input: SaveCredsInput)
         : prev?.credentials?.webhookSecretEnc,
     },
   };
-
-  await db.update(vendors)
-    .set({ paymentConfig: next as any, updatedAt: new Date() })
-    .where(eq(vendors.id, vendorId));
+  cfg.providers[slug] = next;
+  // First provider added becomes default automatically.
+  if (!cfg.defaultProvider) cfg.defaultProvider = slug;
+  await writeConfig(vendorId, cfg);
 }
 
-export async function markVerified(vendorId: number): Promise<void> {
-  const [row] = await db.select({ paymentConfig: vendors.paymentConfig })
-    .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-  const prev = (row?.paymentConfig ?? null) as StoredPaymentConfig | null;
-  if (!prev) return;
-  const next = { ...prev, lastVerifiedAt: new Date().toISOString() };
-  await db.update(vendors)
-    .set({ paymentConfig: next as any, updatedAt: new Date() })
-    .where(eq(vendors.id, vendorId));
+export async function removeProvider(vendorId: number, slug: ProviderSlug): Promise<void> {
+  const cfg = await readConfig(vendorId);
+  delete cfg.providers[slug];
+  if (cfg.defaultProvider === slug) {
+    const remaining = Object.keys(cfg.providers) as ProviderSlug[];
+    cfg.defaultProvider = remaining[0] ?? null;
+  }
+  await writeConfig(vendorId, cfg);
 }
 
-export async function setEnabled(vendorId: number, enabled: boolean): Promise<void> {
-  const [row] = await db.select({ paymentConfig: vendors.paymentConfig })
-    .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-  const prev = (row?.paymentConfig ?? null) as StoredPaymentConfig | null;
-  if (!prev) return;
-  await db.update(vendors)
-    .set({ paymentConfig: { ...prev, enabled } as any, updatedAt: new Date() })
-    .where(eq(vendors.id, vendorId));
+export async function setProviderEnabled(
+  vendorId: number, slug: ProviderSlug, enabled: boolean,
+): Promise<void> {
+  const cfg = await readConfig(vendorId);
+  const entry = cfg.providers[slug];
+  if (!entry) return;
+  entry.enabled = enabled;
+  await writeConfig(vendorId, cfg);
 }
 
-/** Resolve a vendor's adapter + creds in one shot. Returns null if the
- *  vendor hasn't finished setting up payments yet. */
-export async function getVendorPayment(vendorId: number): Promise<{ adapter: PaymentAdapter; creds: PaymentCredentials; config: StoredPaymentConfig } | null> {
-  const [row] = await db.select({ paymentConfig: vendors.paymentConfig })
-    .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-  const config = (row?.paymentConfig ?? null) as StoredPaymentConfig | null;
-  if (!config?.provider || !config.enabled) return null;
-  const adapter = getAdapter(config.provider);
+export async function setDefaultProvider(vendorId: number, slug: ProviderSlug | null): Promise<void> {
+  const cfg = await readConfig(vendorId);
+  if (slug && !cfg.providers[slug]) return; // can't default to unconfigured
+  cfg.defaultProvider = slug;
+  await writeConfig(vendorId, cfg);
+}
+
+export async function markVerified(vendorId: number, slug: ProviderSlug): Promise<void> {
+  const cfg = await readConfig(vendorId);
+  const entry = cfg.providers[slug];
+  if (!entry) return;
+  entry.lastVerifiedAt = new Date().toISOString();
+  await writeConfig(vendorId, cfg);
+}
+
+export async function getStoredConfig(vendorId: number): Promise<StoredPaymentConfig> {
+  return readConfig(vendorId);
+}
+
+/** Resolve one specific provider for a vendor (adapter + decrypted creds). */
+export async function getVendorProvider(
+  vendorId: number, slug: ProviderSlug,
+): Promise<{ adapter: PaymentAdapter; creds: PaymentCredentials; entry: ProviderEntry } | null> {
+  const cfg = await readConfig(vendorId);
+  const entry = cfg.providers[slug];
+  if (!entry?.enabled) return null;
+  const adapter = getAdapter(slug);
   if (!adapter) return null;
-  return { adapter, creds: decryptCreds(config), config };
+  return { adapter, creds: decryptCreds(entry), entry };
+}
+
+/** All enabled providers for a vendor — what the storefront picker renders. */
+export async function getEnabledProviders(vendorId: number): Promise<Array<{
+  slug: ProviderSlug;
+  kind: 'card' | 'bnpl' | 'wallet' | 'manual';
+  labelAr: string;
+  descriptionAr: string;
+}>> {
+  const cfg = await readConfig(vendorId);
+  return (Object.entries(cfg.providers)
+    .filter(([, e]) => e?.enabled)
+    .map(([slug]) => {
+      const adapter = REGISTRY[slug as ProviderSlug];
+      if (!adapter) return null;
+      return {
+        slug: adapter.slug,
+        kind: PROVIDER_KINDS[adapter.slug],
+        labelAr: adapter.labelAr,
+        descriptionAr: adapter.descriptionAr,
+      };
+    })
+    .filter(Boolean)) as any;
 }
 
 function safeDecrypt(s: string): string | undefined {
