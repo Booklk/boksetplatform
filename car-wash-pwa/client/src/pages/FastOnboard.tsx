@@ -178,8 +178,20 @@ export default function FastOnboard() {
     }
   }
 
+  // When the server applies progressive backoff on wrong OTP codes, it
+  // includes a `retryAfter` seconds field in the 429 response. We surface
+  // it as a live countdown so the user isn't staring at a button that
+  // silently refuses to work.
+  const [retrySec, setRetrySec] = useState(0);
+  useEffect(() => {
+    if (retrySec <= 0) return;
+    const t = window.setInterval(() => setRetrySec((n) => (n <= 1 ? 0 : n - 1)), 1000);
+    return () => window.clearInterval(t);
+  }, [retrySec]);
+
   async function verifyOtp() {
     if (otpCode.length !== 6) return toast.error('الرمز 6 أرقام');
+    if (retrySec > 0) return toast.error(`انتظر ${retrySec} ثانية`);
     setOtpVerifying(true);
     try {
       const { data } = await api.post<{ verifyToken: string }>('/auth/verify-otp', {
@@ -191,6 +203,10 @@ export default function FastOnboard() {
       toast.success('تم التحقق من رقمك');
       registerMutation.mutate({ ...form, verifyToken: data.verifyToken });
     } catch (e: any) {
+      const after = Number(e?.response?.data?.retryAfter);
+      if (Number.isFinite(after) && after > 0) {
+        setRetrySec(Math.ceil(after));
+      }
       toast.error(e?.response?.data?.error ?? 'الرمز غير صحيح');
     } finally {
       setOtpVerifying(false);
@@ -600,11 +616,11 @@ export default function FastOnboard() {
                 />
                 <Button
                   onClick={verifyOtp}
-                  disabled={otpCode.length !== 6}
+                  disabled={otpCode.length !== 6 || retrySec > 0}
                   loading={otpVerifying}
                   fullWidth
                 >
-                  تأكيد وإنشاء المتجر
+                  {retrySec > 0 ? `انتظر ${retrySec} ثانية` : 'تأكيد وإنشاء المتجر'}
                 </Button>
                 <div className="flex items-center justify-between mt-4 text-[11px]">
                   <button

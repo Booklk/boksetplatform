@@ -213,7 +213,33 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       });
     } catch (e) { console.error('[bookings realtime]', e); }
 
-    return res.status(201).json(booking);
+    // Surface deposit requirement to the client so the booking flow can
+    // route the customer straight to the payment picker. The vendor's
+    // preferences.deposit.{required,type,amount} are the source of
+    // truth — we echo them here so the client doesn't have to
+    // re-fetch.
+    let deposit: {
+      required: boolean;
+      type: 'percentage' | 'fixed';
+      amountSar: number;
+    } | null = null;
+    try {
+      const { readPreferences } = await import('../services/vendorPreferences.js');
+      const prefs = await readPreferences(pkg.vendorId);
+      if (prefs.deposit.required) {
+        const base = Number(pkg.price ?? 0);
+        const computed = prefs.deposit.type === 'fixed'
+          ? prefs.deposit.amount
+          : Math.round((base * prefs.deposit.amount) / 100);
+        deposit = {
+          required:  true,
+          type:      prefs.deposit.type,
+          amountSar: Math.max(0, Math.min(base, computed)),
+        };
+      }
+    } catch (e) { console.error('[bookings deposit calc]', e); }
+
+    return res.status(201).json({ ...booking, deposit });
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
     console.error(e);
@@ -345,6 +371,11 @@ router.post('/:id/rate', requireAuth, requireRole('customer'), async (req: AuthR
 router.post('/:id/status', requireAuth, requireRole('employee', 'admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
+    // NOTE: 'pending' is intentionally not a transition target — it's the
+    // creation state only (set when /bookings POST runs). A manual
+    // "reset to pending" would skip audit/automation hooks, so we refuse
+    // it here. If you need to re-open a cancelled booking, create a new
+    // one instead.
     const { status } = z.object({
       status: z.enum(['confirmed', 'on_way', 'arrived', 'in_progress', 'completed', 'cancelled']),
     }).parse(req.body);
