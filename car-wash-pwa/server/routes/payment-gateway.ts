@@ -76,6 +76,22 @@ router.put('/config/:slug', async (req: AuthRequest, res: Response) => {
     if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر' });
     const slug = slugEnum.parse(req.params.slug);
     const data = saveSchema.parse(req.body);
+
+    // KYC gate — real money requires a verified business document.
+    // Manual / cash provider is exempt (no real funds flow through it).
+    if (slug !== 'manual') {
+      const [row] = await db.select({ status: vendors.kycStatus })
+        .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+      const kyc = row?.status ?? 'not_started';
+      if (kyc !== 'approved') {
+        return res.status(403).json({
+          error: 'أكمل توثيق الوثيقة التجارية قبل تفعيل بوابة دفع',
+          requiresKyc: true,
+          kycStatus: kyc,
+        });
+      }
+    }
+
     await saveProvider(vendorId, slug, data);
     return res.json({ success: true });
   } catch (e: any) {
@@ -120,6 +136,18 @@ router.post('/config/:slug/enable', async (req: AuthRequest, res: Response) => {
   if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر' });
   const slug = slugEnum.parse(req.params.slug);
   const enabled = Boolean(req.body?.enabled);
+  // KYC gate — only when turning a provider ON. Disable is always
+  // allowed (vendor can stop accepting payments immediately).
+  if (enabled && slug !== 'manual') {
+    const [row] = await db.select({ status: vendors.kycStatus })
+      .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    if ((row?.status ?? 'not_started') !== 'approved') {
+      return res.status(403).json({
+        error: 'أكمل توثيق الوثيقة التجارية قبل تفعيل بوابة الدفع',
+        requiresKyc: true,
+      });
+    }
+  }
   await setProviderEnabled(vendorId, slug, enabled);
   return res.json({ success: true, enabled });
 });

@@ -605,4 +605,89 @@ router.post('/impersonate/:vendorId', requireAuth, requireRole('super_admin'), a
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// KYC REVIEW — approve / reject vendor commercial / freelance documents
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// GET /api/super-admin/kyc/pending — every vendor currently awaiting review.
+router.get('/kyc/pending', requireAuth, requireRole('super_admin'), async (_req, res) => {
+  try {
+    const rows = await db.select({
+      id:               vendors.id,
+      nameAr:           vendors.nameAr,
+      slug:             vendors.slug,
+      phone:            vendors.phone,
+      city:             vendors.city,
+      documentType:     vendors.kycDocumentType,
+      documentNumber:   vendors.kycDocumentNumber,
+      submittedAt:      vendors.kycSubmittedAt,
+    })
+      .from(vendors)
+      .where(eq(vendors.kycStatus, 'submitted'))
+      .orderBy(asc(vendors.kycSubmittedAt));
+    return res.json({ vendors: rows });
+  } catch (e) {
+    console.error('[super-admin/kyc/pending]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// POST /api/super-admin/kyc/:vendorId/approve
+router.post('/kyc/:vendorId/approve', requireAuth, requireRole('super_admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = Number(req.params.vendorId);
+    if (!Number.isFinite(vendorId) || vendorId <= 0) {
+      return res.status(400).json({ error: 'معرّف المتجر غير صحيح' });
+    }
+    await db.update(vendors).set({
+      kycStatus:          'approved',
+      kycRejectionReason: null,
+      kycVerifiedAt:      new Date(),
+      kycReviewedBy:      req.user!.id,
+      updatedAt:          new Date(),
+    }).where(eq(vendors.id, vendorId));
+    await db.insert(auditLogs).values({
+      vendorId,
+      userId: req.user!.id,
+      action: 'kyc.approved',
+      resource: `/api/super-admin/kyc/${vendorId}/approve`,
+      method: 'POST',
+      metadata: {},
+      ip: req.ip ?? 'unknown',
+    });
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('[super-admin/kyc/approve]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// POST /api/super-admin/kyc/:vendorId/reject  { reason: string }
+router.post('/kyc/:vendorId/reject', requireAuth, requireRole('super_admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = Number(req.params.vendorId);
+    const reason = String(req.body?.reason ?? '').trim();
+    if (!reason) return res.status(400).json({ error: 'اكتب سبب الرفض' });
+    await db.update(vendors).set({
+      kycStatus:          'rejected',
+      kycRejectionReason: reason,
+      kycReviewedBy:      req.user!.id,
+      updatedAt:          new Date(),
+    }).where(eq(vendors.id, vendorId));
+    await db.insert(auditLogs).values({
+      vendorId,
+      userId: req.user!.id,
+      action: 'kyc.rejected',
+      resource: `/api/super-admin/kyc/${vendorId}/reject`,
+      method: 'POST',
+      metadata: { reason },
+      ip: req.ip ?? 'unknown',
+    });
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('[super-admin/kyc/reject]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 export default router;

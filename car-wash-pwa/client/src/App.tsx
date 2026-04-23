@@ -113,6 +113,7 @@ const VendorReferralProgram = lazy(() => import('./pages/vendor/ReferralProgram'
 const VendorBranches = lazy(() => import('./pages/vendor/Branches'));
 const VendorPaymentGateway = lazy(() => import('./pages/vendor/PaymentGateway'));
 const VendorAutopilot = lazy(() => import('./pages/vendor/Autopilot'));
+const VendorKyc = lazy(() => import('./pages/vendor/Kyc'));
 const VendorAIAdvisor = lazy(() => import('./pages/vendor/AIAdvisor'));
 const VendorLeaderboard = lazy(() => import('./pages/vendor/Leaderboard'));
 const VendorReferVendor = lazy(() => import('./pages/vendor/ReferVendor'));
@@ -123,6 +124,7 @@ const VendorPageRenderer = lazy(() => import('./pages/VendorPage'));
 const VendorCustomerImport = lazy(() => import('./pages/vendor/CustomerImport'));
 
 const AdminLogin = lazy(() => import('./pages/super-admin/AdminLogin'));
+const SuperAdminKyc = lazy(() => import('./pages/super-admin/KycReview'));
 const SuperAdminDashboard = lazy(() => import('./pages/super-admin/Dashboard'));
 const SuperAdminVendors = lazy(() => import('./pages/super-admin/Vendors'));
 const SuperAdminRevenue = lazy(() => import('./pages/super-admin/Revenue'));
@@ -614,6 +616,11 @@ function AppRoutes() {
             <S><VendorAutopilot /></S>
           </RequireAuth>
         } />
+        <Route path="/vendor/kyc" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorKyc /></S>
+          </RequireAuth>
+        } />
         <Route path="/vendor/ai-advisor" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <UpgradeGate featureId="ai_advisor"><S><VendorAIAdvisor /></S></UpgradeGate>
@@ -710,6 +717,11 @@ function AppRoutes() {
         <Route path="/super-admin/users" element={
           <RequireAuth roles={['super_admin']}>
             <S><SuperAdminUsers /></S>
+          </RequireAuth>
+        } />
+        <Route path="/super-admin/kyc" element={
+          <RequireAuth roles={['super_admin']}>
+            <S><SuperAdminKyc /></S>
           </RequireAuth>
         } />
         <Route path="/super-admin/health" element={

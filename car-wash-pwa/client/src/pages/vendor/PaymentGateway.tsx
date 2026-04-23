@@ -5,6 +5,7 @@
  */
 
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -89,6 +90,14 @@ export default function PaymentGateway() {
     queryKey: ['payment-config'],
     queryFn: async () => (await api.get('/payment-gateway/config')).data,
   });
+  // KYC gate: the server rejects /config/:slug PUT unless the vendor's
+  // business document is approved. We fetch status up-front so the UI
+  // can show a clear "complete verification first" banner.
+  const { data: kyc } = useQuery<{ status: string }>({
+    queryKey: ['kyc-status'],
+    queryFn: async () => (await api.get('/vendor-kyc/status')).data,
+  });
+  const kycApproved = kyc?.status === 'approved';
 
   const catalog = providersData?.providers ?? [];
   const configured = configData?.providers ?? [];
@@ -108,6 +117,61 @@ export default function PaymentGateway() {
           title="بوابات الدفع"
           subtitle="فعّل أي عدد من المزوّدين معاً — ميسر + تمارا + تابي + STC Pay. العميل يختار وقت الدفع."
         />
+
+        {/* KYC gate — only shown when the vendor hasn't verified yet.
+             Configuring any payment provider is blocked until this is
+             approved, so we surface the requirement right at the top. */}
+        {kyc && !kycApproved && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4"
+          >
+            <Card
+              variant="elevated"
+              padding="md"
+              className={
+                kyc.status === 'submitted'
+                  ? 'bg-warn-500/5 border-warn-500/30'
+                  : kyc.status === 'rejected'
+                  ? 'bg-danger-500/5 border-danger-500/30'
+                  : 'bg-primary-500/5 border-primary-500/30'
+              }
+            >
+              <div className="flex items-start gap-3">
+                <ShieldCheck
+                  size={20}
+                  className={
+                    kyc.status === 'submitted' ? 'text-warn-300'
+                    : kyc.status === 'rejected' ? 'text-danger-300'
+                    : 'text-primary-300'
+                  }
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="font-black text-white text-sm mb-0.5">
+                    {kyc.status === 'submitted' && 'وثيقتك تحت المراجعة'}
+                    {kyc.status === 'rejected'  && 'الوثيقة تحتاج إعادة رفع'}
+                    {(kyc.status === 'not_started' || !kyc.status) && 'أكمل التوثيق التجاري لتفعيل الدفع'}
+                  </p>
+                  <p className="text-xs text-ink-400 leading-relaxed">
+                    {kyc.status === 'submitted'
+                      ? 'بنراجعها خلال 24 ساعة وبنعلمك فوراً بالنتيجة.'
+                      : kyc.status === 'rejected'
+                      ? 'راجع سبب الرفض وارفع وثيقة صحيحة.'
+                      : 'يكفي رفع السجل التجاري أو وثيقة العمل الحر (PDF) — خطوة واحدة لمرة وحيدة.'}
+                  </p>
+                </div>
+                {kyc.status !== 'submitted' && (
+                  <Link to="/vendor/kyc">
+                    <Button size="sm" variant={kyc.status === 'rejected' ? 'danger' : 'primary'}>
+                      {kyc.status === 'rejected' ? 'إعادة رفع' : 'ابدأ التوثيق'}
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Configured providers */}
         {isLoading ? (
@@ -236,6 +300,15 @@ function ProviderCard({
     onSuccess: (_d, enabled) => {
       qc.invalidateQueries({ queryKey: ['payment-config'] });
       toast.success(enabled ? 'فعّلت ✓' : 'أوقفت');
+    },
+    onError: (e: any) => {
+      // Server returns { requiresKyc: true } when KYC blocks activation.
+      // Surface a link-style toast instead of a generic failure.
+      if (e?.response?.data?.requiresKyc) {
+        toast.error('أكمل التوثيق التجاري أولاً من /vendor/kyc');
+      } else {
+        toast.error(e?.response?.data?.error ?? 'فشل');
+      }
     },
   });
 
@@ -407,7 +480,13 @@ function ProviderEditor({
       });
     },
     onSuccess: () => { toast.success('تم الحفظ'); onSaved(); },
-    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'فشل الحفظ'),
+    onError: (e: any) => {
+      if (e?.response?.data?.requiresKyc) {
+        toast.error('يحتاج توثيق الوثيقة التجارية أولاً — اضغط على "ابدأ التوثيق" في الأعلى');
+      } else {
+        toast.error(e?.response?.data?.error ?? 'فشل الحفظ');
+      }
+    },
   });
 
   return (

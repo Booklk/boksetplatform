@@ -53,6 +53,22 @@ export const vendors = pgTable('vendors', {
   crNumber: varchar('cr_number', { length: 20 }),           // رقم السجل التجاري
   vatNumber: varchar('vat_number', { length: 20 }),          // الرقم الضريبي (VAT/TIN)
   nationalAddress: text('national_address'),                  // العنوان الوطني
+
+  // KYC — only required when the vendor tries to activate a payment
+  // gateway. Signup stays frictionless; the kyc fields stay NULL until
+  // the vendor hits a gated payment-setup action.
+  kycDocumentType: varchar('kyc_document_type', { length: 20 }),
+  //   'cr'        → السجل التجاري (companies)
+  //   'freelance' → وثيقة العمل الحر (individuals)
+  kycDocumentNumber: varchar('kyc_document_number', { length: 50 }),
+  kycDocumentUrl: text('kyc_document_url'),                  // relative path under /uploads/kyc/
+  kycDocumentMimeType: varchar('kyc_document_mime_type', { length: 50 }),
+  kycStatus: varchar('kyc_status', { length: 20 }).notNull().default('not_started'),
+  //   not_started | submitted | approved | rejected
+  kycRejectionReason: text('kyc_rejection_reason'),
+  kycSubmittedAt: timestamp('kyc_submitted_at'),
+  kycVerifiedAt: timestamp('kyc_verified_at'),
+  kycReviewedBy: integer('kyc_reviewed_by'),                  // super_admin user id
   bankName: varchar('bank_name', { length: 100 }),           // اسم البنك
   bankIban: varchar('bank_iban', { length: 34 }),             // IBAN
   ownerName: varchar('owner_name', { length: 255 }),         // اسم المالك / الممثل النظامي
