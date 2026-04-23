@@ -11,6 +11,7 @@ import WhatsAppFAB from './components/WhatsAppFAB';
 import ImpersonationBanner from './components/ImpersonationBanner';
 import Copilot from './components/Copilot';
 import LiveBookingNotifier from './components/LiveBookingNotifier';
+import MilestoneCelebrant from './components/MilestoneCelebrant';
 
 // Eagerly loaded (critical path)
 import Landing from './pages/Landing';
@@ -246,6 +247,7 @@ function AppRoutes() {
     <UpdateToast />
     <ImpersonationBanner />
     <LiveBookingNotifier />
+    <MilestoneCelebrant />
     <Copilot />
     <CommandPalette />
     <AnimatePresence mode="wait">

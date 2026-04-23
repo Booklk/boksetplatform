@@ -557,6 +557,17 @@ router.post('/:id/status', requireAuth, requireRole('employee', 'admin', 'vendor
       }, req.user?.id);
     } catch (e) { console.error('[bookings realtime update]', e); }
 
+    // Milestone detection — fires confetti on the dashboard when the
+    // vendor crosses a booking-count threshold or sets a record day.
+    if (status === 'completed') {
+      try {
+        const { checkMilestonesForBooking, checkRecordDay } =
+          await import('../services/milestones/engine.js');
+        await checkMilestonesForBooking(booking.vendorId);
+        await checkRecordDay(booking.vendorId);
+      } catch (e) { console.error('[milestones]', e); }
+    }
+
     // Customer push for status transitions the user actually cares about.
     try {
       const { sendPush } = await import('../services/push.js');

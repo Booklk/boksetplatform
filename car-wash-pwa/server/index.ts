@@ -91,6 +91,8 @@ import './services/payments/bookingHandler.js';
 import customerImportRoutes from './routes/customer-import.js';
 import vendorDataExportRoutes from './routes/vendor-data-export.js';
 import copilotRoutes from './routes/copilot.js';
+import insightsRoutes from './routes/insights.js';
+import saudiRoutes from './routes/saudi.js';
 import { attachRealtime } from './services/realtime/server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -357,6 +359,8 @@ app.use('/api/webhooks', requireAuth, webhooksRoutes);
 app.use('/api/branches', branchesRoutes);
 app.use('/api/payment-gateway', paymentGatewayRoutes);
 app.use('/api/copilot', copilotRoutes);
+app.use('/api/insights', insightsRoutes);
+app.use('/api/saudi', saudiRoutes);
 app.use('/api/customer-import', requireAuth, customerImportRoutes);
 app.use('/api/vendor-data', requireAuth, vendorDataExportRoutes);
 

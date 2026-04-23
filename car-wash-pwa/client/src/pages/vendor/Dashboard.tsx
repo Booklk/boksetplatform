@@ -16,6 +16,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { EmptyState } from '../../components/ui';
 import SetupChecklist from '../../components/SetupChecklist';
 import SmartInsights from '../../components/SmartInsights';
+import MorningBrief from '../../components/vendor/MorningBrief';
+import PrayerTimesBadge from '../../components/vendor/PrayerTimesBadge';
 import TrialBanner from '../../components/TrialBanner';
 import ProTrialBanner from '../../components/vendor/ProTrialBanner';
 import MilestoneCelebration from '../../components/MilestoneCelebration';
@@ -629,6 +631,14 @@ export default function VendorDashboard() {
 
         {/* Push notification opt-in */}
         <PushPrompt />
+
+        {/* AI-generated daily brief — the first thing vendors should see */}
+        <MorningBrief />
+
+        {/* Saudi-native: prayer times + Hijri date */}
+        <div className="mb-6">
+          <PrayerTimesBadge city={myVendor?.city ?? 'الرياض'} />
+        </div>
 
         {/* Smart Insights — personalized growth cards */}
         <SmartInsights />
