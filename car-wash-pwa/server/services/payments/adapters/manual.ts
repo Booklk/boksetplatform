@@ -14,6 +14,7 @@ export const manual: PaymentAdapter = {
   slug: 'manual',
   labelAr: 'يدوي (نقد / تحويل / مكينة POS)',
   descriptionAr: 'بدون بوابة إلكترونية — تسجّل المدفوعات يدوياً من لوحة التحكم.',
+  supportedMethods: ['cash', 'bank_transfer'],
   supportsWebhook: false,
   requiredFields: [],
 

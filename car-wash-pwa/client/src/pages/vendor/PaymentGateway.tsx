@@ -29,6 +29,18 @@ interface FieldSpec {
   optional?: boolean;
 }
 
+type BuyerMethod =
+  | 'mada' | 'credit_card' | 'apple_pay' | 'google_pay'
+  | 'stc_pay' | 'knet' | 'bnpl_4x' | 'bnpl_later'
+  | 'bank_transfer' | 'cash';
+
+const METHOD_LABEL: Record<BuyerMethod, string> = {
+  mada: 'مدى', credit_card: 'بطاقات ائتمان', apple_pay: 'Apple Pay',
+  google_pay: 'Google Pay', stc_pay: 'STC Pay', knet: 'KNET',
+  bnpl_4x: 'تقسيط 4×', bnpl_later: 'ادفع لاحقاً',
+  bank_transfer: 'تحويل بنكي', cash: 'نقد',
+};
+
 interface ProviderCatalogEntry {
   slug: string;
   labelAr: string;
@@ -36,6 +48,7 @@ interface ProviderCatalogEntry {
   supportsWebhook: boolean;
   requiredFields: FieldSpec[];
   kind: Kind;
+  supportedMethods: BuyerMethod[];
 }
 
 interface ConfiguredProvider {
@@ -162,7 +175,19 @@ export default function PaymentGateway() {
                       </div>
                       <Plus size={14} className="text-primary-400 shrink-0" />
                     </div>
-                    <p className="text-[11px] text-ink-400 leading-relaxed">{p.descriptionAr}</p>
+                    <p className="text-[11px] text-ink-400 leading-relaxed mb-2">{p.descriptionAr}</p>
+                    {p.supportedMethods.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {p.supportedMethods.map((m) => (
+                          <span
+                            key={m}
+                            className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-white/[0.06] border border-white/[0.08] text-ink-300"
+                          >
+                            {METHOD_LABEL[m]}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </motion.button>
                 );
               })}
@@ -295,6 +320,20 @@ function ProviderCard({
           </Button>
         </div>
       </div>
+
+      {/* Supported methods chip row */}
+      {catalog?.supportedMethods && catalog.supportedMethods.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {catalog.supportedMethods.map((m) => (
+            <span
+              key={m}
+              className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-ink-300"
+            >
+              {METHOD_LABEL[m as BuyerMethod] ?? m}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Webhook url */}
       {provider.webhookUrl && catalog?.supportsWebhook && (

@@ -36,6 +36,7 @@ export function listProviders() {
     supportsWebhook: boolean;
     requiredFields: PaymentAdapter['requiredFields'];
     kind: 'card' | 'bnpl' | 'wallet' | 'manual';
+    supportedMethods: PaymentAdapter['supportedMethods'];
   }> = [];
   for (const adapter of Object.values(REGISTRY)) {
     if (seen.has(adapter.slug)) continue;
@@ -47,6 +48,7 @@ export function listProviders() {
       supportsWebhook: adapter.supportsWebhook,
       requiredFields: adapter.requiredFields,
       kind: PROVIDER_KINDS[adapter.slug],
+      supportedMethods: adapter.supportedMethods,
     });
   }
   return result;

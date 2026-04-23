@@ -60,6 +60,7 @@ export const tabby: PaymentAdapter = {
   slug: 'tabby',
   labelAr: 'تابي (Tabby)',
   descriptionAr: 'قسّم الدفعة على 4 دفعات بدون فوائد — شائع جداً في السعودية.',
+  supportedMethods: ['bnpl_4x'],
   supportsWebhook: true,
   requiredFields: [
     { key: 'secretKey',     labelAr: 'المفتاح السري (sk_live_...)',    type: 'password' },

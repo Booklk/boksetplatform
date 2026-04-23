@@ -46,6 +46,7 @@ export const hyperpay: PaymentAdapter = {
   slug: 'hyperpay',
   labelAr: 'HyperPay',
   descriptionAr: 'بوابة بنكية سعودية — مدى + فيزا + ماستركارد. شائعة في البنوك المحلية.',
+  supportedMethods: ['mada', 'credit_card', 'apple_pay', 'stc_pay'],
   supportsWebhook: true,
   requiredFields: [
     { key: 'secretKey',    labelAr: 'Access Token',  type: 'password' },

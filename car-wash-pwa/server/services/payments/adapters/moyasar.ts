@@ -38,6 +38,7 @@ export const moyasar: PaymentAdapter = {
   slug: 'moyasar',
   labelAr: 'ميسر (Moyasar)',
   descriptionAr: 'بطاقات مدى والائتمان وآبل باي. شائع في السوق السعودي.',
+  supportedMethods: ['mada', 'credit_card', 'apple_pay', 'stc_pay'],
   supportsWebhook: true,
   requiredFields: [
     { key: 'publicKey',     labelAr: 'المفتاح العام (Publishable)', type: 'text',     helpAr: 'يبدأ عادة بـ pk_live_ أو pk_test_' },

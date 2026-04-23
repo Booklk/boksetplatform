@@ -38,6 +38,7 @@ export const tap: PaymentAdapter = {
   slug: 'tap',
   labelAr: 'تاب (Tap Payments)',
   descriptionAr: 'مدى، فيزا، ماستركارد، آبل باي، KNET. منتشر خليجياً.',
+  supportedMethods: ['mada', 'credit_card', 'apple_pay', 'google_pay', 'knet'],
   supportsWebhook: true,
   requiredFields: [
     { key: 'secretKey',     labelAr: 'المفتاح السري (sk_live_...)', type: 'password' },

@@ -68,6 +68,7 @@ export const tamara: PaymentAdapter = {
   slug: 'tamara',
   labelAr: 'تمارا (Tamara)',
   descriptionAr: 'قسّم الدفعة أو ادفع لاحقاً — سعودي المنشأ، مقبول في كل القطاعات.',
+  supportedMethods: ['bnpl_4x', 'bnpl_later'],
   supportsWebhook: true,
   requiredFields: [
     { key: 'secretKey',     labelAr: 'API Token', type: 'password' },

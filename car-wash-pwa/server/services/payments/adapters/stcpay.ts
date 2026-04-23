@@ -42,6 +42,7 @@ export const stcpay: PaymentAdapter = {
   slug: 'stcpay',
   labelAr: 'STC Pay',
   descriptionAr: 'المحفظة السعودية — دفع مباشر من تطبيق STC Pay.',
+  supportedMethods: ['stc_pay'],
   supportsWebhook: true,
   requiredFields: [
     { key: 'secretKey',     labelAr: 'Access Key',     type: 'password' },

@@ -103,12 +103,34 @@ export interface RefundResult {
   error?: string;
 }
 
+/** Buyer-facing payment methods a single provider can expose. Which of
+ *  these actually appear on the hosted checkout depends on what the
+ *  vendor has activated inside the provider's own dashboard (e.g.
+ *  Moyasar vendors must tick "Apple Pay" on moyasar.com before it
+ *  shows up). We surface the full list here so the UI can tell the
+ *  vendor "هذه البوابة تدعم: مدى، بطاقات، Apple Pay". */
+export type BuyerMethod =
+  | 'mada'
+  | 'credit_card'
+  | 'apple_pay'
+  | 'google_pay'
+  | 'stc_pay'
+  | 'knet'
+  | 'bnpl_4x'
+  | 'bnpl_later'
+  | 'bank_transfer'
+  | 'cash';
+
 export interface PaymentAdapter {
   slug: ProviderSlug;
   /** Arabic label shown in the dashboard. */
   labelAr: string;
   /** Short explainer shown under the label. */
   descriptionAr: string;
+  /** Everything a customer can pay with when this provider is enabled
+   *  AND the vendor has activated the method inside the provider's
+   *  own dashboard. Use for UI transparency, not for payment routing. */
+  supportedMethods: BuyerMethod[];
   /** Which credential fields this provider needs. UI renders these dynamically. */
   requiredFields: Array<{
     key: keyof PaymentCredentials | `extra.${string}`;

@@ -41,6 +41,7 @@ export const paytabs: PaymentAdapter = {
   slug: 'paytabs',
   labelAr: 'PayTabs',
   descriptionAr: 'بوابة خليجية — مدى، فيزا، آبل باي، STC Pay عبر PayTabs.',
+  supportedMethods: ['mada', 'credit_card', 'apple_pay', 'stc_pay'],
   supportsWebhook: true,
   requiredFields: [
     { key: 'secretKey',   labelAr: 'Server Key',   type: 'password' },
