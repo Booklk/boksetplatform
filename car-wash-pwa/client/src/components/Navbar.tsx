@@ -41,6 +41,7 @@ const vendorNavSections: NavSection[] = [
     label: 'الرئيسية',
     items: [
       { to: '/vendor', icon: Home, label: 'لوحة التحكم' },
+      { to: '/vendor/studio', icon: Sparkles, label: 'استوديو التصميم الذكي ✨' },
       { to: '/vendor/ai-advisor', icon: Brain, label: 'المستشار الذكي' },
       { to: '/vendor/queue', icon: LayoutGrid, label: 'طابور الخدمة' },
       { to: '/vendor/pos', icon: Zap, label: 'نقطة البيع' },

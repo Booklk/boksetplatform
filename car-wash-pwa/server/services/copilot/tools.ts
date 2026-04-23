@@ -17,6 +17,8 @@ import {
   bookings, users, services, packages, inventory, auditLogs,
 } from '../../db/schema.js';
 import { and, eq, gte, lte, sql, count, sum, desc } from 'drizzle-orm';
+import { readStorefrontSettings, writeStorefrontSettings } from '../storefrontSettings.js';
+import { readPreferences, writePreferences } from '../vendorPreferences.js';
 
 export interface CopilotContext {
   vendorId: number;
@@ -34,7 +36,7 @@ export interface CopilotContext {
 
 /** Max number of write operations Copilot can perform inside a single
  *  chat turn, regardless of how many function calls the LLM attempts. */
-const COPILOT_WRITE_BUDGET = 5;
+const COPILOT_WRITE_BUDGET = 10;
 
 export interface ToolResult {
   /** Human-readable summary for the LLM to explain back to the user. */
@@ -184,6 +186,126 @@ export const COPILOT_TOOLS = [
           _confirm: { type: 'boolean', default: false },
         },
         required: ['name', 'phone'],
+      },
+    },
+  },
+
+  // ── Storefront look & feel (Pro-ish; the adapter surfaces a hint
+  //    rather than blocking — the upgrade sheet handles gating) ──────
+  {
+    type: 'function' as const,
+    function: {
+      name: 'update_announcement_banner',
+      description:
+        'تعديل شريط الإعلان أعلى الموقع (نص، لون، رابط، تفعيل). ' +
+        'مثال: "فعّل بانر أحمر بنص خصم 25% حتى الجمعة يربط على /promo".',
+      parameters: {
+        type: 'object',
+        properties: {
+          enabled: { type: 'boolean' },
+          text:    { type: 'string' },
+          href:    { type: 'string', description: 'رابط CTA اختياري' },
+          tone:    { type: 'string', enum: ['info','success','warn','danger','brand'] },
+          _confirm:{ type: 'boolean', default: false },
+        },
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'update_hero',
+      description:
+        'تعديل الهيرو (الخلفية الرئيسية) — صورة أو فيديو + عنوان + زر. ' +
+        'اقبل روابط YouTube/Vimeo/MP4. مثال: "هيرو فيديو يوتيوب xxxxx وعنوان أفضل مغسلة في الرياض".',
+      parameters: {
+        type: 'object',
+        properties: {
+          mediaType:     { type: 'string', enum: ['none','image','video'] },
+          mediaUrl:      { type: 'string' },
+          posterUrl:     { type: 'string' },
+          headlineAr:    { type: 'string' },
+          subheadlineAr: { type: 'string' },
+          ctaLabelAr:    { type: 'string' },
+          ctaHref:       { type: 'string' },
+          _confirm:      { type: 'boolean', default: false },
+        },
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'set_working_hours',
+      description:
+        'تعديل ساعات العمل ليوم واحد (0=الأحد .. 6=السبت). ' +
+        'مثال: "الجمعة مغلق" أو "الأحد من 9 صباحاً إلى 11 مساءً".',
+      parameters: {
+        type: 'object',
+        properties: {
+          day:    { type: 'number', minimum: 0, maximum: 6 },
+          closed: { type: 'boolean' },
+          open:   { type: 'string', description: 'HH:mm' },
+          close:  { type: 'string', description: 'HH:mm' },
+          _confirm:{ type: 'boolean', default: false },
+        },
+        required: ['day'],
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'update_booking_rules',
+      description:
+        'تعديل قواعد الحجز: أقل مهلة، مدة الفترة، سعة الحجوزات المتزامنة، قبول تلقائي. ' +
+        'اذكر الحقول اللي يبغاها المستخدم فقط.',
+      parameters: {
+        type: 'object',
+        properties: {
+          minLeadMinutes:      { type: 'number' },
+          maxLeadDays:         { type: 'number' },
+          cancelDeadlineHours: { type: 'number' },
+          slotDurationMinutes: { type: 'number', enum: [15, 30, 45, 60] },
+          maxConcurrent:       { type: 'number' },
+          autoAccept:          { type: 'boolean' },
+          _confirm:            { type: 'boolean', default: false },
+        },
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'update_deposit',
+      description:
+        'طلب عربون أو إيقافه. مثال: "فعّل عربون 20% على كل حجز" أو "أوقف العربون".',
+      parameters: {
+        type: 'object',
+        properties: {
+          required: { type: 'boolean' },
+          type:     { type: 'string', enum: ['percentage', 'fixed'] },
+          amount:   { type: 'number' },
+          _confirm: { type: 'boolean', default: false },
+        },
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'set_customer_field',
+      description:
+        'تعديل إعدادات حقل من حقول العميل عند الحجز. ' +
+        'مثال: "خل البريد الإلكتروني إلزامي" أو "أخفي نوع السيارة".',
+      parameters: {
+        type: 'object',
+        properties: {
+          field: { type: 'string', enum: ['email','vehiclePlate','vehicleType','address','notes'] },
+          mode:  { type: 'string', enum: ['hidden','optional','required'] },
+          _confirm: { type: 'boolean', default: false },
+        },
+        required: ['field', 'mode'],
       },
     },
   },
@@ -504,6 +626,163 @@ export async function executeCopilotTool(
       }).returning();
       await auditLog(ctx, 'copilot.add_employee', { employeeId: created.id, name, phone });
       return { summary: `تم. أضفت ${name} كموظف. أرسل له كلمة مرور من إعدادات الموظفين.` };
+    }
+
+    // ── Storefront look & feel ─────────────────────────────────────────
+    case 'update_announcement_banner': {
+      const patch: Record<string, unknown> = {};
+      if (args.enabled !== undefined) patch.enabled = Boolean(args.enabled);
+      if (typeof args.text === 'string') patch.text = args.text;
+      if (typeof args.href === 'string') patch.href = args.href;
+      if (['info','success','warn','danger','brand'].includes(args.tone)) patch.tone = args.tone;
+
+      if (!args._confirm) {
+        return {
+          summary: `جاهز لتعديل البانر. ${patch.enabled !== undefined ? (patch.enabled ? 'تفعيل + ' : 'إيقاف + ') : ''}${patch.text ? `نص "${patch.text}" + ` : ''}${patch.tone ? `لون ${patch.tone}` : ''}`,
+          preview: {
+            title: 'تحديث البانر الإعلاني',
+            rows: Object.entries(patch).map(([k, v]) => ({ label: k, value: String(v) })),
+            executeHint: 'أعد الأمر مع تأكيد التنفيذ.',
+          },
+        };
+      }
+      if (!spendWriteBudget(ctx)) return { summary: 'تجاوزت حد التعديلات لهذه الجلسة.' };
+      const next = await writeStorefrontSettings(vendorId, { announcement: patch as any });
+      await auditLog(ctx, 'copilot.update_announcement', patch);
+      return {
+        summary: 'حدّثت البانر. افتح صفحة متجرك لترى التغيير.',
+        data: { announcement: next.announcement },
+      };
+    }
+
+    case 'update_hero': {
+      const patch: Record<string, unknown> = {};
+      for (const k of ['mediaType','mediaUrl','posterUrl','headlineAr','subheadlineAr','ctaLabelAr','ctaHref']) {
+        if (args[k] !== undefined) patch[k] = args[k];
+      }
+      if (!args._confirm) {
+        return {
+          summary: 'جاهز لتحديث الهيرو.',
+          preview: {
+            title: 'تحديث الهيرو',
+            rows: Object.entries(patch).map(([k, v]) => ({
+              label: k,
+              value: String(v).length > 60 ? String(v).slice(0, 57) + '…' : String(v),
+            })),
+            executeHint: 'أعد الأمر مع تأكيد التنفيذ.',
+          },
+        };
+      }
+      if (!spendWriteBudget(ctx)) return { summary: 'تجاوزت حد التعديلات لهذه الجلسة.' };
+      const next = await writeStorefrontSettings(vendorId, { hero: patch as any });
+      await auditLog(ctx, 'copilot.update_hero', patch);
+      return { summary: 'حدّثت الهيرو. تقدر تشوفه في معاينة المتجر.', data: { hero: next.hero } };
+    }
+
+    case 'set_working_hours': {
+      const day = Number(args.day);
+      if (!Number.isInteger(day) || day < 0 || day > 6) throw new Error('يوم غير صحيح (0..6)');
+      const current = await readPreferences(vendorId);
+      const cur = current.hours[day as 0|1|2|3|4|5|6];
+      const nextDay = {
+        open:   typeof args.open  === 'string' ? args.open  : cur.open,
+        close:  typeof args.close === 'string' ? args.close : cur.close,
+        closed: args.closed !== undefined ? Boolean(args.closed) : cur.closed,
+      };
+      if (!args._confirm) {
+        const names = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        return {
+          summary: `ساعات ${names[day]} ستصبح: ${nextDay.closed ? 'مغلق' : `${nextDay.open} — ${nextDay.close}`}.`,
+          preview: {
+            title: `ساعات ${names[day]}`,
+            rows: [
+              { label: 'الحالة', value: nextDay.closed ? 'مغلق' : 'مفتوح' },
+              ...(nextDay.closed ? [] : [
+                { label: 'يفتح',   value: nextDay.open  },
+                { label: 'يغلق',   value: nextDay.close },
+              ]),
+            ],
+            executeHint: 'أعد الأمر مع تأكيد التنفيذ.',
+          },
+        };
+      }
+      if (!spendWriteBudget(ctx)) return { summary: 'تجاوزت حد التعديلات لهذه الجلسة.' };
+      const nextHours = { ...current.hours, [day]: nextDay };
+      await writePreferences(vendorId, { hours: nextHours as any });
+      await auditLog(ctx, 'copilot.set_working_hours', { day, ...nextDay });
+      return { summary: 'حفظت ساعات اليوم.' };
+    }
+
+    case 'update_booking_rules': {
+      const patch: Record<string, unknown> = {};
+      for (const k of ['minLeadMinutes','maxLeadDays','cancelDeadlineHours','slotDurationMinutes','maxConcurrent','autoAccept']) {
+        if (args[k] !== undefined) patch[k] = args[k];
+      }
+      if (Object.keys(patch).length === 0) {
+        return { summary: 'ما في قواعد جديدة لتحديثها.' };
+      }
+      if (!args._confirm) {
+        return {
+          summary: 'جاهز لتحديث قواعد الحجز.',
+          preview: {
+            title: 'قواعد الحجز',
+            rows: Object.entries(patch).map(([k, v]) => ({ label: k, value: String(v) })),
+            executeHint: 'أعد الأمر مع تأكيد التنفيذ.',
+          },
+        };
+      }
+      if (!spendWriteBudget(ctx)) return { summary: 'تجاوزت حد التعديلات لهذه الجلسة.' };
+      await writePreferences(vendorId, { booking: patch as any });
+      await auditLog(ctx, 'copilot.update_booking_rules', patch);
+      return { summary: 'حفظت قواعد الحجز.' };
+    }
+
+    case 'update_deposit': {
+      const patch: Record<string, unknown> = {};
+      if (args.required !== undefined) patch.required = Boolean(args.required);
+      if (args.type === 'percentage' || args.type === 'fixed') patch.type = args.type;
+      if (Number.isFinite(Number(args.amount))) patch.amount = Number(args.amount);
+      if (Object.keys(patch).length === 0) return { summary: 'ما في قيمة جديدة للعربون.' };
+      if (!args._confirm) {
+        return {
+          summary: patch.required === false
+            ? 'سأوقف العربون.'
+            : `سأفعّل العربون ${patch.type === 'fixed' ? `بمبلغ ثابت ${patch.amount} ر.س` : `بنسبة ${patch.amount ?? '—'}%`}.`,
+          preview: {
+            title: 'إعدادات العربون',
+            rows: Object.entries(patch).map(([k, v]) => ({ label: k, value: String(v) })),
+            executeHint: 'أعد الأمر مع تأكيد التنفيذ.',
+          },
+        };
+      }
+      if (!spendWriteBudget(ctx)) return { summary: 'تجاوزت حد التعديلات لهذه الجلسة.' };
+      await writePreferences(vendorId, { deposit: patch as any });
+      await auditLog(ctx, 'copilot.update_deposit', patch);
+      return { summary: 'حفظت إعدادات العربون.' };
+    }
+
+    case 'set_customer_field': {
+      const field = String(args.field ?? '');
+      const mode = String(args.mode ?? '');
+      if (!['email','vehiclePlate','vehicleType','address','notes'].includes(field)) throw new Error('حقل غير معروف');
+      if (!['hidden','optional','required'].includes(mode)) throw new Error('وضع غير صحيح');
+      if (!args._confirm) {
+        const map: Record<string, string> = {
+          hidden: 'مخفي', optional: 'اختياري', required: 'إلزامي',
+        };
+        return {
+          summary: `سيصبح حقل "${field}" = ${map[mode]}.`,
+          preview: {
+            title: 'حقل العميل',
+            rows: [{ label: field, value: map[mode] }],
+            executeHint: 'أعد الأمر مع تأكيد التنفيذ.',
+          },
+        };
+      }
+      if (!spendWriteBudget(ctx)) return { summary: 'تجاوزت حد التعديلات لهذه الجلسة.' };
+      await writePreferences(vendorId, { fields: { [field]: mode } as any });
+      await auditLog(ctx, 'copilot.set_customer_field', { field, mode });
+      return { summary: `تم. حقل "${field}" الآن ${mode}.` };
     }
 
     default:
