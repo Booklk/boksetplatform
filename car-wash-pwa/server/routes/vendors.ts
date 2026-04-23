@@ -875,7 +875,7 @@ router.post('/:id/platform-subscribe', requireAuth, requireRole('vendor_admin', 
 
     const apiKey = process.env.MOYASAR_API_KEY ?? '';
     if (!apiKey) {
-      return res.status(503).json({ error: 'بوابة الدفع غير مهيأة بعد، تواصل مع فريق Jdawil على واتساب.' });
+      return res.status(503).json({ error: 'بوابة الدفع غير مهيأة بعد، تواصل مع فريق جداول على واتساب.' });
     }
 
     const baseUrl = process.env.BASE_URL ?? 'http://localhost:3001';
@@ -936,6 +936,12 @@ router.get('/:id/platform-subscribe/verify', async (req, res) => {
 
     // Verify with Moyasar
     const apiKey = process.env.MOYASAR_API_KEY ?? '';
+    if (!apiKey) {
+      // Without a key the verify endpoint returns 401 generic — redirect
+      // to the payment-failed page so the vendor sees something actionable.
+      console.error('[platform-subscribe/verify] MOYASAR_API_KEY missing');
+      return res.redirect(`${clientUrl}/vendor/platform-sub?payment=unavailable`);
+    }
     const verifyRes = await fetch(`https://api.moyasar.com/v1/payments/${paymentId}`, {
       headers: { Authorization: `Basic ${Buffer.from(apiKey + ':').toString('base64')}` },
     });

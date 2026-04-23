@@ -1354,6 +1354,10 @@ export const bookingsCustomerIdx = index('idx_bookings_customer_id').on(bookings
 export const bookingsEmployeeIdx = index('idx_bookings_employee_id').on(bookings.employeeId);
 export const bookingsScheduledIdx = index('idx_bookings_scheduled_at').on(bookings.scheduledAt);
 export const bookingsVendorStatusIdx = index('idx_bookings_vendor_status').on(bookings.vendorId, bookings.status);
+// Composite index for "recent bookings by vendor" — avoids a scan of
+// idx_bookings_vendor_id + filter-then-sort when listing by date.
+export const bookingsVendorScheduledIdx = index('idx_bookings_vendor_scheduled').on(bookings.vendorId, bookings.scheduledAt);
+export const bookingsVendorCreatedIdx   = index('idx_bookings_vendor_created').on(bookings.vendorId, bookings.createdAt);
 
 // Users — login and lookup
 export const usersPhoneIdx = index('idx_users_phone').on(users.phone);

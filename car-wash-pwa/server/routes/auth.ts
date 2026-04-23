@@ -167,11 +167,9 @@ router.post('/admin-login', async (req, res) => {
     const { phone, password } = req.body;
     if (!phone || !password) return res.status(400).json({ error: 'رقم الجوال وكلمة المرور مطلوبة' });
 
-    // Normalize phone
-    let p = phone.replace(/[\s\-\(\)]/g, '');
-    if (p.startsWith('+966')) p = '0' + p.slice(4);
-    if (p.startsWith('966')) p = '0' + p.slice(3);
-    if (!p.startsWith('0')) p = '0' + p;
+    // Use the shared normalizer so signup, OTP verify and admin login
+    // all accept the same shapes (+966, 966…, leading zero, etc.).
+    const p = normalizePhone(phone);
 
     const [user] = await db.select().from(users)
       .where(eq(users.phone, p))

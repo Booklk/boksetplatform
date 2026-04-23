@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
@@ -12,8 +13,13 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
   filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+    // Use randomUUID for collision safety — (Date.now + Math.random) can
+    // collide when two uploads land in the same millisecond on a busy
+    // server. path.extname is also sanitised so the extension can never
+    // contain slashes or traversal (/, \, ..).
+    const raw = path.extname(file.originalname).toLowerCase();
+    const ext = /^\.[a-z0-9]{1,6}$/.test(raw) ? raw : '';
+    cb(null, `${crypto.randomUUID()}${ext}`);
   },
 });
 

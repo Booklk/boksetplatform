@@ -189,9 +189,16 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Dynamic CORS: support platform domains + vendor custom domains
 const isProd = process.env.NODE_ENV === 'production';
-const platformDomains = (process.env.PLATFORM_DOMAINS ?? 'jdawil.sa,localhost,127.0.0.1')
-  .split(',').map(d => d.trim());
+const platformDomains = (process.env.PLATFORM_DOMAINS ?? 'jadawel.sa,localhost,127.0.0.1')
+  .split(',').map(d => d.trim()).filter(Boolean);
 const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
+
+// Defensive: in prod, refuse to start if PLATFORM_DOMAINS obviously
+// trusts localhost — that's a dev fallback that lets attacker-controlled
+// origins whitelist themselves once the server is exposed.
+if (isProd && platformDomains.some((d) => d === 'localhost' || d === '127.0.0.1' || d === '0.0.0.0')) {
+  console.warn('⚠️  PLATFORM_DOMAINS in production contains localhost/127.0.0.1 — set explicit production domains.');
+}
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -470,13 +477,24 @@ app.get('/api/plans', async (_req, res) => {
   }
 });
 
-// Liveness check — process is alive (no DB needed)
+// Liveness check — process is alive (no DB needed). Always public:
+// orchestrators and uptime monitors poll this every few seconds and
+// the endpoint reveals nothing sensitive.
 app.get('/api/health/live', (_req, res) => {
   return res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// Readiness check — process + DB ready to serve traffic
-app.get('/api/health', async (_req, res) => {
+/** Readiness check — process + DB ready to serve traffic.
+ *  Public endpoints that hit the DB are easy DoS vectors (open a few
+ *  hundred connections until Postgres chokes). We gate behind a shared
+ *  token when HEALTH_CHECK_TOKEN is set, otherwise allow any caller
+ *  (dev / local). Production: always set the token. */
+app.get('/api/health', async (req, res) => {
+  const token = process.env.HEALTH_CHECK_TOKEN;
+  if (token) {
+    const provided = req.header('x-health-token') ?? req.query.token;
+    if (provided !== token) return res.status(401).json({ status: 'unauthorized' });
+  }
   const health: Record<string, unknown> = {
     status: 'ok',
     time: new Date(),

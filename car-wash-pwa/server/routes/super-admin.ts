@@ -80,6 +80,8 @@ router.get('/revenue', requireAuth, requireRole('super_admin'), async (_req, res
 });
 
 // GET /api/super-admin/bookings-trend — Last 12 months booking counts per vendor
+// NOTE: uses Postgres-specific DATE_TRUNC / INTERVAL. If we ever move to a
+// non-Postgres engine this query and the cohort query below need rewriting.
 router.get('/bookings-trend', requireAuth, requireRole('super_admin'), async (_req, res) => {
   try {
     const result = await db.execute(sql`

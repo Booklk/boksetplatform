@@ -130,7 +130,17 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
         }
       });
     } catch (e) {
+      // Auto-assign is best-effort: a failure leaves the booking in
+      // `pending` (unassigned) state which the vendor dashboard surfaces
+      // so they can assign manually. We log + report to Sentry so
+      // silent gaps in auto-assign don't hide behind "everything works".
       console.error('[Auto-assign]', e);
+      try {
+        const { captureError } = await import('../lib/sentry.js');
+        if (e instanceof Error) {
+          captureError(e, { bookingId: newBooking.id, vendorId: pkg.vendorId, source: 'auto-assign' });
+        }
+      } catch { /* ignore Sentry-not-installed */ }
     }
 
     // Re-fetch booking to reflect any auto-assign updates

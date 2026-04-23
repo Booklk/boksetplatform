@@ -22,7 +22,19 @@ export interface CopilotContext {
   vendorId: number;
   userId: number;
   role: string;
+  /** Caller IP — copied into audit entries so "who did this via Copilot"
+   *  isn't blanked out. Falls back to 'copilot' if unknown. */
+  ip?: string;
+  /** Mutable counter of write-tool invocations in the current chat turn.
+   *  The route initialises it to 0 and we bump on every create/update
+   *  to cap per-session damage — e.g. an LLM loop can't spam 1000
+   *  services. */
+  writesUsed?: { count: number };
 }
+
+/** Max number of write operations Copilot can perform inside a single
+ *  chat turn, regardless of how many function calls the LLM attempts. */
+const COPILOT_WRITE_BUDGET = 5;
 
 export interface ToolResult {
   /** Human-readable summary for the LLM to explain back to the user. */
@@ -410,6 +422,9 @@ export async function executeCopilotTool(
           },
         };
       }
+      if (!spendWriteBudget(ctx)) {
+        return { summary: 'وصلت الحد الأقصى لعدد عمليات التعديل في هذه الجلسة. افتح جلسة جديدة.' };
+      }
       const [createdSvc] = await db.insert(services).values({
         vendorId, name: serviceName, description: description ?? null, isActive: true,
       }).returning();
@@ -452,6 +467,9 @@ export async function executeCopilotTool(
           },
         };
       }
+      if (!spendWriteBudget(ctx)) {
+        return { summary: 'وصلت الحد الأقصى لعدد عمليات التعديل في هذه الجلسة.' };
+      }
       await db.update(packages).set({ price: String(newPrice) }).where(eq(packages.id, found.id));
       await auditLog(ctx, 'copilot.update_package_price', { packageId: found.id, from: found.price, to: newPrice });
       return { summary: `تم. سعر "${found.name}" الآن ${newPrice} ر.س.` };
@@ -478,6 +496,9 @@ export async function executeCopilotTool(
           },
         };
       }
+      if (!spendWriteBudget(ctx)) {
+        return { summary: 'وصلت الحد الأقصى لعدد عمليات التعديل في هذه الجلسة.' };
+      }
       const [created] = await db.insert(users).values({
         name, phone, role: 'employee', vendorId, phoneVerified: false,
       }).returning();
@@ -490,6 +511,16 @@ export async function executeCopilotTool(
   }
 }
 
+/** Consume one write-budget unit for the current Copilot chat turn.
+ *  Returns false when the budget is exhausted — the caller should
+ *  return a "budget exceeded" ToolResult instead of mutating. */
+function spendWriteBudget(ctx: CopilotContext): boolean {
+  if (!ctx.writesUsed) ctx.writesUsed = { count: 0 };
+  if (ctx.writesUsed.count >= COPILOT_WRITE_BUDGET) return false;
+  ctx.writesUsed.count++;
+  return true;
+}
+
 async function auditLog(ctx: CopilotContext, action: string, meta: Record<string, unknown>) {
   try {
     await db.insert(auditLogs).values({
@@ -499,7 +530,9 @@ async function auditLog(ctx: CopilotContext, action: string, meta: Record<string
       resource: '/api/copilot/chat',
       method: 'POST',
       metadata: { ...meta, viaCopilot: true },
-      ip: 'copilot',
+      // Capture the real caller IP when the route supplies it — otherwise
+      // mark as 'copilot' so the audit entry is still distinguishable.
+      ip: ctx.ip ?? 'copilot',
     });
   } catch (e) { console.error('[copilot audit]', e); }
 }

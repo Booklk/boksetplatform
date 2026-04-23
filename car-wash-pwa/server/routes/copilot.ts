@@ -50,6 +50,10 @@ router.post('/chat', async (req: AuthRequest, res) => {
       vendorId,
       userId: req.user!.id,
       role: req.user!.role,
+      ip: req.ip ?? req.socket.remoteAddress ?? undefined,
+      // Per-turn write budget: prevents an LLM loop from creating 1000
+      // services in one conversation. Reset on every /chat request.
+      writesUsed: { count: 0 },
     };
 
     const openai = new OpenAI({ apiKey });
