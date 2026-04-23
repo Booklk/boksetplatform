@@ -25,7 +25,8 @@ import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { requirePro } from '../middleware/requirePro.js';
 import {
   readStorefrontSettings, writeStorefrontSettings,
-  isAnnouncementLive, DEFAULT_SETTINGS,
+  isAnnouncementLive, DEFAULT_SETTINGS, publicMerchantNumber,
+  FONT_CATALOG,
 } from '../services/storefrontSettings.js';
 
 const router = Router();
@@ -41,15 +42,19 @@ router.get('/public/:slug', async (req, res) => {
   }).from(vendors).where(eq(vendors.slug, req.params.slug)).limit(1);
   if (!vendor) return res.status(404).json({ error: 'المتجر غير موجود' });
 
-  // Only ship Pro media to the public renderer when the vendor still has
-  // a Pro (or trial) subscription. Downgraded vendors see their own
-  // legacy settings but customers don't.
+  const merchantNumber = publicMerchantNumber(vendor.id);
+
+  // Only ship Pro-gated media/brand to the public renderer when the
+  // vendor still has a Pro (or trial) subscription. Downgraded vendors
+  // see their own legacy settings in the studio, but customers don't.
   const inTrial = vendor.status === 'trial' && vendor.trialEndsAt && vendor.trialEndsAt > new Date();
   const isPro = vendor.plan === 'pro' || vendor.plan === 'enterprise';
   if (!isPro && !inTrial) {
     return res.json({
       announcement: null,
       hero: DEFAULT_SETTINGS.hero,
+      brand: DEFAULT_SETTINGS.brand,
+      merchantNumber,
     });
   }
 
@@ -57,10 +62,13 @@ router.get('/public/:slug', async (req, res) => {
   const store = {
     announcement: null as null | Record<string, unknown>,
     hero: DEFAULT_SETTINGS.hero,
+    brand: DEFAULT_SETTINGS.brand,
+    merchantNumber,
   };
   if (s) {
     const coerced = (await readStorefrontSettings(vendor.id));
-    store.hero = coerced.hero;
+    store.hero  = coerced.hero;
+    store.brand = coerced.brand;
     if (isAnnouncementLive(coerced.announcement)) {
       store.announcement = {
         text: coerced.announcement.text,
@@ -73,6 +81,12 @@ router.get('/public/:slug', async (req, res) => {
   return res.json(store);
 });
 
+// List curated Arabic fonts — safe to expose without auth (just a catalogue).
+router.get('/fonts', (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=86400');
+  return res.json({ fonts: FONT_CATALOG });
+});
+
 // ── From here on: authenticated + Pro-gated ──────────────────────────────
 router.use(requireAuth);
 router.use(requireRole('vendor_admin', 'admin'));
@@ -80,7 +94,11 @@ router.use(requireRole('vendor_admin', 'admin'));
 router.get('/settings', async (req: AuthRequest, res) => {
   const vendorId = req.user!.vendorId;
   if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر' });
-  return res.json(await readStorefrontSettings(vendorId));
+  const settings = await readStorefrontSettings(vendorId);
+  return res.json({
+    ...settings,
+    merchantNumber: publicMerchantNumber(vendorId),
+  });
 });
 
 const settingsPatchSchema = z.object({
@@ -100,6 +118,31 @@ const settingsPatchSchema = z.object({
     subheadlineAr: z.string().max(200).optional(),
     ctaLabelAr:    z.string().max(60).optional(),
     ctaHref:       z.string().max(500).optional(),
+  }).partial().optional(),
+  brand: z.object({
+    colors: z.object({
+      primary:    z.string().max(40).optional(),
+      accent:     z.string().max(40).optional(),
+      background: z.string().max(40).optional(),
+      surface:    z.string().max(40).optional(),
+      text:       z.string().max(40).optional(),
+    }).partial().optional(),
+    fonts: z.object({
+      heading: z.string().max(20).optional(),
+      body:    z.string().max(20).optional(),
+    }).partial().optional(),
+    typographyScale: z.enum(['compact','comfortable','spacious']).optional(),
+    buttonShape:     z.enum(['rounded','pill','square']).optional(),
+    layout: z.object({
+      heroAlignment:  z.enum(['center','start','end','full']).optional(),
+      servicesLayout: z.enum(['grid','list','cards']).optional(),
+      sectionsOrder:  z.array(z.string()).max(20).optional(),
+    }).partial().optional(),
+    identity: z.object({
+      logoUrl:    z.string().max(500).optional(),
+      faviconUrl: z.string().max(500).optional(),
+      ogImageUrl: z.string().max(500).optional(),
+    }).partial().optional(),
   }).partial().optional(),
 });
 

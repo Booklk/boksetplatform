@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import api from '../../lib/api';
+import BrandStyleProvider from './BrandStyleProvider';
 
 type Tone = 'info' | 'success' | 'warn' | 'danger' | 'brand';
 
@@ -30,9 +31,18 @@ interface Hero {
   ctaLabelAr: string;
   ctaHref: string;
 }
+interface BrandPayload {
+  colors: { primary: string; accent: string; background: string; surface: string; text: string };
+  fonts:  { heading: string; body: string };
+  typographyScale: 'compact' | 'comfortable' | 'spacious';
+  buttonShape:     'rounded' | 'pill' | 'square';
+  identity: { logoUrl: string; faviconUrl: string; ogImageUrl: string };
+}
 interface PublicStorefront {
   announcement: Announcement | null;
   hero: Hero;
+  brand?: BrandPayload;
+  merchantNumber?: string;
 }
 
 const TONE_BG: Record<Tone, string> = {
@@ -56,6 +66,7 @@ export default function StorefrontHeader({ slug, brandColor }: { slug: string; b
 
   return (
     <>
+      {data?.brand && <BrandStyleProvider brand={data.brand} />}
       {announcement && <AnnouncementBar a={announcement} />}
       {heroVisible && <HeroMedia hero={hero} brandColor={brandColor} />}
     </>

@@ -117,6 +117,7 @@ const VendorKyc = lazy(() => import('./pages/vendor/Kyc'));
 const VendorMediaStudio = lazy(() => import('./pages/vendor/MediaStudio'));
 const VendorPreferences = lazy(() => import('./pages/vendor/Preferences'));
 const VendorStudio = lazy(() => import('./pages/vendor/Studio'));
+const VendorBrandIdentity = lazy(() => import('./pages/vendor/BrandIdentity'));
 const VendorAIAdvisor = lazy(() => import('./pages/vendor/AIAdvisor'));
 const VendorLeaderboard = lazy(() => import('./pages/vendor/Leaderboard'));
 const VendorReferVendor = lazy(() => import('./pages/vendor/ReferVendor'));
@@ -637,6 +638,11 @@ function AppRoutes() {
         <Route path="/vendor/studio" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <S><VendorStudio /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/brand-identity" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorBrandIdentity /></S>
           </RequireAuth>
         } />
         <Route path="/vendor/ai-advisor" element={
