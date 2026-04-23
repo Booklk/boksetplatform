@@ -93,6 +93,7 @@ import vendorDataExportRoutes from './routes/vendor-data-export.js';
 import copilotRoutes from './routes/copilot.js';
 import insightsRoutes from './routes/insights.js';
 import saudiRoutes from './routes/saudi.js';
+import autopilotRoutes from './routes/autopilot.js';
 import { attachRealtime } from './services/realtime/server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -361,6 +362,7 @@ app.use('/api/payment-gateway', paymentGatewayRoutes);
 app.use('/api/copilot', copilotRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/saudi', saudiRoutes);
+app.use('/api/autopilot', autopilotRoutes);
 app.use('/api/customer-import', requireAuth, customerImportRoutes);
 app.use('/api/vendor-data', requireAuth, vendorDataExportRoutes);
 
@@ -1216,6 +1218,50 @@ cron.schedule('0 2 * * *', async () => {
     }
   } catch (e) {
     console.error('[Cron scores]', e);
+  }
+});
+
+// ─── AUTOPILOT ENGINES ───────────────────────────────────────────────────────
+// Split schedules keep each engine on the cadence that suits it:
+//   assign + auto-confirm :  every 3 min  (low latency, core ops)
+//   reorder inventory     :  every hour   (stock doesn't move that fast)
+//   dormant remarketing   :  once a day at 10:00 AM (respect quiet hours)
+
+cron.schedule('*/3 * * * *', async () => {
+  try {
+    const { activeAutopilotVendors } = await import('./services/autopilot/config.js');
+    const { runAssignEmployee } = await import('./services/autopilot/assignEmployee.js');
+    const { runAutoConfirm } = await import('./services/autopilot/autoConfirm.js');
+    for await (const { vendorId, config } of activeAutopilotVendors()) {
+      try { await runAssignEmployee(vendorId, config.assignEmployee); } catch (e) { console.error('[autopilot assign]', vendorId, e); }
+      try { await runAutoConfirm(vendorId, config.autoConfirm); } catch (e) { console.error('[autopilot confirm]', vendorId, e); }
+    }
+  } catch (e) {
+    console.error('[Cron autopilot core]', e);
+  }
+});
+
+cron.schedule('0 * * * *', async () => {
+  try {
+    const { activeAutopilotVendors } = await import('./services/autopilot/config.js');
+    const { runReorderInventory } = await import('./services/autopilot/reorderInventory.js');
+    for await (const { vendorId, config } of activeAutopilotVendors()) {
+      try { await runReorderInventory(vendorId, config.reorderInventory); } catch (e) { console.error('[autopilot reorder]', vendorId, e); }
+    }
+  } catch (e) {
+    console.error('[Cron autopilot reorder]', e);
+  }
+});
+
+cron.schedule('0 10 * * *', async () => {
+  try {
+    const { activeAutopilotVendors } = await import('./services/autopilot/config.js');
+    const { runDormantRemarket } = await import('./services/autopilot/dormantRemarket.js');
+    for await (const { vendorId, config } of activeAutopilotVendors()) {
+      try { await runDormantRemarket(vendorId, config.dormantRemarket); } catch (e) { console.error('[autopilot dormant]', vendorId, e); }
+    }
+  } catch (e) {
+    console.error('[Cron autopilot dormant]', e);
   }
 });
 

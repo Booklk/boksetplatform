@@ -120,6 +120,7 @@ const vendorNavSections: NavSection[] = [
       { to: '/vendor/pages', icon: FileText, label: 'صفحات المتجر' },
       { to: '/vendor/brand-kit', icon: Sparkles, label: 'هوية AI ✨' },
       { to: '/vendor/suppliers', icon: ShoppingBag, label: 'الموردون' },
+      { to: '/vendor/autopilot', icon: Bot, label: 'الطيّار الآلي ⚡' },
       { to: '/vendor/platform-sub', icon: CreditCard, label: 'اشتراك المنصة' },
       { to: '/vendor/payment-gateway', icon: CreditCard, label: 'بوابة الدفع للعملاء' },
       { to: '/vendor/branches', icon: Briefcase, label: 'الفروع' },

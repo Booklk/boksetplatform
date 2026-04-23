@@ -112,6 +112,7 @@ const VendorAuditLog = lazy(() => import('./pages/vendor/AuditLog'));
 const VendorReferralProgram = lazy(() => import('./pages/vendor/ReferralProgram'));
 const VendorBranches = lazy(() => import('./pages/vendor/Branches'));
 const VendorPaymentGateway = lazy(() => import('./pages/vendor/PaymentGateway'));
+const VendorAutopilot = lazy(() => import('./pages/vendor/Autopilot'));
 const VendorAIAdvisor = lazy(() => import('./pages/vendor/AIAdvisor'));
 const VendorLeaderboard = lazy(() => import('./pages/vendor/Leaderboard'));
 const VendorReferVendor = lazy(() => import('./pages/vendor/ReferVendor'));
@@ -606,6 +607,11 @@ function AppRoutes() {
         <Route path="/vendor/payment-gateway" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <S><VendorPaymentGateway /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/autopilot" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorAutopilot /></S>
           </RequireAuth>
         } />
         <Route path="/vendor/ai-advisor" element={
