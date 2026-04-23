@@ -1,18 +1,25 @@
 version: '3.8'
 
+# Notes on secrets:
+#   - JWT_SECRET, ENCRYPTION_KEY, *_WEBHOOK_SECRET and all API keys must
+#     come from the host env (see README + server/.env.example). The
+#     compose defaults below use OBVIOUSLY BAD values so a copy-paste
+#     to prod fails loudly via lib/validate-env.ts.
+#   - POSTGRES_PASSWORD has the same treatment; change before exposing.
+
 services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: jdawil
-      POSTGRES_USER: jdawil
-      POSTGRES_PASSWORD: jdawil_password
+      POSTGRES_DB: ${POSTGRES_DB:-jadawel}
+      POSTGRES_USER: ${POSTGRES_USER:-jadawel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-INVALID_change_before_deploy}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U jdawil"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jadawel}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -25,19 +32,38 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://jdawil:jdawil_password@postgres:5432/jdawil
-      JWT_SECRET: ${JWT_SECRET:-change_this_to_a_long_random_secret_key_minimum_32_chars}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-change_this_in_production}
-      NODE_ENV: production
+      # ── Core ────────────────────────────────────────────────────────
+      DATABASE_URL: postgresql://${POSTGRES_USER:-jadawel}:${POSTGRES_PASSWORD:-INVALID_change_before_deploy}@postgres:5432/${POSTGRES_DB:-jadawel}
+      JWT_SECRET: ${JWT_SECRET:-INVALID_change_before_deploy_min_32_chars_xxxxxxxxxx}
+      # MUST be exactly 64 hex chars in production. Validator exits if
+      # it isn't — don't ship with this placeholder.
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-INVALID_change_to_64_hex_chars_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}
+      NODE_ENV: ${NODE_ENV:-production}
       PORT: 3001
       CLIENT_URL: ${CLIENT_URL:-http://localhost:3001}
-      DOMAIN: ${DOMAIN:-jdawil.sa}
+      BASE_URL:   ${BASE_URL:-http://localhost:3001}
+      DOMAIN:     ${DOMAIN:-jadawel.sa}
+      PLATFORM_DOMAINS: ${PLATFORM_DOMAINS:-jadawel.sa,localhost,127.0.0.1}
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      # ── Auth OTP delivery (prod-required) ──────────────────────────
+      WHATSAPP_TOKEN:    ${WHATSAPP_TOKEN:-}
+      WHATSAPP_PHONE_ID: ${WHATSAPP_PHONE_ID:-}
+      # ── Platform subscription gateway ──────────────────────────────
+      MOYASAR_API_KEY:        ${MOYASAR_API_KEY:-}
+      MOYASAR_WEBHOOK_SECRET: ${MOYASAR_WEBHOOK_SECRET:-}
+      # ── AI + push ──────────────────────────────────────────────────
+      OPENAI_API_KEY:    ${OPENAI_API_KEY:-}
+      VAPID_PUBLIC_KEY:  ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_EMAIL:       ${VAPID_EMAIL:-admin@jadawel.sa}
+      # ── Observability ──────────────────────────────────────────────
+      SENTRY_DSN: ${SENTRY_DSN:-}
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/api/health/live"]
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 15s
+      start_period: 20s
     restart: unless-stopped
 
 volumes:

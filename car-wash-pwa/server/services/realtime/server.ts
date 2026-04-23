@@ -101,9 +101,17 @@ export function attachRealtime(httpServer: HttpServer) {
       const token = url.searchParams.get('token');
       if (!token) { ws.close(4401, 'no-token'); return; }
 
+      // jwt.verify rejects expired tokens by default (TokenExpiredError)
+      // and we explicitly re-check exp below to guard against a future
+      // jwt version regression. An unauthenticated WS subscriber is a
+      // tenant-isolation incident — fail closed on any doubt.
       const payload = jwt.verify(token, process.env.JWT_SECRET!, { algorithms: ['HS256'] }) as {
-        id: number; role: string; vendorId?: number;
+        id: number; role: string; vendorId?: number; exp?: number;
       };
+      if (!payload.exp || payload.exp * 1000 <= Date.now()) {
+        ws.close(4401, 'token-expired');
+        return;
+      }
       if (!payload.vendorId) { ws.close(4403, 'no-vendor'); return; }
 
       // Fetch display name once — small price for a nicer presence UI.

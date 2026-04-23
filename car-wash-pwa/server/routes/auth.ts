@@ -332,12 +332,28 @@ router.post('/verify-otp', async (req, res) => {
     if (user.otpExpiresAt.getTime() < Date.now()) {
       return res.status(400).json({ error: 'انتهت صلاحية الرمز. اطلب رمزاً جديداً' });
     }
-    if ((user.otpAttempts ?? 0) >= 5) {
+    const attempts = user.otpAttempts ?? 0;
+    if (attempts >= 5) {
       return res.status(429).json({ error: 'محاولات كثيرة. اطلب رمزاً جديداً' });
+    }
+    // Progressive backoff on wrong codes. Each subsequent attempt has a
+    // minimum cooldown. A naive brute force of 900 seconds × rate is
+    // reduced to a handful of attempts before the user is forced to
+    // request a fresh code. updatedAt is bumped on every incorrect try.
+    const cooldownSec = [0, 2, 5, 10, 30][attempts] ?? 60;
+    if (cooldownSec > 0) {
+      const sinceLast = Date.now() - (user.updatedAt?.getTime() ?? 0);
+      if (sinceLast < cooldownSec * 1000) {
+        const wait = Math.ceil((cooldownSec * 1000 - sinceLast) / 1000);
+        return res.status(429).json({
+          error: `انتظر ${wait} ثانية قبل المحاولة مرة ثانية`,
+          retryAfter: wait,
+        });
+      }
     }
     if (user.otpCode !== data.code) {
       await db.update(users)
-        .set({ otpAttempts: (user.otpAttempts ?? 0) + 1 })
+        .set({ otpAttempts: attempts + 1, updatedAt: new Date() })
         .where(eq(users.id, user.id));
       return res.status(400).json({ error: 'الرمز غير صحيح' });
     }

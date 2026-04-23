@@ -284,6 +284,29 @@ const onboardLimiter = rateLimit({
 });
 app.use('/api/vendors/onboard', onboardLimiter);
 
+// Copilot is expensive: every user message can kick off up to 6 OpenAI
+// calls. 15 messages/min/vendor is generous for real use; an abusive
+// client that blows through the limit pays for its own outage instead
+// of burning the platform's OpenAI bill.
+const copilotLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 15,
+  message: { error: 'أبطئ شوي — حد الرسائل للمساعد الذكي' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Per-vendor rather than per-IP: a single vendor with two employees
+  // on two IPs still shares one budget.
+  keyGenerator: (req) => {
+    const auth = req.headers.authorization?.replace('Bearer ', '');
+    if (!auth) return req.ip ?? 'anon';
+    try {
+      const payload = JSON.parse(Buffer.from(auth.split('.')[1], 'base64').toString('utf8'));
+      return `v:${payload.vendorId ?? 'none'}:${payload.id}`;
+    } catch { return req.ip ?? 'anon'; }
+  },
+});
+app.use('/api/copilot', copilotLimiter);
+
 app.use('/api/', apiLimiter);
 
 // No HTTP caching on API JSON by default. Individual routes can still opt
