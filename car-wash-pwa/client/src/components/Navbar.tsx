@@ -116,6 +116,7 @@ const vendorNavSections: NavSection[] = [
       { to: '/vendor/help', icon: HelpCircle, label: 'مركز المساعدة' },
       { to: '/vendor/branding', icon: Briefcase, label: 'الهوية البصرية' },
       { to: '/vendor/store-builder', icon: Sparkles, label: 'منشئ صفحة الحجز' },
+      { to: '/vendor/media-studio', icon: Sparkles, label: 'استوديو الميديا ✨' },
       { to: '/vendor/gallery', icon: Sparkles, label: 'معرض الأعمال' },
       { to: '/vendor/pages', icon: FileText, label: 'صفحات المتجر' },
       { to: '/vendor/brand-kit', icon: Sparkles, label: 'هوية AI ✨' },

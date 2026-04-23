@@ -95,6 +95,7 @@ import insightsRoutes from './routes/insights.js';
 import saudiRoutes from './routes/saudi.js';
 import autopilotRoutes from './routes/autopilot.js';
 import vendorKycRoutes from './routes/vendor-kyc.js';
+import vendorStorefrontRoutes from './routes/vendor-storefront.js';
 import { attachRealtime } from './services/realtime/server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -401,6 +402,7 @@ app.use('/api/insights', insightsRoutes);
 app.use('/api/saudi', saudiRoutes);
 app.use('/api/autopilot', autopilotRoutes);
 app.use('/api/vendor-kyc', vendorKycRoutes);
+app.use('/api/vendor-storefront', vendorStorefrontRoutes);
 app.use('/api/customer-import', requireAuth, customerImportRoutes);
 app.use('/api/vendor-data', requireAuth, vendorDataExportRoutes);
 

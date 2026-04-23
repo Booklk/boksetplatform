@@ -89,6 +89,8 @@ export const FEATURE_CATEGORIES = {
     'crm', 'loyalty', 'customer_segments',
     // Templates
     'premium_themes',
+    // Storefront rich media
+    'hero_video', 'service_gallery', 'announcement_banner',
     // Ops
     'dispatch', 'vat_reports',
     // Owner tools
@@ -138,6 +140,8 @@ export const ROUTE_FEATURE_MAP: Record<string, string> = {
   // Financials (Pro)
   '/vendor/financial-statements': 'financial_statements',
   '/vendor/vat-report':           'vat_reports',
+  // Storefront rich media (Pro)
+  '/vendor/media-studio':         'announcement_banner',
   // Owner tools (Pro)
   '/vendor/advanced-analytics':   'advanced_dashboard',
   '/vendor/ai-advisor':           'ai_advisor',

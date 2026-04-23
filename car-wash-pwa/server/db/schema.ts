@@ -172,6 +172,14 @@ export const services = pgTable('services', {
   description: text('description'),
   icon: varchar('icon', { length: 100 }),
   imageUrl: text('image_url'),
+  // Pro-only: rich media attached to this service.
+  //   images  — an ordered gallery (first one is the "cover" the UI uses
+  //             when imageUrl is absent)
+  //   videoUrl — either a YouTube/Vimeo link or an /uploads/<path> we host
+  //   videoPosterUrl — optional poster frame for the video element
+  images: jsonb('images').$type<string[]>().default([]),
+  videoUrl: text('video_url'),
+  videoPosterUrl: text('video_poster_url'),
   isActive: boolean('is_active').notNull().default(true),
   sortOrder: integer('sort_order').notNull().default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),

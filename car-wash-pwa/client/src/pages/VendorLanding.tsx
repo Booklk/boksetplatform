@@ -18,6 +18,7 @@ import { getTheme, getThemeFeatures } from '../lib/storeThemes';
 import QueueWidget from '../components/storefront/QueueWidget';
 import GallerySection from '../components/storefront/GallerySection';
 import StorefrontHero from '../components/storefront/heroes/StorefrontHero';
+import StorefrontHeader from '../components/storefront/StorefrontHeader';
 import StorefrontFooter from '../components/storefront/StorefrontFooter';
 import PackageCard, { PackageCardStyle } from '../components/storefront/PackageCard';
 import MovingCalculator from '../components/storefront/MovingCalculator';
@@ -389,6 +390,11 @@ export default function VendorLanding() {
       </div>
 
       <div className="relative z-10">
+
+        {/* ═══ Pro-only: announcement bar + hero media ═════════════════ */}
+        {slug && (
+          <StorefrontHeader slug={slug} brandColor={vendor.primaryColor ?? undefined} />
+        )}
 
         {/* ═══ HERO — theme-driven archetype ═══════════════════════════ */}
         <StorefrontHero
