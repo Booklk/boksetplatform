@@ -2,14 +2,40 @@ import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
 
-// Require a real encryption key — fail loudly if missing
-if (!process.env.ENCRYPTION_KEY || process.env.ENCRYPTION_KEY === 'default-32-byte-key-change-me!!') {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('ENCRYPTION_KEY must be set in production. Generate one: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
+// Known weak / default values we never accept — even outside prod we
+// reject so a developer doesn't drag a bad key into staging unnoticed.
+const KNOWN_DEFAULTS = new Set([
+  'default-32-byte-key-change-me!!',
+  'change_this_32_char_hex_key_for_aes256',
+  'change_this_in_production',
+  'dev-only-key-not-for-production!',
+]);
+
+const RAW = process.env.ENCRYPTION_KEY ?? '';
+const isProd = process.env.NODE_ENV === 'production';
+const looksHex = /^[0-9a-fA-F]{64}$/.test(RAW); // 32 bytes hex
+
+if (!RAW || KNOWN_DEFAULTS.has(RAW)) {
+  if (isProd) {
+    throw new Error(
+      'ENCRYPTION_KEY must be set in production (64 hex chars). ' +
+      'Generate one: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
+    );
   }
   console.warn('⚠️  ENCRYPTION_KEY not set — using dev-only fallback. Do NOT use in production.');
+} else if (isProd && !looksHex) {
+  // In prod we strictly require 64 hex chars (32 bytes). Anything else
+  // might be a passphrase that slice(0,32) silently truncates to a
+  // low-entropy key.
+  throw new Error(
+    'ENCRYPTION_KEY in production must be exactly 64 hex characters (32 bytes). ' +
+    'Generate one: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"',
+  );
 }
-const KEY = Buffer.from(process.env.ENCRYPTION_KEY ?? 'dev-only-key-not-for-production!', 'utf8').slice(0, 32);
+
+const KEY: Buffer = looksHex
+  ? Buffer.from(RAW, 'hex')                                        // 32 bytes from hex
+  : Buffer.from(RAW || 'dev-only-key-not-for-production!', 'utf8').slice(0, 32);
 
 /** Encrypt a string (AES-256-GCM). Returns base64 ciphertext with IV + tag prepended. */
 export function encrypt(text: string): string {

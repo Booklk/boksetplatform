@@ -98,6 +98,12 @@ import { attachRealtime } from './services/realtime/server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+// Trust the reverse-proxy that's in front of us (nginx / Caddy / Cloudflare /
+// a PaaS load balancer). Without this, express-rate-limit and req.ip read the
+// LB's IP instead of the real client, breaking per-IP limits and audit logs.
+// `TRUST_PROXY` can override — set to a number of hops or a specific subnet
+// for stricter environments. Default is "1" (trust one hop).
+app.set('trust proxy', process.env.TRUST_PROXY ?? 1);
 const server = http.createServer(app);
 const PORT = process.env.PORT ?? 3001;
 

@@ -300,7 +300,14 @@ router.post('/send-otp', async (req, res) => {
     }
 
     const msg = `رمز التحقق الخاص بك في جداول: ${code}\nالرمز صالح لمدة 10 دقائق. لا تشاركه مع أحد.`;
-    await sendPlatformWhatsApp(phone, msg);
+    const delivered = await sendPlatformWhatsApp(phone, msg);
+    // Prod-only hard failure: if the platform WhatsApp creds aren't
+    // configured, the code will never arrive — tell the client so the
+    // UI can show "خدمة التحقق غير متاحة حالياً" instead of waiting
+    // forever on a code that isn't coming.
+    if (!delivered && process.env.NODE_ENV === 'production') {
+      return res.status(503).json({ error: 'خدمة التحقق غير متاحة حالياً' });
+    }
     return res.json({ success: true, expiresIn: 600 });
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });

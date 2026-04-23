@@ -54,15 +54,28 @@ async function getCredentials(vendorId?: number | null): Promise<WhatsAppCredent
 
 /**
  * Platform-level send for auth flows (OTP, password reset).
- * Uses WHATSAPP_TOKEN / WHATSAPP_PHONE_ID from env. If unset,
- * we log the message so dev/staging can still complete the flow.
+ * Uses WHATSAPP_TOKEN / WHATSAPP_PHONE_ID from env.
+ *
+ * Production behaviour: if creds are missing, return `false` so the
+ * caller surfaces a 503 to the user — we never want to silently "succeed"
+ * an OTP send that will never arrive.
+ *
+ * Development behaviour: print a redacted line to stdout so devs see
+ * something happened. The actual code is hashed so OTPs don't end up
+ * in shared log files.
  */
 export async function sendPlatformWhatsApp(phone: string, message: string): Promise<boolean> {
   const creds = platformCredentials();
   const formatted = formatSaudiPhone(phone);
   if (!creds) {
-    // Fallback for dev: log the code. Never do this in real prod.
-    console.log(`[WhatsApp:dev] → ${formatted}\n${message}\n`);
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[WhatsApp:platform] WHATSAPP_TOKEN/PHONE_ID missing — message not sent');
+      return false;
+    }
+    // Dev only: redact 6-digit OTP codes from the line we print so a
+    // shared dev log doesn't leak fresh codes.
+    const safe = message.replace(/\b\d{6}\b/g, '••••••');
+    console.log(`[WhatsApp:dev] → ${formatted}\n${safe}\n`);
     return true;
   }
   try {

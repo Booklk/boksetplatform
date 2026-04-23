@@ -1,8 +1,11 @@
 {
-  "name": "jdawil-client",
+  "name": "jadawel-client",
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
