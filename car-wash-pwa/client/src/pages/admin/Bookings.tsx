@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Search, Filter, Navigation } from 'lucide-react';
+import { Search, Filter, Navigation, Undo2 } from 'lucide-react';
 import api from '../../lib/api';
 import { Booking, Employee } from '../../types';
 import { formatDateTime, formatCurrency, STATUS_LABELS } from '../../lib/utils';
 import StatusBadge from '../../components/StatusBadge';
 import EmptyState from '../../components/EmptyState';
+import RefundDialog from '../../components/vendor/RefundDialog';
 
 const STATUS_OPTIONS = ['', 'pending', 'confirmed', 'on_way', 'arrived', 'in_progress', 'completed', 'cancelled'];
 
@@ -17,6 +18,7 @@ export default function AdminBookings() {
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
+  const [refundFor, setRefundFor] = useState<Booking | null>(null);
 
   const { data: bookings = [], isLoading } = useQuery<Booking[]>({
     queryKey: ['admin-bookings'],
@@ -168,6 +170,17 @@ export default function AdminBookings() {
                 >
                   <Navigation size={12} /> الموقع
                 </button>
+
+                {/* Refund — only offered on completed/cancelled bookings */}
+                {(booking.status === 'completed' || booking.status === 'cancelled') && (
+                  <button
+                    onClick={() => setRefundFor(booking)}
+                    title="استرجاع مبلغ"
+                    className="bg-rose-700/30 hover:bg-rose-700/50 text-rose-300 border border-rose-700/30 rounded-lg px-3 py-1.5 text-xs flex items-center gap-1 transition-colors"
+                  >
+                    <Undo2 size={12} /> استرجاع
+                  </button>
+                )}
               </div>
             </motion.div>
           ))}
@@ -189,6 +202,13 @@ export default function AdminBookings() {
           )}
         </div>
       )}
+
+      <RefundDialog
+        open={Boolean(refundFor)}
+        onClose={() => setRefundFor(null)}
+        bookingNumber={refundFor?.bookingNumber}
+        defaultAmount={refundFor?.totalPrice ? Number(refundFor.totalPrice) : undefined}
+      />
     </div>
   );
 }

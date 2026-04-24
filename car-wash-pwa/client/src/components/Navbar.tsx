@@ -118,6 +118,7 @@ const vendorNavSections: NavSection[] = [
       { to: '/vendor/branding', icon: Briefcase, label: 'الهوية البصرية' },
       { to: '/vendor/store-builder', icon: Sparkles, label: 'منشئ صفحة الحجز' },
       { to: '/vendor/brand-identity', icon: Sparkles, label: 'الهوية البصرية ✨' },
+      { to: '/vendor/qr', icon: FileText, label: 'رمز QR' },
       { to: '/vendor/media-studio', icon: Sparkles, label: 'استوديو الميديا ✨' },
       { to: '/vendor/preferences', icon: Settings, label: 'الإعدادات التشغيلية' },
       { to: '/vendor/gallery', icon: Sparkles, label: 'معرض الأعمال' },

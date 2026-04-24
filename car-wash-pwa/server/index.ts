@@ -745,9 +745,12 @@ cron.schedule('30 * * * *', async () => {
       id: bookings.id,
       bookingNumber: bookings.bookingNumber,
       phone: users.phone,
+      vendorId: bookings.vendorId,
+      vendorName: vendors.nameAr,
     })
       .from(bookings)
       .leftJoin(users, eq(bookings.customerId, users.id))
+      .leftJoin(vendors, eq(bookings.vendorId, vendors.id))
       .where(and(
         eq(bookings.status, 'completed'),
         sql`${bookings.rating} IS NULL`,
@@ -757,7 +760,10 @@ cron.schedule('30 * * * *', async () => {
 
     for (const b of needsRating) {
       if (!b.phone) continue;
-      await notifyRatingRequest(b.phone, b.bookingNumber);
+      // Include bookingId so the vendor's WhatsApp message carries a
+      // one-tap rating link — bumps completion from "open app → find
+      // booking → rate" to "tap → stars".
+      await notifyRatingRequest(b.phone, b.bookingNumber, b.vendorName ?? 'جداول', b.vendorId, b.id);
     }
   } catch (e) {
     console.error('[Cron rating]', e);

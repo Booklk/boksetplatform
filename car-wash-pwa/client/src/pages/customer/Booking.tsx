@@ -73,6 +73,20 @@ export default function BookingPage() {
     mutationFn: (data: any) => api.post('/bookings', data).then(r => r.data),
     onSuccess: (booking) => {
       const vendorName = vendorData?.nameAr;
+      // Server surfaces a deposit requirement inline on booking create
+      // when the vendor has prefs.deposit.required = true. Route the
+      // customer straight to the payment picker instead of leaving the
+      // booking in a limbo state they can't pay out of.
+      if (booking?.deposit?.required && booking?.id && booking?.vendorId) {
+        toast.success('تم إنشاء الحجز — أكمل دفع العربون للتأكيد');
+        const qs = new URLSearchParams({
+          bookingId: String(booking.id),
+          vendorId:  String(booking.vendorId),
+          amount:    String(booking.deposit.amountSar ?? ''),
+        });
+        navigate(`/app/bookings/${booking.id}/deposit?${qs.toString()}`);
+        return;
+      }
       toast.success(vendorName ? `شكراً على ثقتك بـ ${vendorName}! تم استلام حجزك` : 'تم الحجز بنجاح! سيتواصل معك فريقنا قريباً');
       navigate('/app/bookings');
     },

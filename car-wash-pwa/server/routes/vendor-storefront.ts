@@ -87,6 +87,34 @@ router.get('/fonts', (_req, res) => {
   return res.json({ fonts: FONT_CATALOG });
 });
 
+// ── Public QR code for any vendor's storefront ───────────────────────────
+// Returns an SVG QR encoding https://<domain>/store/<slug>. Used by the
+// vendor's /vendor/qr page for print + by anyone wanting a scan link.
+router.get('/qr/:slug', async (req, res) => {
+  const { slug } = req.params;
+  const [vendor] = await db.select({ id: vendors.id })
+    .from(vendors).where(eq(vendors.slug, slug)).limit(1);
+  if (!vendor) return res.status(404).json({ error: 'المتجر غير موجود' });
+  try {
+    const QRCode = (await import('qrcode')).default;
+    const base = (process.env.CLIENT_URL ?? 'https://jadawel.sa').replace(/\/$/, '');
+    const url  = `${base}/store/${slug}`;
+    const svg  = await QRCode.toString(url, {
+      type: 'svg',
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: 512,
+      color: { dark: '#0b1220', light: '#ffffff' },
+    });
+    res.set('Content-Type', 'image/svg+xml');
+    res.set('Cache-Control', 'public, max-age=3600');
+    return res.send(svg);
+  } catch (e) {
+    console.error('[qr/:slug]', e);
+    return res.status(500).json({ error: 'تعذّر توليد QR' });
+  }
+});
+
 // ── From here on: authenticated + Pro-gated ──────────────────────────────
 router.use(requireAuth);
 router.use(requireRole('vendor_admin', 'admin'));

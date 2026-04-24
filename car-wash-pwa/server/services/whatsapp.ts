@@ -175,8 +175,19 @@ export async function notifyAppointmentReminder(phone: string, bookingNumber: st
   return sendMessage(phone, `⏰ *${vendorName}*\n\nتذكير بموعدك غداً!\n\n📋 رقم الحجز: #${bookingNumber}\n🕐 الوقت: ${timeStr}\n\nنراك قريباً!`, vendorId);
 }
 
-export async function notifyRatingRequest(phone: string, bookingNumber: string, vendorName = 'Jdawil', vendorId?: number | null) {
-  return sendMessage(phone, `⭐ *${vendorName}*\n\nشكراً لاستخدامك خدماتنا!\n\nقيّم تجربتك مع الحجز #${bookingNumber}\n\nتقييمك يساعدنا على التحسين 💙`, vendorId);
+export async function notifyRatingRequest(
+  phone: string,
+  bookingNumber: string,
+  vendorName = 'جداول',
+  vendorId?: number | null,
+  bookingId?: number,
+) {
+  const link = bookingId ? `\n\nقيّمنا هنا: https://${DOMAIN}/app/rate/${bookingId}` : '';
+  return sendMessage(
+    phone,
+    `⭐ *${vendorName}*\n\nشكراً لاستخدامك خدماتنا!\n\nقيّم تجربتك مع الحجز #${bookingNumber}${link}\n\nتقييمك يساعدنا على التحسين 💙`,
+    vendorId,
+  );
 }
 
 export async function notifyGoogleReviewRequest(phone: string, vendorName: string, googleReviewLink: string, vendorId?: number | null) {

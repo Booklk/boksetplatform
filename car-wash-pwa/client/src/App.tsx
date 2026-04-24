@@ -28,6 +28,7 @@ import UpdateToast from './components/UpdateToast';
 const CustomerHome = lazy(() => import('./pages/customer/Home'));
 const CustomerBookings = lazy(() => import('./pages/customer/MyBookings'));
 const BookingPage = lazy(() => import('./pages/customer/Booking'));
+const DepositPage = lazy(() => import('./pages/customer/Deposit'));
 const RatePage = lazy(() => import('./pages/customer/Rate'));
 const CustomerVehicles = lazy(() => import('./pages/customer/Vehicles'));
 const CustomerLoyalty = lazy(() => import('./pages/customer/Loyalty'));
@@ -118,6 +119,7 @@ const VendorMediaStudio = lazy(() => import('./pages/vendor/MediaStudio'));
 const VendorPreferences = lazy(() => import('./pages/vendor/Preferences'));
 const VendorStudio = lazy(() => import('./pages/vendor/Studio'));
 const VendorBrandIdentity = lazy(() => import('./pages/vendor/BrandIdentity'));
+const VendorQRPage = lazy(() => import('./pages/vendor/VendorQR'));
 const VendorAIAdvisor = lazy(() => import('./pages/vendor/AIAdvisor'));
 const VendorLeaderboard = lazy(() => import('./pages/vendor/Leaderboard'));
 const VendorReferVendor = lazy(() => import('./pages/vendor/ReferVendor'));
@@ -300,6 +302,11 @@ function AppRoutes() {
         <Route path="/app/rate/:bookingId" element={
           <RequireAuth roles={['customer']}>
             <AppLayout><S><RatePage /></S></AppLayout>
+          </RequireAuth>
+        } />
+        <Route path="/app/bookings/:id/deposit" element={
+          <RequireAuth roles={['customer']}>
+            <AppLayout><S><DepositPage /></S></AppLayout>
           </RequireAuth>
         } />
         <Route path="/app/vehicles" element={
@@ -643,6 +650,11 @@ function AppRoutes() {
         <Route path="/vendor/brand-identity" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <S><VendorBrandIdentity /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/qr" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorQRPage /></S>
           </RequireAuth>
         } />
         <Route path="/vendor/ai-advisor" element={
