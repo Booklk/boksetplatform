@@ -41,6 +41,9 @@ interface InvoiceHtmlParams {
   vendorPhone: string | null;
   vendorAddress: string | null;
   vendorLogoUrl: string | null;
+  /** Saudi VAT registration (15 digits). When present, a ZATCA
+   *  Phase 1 QR is embedded in the invoice block. */
+  vendorVatNumber?: string | null;
   items: Array<{ description: string; qty: number; unitPrice: string | number }>;
   subtotal: number;
   vatAmount: number;
@@ -50,7 +53,23 @@ interface InvoiceHtmlParams {
   createdAt: Date;
 }
 
-function buildInvoiceHtml(p: InvoiceHtmlParams): string {
+async function buildInvoiceHtml(p: InvoiceHtmlParams): Promise<string> {
+  // ZATCA Phase 1 QR — only when the vendor has a VAT registration.
+  // Rendered inline as an SVG so the invoice PDF/HTML is self-contained
+  // and doesn't need a network call to display.
+  let zatcaQrSvg = '';
+  if (p.vendorVatNumber) {
+    try {
+      const { buildZatcaQrSvg } = await import('../services/zatcaQr.js');
+      zatcaQrSvg = await buildZatcaQrSvg({
+        sellerName:   p.vendorNameAr,
+        vatNumber:    p.vendorVatNumber,
+        issuedAt:     p.createdAt,
+        totalWithVat: p.totalAmount,
+        vatAmount:    p.vatAmount,
+      });
+    } catch (e) { console.error('[invoice zatca qr]', e); }
+  }
   const dateStr = p.createdAt.toLocaleDateString('ar-SA', {
     year: 'numeric',
     month: 'long',
@@ -259,6 +278,16 @@ function buildInvoiceHtml(p: InvoiceHtmlParams): string {
           <span>${p.totalAmount.toFixed(2)} ريال</span>
         </div>
       </div>
+      ${p.vendorVatNumber && zatcaQrSvg ? `
+      <div style="margin-top:24px;padding-top:16px;border-top:1px dashed #ccc;display:flex;align-items:center;justify-content:space-between;gap:16px">
+        <div style="text-align:right">
+          <p style="margin:0 0 4px;font-size:11px;color:#555">الرقم الضريبي</p>
+          <p style="margin:0;font-family:monospace;font-size:14px;font-weight:700">${p.vendorVatNumber}</p>
+          <p style="margin:8px 0 0;font-size:9px;color:#999">امسح QR للتحقق من الفاتورة (ZATCA)</p>
+        </div>
+        <div style="width:96px;height:96px;padding:4px;background:#fff;border:1px solid #eee">${zatcaQrSvg}</div>
+      </div>
+      ` : ''}
 
       ${p.notes ? `<div class="notes-box"><strong>ملاحظات:</strong> ${p.notes}</div>` : ''}
     </div>
@@ -389,6 +418,7 @@ router.get('/booking/:id', requireAuth, async (req: AuthRequest, res) => {
         vendorPhone: vendors.phone,
         vendorAddress: vendors.address,
         vendorLogoUrl: vendors.logoUrl,
+        vendorVatNumber: vendors.vatNumber,
       })
       .from(bookings)
       .leftJoin(packages, eq(bookings.packageId, packages.id))
@@ -416,7 +446,7 @@ router.get('/booking/:id', requireAuth, async (req: AuthRequest, res) => {
       .limit(1);
 
     if (existing) {
-      const html = buildInvoiceHtml({
+      const html = await buildInvoiceHtml({
         invoiceNumber: existing.invoiceNumber,
         customerName: existing.customerName,
         customerPhone: existing.customerPhone,
@@ -424,6 +454,7 @@ router.get('/booking/:id', requireAuth, async (req: AuthRequest, res) => {
         vendorPhone: row.vendorPhone ?? null,
         vendorAddress: row.vendorAddress ?? null,
         vendorLogoUrl: row.vendorLogoUrl ?? null,
+        vendorVatNumber: row.vendorVatNumber ?? null,
         items: (existing.items as Array<{ description: string; qty: number; unitPrice: string | number }>) ?? [],
         subtotal: Number(existing.amount),
         vatAmount: Number(existing.vatAmount),
@@ -459,7 +490,7 @@ router.get('/booking/:id', requireAuth, async (req: AuthRequest, res) => {
       status: 'draft',
     }).returning();
 
-    const htmlNew = buildInvoiceHtml({
+    const htmlNew = await buildInvoiceHtml({
       invoiceNumber: created.invoiceNumber,
       customerName: created.customerName,
       customerPhone: created.customerPhone,
@@ -629,12 +660,16 @@ router.get('/:id/pdf', requireAuth, async (req: AuthRequest, res) => {
 
     // Get vendor info
     const [vendor] = await db
-      .select({ nameAr: vendors.nameAr, phone: vendors.phone, address: vendors.address, logoUrl: vendors.logoUrl })
+      .select({
+        nameAr: vendors.nameAr, phone: vendors.phone,
+        address: vendors.address, logoUrl: vendors.logoUrl,
+        vatNumber: vendors.vatNumber,
+      })
       .from(vendors)
       .where(eq(vendors.id, inv.vendorId))
       .limit(1);
 
-    const html = buildInvoiceHtml({
+    const html = await buildInvoiceHtml({
       invoiceNumber: inv.invoiceNumber,
       customerName: inv.customerName,
       customerPhone: inv.customerPhone,
@@ -642,6 +677,7 @@ router.get('/:id/pdf', requireAuth, async (req: AuthRequest, res) => {
       vendorPhone: vendor?.phone ?? null,
       vendorAddress: vendor?.address ?? null,
       vendorLogoUrl: vendor?.logoUrl ?? null,
+      vendorVatNumber: vendor?.vatNumber ?? null,
       items: (inv.items as Array<{ description: string; qty: number; unitPrice: string | number }>) ?? [],
       subtotal: Number(inv.amount),
       vatAmount: Number(inv.vatAmount),
@@ -656,6 +692,53 @@ router.get('/:id/pdf', requireAuth, async (req: AuthRequest, res) => {
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// ─── GET /invoices/:id/zatca-qr — ZATCA Phase 1 TLV QR (SVG) ────────────
+// Required on every printed / digital tax invoice for VAT-registered
+// vendors in Saudi Arabia. Encodes seller name, VAT number, timestamp,
+// total (VAT-incl), and VAT amount as a base64 TLV string.
+router.get('/:id/zatca-qr', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [row] = await db.select({
+      vendorId:    invoices.vendorId,
+      totalAmount: invoices.totalAmount,
+      vatAmount:   invoices.vatAmount,
+      createdAt:   invoices.createdAt,
+      vendorName:  vendors.nameAr,
+      vatNumber:   vendors.vatNumber,
+    })
+      .from(invoices)
+      .leftJoin(vendors, eq(invoices.vendorId, vendors.id))
+      .where(eq(invoices.id, id))
+      .limit(1);
+    if (!row) return res.status(404).json({ error: 'الفاتورة غير موجودة' });
+    // Tenant guard: only vendor's own staff or the customer on this invoice.
+    if (req.user?.role !== 'super_admin' && req.user?.vendorId !== row.vendorId) {
+      return res.status(403).json({ error: 'غير مصرح' });
+    }
+    if (!row.vatNumber) {
+      return res.status(409).json({
+        error: 'أضف الرقم الضريبي للمتجر قبل إصدار QR ضريبي',
+        needsVatNumber: true,
+      });
+    }
+    const { buildZatcaQrSvg } = await import('../services/zatcaQr.js');
+    const svg = await buildZatcaQrSvg({
+      sellerName:   row.vendorName ?? 'جداول',
+      vatNumber:    row.vatNumber,
+      issuedAt:     row.createdAt ?? new Date(),
+      totalWithVat: Number(row.totalAmount ?? 0),
+      vatAmount:    Number(row.vatAmount ?? 0),
+    });
+    res.set('Content-Type', 'image/svg+xml');
+    res.set('Cache-Control', 'private, max-age=3600');
+    return res.send(svg);
+  } catch (e) {
+    console.error('[invoices/:id/zatca-qr]', e);
+    return res.status(500).json({ error: 'فشل توليد QR' });
   }
 });
 

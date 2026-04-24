@@ -294,6 +294,10 @@ function HoursPanel({
       </motion.div>
 
       <motion.div variants={fadeInUp}>
+        <RamadanAutoToggle />
+      </motion.div>
+
+      <motion.div variants={fadeInUp}>
         <Button onClick={onSave} loading={busy} leftIcon={<Save size={14} />} fullWidth>
           حفظ ساعات العمل والعطلات
         </Button>
@@ -582,3 +586,37 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 
 // Kept for badge-reuse suppression
 void CheckCircle2; void Calendar; void Badge;
+
+/** Ramadan auto-shift toggle — self-contained. Hits /vendor-preferences/ramadan. */
+function RamadanAutoToggle() {
+  const qc = useQueryClient();
+  const { data } = useQuery<{ enabled: boolean; applied: boolean }>({
+    queryKey: ['ramadan-toggle'],
+    queryFn: async () => (await api.get('/vendor-preferences/ramadan')).data,
+  });
+  const mut = useMutation({
+    mutationFn: (enabled: boolean) => api.put('/vendor-preferences/ramadan', { enabled }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['ramadan-toggle'] });
+      toast.success('تم الحفظ');
+    },
+  });
+  const enabled = data?.enabled ?? false;
+  return (
+    <Card variant="default" padding="md">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-bold text-white mb-0.5">🌙 توقيت رمضان التلقائي</p>
+          <p className="text-xs text-ink-400 leading-relaxed">
+            لما يبدأ رمضان، يحوّل متجرك تلقائياً لساعات ما بعد الإفطار (4 عصراً — 2 صباحاً)،
+            ويرجعه بعد العيد لساعاتك السابقة.
+          </p>
+          {data?.applied && (
+            <Badge tone="warn" size="sm" className="mt-2">مفعّل حالياً · نحن في رمضان</Badge>
+          )}
+        </div>
+        <Toggle checked={enabled} onChange={(v) => mut.mutate(v)} />
+      </div>
+    </Card>
+  );
+}

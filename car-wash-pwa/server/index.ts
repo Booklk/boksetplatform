@@ -1324,6 +1324,21 @@ cron.schedule('0 10 * * *', async () => {
   }
 });
 
+// Daily at 00:15 — Ramadan hours auto-shift. Opt-in per vendor via
+// settings.ramadanAutoSchedule. Idempotent: stashes pre-Ramadan hours
+// in settings.hoursBeforeRamadan and restores on 1 Shawwal.
+cron.schedule('15 0 * * *', async () => {
+  try {
+    const { runRamadanTick } = await import('./services/saudi/ramadanSchedule.js');
+    const { applied, restored } = await runRamadanTick();
+    if (applied || restored) {
+      console.log(`[Cron ramadan] applied=${applied} restored=${restored}`);
+    }
+  } catch (e) {
+    console.error('[Cron ramadan]', e);
+  }
+});
+
 // ─── GLOBAL ERROR HANDLER ────────────────────────────────────────────────────
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   const requestId = (req as any).requestId ?? 'unknown';

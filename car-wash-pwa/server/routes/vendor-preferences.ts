@@ -102,4 +102,34 @@ router.get('/defaults', async (_req, res) => {
   return res.json(DEFAULT_PREFERENCES);
 });
 
+// ─── Ramadan auto-shift opt-in ────────────────────────────────────────────
+// Tiny dedicated endpoint so the UI can flip the toggle without touching
+// the rest of preferences. The cron at /index.ts picks up the flag and
+// stashes/restores vendor hours automatically at Ramadan boundaries.
+router.get('/ramadan', async (req: AuthRequest, res) => {
+  const vendorId = req.user!.vendorId;
+  if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر' });
+  const [row] = await db.select({ settings: vendors.settings })
+    .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+  const s = (row?.settings ?? {}) as Record<string, unknown>;
+  return res.json({
+    enabled: Boolean(s.ramadanAutoSchedule),
+    applied: Boolean(s.ramadanStateApplied),
+  });
+});
+
+router.put('/ramadan', async (req: AuthRequest, res) => {
+  const vendorId = req.user!.vendorId;
+  if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر' });
+  const enabled = Boolean(req.body?.enabled);
+  const [row] = await db.select({ settings: vendors.settings })
+    .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+  const s = (row?.settings ?? {}) as Record<string, unknown>;
+  await db.update(vendors).set({
+    settings: { ...s, ramadanAutoSchedule: enabled },
+    updatedAt: new Date(),
+  }).where(eq(vendors.id, vendorId));
+  return res.json({ success: true, enabled });
+});
+
 export default router;
