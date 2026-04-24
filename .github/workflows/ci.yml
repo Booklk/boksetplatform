@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ── Server: typecheck + tests ────────────────────────────────────────
+  server:
+    name: Server — typecheck + tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: car-wash-pwa/server
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: car-wash-pwa/server/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      # A dummy DATABASE_URL so validate-env.ts doesn't bail. Tests don't
+      # hit a real DB — they run against mocks / drizzle unit helpers.
+      - name: Test
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgres://localhost:5432/test
+          JWT_SECRET: ci_secret_0123456789abcdef0123456789abcdef
+          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcd12
+        run: npx vitest run --reporter=default
+
+  # ── Client: typecheck + build ────────────────────────────────────────
+  client:
+    name: Client — typecheck + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: car-wash-pwa/client
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: car-wash-pwa/client/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npx vite build --logLevel warn
+
+      - name: Upload build artifact (main/master only)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: car-wash-pwa/client/dist
+          retention-days: 7
+
+  # ── Docker build smoke-test (only on main merges) ───────────────────
+  docker:
+    name: Docker image build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    needs: [server, client]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./car-wash-pwa
+          push: false
+          tags: jadawel:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
