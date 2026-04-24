@@ -174,6 +174,130 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
+// Vendor: create booking manually for walk-in / phone customer — MUST come before /:id
+const manualBookingSchema = z.object({
+  customerName: z.string().min(2, 'الاسم قصير جداً'),
+  customerPhone: z.string().regex(/^(05\d{8}|5\d{8}|\+?9665\d{8})$/, 'رقم الجوال غير صحيح'),
+  packageId: z.number(),
+  scheduledAt: z.string(),
+  vehicleType: z.string().optional(),
+  vehiclePlate: z.string().optional(),
+  vehicleColor: z.string().optional(),
+  vehicleModel: z.string().optional(),
+  address: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('966')) return '0' + digits.slice(3);
+  if (digits.length === 9 && digits.startsWith('5')) return '0' + digits;
+  return digits;
+}
+
+router.post('/manual', requireAuth, requireRole('admin', 'vendor_admin', 'employee'), async (req: AuthRequest, res) => {
+  try {
+    const data = manualBookingSchema.parse(req.body);
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
+
+    const [pkg] = await db.select({
+      id: packages.id, price: packages.price, name: packages.name,
+      serviceId: packages.serviceId, vendorId: packages.vendorId,
+    }).from(packages).where(eq(packages.id, data.packageId)).limit(1);
+    if (!pkg) return res.status(404).json({ error: 'الباقة غير موجودة' });
+    if (pkg.vendorId !== vendorId) return res.status(403).json({ error: 'الباقة لا تنتمي لمتجرك' });
+
+    const phone = normalizePhone(data.customerPhone);
+
+    // Find or create user by phone
+    let [customerUser] = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+    if (!customerUser) {
+      [customerUser] = await db.insert(users).values({
+        name: data.customerName,
+        phone,
+        role: 'customer',
+      }).returning();
+    }
+
+    // Ensure a customer record exists for this vendor (idempotent)
+    const existingCustomer = await db.select({ id: customers.id })
+      .from(customers)
+      .where(and(eq(customers.userId, customerUser.id), eq(customers.vendorId, vendorId)))
+      .limit(1);
+    if (existingCustomer.length === 0) {
+      await db.insert(customers).values({
+        userId: customerUser.id,
+        vendorId,
+        vehicleType: data.vehicleType,
+        vehiclePlate: data.vehiclePlate,
+        vehicleColor: data.vehicleColor,
+        vehicleModel: data.vehicleModel,
+        defaultAddress: data.address,
+      });
+    }
+
+    const [svc] = await db.select({ name: services.name })
+      .from(services).where(eq(services.id, pkg.serviceId)).limit(1);
+
+    const trackingToken = randomBytes(24).toString('hex');
+
+    const [booking] = await db.insert(bookings).values({
+      bookingNumber: generateBookingNumber(),
+      customerId: customerUser.id,
+      vendorId,
+      packageId: data.packageId,
+      scheduledAt: new Date(data.scheduledAt),
+      address: data.address ?? '',
+      vehicleType: data.vehicleType,
+      vehiclePlate: data.vehiclePlate,
+      vehicleColor: data.vehicleColor,
+      vehicleModel: data.vehicleModel,
+      notes: data.notes,
+      totalPrice: pkg.price,
+      status: 'confirmed',
+      statusHistory: [
+        { status: 'pending', at: new Date().toISOString(), by: req.user!.id },
+        { status: 'confirmed', at: new Date().toISOString(), by: req.user!.id },
+      ],
+      trackingToken,
+    }).returning();
+
+    // WhatsApp confirmation (non-blocking)
+    try {
+      const [vendorRow] = await db.select({ nameAr: vendors.nameAr })
+        .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+      const packageDisplayName = `${svc?.name ?? ''} - ${pkg.name}`;
+      await notifyBookingConfirmedWithTracking(
+        phone,
+        booking.bookingNumber,
+        booking.scheduledAt,
+        packageDisplayName,
+        vendorRow?.nameAr ?? 'المتجر',
+        booking.id,
+        booking.trackingToken ?? undefined,
+      );
+      await db.insert(notifications).values({
+        bookingId: booking.id,
+        userId: customerUser.id,
+        type: 'confirmation',
+        phone,
+        message: `تأكيد الحجز #${booking.bookingNumber}`,
+        status: 'sent',
+        sentAt: new Date(),
+      });
+    } catch (e) {
+      console.error('[Manual booking] WhatsApp notify failed', e);
+    }
+
+    return res.status(201).json(booking);
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // Employee: get assigned bookings — MUST come before /:id
 router.get('/employee/assigned', requireAuth, requireRole('employee', 'admin', 'vendor_admin'), async (req: AuthRequest, res) => {
   try {

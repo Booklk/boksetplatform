@@ -8,15 +8,16 @@
  * - Config drawer: working hours, slot duration, capacity, etc.
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, ChevronRight, Settings, Plus, CalendarDays, Clock,
   Car, User, Phone, CheckCircle, AlertCircle, Loader2, X,
   Calendar, ToggleLeft, ToggleRight,
-  Lightbulb, TrendingUp, Sunrise, ArrowLeft,
+  Lightbulb, TrendingUp, Sunrise, ArrowLeft, Search,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -530,6 +531,302 @@ function SmartRecommendations() {
   );
 }
 
+// ─── Manual Booking Drawer ────────────────────────────────────────────────────
+
+interface ServiceWithPackages {
+  id: number;
+  name: string;
+  packages: { id: number; name: string; price: string | number }[];
+}
+
+interface CustomerSearchResult {
+  id: number;
+  name: string;
+  phone: string;
+  vehiclePlate: string | null;
+  vehicleType: string | null;
+  defaultAddress: string | null;
+}
+
+function ManualBookingDrawer({
+  open,
+  onClose,
+  defaultDate,
+  color,
+}: {
+  open: boolean;
+  onClose: () => void;
+  defaultDate: Date;
+  color: string;
+}) {
+  const qc = useQueryClient();
+  const [phone, setPhone] = useState('');
+  const [name, setName] = useState('');
+  const [packageId, setPackageId] = useState<number | null>(null);
+  const [scheduledDate, setScheduledDate] = useState(isoDate(defaultDate));
+  const [scheduledTime, setScheduledTime] = useState('10:00');
+  const [vehicleType, setVehicleType] = useState('');
+  const [vehiclePlate, setVehiclePlate] = useState('');
+  const [address, setAddress] = useState('');
+  const [notes, setNotes] = useState('');
+  const [phoneSuggestions, setPhoneSuggestions] = useState<CustomerSearchResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  useEffect(() => {
+    if (open) setScheduledDate(isoDate(defaultDate));
+  }, [open, defaultDate]);
+
+  const reset = () => {
+    setPhone(''); setName(''); setPackageId(null); setScheduledTime('10:00');
+    setVehicleType(''); setVehiclePlate(''); setAddress(''); setNotes('');
+    setPhoneSuggestions([]); setShowSuggestions(false);
+  };
+
+  // Load services + packages
+  const { data: services } = useQuery<ServiceWithPackages[]>({
+    queryKey: ['services-with-packages'],
+    queryFn: () => api.get('/services').then((r) => r.data),
+    enabled: open,
+  });
+
+  // Customer phone autocomplete
+  useEffect(() => {
+    if (phone.length < 4) {
+      setPhoneSuggestions([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      try {
+        const r = await api.get(`/customers/search/phone?q=${encodeURIComponent(phone)}`);
+        setPhoneSuggestions(r.data ?? []);
+        setShowSuggestions(true);
+      } catch {
+        setPhoneSuggestions([]);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [phone]);
+
+  const pickCustomer = (c: CustomerSearchResult) => {
+    setPhone(c.phone);
+    setName(c.name);
+    if (c.vehiclePlate) setVehiclePlate(c.vehiclePlate);
+    if (c.vehicleType) setVehicleType(c.vehicleType);
+    if (c.defaultAddress) setAddress(c.defaultAddress);
+    setShowSuggestions(false);
+  };
+
+  const createMutation = useMutation({
+    mutationFn: () => {
+      const scheduledAt = new Date(`${scheduledDate}T${scheduledTime}:00`).toISOString();
+      return api.post('/bookings/manual', {
+        customerName: name.trim(),
+        customerPhone: phone.trim(),
+        packageId,
+        scheduledAt,
+        vehicleType: vehicleType || undefined,
+        vehiclePlate: vehiclePlate || undefined,
+        address: address || undefined,
+        notes: notes || undefined,
+      });
+    },
+    onSuccess: () => {
+      toast.success('تم إنشاء الحجز بنجاح');
+      qc.invalidateQueries({ queryKey: ['vendor-schedule'] });
+      qc.invalidateQueries({ queryKey: ['vendor-schedule-week'] });
+      reset();
+      onClose();
+    },
+    onError: (e: any) => {
+      toast.error(e?.response?.data?.error ?? 'فشل إنشاء الحجز');
+    },
+  });
+
+  const submit = () => {
+    if (!name.trim()) return toast.error('اكتب اسم العميل');
+    if (!/^(05\d{8}|5\d{8}|\+?9665\d{8})$/.test(phone.replace(/\s/g, ''))) {
+      return toast.error('رقم الجوال غير صحيح — مثال: 05XXXXXXXX');
+    }
+    if (!packageId) return toast.error('اختر الباقة');
+    if (!scheduledDate || !scheduledTime) return toast.error('اختر التاريخ والوقت');
+    createMutation.mutate();
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+          />
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed top-0 right-0 z-50 h-full w-full max-w-md bg-slate-900 border-l border-white/10 overflow-y-auto"
+            dir="rtl"
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-black text-white">حجز يدوي</h2>
+                <button onClick={onClose} className="text-slate-400 hover:text-white">
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Phone with autocomplete */}
+              <div className="mb-4 relative">
+                <label className="text-xs font-bold text-slate-400 mb-1.5 block">رقم جوال العميل</label>
+                <div className="relative">
+                  <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    onFocus={() => phoneSuggestions.length > 0 && setShowSuggestions(true)}
+                    placeholder="05XXXXXXXX"
+                    className="w-full bg-slate-800 border border-white/10 rounded-xl pr-9 pl-3 py-2.5 text-white text-sm outline-none"
+                  />
+                </div>
+                {showSuggestions && phoneSuggestions.length > 0 && (
+                  <div className="absolute z-10 mt-1 w-full bg-slate-800 border border-white/10 rounded-xl overflow-hidden shadow-lg">
+                    {phoneSuggestions.slice(0, 5).map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => pickCustomer(c)}
+                        className="w-full text-right px-3 py-2 hover:bg-slate-700/60 border-b border-white/5 last:border-0"
+                      >
+                        <p className="text-sm font-bold text-white">{c.name}</p>
+                        <p className="text-xs text-slate-400 font-mono">{c.phone}</p>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Name */}
+              <div className="mb-4">
+                <label className="text-xs font-bold text-slate-400 mb-1.5 block">اسم العميل</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="الاسم الكامل"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                />
+              </div>
+
+              {/* Package selector */}
+              <div className="mb-4">
+                <label className="text-xs font-bold text-slate-400 mb-1.5 block">الخدمة والباقة</label>
+                <select
+                  value={packageId ?? ''}
+                  onChange={(e) => setPackageId(e.target.value ? Number(e.target.value) : null)}
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                >
+                  <option value="">اختر باقة...</option>
+                  {(services ?? []).map((s) =>
+                    s.packages.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {s.name} — {p.name} ({p.price} ر.س)
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              {/* Date + time */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-400 mb-1.5 block">التاريخ</label>
+                  <input
+                    type="date"
+                    value={scheduledDate}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-400 mb-1.5 block">الوقت</label>
+                  <input
+                    type="time"
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Vehicle */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-400 mb-1.5 block">نوع المركبة</label>
+                  <input
+                    type="text"
+                    value={vehicleType}
+                    onChange={(e) => setVehicleType(e.target.value)}
+                    placeholder="اختياري"
+                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-slate-400 mb-1.5 block">رقم اللوحة</label>
+                  <input
+                    type="text"
+                    value={vehiclePlate}
+                    onChange={(e) => setVehiclePlate(e.target.value)}
+                    placeholder="اختياري"
+                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="mb-4">
+                <label className="text-xs font-bold text-slate-400 mb-1.5 block">العنوان (اختياري)</label>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="الحي / الشارع"
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                />
+              </div>
+
+              {/* Notes */}
+              <div className="mb-6">
+                <label className="text-xs font-bold text-slate-400 mb-1.5 block">ملاحظات (اختياري)</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none resize-none"
+                />
+              </div>
+
+              <button
+                onClick={submit}
+                disabled={createMutation.isPending}
+                className="w-full py-3.5 rounded-xl font-black text-white flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+                style={{ background: color }}
+              >
+                {createMutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={18} />}
+                إنشاء الحجز
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function VendorSchedule() {
@@ -540,6 +837,7 @@ export default function VendorSchedule() {
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [configOpen, setConfigOpen] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<ScheduleBooking | null>(null);
 
   const dateStr = isoDate(currentDate);
@@ -760,6 +1058,12 @@ export default function VendorSchedule() {
         onClose={() => setSelectedBooking(null)}
         color={color}
       />
+      <ManualBookingDrawer
+        open={manualOpen}
+        onClose={() => setManualOpen(false)}
+        defaultDate={currentDate}
+        color={color}
+      />
 
       {/* ── Top bar ─────────────────────────────────────────────────── */}
       <div className="sticky top-0 z-20 bg-surface-1/95 border-b border-white/8 backdrop-blur-xl">
@@ -776,9 +1080,7 @@ export default function VendorSchedule() {
               <button
                 className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-white transition-colors"
                 style={{ background: color }}
-                onClick={() => {
-                  // TODO: manual booking drawer
-                }}
+                onClick={() => setManualOpen(true)}
               >
                 <Plus size={14} />
                 حجز يدوي
