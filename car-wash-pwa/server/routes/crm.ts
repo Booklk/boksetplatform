@@ -513,8 +513,8 @@ router.get('/dashboard', ...crmAuth, async (req: AuthRequest, res) => {
         .limit(20),
     ]);
 
-    const churningRows = churningResult.rows ?? churningResult;
-    const ltvRows = ltvResult.rows ?? ltvResult;
+    const churningRows = (churningResult as any).rows ?? churningResult;
+    const ltvRows = (ltvResult as any).rows ?? ltvResult;
 
     return res.json({
       totalCustomers: totalCustomersResult[0]?.total ?? 0,

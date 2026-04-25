@@ -210,6 +210,7 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
         logoUrl: vendors.logoUrl,
         primaryColor: vendors.primaryColor,
         subscriptionStatus: vendors.subscriptionStatus,
+        subscriptionPlan: vendors.subscriptionPlan,
       }).from(vendors).where(eq(vendors.id, user.vendorId)).limit(1);
       return res.json({ ...user, vendor: vendor ?? null });
     }

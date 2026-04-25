@@ -288,86 +288,9 @@ function Step3({
         <div>
           <button onClick={() => setMode('choose')} className="text-xs text-indigo-400 mb-3">← رجوع</button>
           <LogoGenerator initialLetter={nameAr?.charAt(0) ?? ''} onSave={(url) => { onLogoSave(url); setMode('choose'); }} />
+          <NavButtons step={2} onPrev={onPrev} onNext={onSkip} nextLabel="تخطي" />
         </div>
       ) : null}
-          >
-            تغيير الشعار
-          </button>
-        </motion.div>
-      ) : (
-        <>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setShowGenerator(true)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-bold border transition-all ${
-                showGenerator
-                  ? 'border-blue-500 bg-blue-500/10 text-blue-300'
-                  : 'border-white/10 bg-white/5 text-white/50'
-              }`}
-            >
-              ✨ أنشئ شعاراً
-            </button>
-            <label className="flex-1 py-2.5 rounded-lg text-sm font-bold border border-white/10 bg-white/5 text-white/50 text-center cursor-pointer hover:border-white/30 transition-all">
-              📤 رفع شعار موجود
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  const reader = new FileReader();
-                  reader.onload = (ev) => {
-                    const result = ev.target?.result;
-                    if (typeof result === 'string') onLogoSave(result);
-                  };
-                  reader.readAsDataURL(file);
-                }}
-              />
-            </label>
-          </div>
-
-          {showGenerator && (
-            <div className="bg-white/3 rounded-xl border border-white/8 p-4">
-              <LogoGenerator
-                initialLetter={nameAr.charAt(0)}
-                onSave={(dataUrl) => {
-                  onLogoSave(dataUrl);
-                  setShowGenerator(false);
-                }}
-              />
-            </div>
-          )}
-        </>
-      )}
-
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={onPrev}
-          className="flex-1 py-3.5 rounded-xl font-bold text-white/60 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-        >
-          السابق
-        </button>
-        {logoUrl ? (
-          <button
-            type="button"
-            onClick={onNext}
-            className="flex-1 py-3.5 rounded-xl font-black text-white bg-gradient-to-l from-blue-700 to-blue-500 shadow-lg"
-          >
-            التالي
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onSkip}
-            className="flex-1 py-3.5 rounded-xl font-bold text-white/40 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-          >
-            تخطي الآن
-          </button>
-        )}
-      </div>
     </div>
   );
 }

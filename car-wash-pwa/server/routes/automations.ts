@@ -316,7 +316,12 @@ router.post('/:id/test', requireAuth, requireRole('vendor_admin', 'admin'), asyn
 
     const { processAutomationTrigger } = await import('../services/automationEngine.js');
 
-    const execution = await processAutomationTrigger(workflowId, data.customerId);
+    const execution = await processAutomationTrigger(
+      vendorId,
+      workflow.triggerType,
+      data.customerId,
+      { test: true, workflowId },
+    );
 
     return res.json({ message: 'تم تشغيل السير التجريبي بنجاح', execution });
   } catch (e: any) {

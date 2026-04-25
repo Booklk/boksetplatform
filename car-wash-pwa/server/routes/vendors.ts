@@ -310,7 +310,7 @@ router.post('/onboard', async (req, res) => {
                 name: pkg.nameAr,
                 price: String(pkg.price),
                 duration: pkg.duration,
-                features: pkg.features ?? [],
+                features: pkg.features ? [...pkg.features] : [],
                 isActive: true,
               });
             }

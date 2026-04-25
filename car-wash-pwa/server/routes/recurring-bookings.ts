@@ -21,10 +21,15 @@ function generateBookingNumber(): string {
  * preferredDay: "0"-"6" (Sunday-Saturday)
  * preferredTime: "HH:mm"
  */
-function calculateNextScheduledAt(frequency: string, preferredDay: string, preferredTime: string, fromDate?: Date): Date {
+function calculateNextScheduledAt(
+  frequency: string,
+  preferredDay: string | number | null,
+  preferredTime: string | null,
+  fromDate?: Date,
+): Date {
   const now = fromDate ?? new Date();
-  const [hours, minutes] = preferredTime.split(':').map(Number);
-  const targetDay = Number(preferredDay);
+  const [hours, minutes] = (preferredTime ?? '09:00').split(':').map(Number);
+  const targetDay = preferredDay == null ? now.getDay() : Number(preferredDay);
 
   // Find the next occurrence of the preferred day
   const next = new Date(now);
@@ -175,7 +180,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       customerId: data.customerId,
       packageId: data.packageId,
       frequency: data.frequency,
-      preferredDay: data.preferredDay,
+      preferredDay: Number(data.preferredDay),
       preferredTime: data.preferredTime,
       address: data.address,
       lat: data.lat,
@@ -273,7 +278,7 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
     };
 
     if (data.frequency !== undefined) updateValues.frequency = data.frequency;
-    if (data.preferredDay !== undefined) updateValues.preferredDay = data.preferredDay;
+    if (data.preferredDay !== undefined) updateValues.preferredDay = Number(data.preferredDay);
     if (data.preferredTime !== undefined) updateValues.preferredTime = data.preferredTime;
     if (data.address !== undefined) updateValues.address = data.address;
     if (data.isActive !== undefined) updateValues.isActive = data.isActive;
@@ -374,7 +379,7 @@ router.post('/:id/generate', requireAuth, async (req: AuthRequest, res) => {
       customerId: customer.userId,
       packageId: recurring.packageId,
       scheduledAt,
-      address: recurring.address,
+      address: recurring.address ?? '',
       lat: recurring.lat,
       lng: recurring.lng,
       vehicleType: recurring.vehicleType,

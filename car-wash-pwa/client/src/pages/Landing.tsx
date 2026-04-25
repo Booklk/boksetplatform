@@ -119,6 +119,17 @@ const testimonials = [
 
 const marqueeText = 'حجوزات ذكية ✦ GPS مباشر ✦ برامج الولاء ✦ فواتير PDF ✦ واتساب مدمج ✦ طابور الانتظار ✦ نقطة البيع ✦ أسطول المركبات ✦ تتبع لحظي ✦ White-label ✦ ';
 
+const comparisonRows: { feature: string; before: string; after: string }[] = [
+  { feature: 'استقبال الحجوزات', before: 'مكالمات وواتساب يدوي', after: 'موقع حجز ذاتي 24/7' },
+  { feature: 'تأكيد الموعد', before: 'رسائل مكررة وأخطاء', after: 'تأكيد فوري عبر واتساب' },
+  { feature: 'متابعة الموظفين', before: 'مكالمات وتخمين', after: 'GPS مباشر على الخريطة' },
+  { feature: 'الفواتير', before: 'دفاتر ورقية', after: 'فاتورة PDF تلقائية + ضريبة' },
+  { feature: 'الذكريات والمتابعة', before: 'ينسى العميل الموعد', after: 'تذكير قبل الموعد + متابعة بعده' },
+  { feature: 'برامج الولاء', before: 'لا يوجد', after: 'نقاط ومستويات وعروض حصرية' },
+  { feature: 'التقارير المالية', before: 'إكسل وحسابات يدوية', after: 'تقارير دخل/مصروف لحظية' },
+  { feature: 'دعم متعدد الفروع', before: 'لوحات منفصلة', after: 'لوحة موحدة لكل الفروع' },
+];
+
 const faqs = [
   {
     q: 'ما هو Jdawil؟',
@@ -1484,16 +1495,6 @@ export default function Landing() {
               </motion.button>
             </motion.div>
           </div>
-                </div>
-                <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
-                  {['إدارة 2-3 فروع','لوحة تحكم موحدة','موظفون غير محدودون','تقارير لكل فرع','إدارة مخزون لكل فرع','دعم فني مميز'].map(f => (
-                    <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-violet-400 flex-shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                </div>
 
           {/* Trust note */}
           <motion.div {...fadeUp(0.3)} className="text-center mt-10 space-y-3">

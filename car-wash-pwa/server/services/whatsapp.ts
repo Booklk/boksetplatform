@@ -147,7 +147,7 @@ export async function verifyVendorWhatsApp(vendorId: number): Promise<{ valid: b
 
     if (res.ok) return { valid: true };
 
-    const err = await res.json().catch(() => ({}));
+    const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
     return { valid: false, error: err?.error?.message ?? 'بيانات غير صحيحة' };
   } catch (e: any) {
     return { valid: false, error: e.message ?? 'فشل الاتصال' };
