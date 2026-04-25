@@ -59,6 +59,22 @@ export default defineConfig({
   ],
   build: {
     sourcemap: false,
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (!id.includes('node_modules')) return undefined;
+          if (id.includes('react-dom') || id.includes('/react/') || id.includes('react-router')) return 'react';
+          if (id.includes('framer-motion')) return 'framer';
+          if (id.includes('recharts') || id.includes('d3-')) return 'charts';
+          if (id.includes('@tanstack')) return 'query';
+          if (id.includes('firebase')) return 'firebase';
+          if (id.includes('@sentry')) return 'sentry';
+          if (id.includes('lucide-react')) return 'icons';
+          return 'vendor';
+        },
+      },
+    },
   },
   server: {
     port: 5173,

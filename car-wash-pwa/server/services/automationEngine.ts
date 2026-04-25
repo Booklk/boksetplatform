@@ -27,6 +27,7 @@ import {
 } from '../db/schema.js';
 import { eq, and, gte, lte, sql, isNull, lt, desc } from 'drizzle-orm';
 import { sendRawWhatsAppMessage } from './whatsapp.js';
+import { sendWebPushToUser } from './webPush.js';
 import { decrypt } from '../lib/crypto.js';
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
@@ -47,6 +48,7 @@ interface StepConfig {
   conditionField?: string;
   conditionOperator?: string;
   conditionValue?: string;
+  url?: string;
 }
 
 interface StepRow {
@@ -78,6 +80,7 @@ interface CustomerRow {
 interface VendorRow {
   id: number;
   nameAr: string;
+  slug: string;
   whatsappPhoneId: string | null;
   whatsappToken: string | null;
 }
@@ -250,6 +253,7 @@ async function processExecution(execution: ExecutionRow): Promise<void> {
     .select({
       id: vendors.id,
       nameAr: vendors.nameAr,
+      slug: vendors.slug,
       whatsappPhoneId: vendors.whatsappPhoneId,
       whatsappToken: vendors.whatsappToken,
     })
@@ -360,23 +364,33 @@ export async function executeStepAction(
           : { success: false, error: 'فشل إرسال رسالة واتساب' };
       }
 
-      // ── Push notification (placeholder) ───────────────────────────────
+      // ── Web Push notification (via VAPID + push_subscriptions) ────────
       case 'send_push': {
-        const title = config.templateName ?? 'بوكست';
+        const title = config.templateName ?? vendor.nameAr ?? 'جداول';
         const body = interpolateMessage(
           config.message ?? 'عندك عرض خاص من {vendor}!',
           customer,
           vendor,
         );
 
-        // TODO: integrate with Firebase Cloud Messaging / Expo push
-        console.log(
-          `[Automation] Push notification (placeholder): title="${title}" body="${body}" customer=${customer.id}`,
-        );
+        const { sent, failed } = await sendWebPushToUser(customer.userId, {
+          title,
+          body,
+          url: config.url ?? `/c/${vendor.slug}`,
+        });
+
+        if (sent === 0 && failed === 0) {
+          // No active subscriptions OR VAPID not configured — soft success
+          return {
+            success: true,
+            metadata: { channel: 'push', title, body, sent: 0, skipped: true },
+          };
+        }
 
         return {
-          success: true,
-          metadata: { channel: 'push', title, body, placeholder: true },
+          success: sent > 0,
+          metadata: { channel: 'push', title, body, sent, failed },
+          ...(sent === 0 ? { error: 'فشل إرسال الإشعار لجميع الأجهزة' } : {}),
         };
       }
 
@@ -528,6 +542,7 @@ export async function recoverAbandonedBookings(
           .select({
             id: vendors.id,
             nameAr: vendors.nameAr,
+            slug: vendors.slug,
             whatsappPhoneId: vendors.whatsappPhoneId,
             whatsappToken: vendors.whatsappToken,
           })

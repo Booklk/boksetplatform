@@ -7,6 +7,10 @@
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "build": "cd client && npm run build",
+    "test": "cd server && npm run test",
+    "typecheck": "cd server && npx tsc --noEmit && cd ../client && npx tsc --noEmit",
+    "db:generate": "cd server && npx drizzle-kit generate",
+    "db:migrate": "cd server && npx drizzle-kit migrate",
     "db:push": "cd server && npx drizzle-kit push",
     "db:seed": "cd server && npx tsx db/seed.ts"
   },
