@@ -16,7 +16,12 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Upload, Palette, Clock, CreditCard, ChevronLeft } from 'lucide-react';
+import {
+  Copy, Check, Upload, Palette, Clock, CreditCard, ChevronLeft,
+  Calendar, MapPin, Users, MessageCircle, BarChart3, FileText,
+  Receipt, Gift, Tag, UserPlus, Bell, Repeat, Briefcase, ShoppingBag,
+  Zap, Award, TrendingUp, Settings as SettingsIcon, ArrowLeft,
+} from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
@@ -630,9 +635,67 @@ interface ChecklistResponse {
   isComplete: boolean;
 }
 
+// ─── Feature showcase data ────────────────────────────────────────────────────
+
+interface Feature {
+  icon: React.ElementType;
+  label: string;
+  desc: string;
+  path: string;
+}
+
+const FEATURE_CATEGORIES: Array<{ title: string; features: Feature[] }> = [
+  {
+    title: 'إدارة العمليات اليومية',
+    features: [
+      { icon: Calendar,    label: 'الجدول الزمني',     desc: 'مواعيد وحجوزات حسب الساعة',          path: '/vendor/schedule' },
+      { icon: Users,       label: 'طابور الانتظار',    desc: 'للعملاء الحاضرين بدون موعد',         path: '/vendor/queue' },
+      { icon: MapPin,      label: 'GPS مباشر',         desc: 'موقع الموظفين والمركبات لحظياً',      path: '/vendor/livemap' },
+      { icon: Repeat,      label: 'التوزيع الذكي',     desc: 'يربط الحجز بأقرب موظف متاح تلقائياً', path: '/vendor/dispatch' },
+    ],
+  },
+  {
+    title: 'الحجوزات والعملاء',
+    features: [
+      { icon: MessageCircle, label: 'تأكيدات واتساب',   desc: 'تأكيد + تذكير + متابعة بعد الخدمة',   path: '/vendor/settings?tab=integrations' },
+      { icon: UserPlus,    label: 'إدارة العملاء (CRM)', desc: 'بيانات + سجل + شرائح + ملاحظات',     path: '/vendor/crm' },
+      { icon: Zap,         label: 'الأتمتة التسويقية',  desc: 'رسائل تلقائية حسب سلوك العميل',       path: '/vendor/automations' },
+      { icon: Award,       label: 'تقييمات + مراجعات', desc: 'قياس الرضا وروابط Google',            path: '/vendor/ratings' },
+    ],
+  },
+  {
+    title: 'المال والمحاسبة',
+    features: [
+      { icon: ShoppingBag, label: 'نقطة البيع',         desc: 'كاشير سريع للمبيعات الفورية',         path: '/vendor/pos' },
+      { icon: Receipt,     label: 'فواتير PDF',         desc: 'فواتير تلقائية بضريبة القيمة المضافة', path: '/vendor/invoices' },
+      { icon: FileText,    label: 'تقارير مالية',        desc: 'دخل + مصروف + هامش ربح',              path: '/vendor/financial-statements' },
+      { icon: Briefcase,   label: 'الرواتب',            desc: 'حساب الرواتب + العمولات + التقييم',   path: '/vendor/payroll' },
+    ],
+  },
+  {
+    title: 'النمو والتسويق',
+    features: [
+      { icon: Tag,         label: 'أكواد خصم',          desc: 'كوبونات نسبية أو ثابتة بشروط مرنة',   path: '/vendor/promos' },
+      { icon: Gift,        label: 'بطاقات هدايا',       desc: 'يبيعها العميل لشخص آخر برصيد محدد',   path: '/vendor/gift-cards' },
+      { icon: Award,       label: 'برنامج ولاء',         desc: 'نقاط ومستويات للعملاء المتكررين',     path: '/vendor/branding' },
+      { icon: TrendingUp,  label: 'حملات واتساب',       desc: 'بث رسائل لشريحة محددة من العملاء',    path: '/vendor/campaigns' },
+    ],
+  },
+  {
+    title: 'التحليلات والرقابة',
+    features: [
+      { icon: BarChart3,   label: 'لوحة تحكم ذكية',     desc: 'مؤشرات أداء فورية لكل ما يحدث',        path: '/vendor/dashboard' },
+      { icon: TrendingUp,  label: 'تحليلات متقدمة',     desc: 'اتجاهات + مقارنات + توقعات',           path: '/vendor/advanced-analytics' },
+      { icon: Award,       label: 'أداء الموظفين',       desc: 'إنتاجية + تقييمات + مكافآت',           path: '/vendor/employee-performance' },
+      { icon: Bell,        label: 'إشعارات لحظية',      desc: 'تنبيهات فورية بكل حدث مهم',            path: '/vendor/notifications' },
+    ],
+  },
+];
+
 function StepDone({ nameAr, slug }: { nameAr: string; slug: string }) {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [showFeatures, setShowFeatures] = useState(false);
   const storeUrl = `${window.location.host}/store/${slug || 'your-store'}`;
 
   const { data: checklist, isLoading } = useQuery<ChecklistResponse>({
@@ -725,6 +788,64 @@ function StepDone({ nameAr, slug }: { nameAr: string; slug: string }) {
           ))}
         </div>
       )}
+
+      {/* Features showcase — what the platform actually does */}
+      <div className="border-t border-white/8 pt-6">
+        <button
+          type="button"
+          onClick={() => setShowFeatures(!showFeatures)}
+          className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/8 border border-white/8 transition-all"
+        >
+          <div className="text-right">
+            <p className="text-sm font-black text-white">ماذا تستطيع أن تفعل بمتجرك؟</p>
+            <p className="text-[11px] text-white/40 mt-0.5">
+              {FEATURE_CATEGORIES.reduce((n, c) => n + c.features.length, 0)} ميزة جاهزة في {FEATURE_CATEGORIES.length} فئات
+            </p>
+          </div>
+          <motion.div animate={{ rotate: showFeatures ? -90 : 0 }}>
+            <ChevronLeft className="w-5 h-5 text-white/40" />
+          </motion.div>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {showFeatures && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-5 pt-5">
+                {FEATURE_CATEGORIES.map((cat) => (
+                  <div key={cat.title}>
+                    <p className="text-xs font-black text-orange-400 mb-2.5 px-1">{cat.title}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {cat.features.map((f) => (
+                        <button
+                          key={f.path}
+                          type="button"
+                          onClick={() => navigate(f.path)}
+                          className="text-right p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/8 hover:border-orange-500/30 transition-all flex items-start gap-3"
+                        >
+                          <div className="w-9 h-9 rounded-lg bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                            <f.icon size={16} className="text-orange-400" />
+                          </div>
+                          <div className="flex-1 min-w-0 text-right">
+                            <p className="text-sm font-bold text-white truncate">{f.label}</p>
+                            <p className="text-[11px] text-white/40 leading-snug mt-0.5">{f.desc}</p>
+                          </div>
+                          <ArrowLeft size={12} className="text-white/20 flex-shrink-0 mt-2" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <button
         type="button"
