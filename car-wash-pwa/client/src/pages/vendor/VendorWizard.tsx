@@ -1,5 +1,5 @@
 /**
- * Interactive 6-step vendor onboarding wizard.
+ * Interactive vendor onboarding wizard.
  * Route: /vendor/wizard
  *
  * Steps:
@@ -8,13 +8,16 @@
  *  3 – شعارك وهويتك (LogoGenerator)
  *  4 – رقم الواتساب
  *  5 – أول خدمة
- *  6 – انتهيت 🎉
+ *  6 – ساعات العمل
+ *  7 – طريقة الدفع
+ *  8 – جاهز للبدء (مع قائمة الناقص)
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Upload, Palette } from 'lucide-react';
+import { Copy, Check, Upload, Palette, Clock, CreditCard, ChevronLeft } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 import LogoGenerator from '../../components/LogoGenerator';
@@ -28,9 +31,14 @@ interface WizardState {
   whatsapp: string;
   serviceName: string;
   servicePrice: string;
+  workingDays: number[];
+  startTime: string;
+  endTime: string;
+  acceptCash: boolean;
+  acceptCard: boolean;
 }
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 // ─── Progress Bar ─────────────────────────────────────────────────────────────
 
@@ -448,12 +456,190 @@ function Step5({
   );
 }
 
-// ─── Step 6: انتهيت 🎉 ────────────────────────────────────────────────────────
+// ─── Step 6: ساعات العمل ──────────────────────────────────────────────────────
 
-function Step6({ nameAr, slug }: { nameAr: string; slug: string }) {
+const AR_DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+function StepHours({
+  workingDays,
+  startTime,
+  endTime,
+  onPatch,
+  onPrev,
+  onNext,
+}: {
+  workingDays: number[];
+  startTime: string;
+  endTime: string;
+  onPatch: (p: { workingDays?: number[]; startTime?: string; endTime?: string }) => void;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const toggleDay = (d: number) => {
+    onPatch({
+      workingDays: workingDays.includes(d)
+        ? workingDays.filter((x) => x !== d)
+        : [...workingDays, d].sort(),
+    });
+  };
+  const canNext = workingDays.length > 0 && startTime && endTime && startTime < endTime;
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center space-y-1">
+        <Clock className="w-10 h-10 text-orange-400 mx-auto mb-3" />
+        <h2 className="text-2xl font-black text-white">متى يقدر العميل يحجز؟</h2>
+        <p className="text-white/40 text-sm">حدّد أيام عملك وساعات الدوام</p>
+      </div>
+
+      <div>
+        <p className="text-xs font-bold text-white/40 mb-3">أيام العمل</p>
+        <div className="grid grid-cols-4 gap-2">
+          {AR_DAYS.map((day, i) => {
+            const active = workingDays.includes(i);
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => toggleDay(i)}
+                className={`py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                  active
+                    ? 'border-orange-500 bg-orange-500/15 text-orange-300'
+                    : 'border-white/10 bg-white/5 text-white/40'
+                }`}
+              >
+                {day}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <p className="text-xs font-bold text-white/40 mb-2">بداية الدوام</p>
+          <input
+            type="time"
+            value={startTime}
+            onChange={(e) => onPatch({ startTime: e.target.value })}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-white font-bold text-sm focus:outline-none focus:border-orange-500/60"
+          />
+        </div>
+        <div>
+          <p className="text-xs font-bold text-white/40 mb-2">نهاية الدوام</p>
+          <input
+            type="time"
+            value={endTime}
+            onChange={(e) => onPatch({ endTime: e.target.value })}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-3 text-white font-bold text-sm focus:outline-none focus:border-orange-500/60"
+          />
+        </div>
+      </div>
+
+      <NavButtons step={5} onPrev={onPrev} onNext={onNext} nextDisabled={!canNext} />
+    </div>
+  );
+}
+
+// ─── Step 7: طريقة الدفع ─────────────────────────────────────────────────────
+
+function StepPayment({
+  acceptCash,
+  acceptCard,
+  onPatch,
+  onPrev,
+  onNext,
+}: {
+  acceptCash: boolean;
+  acceptCard: boolean;
+  onPatch: (p: { acceptCash?: boolean; acceptCard?: boolean }) => void;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const canNext = acceptCash || acceptCard;
+  return (
+    <div className="space-y-6">
+      <div className="text-center space-y-1">
+        <CreditCard className="w-10 h-10 text-orange-400 mx-auto mb-3" />
+        <h2 className="text-2xl font-black text-white">كيف يدفع العميل؟</h2>
+        <p className="text-white/40 text-sm">اختر طرق الدفع المتاحة — تقدر تضيف أكثر لاحقاً</p>
+      </div>
+
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={() => onPatch({ acceptCash: !acceptCash })}
+          className={`w-full p-4 rounded-2xl border-2 text-right transition-all ${
+            acceptCash ? 'border-orange-500 bg-orange-500/10' : 'border-white/10 bg-white/5'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-black text-white text-sm">كاش عند الاستلام</p>
+              <p className="text-xs text-white/40 mt-0.5">يدفع العميل عند وصول الخدمة — بدون أي إعداد</p>
+            </div>
+            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+              acceptCash ? 'border-orange-500 bg-orange-500' : 'border-white/20'
+            }`}>
+              {acceptCash && <Check size={12} className="text-white" />}
+            </div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onPatch({ acceptCard: !acceptCard })}
+          className={`w-full p-4 rounded-2xl border-2 text-right transition-all ${
+            acceptCard ? 'border-orange-500 bg-orange-500/10' : 'border-white/10 bg-white/5'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-black text-white text-sm">بطاقة / مدى / Apple Pay / STC Pay</p>
+              <p className="text-xs text-white/40 mt-0.5">تحتاج ربط Moyasar — تقدر تضيف المفتاح بعدين من الإعدادات</p>
+            </div>
+            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+              acceptCard ? 'border-orange-500 bg-orange-500' : 'border-white/20'
+            }`}>
+              {acceptCard && <Check size={12} className="text-white" />}
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <NavButtons step={6} onPrev={onPrev} onNext={onNext} nextDisabled={!canNext} />
+    </div>
+  );
+}
+
+// ─── Step 8: جاهز للبدء (مع قائمة الناقص) ─────────────────────────────────────
+
+interface ChecklistItem {
+  id: string;
+  label: string;
+  done: boolean;
+  path: string;
+  desc: string;
+  optional?: boolean;
+}
+interface ChecklistResponse {
+  steps: ChecklistItem[];
+  completedCount: number;
+  totalSteps: number;
+  percent: number;
+  isComplete: boolean;
+}
+
+function StepDone({ nameAr, slug }: { nameAr: string; slug: string }) {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
-  const storeUrl = `jdawil.sa/store/${slug || 'your-store'}`;
+  const storeUrl = `${window.location.host}/store/${slug || 'your-store'}`;
+
+  const { data: checklist, isLoading } = useQuery<ChecklistResponse>({
+    queryKey: ['setup-checklist'],
+    queryFn: () => api.get('/vendors/setup-checklist').then((r) => r.data),
+    refetchOnWindowFocus: false,
+  });
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`https://${storeUrl}`).catch(() => {});
@@ -461,125 +647,92 @@ function Step6({ nameAr, slug }: { nameAr: string; slug: string }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleWhatsApp = () => {
-    const msg = encodeURIComponent(
-      `مرحباً! يسعدنا خدمتكم في ${nameAr} 🚗✨\nاحجز الآن عبر: https://${storeUrl}`
-    );
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
-  };
+  const remaining = (checklist?.steps ?? []).filter((s) => !s.done && !s.optional);
+  const isComplete = checklist?.isComplete ?? false;
 
   return (
-    <div className="space-y-6 text-center relative overflow-hidden">
-      {/* CSS confetti */}
-      <style>{`
-        @keyframes confetti-fall {
-          0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(600px) rotate(720deg); opacity: 0; }
-        }
-        .confetti-piece {
-          position: absolute;
-          width: 8px;
-          height: 8px;
-          border-radius: 2px;
-          animation: confetti-fall linear infinite;
-          pointer-events: none;
-        }
-      `}</style>
-      {[...Array(20)].map((_, i) => (
-        <div
-          key={i}
-          className="confetti-piece"
-          style={{
-            left: `${(i * 5 + 3) % 100}%`,
-            top: '-20px',
-            backgroundColor: ['#3B82F6', '#22D3EE', '#22C55E', '#EAB308', '#A855F7'][i % 5],
-            animationDuration: `${2 + (i % 5) * 0.4}s`,
-            animationDelay: `${i * 0.12}s`,
-          }}
-        />
-      ))}
-
-      {/* Animated checkmark */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 220, damping: 14, delay: 0.1 }}
-        className="relative z-10 flex justify-center mb-2"
-      >
-        <svg width="96" height="96" viewBox="0 0 100 100" fill="none">
-          <motion.circle
-            cx="50" cy="50" r="44"
-            stroke="#22C55E" strokeWidth="5" fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
-          />
-          <motion.path
-            d="M30 50 L44 64 L70 38"
-            stroke="#22C55E" strokeWidth="6"
-            strokeLinecap="round" strokeLinejoin="round" fill="none"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.5, delay: 0.9, ease: 'easeOut' }}
-          />
-        </svg>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="relative z-10 space-y-2"
-      >
-        <h2 className="text-3xl font-black text-white">مشروعك جاهز! 🎉</h2>
-        <p className="text-white/40">
-          {nameAr ? `أهلاً بـ ${nameAr} في منصة ركيزة` : 'أهلاً بك في منصة ركيزة'}
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <div className="inline-flex w-12 h-12 rounded-2xl bg-orange-500/15 items-center justify-center mb-2">
+          <Check className="w-6 h-6 text-orange-400" />
+        </div>
+        <h2 className="text-2xl font-black text-white">
+          {isComplete ? 'متجرك جاهز للحجوزات' : 'تم إنشاء حسابك'}
+        </h2>
+        <p className="text-slate-400 text-sm leading-relaxed max-w-sm mx-auto">
+          {isComplete
+            ? `أهلاً ${nameAr} — كل شي مهيأ. شارك رابط متجرك مع عملائك ليبدؤوا الحجز.`
+            : `أهلاً ${nameAr || ''} — أكمل الخطوات أدناه ليصبح متجرك جاهزاً لاستقبال أول حجز.`}
         </p>
-      </motion.div>
+      </div>
 
-      {/* Store link */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="relative z-10 bg-white/5 border border-white/10 rounded-xl px-4 py-3"
+      {/* Progress bar */}
+      {checklist && (
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-white/60">جاهزية المتجر</span>
+            <span className="text-sm font-black text-orange-400">{checklist.percent}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${checklist.percent}%` }}
+              transition={{ duration: 0.8 }}
+              className="h-full bg-orange-500 rounded-full"
+            />
+          </div>
+          <p className="text-[11px] text-white/40 mt-2">
+            {checklist.completedCount} من {checklist.totalSteps} خطوات أساسية
+          </p>
+        </div>
+      )}
+
+      {/* Store URL */}
+      <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+        <p className="text-xs font-bold text-white/40 mb-2">رابط متجرك</p>
+        <div className="flex items-center gap-2">
+          <code className="flex-1 font-mono text-sm text-orange-300 truncate">{storeUrl}</code>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-bold flex items-center gap-1.5"
+          >
+            {copied ? <Check size={12} /> : <Copy size={12} />}
+            {copied ? 'تم النسخ' : 'نسخ'}
+          </button>
+        </div>
+      </div>
+
+      {/* Remaining checklist (only if not complete) */}
+      {!isComplete && !isLoading && remaining.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-white/60 px-1">الخطوات المتبقية:</p>
+          {remaining.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => navigate(item.path)}
+              className="w-full text-right p-3.5 rounded-xl bg-white/5 border border-white/10 hover:border-orange-500/40 hover:bg-orange-500/5 transition-all"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white">{item.label}</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">{item.desc}</p>
+                </div>
+                <ChevronLeft className="w-4 h-4 text-white/30 flex-shrink-0" />
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => navigate('/vendor/dashboard')}
+        className="w-full py-3.5 rounded-xl font-black text-white bg-orange-500 hover:bg-orange-400 transition-colors"
       >
-        <p className="text-xs text-white/40 mb-1">رابط متجرك</p>
-        <p className="text-blue-300 font-mono text-sm font-bold break-all">{storeUrl}</p>
-      </motion.div>
-
-      {/* Action buttons */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
-        className="relative z-10 space-y-3"
-      >
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="w-full py-3.5 rounded-xl font-black text-white bg-white/10 border border-white/15 hover:bg-white/15 transition-colors flex items-center justify-center gap-2"
-        >
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-          {copied ? 'تم النسخ!' : '📋 انسخ الرابط'}
-        </button>
-
-        <button
-          type="button"
-          onClick={handleWhatsApp}
-          className="w-full py-3.5 rounded-xl font-black text-white bg-green-600/80 border border-green-500/30 hover:bg-green-600 transition-colors"
-        >
-          💬 شارك على واتساب
-        </button>
-
-        <button
-          type="button"
-          onClick={() => navigate('/vendor/dashboard')}
-          className="w-full py-3.5 rounded-xl font-black text-white bg-gradient-to-l from-blue-700 to-blue-500 shadow-lg"
-        >
-          🚀 اذهب للوحة التحكم
-        </button>
-      </motion.div>
+        اذهب للوحة التحكم
+      </button>
     </div>
   );
 }
@@ -604,6 +757,11 @@ export default function VendorWizard() {
     whatsapp: '',
     serviceName: '',
     servicePrice: '',
+    workingDays: [0, 1, 2, 3, 4, 6], // كل الأيام عدا الجمعة افتراضياً
+    startTime: '09:00',
+    endTime: '22:00',
+    acceptCash: true,
+    acceptCard: false,
   });
 
   const { user } = useAuth();
@@ -614,30 +772,49 @@ export default function VendorWizard() {
 
   const goNext = useCallback(async (extraPatch?: Partial<WizardState>) => {
     if (extraPatch) patch(extraPatch);
+    const merged = { ...state, ...(extraPatch ?? {}) };
 
-    // API calls on specific steps
-    if (step === 2 && (extraPatch?.logoUrl || state.logoUrl) && vendorId) {
+    if (step === 2 && merged.logoUrl && vendorId) {
       try {
-        await api.put(`/vendors/${vendorId}`, {
-          logoUrl: extraPatch?.logoUrl ?? state.logoUrl,
-        });
+        await api.put(`/vendors/${vendorId}`, { logoUrl: merged.logoUrl });
       } catch {/* best-effort */}
     }
 
     if (step === 3 && vendorId) {
       try {
+        await api.put(`/vendors/${vendorId}`, { phone: merged.whatsapp });
+      } catch {/* best-effort */}
+    }
+
+    if (step === 4 && vendorId) {
+      try {
         await api.put(`/vendors/${vendorId}`, {
-          phone: extraPatch?.whatsapp ?? state.whatsapp,
+          nameAr: merged.nameAr,
+          washType: merged.washTypes?.[0],
         });
       } catch {/* best-effort */}
     }
 
-    // On arriving at step 6, save name + wash type
-    if (step === 4 && vendorId) {
+    // Step 5 → 6: save working hours
+    if (step === 5 && vendorId) {
+      try {
+        await api.put('/appointments/config', {
+          workingDays: merged.workingDays,
+          startTime: merged.startTime,
+          endTime: merged.endTime,
+          slotDurationMin: 30,
+          carsPerSlot: 2,
+          advanceBookingDays: 14,
+          isAppointmentMode: true,
+        });
+      } catch {/* best-effort */}
+    }
+
+    // Step 6 → 7: save payment preferences in vendor.settings
+    if (step === 6 && vendorId) {
       try {
         await api.put(`/vendors/${vendorId}`, {
-          nameAr: state.nameAr,
-          washType: (extraPatch?.washTypes ?? state.washTypes)?.[0] ?? state.washTypes?.[0],
+          settings: { acceptCash: merged.acceptCash, acceptCard: merged.acceptCard },
         });
       } catch {/* best-effort */}
     }
@@ -733,7 +910,26 @@ export default function VendorWizard() {
                   />
                 )}
                 {step === 5 && (
-                  <Step6 nameAr={state.nameAr} slug={slug} />
+                  <StepHours
+                    workingDays={state.workingDays}
+                    startTime={state.startTime}
+                    endTime={state.endTime}
+                    onPatch={(p) => patch(p)}
+                    onPrev={goPrev}
+                    onNext={() => goNext()}
+                  />
+                )}
+                {step === 6 && (
+                  <StepPayment
+                    acceptCash={state.acceptCash}
+                    acceptCard={state.acceptCard}
+                    onPatch={(p) => patch(p)}
+                    onPrev={goPrev}
+                    onNext={() => goNext()}
+                  />
+                )}
+                {step === 7 && (
+                  <StepDone nameAr={state.nameAr} slug={slug} />
                 )}
               </motion.div>
             </AnimatePresence>

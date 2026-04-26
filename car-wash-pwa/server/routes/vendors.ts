@@ -453,36 +453,106 @@ router.post('/notification-preferences', requireAuth, async (req: AuthRequest, r
 });
 
 // GET /api/vendors/setup-checklist — MUST come before /:id
+// Industry-neutral readiness checklist — used by Dashboard widget AND the
+// onboarding wizard's final step so vendors see exactly what's missing.
 router.get('/setup-checklist', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId!;
 
     const [
+      vendorRow,
       servicesCount,
       employeesCount,
-      vehiclesCount,
       hasBooking,
-      hasLoyalty,
     ] = await Promise.all([
+      db.select({
+        nameAr: vendors.nameAr,
+        phone: vendors.phone,
+        city: vendors.city,
+        logoUrl: vendors.logoUrl,
+        whatsappToken: vendors.whatsappToken,
+        paymentConfig: vendors.paymentConfig,
+        industry: vendors.industry,
+        settings: vendors.settings,
+      }).from(vendors).where(eq(vendors.id, vendorId)).limit(1),
       db.select({ c: sql<number>`count(*)` }).from(services).where(and(eq(services.vendorId, vendorId), eq(services.isActive, true))),
       db.select({ c: sql<number>`count(*)` }).from(users).where(and(eq(users.vendorId, vendorId), eq(users.role, 'employee'), eq(users.isActive, true))),
-      db.select({ c: sql<number>`count(*)` }).from(fleetVehicles).where(and(eq(fleetVehicles.vendorId, vendorId), eq(fleetVehicles.isActive, true))),
       db.select({ c: sql<number>`count(*)` }).from(bookings).where(eq(bookings.vendorId, vendorId)),
-      db.select({ c: sql<number>`count(*)` }).from(loyaltyPrograms).where(and(eq(loyaltyPrograms.vendorId, vendorId), eq(loyaltyPrograms.isActive, true))),
     ]);
 
+    const v = vendorRow[0];
+    const settings = (v?.settings ?? {}) as Record<string, unknown>;
+    const platformWhatsapp = await getSetting('whatsapp.defaultToken');
+    const platformPayment = await getSetting('moyasar.apiKey');
+
+    const profileComplete = !!(v?.nameAr && v?.phone && v?.city && v?.logoUrl);
+    const hasWorkingHours = !!(settings.workingHours);
+    const hasWhatsapp = !!v?.whatsappToken || !!platformWhatsapp;
+    const hasPayment = !!(v?.paymentConfig && (v.paymentConfig as { apiKey?: string }).apiKey) || !!platformPayment || settings.acceptCash === true;
+
     const steps = [
-      { id: 'profile', label: 'أكمل بيانات متجرك', done: true, path: '/vendor/setup', desc: 'اسم المتجر والموقع وطريقة التواصل' },
-      { id: 'services', label: 'أضف خدماتك وأسعارها', done: Number(servicesCount[0]?.c) > 0, path: '/admin/services', desc: 'حتى تتمكن العملاء من الحجز' },
-      { id: 'employees', label: 'أضف أول موظف', done: Number(employeesCount[0]?.c) > 0, path: '/vendor/employees', desc: 'أضف سائقيك وفنييك' },
-      { id: 'vehicle', label: 'أضف سيارتك الأولى', done: Number(vehiclesCount[0]?.c) > 0, path: '/vendor/fleet', desc: 'ليبدأ نظام التوزيع التلقائي' },
-      { id: 'booking', label: 'استقبل أول حجز', done: Number(hasBooking[0]?.c) > 0, path: '/admin/bookings', desc: 'شارك رابطك مع عميل' },
-      { id: 'loyalty', label: 'فعّل برنامج الولاء', done: Number(hasLoyalty[0]?.c) > 0, path: '/vendor/branding', desc: 'بطاقة مخرّمة أو نقاط للعملاء المتكررين' },
+      {
+        id: 'profile',
+        label: 'أكمل بيانات المتجر',
+        done: profileComplete,
+        path: '/vendor/settings',
+        desc: 'الاسم والمدينة والشعار ورقم التواصل',
+      },
+      {
+        id: 'services',
+        label: 'أضف خدماتك وأسعارها',
+        done: Number(servicesCount[0]?.c) > 0,
+        path: '/admin/services',
+        desc: 'الخدمات الأساسية بأسعارها ومدة كل خدمة',
+      },
+      {
+        id: 'hours',
+        label: 'حدّد ساعات العمل',
+        done: hasWorkingHours,
+        path: '/vendor/schedule',
+        desc: 'أيام العمل والساعات وعدد الحجوزات في كل خانة',
+      },
+      {
+        id: 'payment',
+        label: 'فعّل طريقة دفع',
+        done: hasPayment,
+        path: '/vendor/settings?tab=integrations',
+        desc: 'كاش عند الاستلام أو ربط Moyasar للبطاقات',
+      },
+      {
+        id: 'whatsapp',
+        label: 'فعّل واتساب للتأكيدات',
+        done: hasWhatsapp,
+        path: '/vendor/settings?tab=integrations',
+        desc: 'لإرسال تأكيد الحجز والتذكيرات تلقائياً',
+      },
+      {
+        id: 'employees',
+        label: 'أضف موظفاً (اختياري)',
+        done: Number(employeesCount[0]?.c) > 0,
+        path: '/vendor/employees',
+        desc: 'أضف فنييك ليتولوا تنفيذ الحجوزات',
+        optional: true,
+      },
+      {
+        id: 'booking',
+        label: 'استقبل أول حجز',
+        done: Number(hasBooking[0]?.c) > 0,
+        path: '/admin/bookings',
+        desc: 'شارك رابطك مع عميل أو سجّل حجز يدوي',
+      },
     ];
 
-    const completedCount = steps.filter(s => s.done).length;
-    const percent = Math.round((completedCount / steps.length) * 100);
-    return res.json({ steps, completedCount, totalSteps: steps.length, percent, isComplete: completedCount === steps.length });
+    const required = steps.filter((s) => !('optional' in s) || !s.optional);
+    const completedRequired = required.filter((s) => s.done).length;
+    const percent = Math.round((completedRequired / required.length) * 100);
+    return res.json({
+      steps,
+      completedCount: completedRequired,
+      totalSteps: required.length,
+      percent,
+      isComplete: completedRequired === required.length,
+    });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'خطأ في الخادم' });
