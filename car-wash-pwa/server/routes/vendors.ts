@@ -547,6 +547,7 @@ router.get('/setup-checklist', requireAuth, async (req: AuthRequest, res) => {
     const completedRequired = required.filter((s) => s.done).length;
     const percent = Math.round((completedRequired / required.length) * 100);
     return res.json({
+      industry: v?.industry ?? 'other',
       steps,
       completedCount: completedRequired,
       totalSteps: required.length,

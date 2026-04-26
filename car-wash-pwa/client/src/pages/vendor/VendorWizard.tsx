@@ -627,13 +627,7 @@ interface ChecklistItem {
   desc: string;
   optional?: boolean;
 }
-interface ChecklistResponse {
-  steps: ChecklistItem[];
-  completedCount: number;
-  totalSteps: number;
-  percent: number;
-  isComplete: boolean;
-}
+
 
 // ─── Feature showcase data ────────────────────────────────────────────────────
 
@@ -642,55 +636,91 @@ interface Feature {
   label: string;
   desc: string;
   path: string;
+  /** Industries where this feature is primary. '*' = all. */
+  industries: string[];
 }
 
+// Industry-aware feature catalog. The same list shows up everywhere — but
+// we only render features whose `industries` array includes the vendor's
+// actual industry (or '*' for universal features).
 const FEATURE_CATEGORIES: Array<{ title: string; features: Feature[] }> = [
   {
     title: 'إدارة العمليات اليومية',
     features: [
-      { icon: Calendar,    label: 'الجدول الزمني',     desc: 'مواعيد وحجوزات حسب الساعة',          path: '/vendor/schedule' },
-      { icon: Users,       label: 'طابور الانتظار',    desc: 'للعملاء الحاضرين بدون موعد',         path: '/vendor/queue' },
-      { icon: MapPin,      label: 'GPS مباشر',         desc: 'موقع الموظفين والمركبات لحظياً',      path: '/vendor/livemap' },
-      { icon: Repeat,      label: 'التوزيع الذكي',     desc: 'يربط الحجز بأقرب موظف متاح تلقائياً', path: '/vendor/dispatch' },
+      { icon: Calendar,    label: 'الجدول الزمني',     desc: 'مواعيد وحجوزات حسب الساعة',           path: '/vendor/schedule',  industries: ['*'] },
+      { icon: Users,       label: 'طابور الانتظار',     desc: 'للعملاء الحاضرين بدون موعد',          path: '/vendor/queue',     industries: ['car_wash', 'salon', 'other'] },
+      { icon: MapPin,      label: 'GPS مباشر',          desc: 'موقع الموظفين والمركبات لحظياً',       path: '/vendor/livemap',   industries: ['car_wash', 'home_cleaning', 'ac_maintenance', 'plumbing', 'electrical', 'beauty_home'] },
+      { icon: Repeat,      label: 'التوزيع الذكي',      desc: 'يربط الحجز بأقرب موظف متاح تلقائياً',  path: '/vendor/dispatch',  industries: ['car_wash', 'home_cleaning', 'ac_maintenance', 'plumbing', 'electrical'] },
+      { icon: SettingsIcon,label: 'إدارة الأسطول',     desc: 'مركبات + سائقين + صيانة دورية',         path: '/vendor/fleet',     industries: ['car_wash', 'home_cleaning'] },
     ],
   },
   {
     title: 'الحجوزات والعملاء',
     features: [
-      { icon: MessageCircle, label: 'تأكيدات واتساب',   desc: 'تأكيد + تذكير + متابعة بعد الخدمة',   path: '/vendor/settings?tab=integrations' },
-      { icon: UserPlus,    label: 'إدارة العملاء (CRM)', desc: 'بيانات + سجل + شرائح + ملاحظات',     path: '/vendor/crm' },
-      { icon: Zap,         label: 'الأتمتة التسويقية',  desc: 'رسائل تلقائية حسب سلوك العميل',       path: '/vendor/automations' },
-      { icon: Award,       label: 'تقييمات + مراجعات', desc: 'قياس الرضا وروابط Google',            path: '/vendor/ratings' },
+      { icon: MessageCircle, label: 'تأكيدات واتساب', desc: 'تأكيد + تذكير + متابعة بعد الخدمة',    path: '/vendor/settings?tab=integrations', industries: ['*'] },
+      { icon: UserPlus,    label: 'إدارة العملاء (CRM)', desc: 'بيانات + سجل + شرائح + ملاحظات',     path: '/vendor/crm',       industries: ['*'] },
+      { icon: Zap,         label: 'الأتمتة التسويقية',  desc: 'رسائل تلقائية حسب سلوك العميل',        path: '/vendor/automations', industries: ['*'] },
+      { icon: Award,       label: 'تقييمات + مراجعات', desc: 'قياس الرضا وروابط Google',             path: '/vendor/ratings',   industries: ['*'] },
     ],
   },
   {
     title: 'المال والمحاسبة',
     features: [
-      { icon: ShoppingBag, label: 'نقطة البيع',         desc: 'كاشير سريع للمبيعات الفورية',         path: '/vendor/pos' },
-      { icon: Receipt,     label: 'فواتير PDF',         desc: 'فواتير تلقائية بضريبة القيمة المضافة', path: '/vendor/invoices' },
-      { icon: FileText,    label: 'تقارير مالية',        desc: 'دخل + مصروف + هامش ربح',              path: '/vendor/financial-statements' },
-      { icon: Briefcase,   label: 'الرواتب',            desc: 'حساب الرواتب + العمولات + التقييم',   path: '/vendor/payroll' },
+      { icon: ShoppingBag, label: 'نقطة البيع',        desc: 'كاشير سريع للمبيعات الفورية',          path: '/vendor/pos',       industries: ['car_wash', 'salon', 'other'] },
+      { icon: Receipt,     label: 'فواتير PDF',        desc: 'فواتير تلقائية بضريبة القيمة المضافة',  path: '/vendor/invoices',  industries: ['*'] },
+      { icon: FileText,    label: 'تقارير مالية',      desc: 'دخل + مصروف + هامش ربح',                path: '/vendor/financial-statements', industries: ['*'] },
+      { icon: Briefcase,   label: 'الرواتب',           desc: 'حساب الرواتب + العمولات + التقييم',    path: '/vendor/payroll',   industries: ['car_wash', 'home_cleaning', 'ac_maintenance', 'plumbing', 'electrical', 'salon', 'beauty_home', 'other'] },
     ],
   },
   {
     title: 'النمو والتسويق',
     features: [
-      { icon: Tag,         label: 'أكواد خصم',          desc: 'كوبونات نسبية أو ثابتة بشروط مرنة',   path: '/vendor/promos' },
-      { icon: Gift,        label: 'بطاقات هدايا',       desc: 'يبيعها العميل لشخص آخر برصيد محدد',   path: '/vendor/gift-cards' },
-      { icon: Award,       label: 'برنامج ولاء',         desc: 'نقاط ومستويات للعملاء المتكررين',     path: '/vendor/branding' },
-      { icon: TrendingUp,  label: 'حملات واتساب',       desc: 'بث رسائل لشريحة محددة من العملاء',    path: '/vendor/campaigns' },
+      { icon: Tag,         label: 'أكواد خصم',         desc: 'كوبونات نسبية أو ثابتة بشروط مرنة',     path: '/vendor/promos',    industries: ['*'] },
+      { icon: Gift,        label: 'بطاقات هدايا',       desc: 'يبيعها العميل لشخص آخر برصيد محدد',    path: '/vendor/gift-cards',industries: ['salon', 'beauty_home', 'car_wash', 'other'] },
+      { icon: Award,       label: 'برنامج ولاء',        desc: 'نقاط ومستويات للعملاء المتكررين',      path: '/vendor/branding',  industries: ['*'] },
+      { icon: TrendingUp,  label: 'حملات واتساب',       desc: 'بث رسائل لشريحة محددة من العملاء',     path: '/vendor/campaigns', industries: ['*'] },
     ],
   },
   {
     title: 'التحليلات والرقابة',
     features: [
-      { icon: BarChart3,   label: 'لوحة تحكم ذكية',     desc: 'مؤشرات أداء فورية لكل ما يحدث',        path: '/vendor/dashboard' },
-      { icon: TrendingUp,  label: 'تحليلات متقدمة',     desc: 'اتجاهات + مقارنات + توقعات',           path: '/vendor/advanced-analytics' },
-      { icon: Award,       label: 'أداء الموظفين',       desc: 'إنتاجية + تقييمات + مكافآت',           path: '/vendor/employee-performance' },
-      { icon: Bell,        label: 'إشعارات لحظية',      desc: 'تنبيهات فورية بكل حدث مهم',            path: '/vendor/notifications' },
+      { icon: BarChart3,   label: 'لوحة تحكم ذكية',     desc: 'مؤشرات أداء فورية لكل ما يحدث',         path: '/vendor/dashboard', industries: ['*'] },
+      { icon: TrendingUp,  label: 'تحليلات متقدمة',     desc: 'اتجاهات + مقارنات + توقعات',            path: '/vendor/advanced-analytics', industries: ['*'] },
+      { icon: Award,       label: 'أداء الموظفين',       desc: 'إنتاجية + تقييمات + مكافآت',            path: '/vendor/employee-performance', industries: ['car_wash', 'home_cleaning', 'ac_maintenance', 'plumbing', 'electrical', 'salon', 'beauty_home'] },
+      { icon: Bell,        label: 'إشعارات لحظية',      desc: 'تنبيهات فورية بكل حدث مهم',             path: '/vendor/notifications', industries: ['*'] },
     ],
   },
 ];
+
+function filterFeaturesByIndustry(industry: string): typeof FEATURE_CATEGORIES {
+  return FEATURE_CATEGORIES
+    .map((cat) => ({
+      ...cat,
+      features: cat.features.filter((f) => f.industries.includes('*') || f.industries.includes(industry)),
+    }))
+    .filter((cat) => cat.features.length > 0);
+}
+
+const INDUSTRY_LABELS: Record<string, string> = {
+  car_wash:        'مغاسل السيارات',
+  home_cleaning:   'تنظيف المنازل',
+  ac_maintenance:  'صيانة المكيفات',
+  plumbing:        'السباكة',
+  electrical:      'الكهرباء',
+  salon:           'صالونات الحلاقة',
+  beauty_home:     'التجميل المنزلي',
+  freelancer:      'الفريلانسر',
+  other:           'الخدمات',
+};
+
+interface ChecklistResponse {
+  industry?: string;
+  steps: ChecklistItem[];
+  completedCount: number;
+  totalSteps: number;
+  percent: number;
+  isComplete: boolean;
+}
 
 function StepDone({ nameAr, slug }: { nameAr: string; slug: string }) {
   const navigate = useNavigate();
@@ -712,6 +742,10 @@ function StepDone({ nameAr, slug }: { nameAr: string; slug: string }) {
 
   const remaining = (checklist?.steps ?? []).filter((s) => !s.done && !s.optional);
   const isComplete = checklist?.isComplete ?? false;
+  const industry = checklist?.industry ?? 'other';
+  const industryLabel = INDUSTRY_LABELS[industry] ?? 'مشروعك';
+  const filteredCategories = filterFeaturesByIndustry(industry);
+  const totalFeatures = filteredCategories.reduce((n, c) => n + c.features.length, 0);
 
   return (
     <div className="space-y-6">
@@ -797,9 +831,9 @@ function StepDone({ nameAr, slug }: { nameAr: string; slug: string }) {
           className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/8 border border-white/8 transition-all"
         >
           <div className="text-right">
-            <p className="text-sm font-black text-white">ماذا تستطيع أن تفعل بمتجرك؟</p>
+            <p className="text-sm font-black text-white">مميزات {industryLabel}</p>
             <p className="text-[11px] text-white/40 mt-0.5">
-              {FEATURE_CATEGORIES.reduce((n, c) => n + c.features.length, 0)} ميزة جاهزة في {FEATURE_CATEGORIES.length} فئات
+              {totalFeatures} ميزة مختارة لقطاع {industryLabel} في {filteredCategories.length} فئات
             </p>
           </div>
           <motion.div animate={{ rotate: showFeatures ? -90 : 0 }}>
@@ -817,7 +851,7 @@ function StepDone({ nameAr, slug }: { nameAr: string; slug: string }) {
               className="overflow-hidden"
             >
               <div className="space-y-5 pt-5">
-                {FEATURE_CATEGORIES.map((cat) => (
+                {filteredCategories.map((cat) => (
                   <div key={cat.title}>
                     <p className="text-xs font-black text-orange-400 mb-2.5 px-1">{cat.title}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
