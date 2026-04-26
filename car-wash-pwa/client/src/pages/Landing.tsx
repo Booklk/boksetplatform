@@ -74,19 +74,19 @@ const features = [
   },
   {
     Icon: Gift,
-    gradient: 'from-violet-500 to-purple-500',
+    gradient: 'from-orange-500 to-orange-500',
     glow: 'shadow-violet-500/25',
-    border: 'border-violet-500/20',
+    border: 'border-white/10',
     title: 'برامج ولاء تخليهم يرجعون',
     desc: 'نقاط أو بطاقة مخرَّمة بألوان متجرك — العميل يرجع لأنه يجمع مكافآت.',
   },
 ];
 
 const stats = [
-  { to: 120, suffix: '+', label: 'متجر مسجل', color: 'from-blue-400 to-cyan-400' },
-  { to: 15000, suffix: '+', label: 'حجز مكتمل', color: 'from-purple-400 to-pink-400' },
-  { to: 4.9, suffix: '', label: 'تقييم', color: 'from-amber-400 to-orange-400', isDecimal: true },
-  { to: 2, suffix: '+ مليون ر.س', label: 'إيرادات عملائنا', color: 'from-emerald-400 to-teal-400' },
+  { to: 120, suffix: '+', label: 'متجر مسجل', color: 'from-orange-500 to-orange-500' },
+  { to: 15000, suffix: '+', label: 'حجز مكتمل', color: 'from-orange-500 to-orange-500' },
+  { to: 4.9, suffix: '', label: 'تقييم', color: 'from-orange-500 to-orange-500', isDecimal: true },
+  { to: 2, suffix: '+ مليون ر.س', label: 'إيرادات عملائنا', color: 'from-orange-500 to-orange-500' },
 ];
 
 const testimonials = [
@@ -96,7 +96,7 @@ const testimonials = [
     text: 'قبل Jdawil كنت أدير كل شيء على واتساب! الآن الحجوزات تنظم نفسها والإيرادات زادت ٤٠٪ في أول شهرين.',
     rating: 5,
     avatar: 'أ',
-    color: 'from-blue-500 to-cyan-500',
+    color: 'from-orange-500 to-orange-500',
   },
   {
     name: 'محمد العتيبي',
@@ -104,7 +104,7 @@ const testimonials = [
     text: 'الميزة اللي أحبها هي تتبع الموظفين. العميل يشوف الموظف وين هو. الثقة اللي بنيناها مع عملائنا لا تقدر بثمن.',
     rating: 5,
     avatar: 'م',
-    color: 'from-purple-500 to-pink-500',
+    color: 'from-orange-500 to-orange-500',
   },
   {
     name: 'خالد الدوسري',
@@ -112,7 +112,7 @@ const testimonials = [
     text: 'إعداد بسيط جداً — حطيت مفتاح API للدفع وبدأنا نستقبل مدفوعات STC Pay في نفس اليوم. مافي كود ولا تعقيد.',
     rating: 5,
     avatar: 'خ',
-    color: 'from-emerald-500 to-teal-500',
+    color: 'from-orange-500 to-orange-500',
   },
 ];
 
@@ -279,8 +279,8 @@ export default function Landing() {
 
       {/* ── Background — clean, minimal ── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
-        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-indigo-600/[0.07] blur-[150px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-500/[0.04] blur-[120px]" />
+        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-orange-500/[0.07] blur-[150px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-orange-500/[0.04] blur-[120px]" />
       </div>
 
       {/* ══ NAVBAR ══════════════════════════════════════════════════════════ */}
@@ -297,13 +297,13 @@ export default function Landing() {
             <motion.div
               whileHover={{ scale: 1.12, rotate: -8 }}
               transition={{ type: 'spring', stiffness: 400 }}
-              className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/40"
+              className="w-9 h-9 rounded-xl bg-slate-900/40 flex items-center justify-center shadow-lg shadow-black/40"
             >
               <Droplets size={17} className="text-white" />
             </motion.div>
             <div className="leading-tight">
               <p className="font-black text-white text-[15px] tracking-tight">Jdawil</p>
-              <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">منصة الحجوزات</p>
+              <p className="text-[10px] text-slate-300/70 font-medium tracking-widest">منصة الحجوزات</p>
             </div>
           </Link>
 
@@ -312,23 +312,23 @@ export default function Landing() {
               item.isLink
                 ? <Link key={item.label} to={item.href!} className="relative text-slate-400 hover:text-white text-sm font-medium transition-colors group">
                     {item.label}
-                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-blue-400 group-hover:w-full transition-all duration-300" />
+                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-orange-500 group-hover:w-full transition-all duration-300" />
                   </Link>
                 : <a key={item.label} href={item.href} className="relative text-slate-400 hover:text-white text-sm font-medium transition-colors group">
                     {item.label}
-                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-blue-400 group-hover:w-full transition-all duration-300" />
+                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-orange-500 group-hover:w-full transition-all duration-300" />
                   </a>
             ))}
             {user ? (
-              <Link to={dashboardHref(user.role)} className="bg-gradient-to-l from-blue-600 to-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105">
+              <Link to={dashboardHref(user.role)} className="bg-slate-900/40 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-black/40 transition-all hover:scale-105">
                 لوحتي
               </Link>
             ) : (
               <div className="flex items-center gap-3">
-                <Link to="/onboard" className="border border-indigo-500/40 text-indigo-400 hover:bg-indigo-500/10 px-4 py-2.5 rounded-xl text-sm font-medium transition-all">
+                <Link to="/onboard" className="border border-white/10 text-slate-300 hover:bg-slate-800/40 px-4 py-2.5 rounded-xl text-sm font-medium transition-all">
                   انضم بمتجرك
                 </Link>
-                <Link to="/login" className="bg-gradient-to-l from-blue-600 to-blue-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all hover:scale-105">
+                <Link to="/login" className="bg-slate-900/40 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:shadow-lg hover:shadow-black/40 transition-all hover:scale-105">
                   ادخل
                 </Link>
               </div>
@@ -353,11 +353,11 @@ export default function Landing() {
               <div className="px-5 py-5 space-y-3">
                 {/* Marketplace hidden until 200+ vendors */}
                 {user ? (
-                  <Link to={dashboardHref(user.role)} onClick={() => setMenuOpen(false)} className="block bg-gradient-to-l from-blue-600 to-blue-500 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">لوحتي</Link>
+                  <Link to={dashboardHref(user.role)} onClick={() => setMenuOpen(false)} className="block bg-slate-900/40 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">لوحتي</Link>
                 ) : (
                   <>
-                    <Link to="/onboard" onClick={() => setMenuOpen(false)} className="block border border-indigo-500/40 text-indigo-400 px-4 py-3 rounded-xl text-sm font-medium text-center">انضم بمتجرك</Link>
-                    <Link to="/login" onClick={() => setMenuOpen(false)} className="block bg-gradient-to-l from-blue-600 to-blue-500 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">ادخل</Link>
+                    <Link to="/onboard" onClick={() => setMenuOpen(false)} className="block border border-white/10 text-slate-300 px-4 py-3 rounded-xl text-sm font-medium text-center">انضم بمتجرك</Link>
+                    <Link to="/login" onClick={() => setMenuOpen(false)} className="block bg-slate-900/40 text-white px-4 py-3 rounded-xl text-sm font-bold text-center">ادخل</Link>
                   </>
                 )}
               </div>
@@ -377,7 +377,7 @@ export default function Landing() {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/[0.08] rounded-full px-4 py-1.5 mb-8"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 animate-pulse" />
             <span className="text-xs text-slate-400 font-medium">+9 قطاعات خدمية · مغاسل · صالونات · تنظيف · صيانة · تجميل · سباكة · كهرباء · فري لانسر</span>
           </motion.div>
 
@@ -390,7 +390,7 @@ export default function Landing() {
           >
             <span className="text-white">عندك خدمة وتبي عملاء؟</span>
             <br />
-            <span className="text-indigo-400">جداول يبني لك نظام حجوزات كامل</span>
+            <span className="text-slate-300">جداول يبني لك نظام حجوزات كامل</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -415,7 +415,7 @@ export default function Landing() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="bg-orange-500 hover:bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
             >
               ابدأ مجاناً — 14 يوم
             </motion.button>
@@ -460,25 +460,25 @@ export default function Landing() {
             transition={{ duration: 0.9, delay: 0.7, type: 'spring', stiffness: 80 }}
             className="relative mx-auto w-56 sm:w-72"
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-500/25 to-purple-500/25 blur-3xl rounded-full scale-75" />
+            <div className="absolute inset-0 bg-slate-900/40 blur-3xl rounded-full scale-75" />
             <motion.div
               animate={{ y: [0, -12, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative rounded-[3rem] border border-white/15 bg-gradient-to-b from-white/10 to-white/[0.03] backdrop-blur-xl shadow-2xl overflow-hidden"
+              className="relative rounded-[3rem] border border-white/15 bg-slate-800/60[0.03] backdrop-blur-xl shadow-2xl overflow-hidden"
               style={{ aspectRatio: '9/19' }}
             >
               <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-4 bg-black/70 rounded-full z-10" />
               <div className="absolute inset-0 pt-10 px-3 pb-4 flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <div className="h-4 w-2/5 rounded-full bg-white/15" />
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500/60 to-cyan-400/60" />
+                  <div className="w-7 h-7 rounded-full bg-slate-900/40" />
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-1">
                   {[
-                    'from-purple-500/50 to-indigo-600/50',
-                    'from-amber-500/50 to-orange-500/50',
-                    'from-emerald-500/50 to-teal-500/50',
-                    'from-blue-500/50 to-cyan-500/50',
+                    'from-orange-500 to-orange-500',
+                    'from-orange-500 to-orange-500',
+                    'from-orange-500 to-orange-500',
+                    'from-orange-500 to-orange-500',
                   ].map((g, i) => (
                     <div key={i} className={`h-14 rounded-2xl bg-gradient-to-br ${g} border border-white/10 p-2`}>
                       <div className="h-2 w-3/4 rounded-full bg-white/30 mb-1.5" />
@@ -486,11 +486,11 @@ export default function Landing() {
                     </div>
                   ))}
                 </div>
-                <div className="h-24 rounded-2xl bg-gradient-to-br from-blue-600/40 to-purple-600/40 border border-white/10 p-3">
+                <div className="h-24 rounded-2xl bg-slate-900/40 border border-white/10 p-3">
                   <div className="h-2.5 w-3/4 rounded-full bg-white/30 mb-2" />
                   <div className="h-2 w-1/2 rounded-full bg-white/20 mb-3" />
                   <div className="flex gap-1.5">
-                    {[...Array(5)].map((_, i) => <div key={i} className="w-4 h-4 rounded-full bg-amber-400/70 flex items-center justify-center text-[7px] text-amber-900">★</div>)}
+                    {[...Array(5)].map((_, i) => <div key={i} className="w-4 h-4 rounded-full bg-slate-700/70 flex items-center justify-center text-[7px] text-slate-300">★</div>)}
                   </div>
                 </div>
                 <div className="h-3 w-4/5 rounded-full bg-white/10" />
@@ -516,7 +516,7 @@ export default function Landing() {
       <section id="features" className="relative py-28 px-4">
         <div className="max-w-7xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-6">
               مو بس حجوزات — نظام إدارة كامل
             </h2>
             <p className="text-slate-500 text-base max-w-lg mx-auto">كل ميزة بُنيت من مشكلة حقيقية يواجهها صاحب مشروع خدمي كل يوم</p>
@@ -529,10 +529,10 @@ export default function Landing() {
                 {...fadeUp(i * 0.04)}
                 className="group bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] rounded-2xl p-6 transition-all duration-300"
               >
-                <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center mb-4 group-hover:bg-indigo-500/10 transition-colors">
-                  <Icon size={20} className="text-slate-400 group-hover:text-indigo-400 transition-colors" />
+                <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center mb-4 group-hover:bg-slate-800/40 transition-colors">
+                  <Icon size={20} className="text-slate-400 group-hover:text-slate-300 transition-colors" />
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{title}</h3>
+                <h3 className="text-base font-bold text-white mb-6">{title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
               </motion.div>
             ))}
@@ -545,7 +545,7 @@ export default function Landing() {
       <section id="pain-points" className="relative py-24 px-4">
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-6">
               وش يتغير لما تستخدم جداول؟
             </h2>
             <p className="text-slate-500 text-base">الفرق اللي يحسه كل صاحب مشروع من أول أسبوع</p>
@@ -556,7 +556,7 @@ export default function Landing() {
             <div className="grid grid-cols-3 text-xs font-bold text-slate-500 border-b border-white/[0.06] px-6 py-3">
               <span></span>
               <span className="text-center text-red-400/70">بدون نظام</span>
-              <span className="text-center text-indigo-400/70">مع Jdawil</span>
+              <span className="text-center text-slate-300/70">مع Jdawil</span>
             </div>
             {[
               { area: 'استقبال الحجوزات', before: 'واتساب فوضى — تنسى رد', after: 'العميل يحجز بنفسه 24/7' },
@@ -570,7 +570,7 @@ export default function Landing() {
               <div key={i} className="grid grid-cols-3 items-center px-6 py-4 border-b border-white/[0.03] last:border-0 hover:bg-white/[0.01] transition-colors">
                 <span className="text-sm text-white font-bold">{row.area}</span>
                 <span className="text-center text-sm text-slate-500">{row.before}</span>
-                <span className="text-center text-sm text-indigo-400">{row.after}</span>
+                <span className="text-center text-sm text-slate-300">{row.after}</span>
               </div>
             ))}
           </motion.div>
@@ -580,7 +580,7 @@ export default function Landing() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="bg-orange-500 hover:bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
             >
               جرّب الفرق بنفسك — مجاناً
             </motion.button>
@@ -593,7 +593,7 @@ export default function Landing() {
       <section className="relative py-24 px-4">
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-6">
               مهما كان مجالك — جداول يفهمه
             </h2>
             <p className="text-slate-500 text-base max-w-lg mx-auto">كل قطاع له قوالب خدمات وأسعار جاهزة. اختر مجالك وابدأ فوراً</p>
@@ -614,10 +614,10 @@ export default function Landing() {
                 key={industry.name}
                 href={industry.link}
                 {...fadeUp(i * 0.04)}
-                className="group bg-white/[0.03] border border-white/[0.06] hover:border-indigo-500/30 rounded-2xl p-5 transition-all text-center"
+                className="group bg-white/[0.03] border border-white/[0.06] hover:border-white/10 rounded-2xl p-5 transition-all text-center"
               >
                 <span className="text-3xl block mb-3">{industry.icon}</span>
-                <h3 className="text-sm font-bold text-white mb-1 group-hover:text-indigo-400 transition-colors">{industry.name}</h3>
+                <h3 className="text-sm font-bold text-white mb-1 group-hover:text-slate-300 transition-colors">{industry.name}</h3>
                 <p className="text-[11px] text-slate-500 leading-relaxed">{industry.desc}</p>
               </motion.a>
             ))}
@@ -635,7 +635,7 @@ export default function Landing() {
       <section className="relative py-24 px-4">
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-6">
               من الصفر لموقع حجوزات كامل — 3 خطوات
             </h2>
             <p className="text-slate-500 text-base">بدون مبرمج. بدون مصمم. بدون ما تدفع ريال.</p>
@@ -648,10 +648,10 @@ export default function Landing() {
               { step: '3', title: 'شارك الرابط وابدأ استقبل حجوزات', desc: 'موقعك جاهز على jdawil.sa/store/اسمك. أرسل الرابط عبر واتساب أو انستقرام.' },
             ].map((item, i) => (
               <motion.div key={item.step} {...fadeUp(i * 0.1)} className="text-center">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-black text-lg">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-slate-800/40 border border-white/10 flex items-center justify-center text-slate-300 font-black text-lg">
                   {item.step}
                 </div>
-                <h3 className="text-base font-bold text-white mb-2">{item.title}</h3>
+                <h3 className="text-base font-bold text-white mb-6">{item.title}</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
@@ -661,7 +661,7 @@ export default function Landing() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="bg-orange-500 hover:bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
             >
               ابدأ الآن — مجاناً
             </motion.button>
@@ -673,28 +673,28 @@ export default function Landing() {
 
       {/* ══ ROI CALCULATOR ══════════════════════════════════════════════════ */}
       <section id="roi-calculator" className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/15 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-500 via-transparent to-transparent pointer-events-none" />
         {/* Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-cyan-600/8 blur-[140px] pointer-events-none rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-slate-700/8 blur-[140px] pointer-events-none rounded-full" />
 
         <div className="relative z-10 max-w-4xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-1.5 mb-5">
-              <span className="text-xs text-emerald-400 font-bold tracking-wide">حاسبة الأرباح</span>
+            <div className="inline-flex items-center gap-2 bg-slate-700/10 border border-white/10 rounded-full px-4 py-1.5 mb-5">
+              <span className="text-xs text-slate-300 font-bold tracking-wide">حاسبة الأرباح</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-6">
               احسب دخلك مع
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Jdawil</span>
+              <span className="text-white"> Jdawil</span>
             </h2>
             <p className="text-slate-400 text-lg">حرّك الشريط — وشاهد الأرقام تتغير</p>
           </motion.div>
 
           <motion.div
             {...fadeUp(0.1)}
-            className="relative rounded-3xl border border-indigo-500/20 bg-white/[0.03] backdrop-blur-sm p-8 sm:p-10 overflow-hidden"
+            className="relative rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-8 sm:p-10 overflow-hidden"
           >
             {/* Gradient border glow */}
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/10 via-cyan-400/5 to-blue-500/10 pointer-events-none" />
+            <div className="absolute inset-0 rounded-3xl bg-slate-900/40 pointer-events-none" />
 
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10">
               {/* Inputs */}
@@ -703,7 +703,7 @@ export default function Landing() {
                 <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-6">
                   <label className="block text-sm font-bold text-slate-300 mb-4">كم حجز/خدمة تُنجز يومياً؟</label>
                   <div className="flex items-center gap-4 mb-4">
-                    <span className="text-5xl font-black bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent min-w-[3rem] text-center">
+                    <span className="text-5xl font-black text-white min-w-[3rem] text-center">
                       {washesPerDay}
                     </span>
                     <span className="text-slate-500 text-sm">خدمة / يوم</span>
@@ -729,7 +729,7 @@ export default function Landing() {
                 <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-6">
                   <label className="block text-sm font-bold text-slate-300 mb-4">متوسط سعر الخدمة (ر.س)؟</label>
                   <div className="flex items-center gap-4 mb-4">
-                    <span className="text-5xl font-black bg-gradient-to-l from-emerald-400 to-teal-400 bg-clip-text text-transparent min-w-[4rem] text-center">
+                    <span className="text-5xl font-black text-white min-w-[4rem] text-center">
                       {pricePerWash}
                     </span>
                     <span className="text-slate-500 text-sm">ر.س / غسلة</span>
@@ -764,40 +764,40 @@ export default function Landing() {
                     className="space-y-4"
                   >
                     {/* Monthly Revenue */}
-                    <div className="bg-gradient-to-br from-emerald-950/60 to-teal-950/40 border border-emerald-500/25 rounded-2xl p-5">
-                      <p className="text-xs text-emerald-400 font-bold mb-2 tracking-wide">الدخل الشهري المتوقع</p>
-                      <p className="text-4xl font-black text-emerald-300">
+                    <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-5">
+                      <p className="text-xs text-slate-300 font-bold mb-2 tracking-wide">الدخل الشهري المتوقع</p>
+                      <p className="text-4xl font-black text-slate-300">
                         {(washesPerDay * pricePerWash * 26).toLocaleString('ar-SA')}
-                        <span className="text-lg font-bold text-emerald-500 mr-2">ر.س</span>
+                        <span className="text-lg font-bold text-slate-300 mr-2">ر.س</span>
                       </p>
                       <p className="text-xs text-slate-500 mt-1">٢٦ يوم عمل × {washesPerDay} غسلة × {pricePerWash} ر.س</p>
                     </div>
 
                     {/* Annual Revenue */}
-                    <div className="bg-gradient-to-br from-blue-950/60 to-cyan-950/40 border border-indigo-500/25 rounded-2xl p-5">
-                      <p className="text-xs text-indigo-400 font-bold mb-2 tracking-wide">الدخل السنوي</p>
-                      <p className="text-3xl font-black text-blue-300">
+                    <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-5">
+                      <p className="text-xs text-slate-300 font-bold mb-2 tracking-wide">الدخل السنوي</p>
+                      <p className="text-3xl font-black text-slate-300">
                         {(washesPerDay * pricePerWash * 26 * 12).toLocaleString('ar-SA')}
-                        <span className="text-base font-bold text-blue-500 mr-2">ر.س</span>
+                        <span className="text-base font-bold text-slate-300 mr-2">ر.س</span>
                       </p>
                     </div>
 
                     {/* Time Saved */}
-                    <div className="bg-gradient-to-br from-purple-950/60 to-pink-950/40 border border-purple-500/25 rounded-2xl p-5">
-                      <p className="text-xs text-purple-400 font-bold mb-2 tracking-wide">الوقت الموفّر يومياً</p>
-                      <p className="text-3xl font-black text-purple-300">
+                    <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-5">
+                      <p className="text-xs text-slate-300 font-bold mb-2 tracking-wide">الوقت الموفّر يومياً</p>
+                      <p className="text-3xl font-black text-slate-300">
                         {washesPerDay * 8}
-                        <span className="text-base font-bold text-purple-500 mr-2">دقيقة</span>
+                        <span className="text-base font-bold text-slate-300 mr-2">دقيقة</span>
                       </p>
                       <p className="text-xs text-slate-500 mt-1">٨ دقائق إدارة موفّرة لكل خدمة</p>
                     </div>
 
                     {/* Plan Cost */}
-                    <div className="bg-gradient-to-br from-amber-950/40 to-orange-950/30 border border-amber-500/20 rounded-2xl p-4">
-                      <p className="text-xs text-amber-400 font-bold mb-1">تكلفة Jdawil الملائمة لك</p>
-                      <p className="text-2xl font-black text-amber-300">
+                    <div className="bg-slate-900/40 border border-white/10 rounded-2xl p-4">
+                      <p className="text-xs text-slate-300 font-bold mb-1">تكلفة Jdawil الملائمة لك</p>
+                      <p className="text-2xl font-black text-slate-300">
                         {washesPerDay <= 5 ? '0' : '99'}
-                        <span className="text-sm font-bold text-amber-500 mr-2">{washesPerDay <= 5 ? 'مجاني' : 'ر.س / شهر'}</span>
+                        <span className="text-sm font-bold text-slate-300 mr-2">{washesPerDay <= 5 ? 'مجاني' : 'ر.س / شهر'}</span>
                       </p>
                     </div>
 
@@ -819,7 +819,7 @@ export default function Landing() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/onboard')}
-                className="bg-gradient-to-l from-blue-600 to-cyan-500 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all"
+                className="bg-slate-900/40 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-2xl shadow-black/40 hover:shadow-black/40 transition-all"
               >
                 ابدأ تجربتك المجانية وحقق هذه الأرقام
               </motion.button>
@@ -837,11 +837,11 @@ export default function Landing() {
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-5">
               <span className="text-xs text-slate-300 font-bold tracking-wide">قصة التحول</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-6">
               حياتك
-              <span className="bg-gradient-to-l from-red-400 to-orange-400 bg-clip-text text-transparent"> قبل</span>
+              <span className="text-white"> قبل</span>
               {' '}و
-              <span className="bg-gradient-to-l from-emerald-400 to-teal-400 bg-clip-text text-transparent"> بعد</span>
+              <span className="text-white"> بعد</span>
             </h2>
           </motion.div>
 
@@ -876,9 +876,9 @@ export default function Landing() {
             {/* After — Left column */}
             <motion.div
               {...fadeUp(0.2)}
-              className="bg-emerald-950/20 border border-emerald-500/20 rounded-3xl p-8 flex flex-col"
+              className="bg-slate-700/20 border border-white/10 rounded-3xl p-8 flex flex-col"
             >
-              <h3 className="text-2xl font-black text-emerald-300 mb-6 text-center">✨ بعد Jdawil</h3>
+              <h3 className="text-2xl font-black text-slate-300 mb-6 text-center">بعد Jdawil</h3>
               <ul className="space-y-4">
                 {[
                   'حجز تلقائي — العميل يحجز من هاتفه',
@@ -891,7 +891,7 @@ export default function Landing() {
                   <motion.li
                     key={i}
                     {...fadeUp(0.25 + i * 0.06)}
-                    className="flex items-start gap-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-3"
+                    className="flex items-start gap-3 bg-slate-700/5 border border-white/10 rounded-xl p-3"
                   >
                     <span className="text-lg flex-shrink-0 mt-0.5">✅</span>
                     <span className="text-slate-300 text-sm leading-relaxed">{item}</span>
@@ -904,12 +904,12 @@ export default function Landing() {
           {/* Centered divider with logo */}
           <motion.div {...fadeUp(0.3)} className="flex items-center justify-center mt-12">
             <div className="flex flex-col items-center gap-3">
-              <div className="h-8 w-px bg-gradient-to-b from-transparent to-blue-500/50" />
+              <div className="h-8 w-px bg-gradient-to-b from-transparent to-orange-500" />
               <div className="flex items-center gap-3 bg-white/[0.05] border border-white/15 rounded-2xl px-6 py-3">
                 <span className="text-2xl">💧</span>
                 <span className="font-black text-white text-lg tracking-tight">Jdawil</span>
               </div>
-              <div className="h-8 w-px bg-gradient-to-t from-transparent to-blue-500/50" />
+              <div className="h-8 w-px bg-gradient-to-t from-transparent to-orange-500" />
             </div>
           </motion.div>
         </div>
@@ -918,15 +918,15 @@ export default function Landing() {
 
       {/* ══ HOW IT WORKS (3 MINUTES) ════════════════════════════════════════ */}
       <section id="how-it-works" className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-950/10 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-500 via-transparent to-transparent pointer-events-none" />
         <div className="relative z-10 max-w-5xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-4 py-1.5 mb-5">
-              <span className="text-xs text-cyan-400 font-bold tracking-wide">الإعداد فوري</span>
+            <div className="inline-flex items-center gap-2 bg-slate-700/10 border border-white/10 rounded-full px-4 py-1.5 mb-5">
+              <span className="text-xs text-slate-400 font-bold tracking-wide">الإعداد فوري</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-6">
               كيف تبدأ في
-              <span className="bg-gradient-to-l from-cyan-400 to-blue-400 bg-clip-text text-transparent"> ٣ دقائق</span>
+              <span className="text-white"> ٣ دقائق</span>
             </h2>
             <p className="text-slate-400 text-lg">لا تعقيد، لا تقنية — فقط ٣ خطوات وأنت جاهز</p>
           </motion.div>
@@ -942,24 +942,24 @@ export default function Landing() {
                   title: 'سجّل متجرك',
                   subtitle: '٣٠ ثانية',
                   desc: 'أدخل الاسم والجوال والمدينة',
-                  gradient: 'from-blue-600 to-cyan-500',
-                  glow: 'shadow-blue-500/40',
+                  gradient: 'from-orange-500 to-orange-500',
+                  glow: 'shadow-black/40',
                 },
                 {
                   num: '٢',
                   title: 'أضف خدماتك وأسعارك',
                   subtitle: 'دقيقتان',
                   desc: '٣ نقرات وأسعارك جاهزة',
-                  gradient: 'from-cyan-600 to-teal-500',
-                  glow: 'shadow-cyan-500/40',
+                  gradient: 'from-orange-500 to-orange-500',
+                  glow: 'shadow-black/40',
                 },
                 {
                   num: '٣',
                   title: 'استقبل أول حجز',
                   subtitle: 'فوري',
                   desc: 'شارك رابطك — وابدأ',
-                  gradient: 'from-emerald-600 to-teal-500',
-                  glow: 'shadow-emerald-500/40',
+                  gradient: 'from-orange-500 to-orange-500',
+                  glow: 'shadow-black/40',
                 },
               ].map(({ num, title, subtitle, desc, gradient, glow }, i) => (
                 <motion.div key={num} {...fadeUp(i * 0.15)} className="flex flex-col items-center text-center group">
@@ -990,7 +990,7 @@ export default function Landing() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-gradient-to-l from-cyan-600 to-blue-600 text-white px-12 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-shadow"
+              className="bg-slate-900/40 text-white px-12 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-black/40 hover:shadow-black/40 transition-shadow"
             >
               ابدأ الآن — مجاناً لمدة ١٤ يوم
             </motion.button>
@@ -1001,31 +1001,31 @@ export default function Landing() {
 
       {/* ══ LIVE DASHBOARD PREVIEW ══════════════════════════════════════════ */}
       <section className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/20 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-500 via-transparent to-transparent pointer-events-none" />
         {/* Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-600/10 blur-[120px] pointer-events-none rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-slate-800/40 blur-[120px] pointer-events-none rounded-full" />
 
         <div className="relative z-10 max-w-6xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <span className="inline-block text-xs font-bold tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 mb-4">
+            <span className="inline-block text-xs font-bold tracking-widest text-slate-300 bg-slate-800/40 border border-white/10 rounded-full px-4 py-2 mb-4">
               شاهد بنفسك
             </span>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
+            <h2 className="text-4xl sm:text-5xl font-black text-white mb-6">
               داشبورد متجرك
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-300 bg-clip-text text-transparent"> في ثانية واحدة</span>
+              <span className="text-white"> في ثانية واحدة</span>
             </h2>
             <p className="text-slate-400 text-lg">هذا ما تراه كل صباح عند فتح Jdawil</p>
           </motion.div>
 
           {/* Mock Dashboard */}
           <motion.div {...fadeUp(0.1)}
-            className="rounded-3xl border border-white/10 bg-[#070e1f] overflow-hidden shadow-2xl shadow-blue-500/10">
+            className="rounded-3xl border border-white/10 bg-[#070e1f] overflow-hidden shadow-2xl shadow-black/40">
 
             {/* Top bar */}
             <div className="flex items-center gap-2 px-5 py-3 bg-white/[0.03] border-b border-white/5">
               <div className="w-3 h-3 rounded-full bg-red-500/70" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
-              <div className="w-3 h-3 rounded-full bg-green-500/70" />
+              <div className="w-3 h-3 rounded-full bg-slate-800/40" />
+              <div className="w-3 h-3 rounded-full bg-slate-800/40" />
               <div className="mx-auto text-xs text-slate-500 bg-white/5 px-6 py-1 rounded-full">jdawil.sa/vendor</div>
             </div>
 
@@ -1037,8 +1037,8 @@ export default function Landing() {
                   <p className="text-xs text-slate-400">الأحد، ٩ أبريل ٢٠٢٥</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 bg-green-500/20 text-green-400 text-xs px-3 py-1.5 rounded-full border border-green-500/30">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  <div className="flex items-center gap-1.5 bg-slate-800/40 text-slate-300 text-xs px-3 py-1.5 rounded-full border border-white/10">
+                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
                     ٣ موظفين نشطين
                   </div>
                 </div>
@@ -1047,10 +1047,10 @@ export default function Landing() {
               {/* Stat cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
-                  { label: 'حجوزات اليوم', value: '١٢', sub: '+٣ من أمس', color: 'from-blue-500 to-cyan-500', icon: '📅' },
-                  { label: 'إيراد هذا الشهر', value: '١٢,٤٥٠', sub: 'ريال', color: 'from-emerald-500 to-teal-500', icon: '💰' },
-                  { label: 'متوسط التقييم', value: '٤.٨', sub: 'من ٨٩ تقييم', color: 'from-amber-500 to-orange-500', icon: '⭐' },
-                  { label: 'عملاء جدد', value: '٢٨', sub: 'هذا الشهر', color: 'from-purple-500 to-pink-500', icon: '👥' },
+                  { label: 'حجوزات اليوم', value: '١٢', sub: '+٣ من أمس', color: 'from-orange-500 to-orange-500', icon: '📅' },
+                  { label: 'إيراد هذا الشهر', value: '١٢,٤٥٠', sub: 'ريال', color: 'from-orange-500 to-orange-500', icon: '💰' },
+                  { label: 'متوسط التقييم', value: '٤.٨', sub: 'من ٨٩ تقييم', color: 'from-orange-500 to-orange-500', icon: '★' },
+                  { label: 'عملاء جدد', value: '٢٨', sub: 'هذا الشهر', color: 'from-orange-500 to-orange-500', icon: '👥' },
                 ].map((card, i) => (
                   <motion.div key={i}
                     initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
@@ -1072,7 +1072,7 @@ export default function Landing() {
                 <div className="md:col-span-2 bg-white/5 border border-white/8 rounded-2xl p-4">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm font-bold text-white">الإيراد — آخر ٧ أيام</span>
-                    <span className="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">↑ ١٨٪</span>
+                    <span className="text-xs text-slate-300 bg-slate-700/10 px-2 py-0.5 rounded-full">↑ ١٨٪</span>
                   </div>
                   <div className="flex items-end gap-2 h-20">
                     {[40, 65, 45, 80, 55, 90, 75].map((h, i) => {
@@ -1083,10 +1083,10 @@ export default function Landing() {
                           <motion.div
                             initial={{ height: 0 }} whileInView={{ height: `${h}%` }}
                             viewport={{ once: true }} transition={{ delay: 0.3 + i * 0.06, duration: 0.6, type: 'spring' }}
-                            className={`w-full rounded-t-lg ${isLast ? 'bg-gradient-to-t from-emerald-600 to-emerald-400' : 'bg-gradient-to-t from-blue-600/50 to-blue-400/50'}`}
+                            className={`w-full rounded-t-lg ${isLast ? 'bg-slate-900/40' : 'bg-slate-900/40'}`}
                             style={{ minHeight: 3 }}
                           />
-                          <span className={`text-[9px] ${isLast ? 'text-emerald-400' : 'text-slate-600'}`}>{days[i]}</span>
+                          <span className={`text-[9px] ${isLast ? 'text-slate-300' : 'text-slate-600'}`}>{days[i]}</span>
                         </div>
                       );
                     })}
@@ -1098,9 +1098,9 @@ export default function Landing() {
                   <span className="text-sm font-bold text-white block mb-3">حجوزات الآن</span>
                   <div className="space-y-2.5">
                     {[
-                      { name: 'خالد العمري', service: 'غسيل شامل', status: 'في الطريق', color: 'bg-blue-500' },
-                      { name: 'سعد الغامدي', service: 'تلميع خارجي', status: 'جاري', color: 'bg-emerald-500' },
-                      { name: 'فهد المطيري', service: 'غسيل داخلي', status: 'مؤكد', color: 'bg-amber-500' },
+                      { name: 'خالد العمري', service: 'غسيل شامل', status: 'في الطريق', color: 'bg-orange-500' },
+                      { name: 'سعد الغامدي', service: 'تلميع خارجي', status: 'جاري', color: 'bg-slate-700' },
+                      { name: 'فهد المطيري', service: 'غسيل داخلي', status: 'مؤكد', color: 'bg-slate-700' },
                     ].map((b, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <div className={`w-1.5 h-1.5 rounded-full ${b.color} flex-shrink-0`} />
@@ -1138,15 +1138,15 @@ export default function Landing() {
 
       {/* ══ TESTIMONIALS ════════════════════════════════════════════════════ */}
       <section className="relative py-24 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/5 to-purple-900/5 pointer-events-none" />
+        <div className="absolute inset-0 bg-slate-900/40 pointer-events-none" />
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5 mb-5">
-              <span className="text-xs text-amber-400 font-bold tracking-wide">آراء العملاء</span>
+            <div className="inline-flex items-center gap-2 bg-slate-700/10 border border-white/10 rounded-full px-4 py-1.5 mb-5">
+              <span className="text-xs text-slate-300 font-bold tracking-wide">آراء العملاء</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black">
               ماذا يقول{' '}
-              <span className="bg-gradient-to-l from-amber-400 to-orange-400 bg-clip-text text-transparent">أصحاب المغاسل</span>
+              <span className="text-white">أصحاب المغاسل</span>
             </h2>
           </motion.div>
 
@@ -1167,7 +1167,7 @@ export default function Landing() {
                   <div>
                     <div className="flex items-center gap-1 mb-1">
                       {[...Array(testimonials[testimonialIdx].rating)].map((_, i) => (
-                        <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                        <Star key={i} size={14} className="text-slate-300 fill-amber-400" />
                       ))}
                     </div>
                     <p className="font-bold text-white">{testimonials[testimonialIdx].name}</p>
@@ -1184,7 +1184,7 @@ export default function Landing() {
                   key={i}
                   onClick={() => setTestimonialIdx(i)}
                   className={`rounded-full transition-all duration-300 ${
-                    i === testimonialIdx ? 'w-7 h-2 bg-blue-400' : 'w-2 h-2 bg-white/20 hover:bg-white/40'
+                    i === testimonialIdx ? 'w-7 h-2 bg-orange-500' : 'w-2 h-2 bg-white/20 hover:bg-white/40'
                   }`}
                 />
               ))}
@@ -1198,12 +1198,12 @@ export default function Landing() {
       <section className="relative py-24 px-4">
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-1.5 mb-5">
-              <span className="text-xs text-purple-400 font-bold tracking-wide">البداية سهلة</span>
+            <div className="inline-flex items-center gap-2 bg-slate-800/40 border border-white/10 rounded-full px-4 py-1.5 mb-5">
+              <span className="text-xs text-slate-300 font-bold tracking-wide">البداية سهلة</span>
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black">
               ابدأ في{' '}
-              <span className="bg-gradient-to-l from-purple-400 to-pink-400 bg-clip-text text-transparent">٣ خطوات</span>
+              <span className="text-white">٣ خطوات</span>
             </h2>
           </motion.div>
 
@@ -1217,13 +1217,13 @@ export default function Landing() {
               ].map(({ Icon, num, title, desc }, i) => (
                 <motion.div key={title} {...fadeUp(i * 0.15)} className="text-center group">
                   <div className="relative mx-auto w-20 h-20 mb-6">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 opacity-20 blur-xl group-hover:opacity-50 transition-opacity duration-300" />
+                    <div className="absolute inset-0 rounded-full bg-slate-900/40 opacity-20 blur-xl group-hover:opacity-50 transition-opacity duration-300" />
                     <div className="relative w-full h-full rounded-full bg-white/[0.05] border border-white/15 flex flex-col items-center justify-center gap-0.5">
-                      <Icon size={20} className="text-indigo-400" />
+                      <Icon size={20} className="text-slate-300" />
                       <span className="text-xs font-black text-slate-400">{num}</span>
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+                  <h3 className="text-xl font-bold text-white mb-6">{title}</h3>
                   <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
                 </motion.div>
               ))}
@@ -1235,7 +1235,7 @@ export default function Landing() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-gradient-to-l from-purple-600 to-blue-600 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-shadow"
+              className="bg-slate-900/40 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-black/40 hover:shadow-black/40 transition-shadow"
             >
               سجّل متجرك مجاناً
             </motion.button>
@@ -1248,12 +1248,12 @@ export default function Landing() {
       <section className="relative py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <motion.div {...fadeUp()}>
-            <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-4 py-1.5 mb-5">
-              <span className="text-xs text-cyan-400 font-bold">للعملاء</span>
+            <div className="inline-flex items-center gap-2 bg-slate-700/10 border border-white/10 rounded-full px-4 py-1.5 mb-5">
+              <span className="text-xs text-slate-400 font-bold">للعملاء</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black mb-4">
+            <h2 className="text-3xl sm:text-4xl font-black mb-6">
               ابحث عن{' '}
-              <span className="bg-gradient-to-l from-cyan-400 to-blue-400 bg-clip-text text-transparent">متجر بالقرب منك</span>
+              <span className="text-white">متجر بالقرب منك</span>
             </h2>
             <p className="text-slate-400 text-lg mb-10">اكتشف أفضل مزودي الخدمات في مدينتك واحجز بضغطة واحدة</p>
           </motion.div>
@@ -1265,14 +1265,14 @@ export default function Landing() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="ابحث بالمدينة أو اسم المتجر..."
-                className="w-full bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 pr-11 pl-4 py-4 rounded-2xl focus:outline-none focus:border-indigo-500/60 focus:bg-white/8 transition-all text-sm backdrop-blur-sm"
+                className="w-full bg-white/[0.05] border border-white/15 text-white placeholder-slate-500 pr-11 pl-4 py-4 rounded-2xl focus:outline-none focus:border-white/10 focus:bg-white/8 transition-all text-sm backdrop-blur-sm"
               />
             </div>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               type="submit"
-              className="bg-gradient-to-l from-cyan-600 to-blue-600 text-white px-7 py-4 rounded-2xl font-bold text-sm shadow-lg shadow-blue-500/20 whitespace-nowrap"
+              className="bg-slate-900/40 text-white px-7 py-4 rounded-2xl font-bold text-sm shadow-lg shadow-black/40 whitespace-nowrap"
             >
               ابحث
             </motion.button>
@@ -1285,8 +1285,8 @@ export default function Landing() {
               { Icon: Radio, title: 'متابعة حية', desc: 'تتبع الموظف حتى يصل إليك' },
             ].map(({ Icon, title, desc }, i) => (
               <motion.div key={title} {...fadeUp(i * 0.08)} whileHover={{ y: -5 }} className="bg-white/[0.04] border border-white/10 hover:border-white/20 rounded-2xl p-5 text-center transition-all">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-white/10 flex items-center justify-center mx-auto mb-3">
-                  <Icon size={20} className="text-cyan-400" />
+                <div className="w-11 h-11 rounded-xl bg-slate-900/40 border border-white/10 flex items-center justify-center mx-auto mb-3">
+                  <Icon size={20} className="text-slate-400" />
                 </div>
                 <h3 className="font-bold text-white mb-1.5">{title}</h3>
                 <p className="text-sm text-slate-400">{desc}</p>
@@ -1322,18 +1322,18 @@ export default function Landing() {
                   <p className="text-white font-black text-lg sm:text-xl leading-tight">
                     أنت من العملاء المؤسسين — سعرك محفوظ للأبد
                   </p>
-                  <p className="text-amber-100 text-sm mt-0.5">
+                  <p className="text-slate-300 text-sm mt-0.5">
                     أول 100 متجر تسجل في Jdawil تحتفظ بسعر اليوم حتى لو رفعنا الأسعار لاحقاً
                   </p>
                   {foundingSeats !== null && (
                     <div className="mt-1.5 inline-flex items-center gap-1.5">
-                      <div className="w-24 h-2 rounded-full bg-amber-900/30 overflow-hidden">
+                      <div className="w-24 h-2 rounded-full bg-slate-700/30 overflow-hidden">
                         <div
                           className="h-full rounded-full bg-white"
                           style={{ width: `${Math.min(100, ((100 - foundingSeats) / 100) * 100)}%` }}
                         />
                       </div>
-                      <span className="text-amber-100 text-xs font-bold">
+                      <span className="text-slate-300 text-xs font-bold">
                         {foundingSeats} مقعد متبقٍ من 100
                       </span>
                     </div>
@@ -1344,7 +1344,7 @@ export default function Landing() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/onboard')}
-                className="flex-shrink-0 bg-white text-amber-700 font-black px-6 py-3 rounded-xl shadow-md hover:bg-amber-50 transition-all text-sm whitespace-nowrap"
+                className="flex-shrink-0 bg-white text-slate-300 font-black px-6 py-3 rounded-xl shadow-md hover:bg-slate-700 transition-all text-sm whitespace-nowrap"
               >
                 احجز مقعدك التأسيسي ←
               </motion.button>
@@ -1355,42 +1355,36 @@ export default function Landing() {
 
       {/* ══ PRICING SECTION ═════════════════════════════════════════════════ */}
       <section className="relative py-28 px-4 overflow-hidden" id="pricing">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/20 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-500 to-transparent pointer-events-none" />
         <div className="relative z-10 max-w-6xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-10">
-            <span className="inline-block text-xs font-bold tracking-widest text-indigo-400 uppercase bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 mb-4">
+            <span className="inline-block text-xs font-bold tracking-widest text-slate-300 uppercase bg-slate-800/40 border border-white/10 rounded-full px-4 py-2 mb-4">
               الأسعار
             </span>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
+            <h2 className="text-4xl sm:text-5xl font-black text-white mb-6">
               باقة تناسب
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-300 bg-clip-text text-transparent"> كل متجر</span>
+              <span className="text-white"> كل متجر</span>
             </h2>
             <p className="text-slate-400 text-lg max-w-xl mx-auto mb-4">
               بدون رسوم إعداد — بدون عقود — يمكنك الإلغاء في أي وقت
             </p>
-            <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-5 py-2.5">
-              <span className="text-amber-400 text-lg">🔥</span>
-              <span className="text-amber-300 text-sm font-black">أول 100 متجر = سعر مثبّت للأبد</span>
+            <div className="inline-flex items-center gap-2 bg-slate-700/15 border border-white/10 rounded-full px-5 py-2.5">
+              <span className="text-slate-300 text-sm font-black">أول 100 متجر = سعر مثبّت للأبد</span>
             </div>
           </motion.div>
 
           {/* ── Free Trial Banner ── */}
           <motion.div
             {...fadeUp(0.1)}
-            className="relative mb-12 overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-l from-emerald-950/60 via-teal-950/50 to-emerald-950/60 backdrop-blur-sm p-6"
+            className="relative mb-12 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/40 backdrop-blur-sm p-6"
           >
             {/* Glow */}
-            <div className="absolute inset-0 bg-gradient-to-l from-emerald-500/5 via-teal-400/10 to-emerald-500/5 pointer-events-none" />
+            <div className="absolute inset-0 bg-slate-900/40 pointer-events-none" />
             <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-right">
               <div className="flex items-center gap-4">
-                <motion.div
-                  animate={{ rotate: [0, -15, 15, 0], scale: [1, 1.15, 1] }}
-                  transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
-                  className="text-4xl flex-shrink-0"
-                >🎁</motion.div>
                 <div>
                   <p className="text-white font-black text-xl sm:text-2xl leading-tight">
-                    جرب أي باقة مجاناً لمدة <span className="text-emerald-300">14 يوم</span> كاملة
+                    جرب أي باقة مجاناً لمدة <span className="text-orange-400">14 يوم</span> كاملة
                   </p>
                   <p className="text-slate-400 text-sm mt-1">
                     بدون بطاقة ائتمان • بدون التزام • إلغاء بضغطة واحدة
@@ -1401,7 +1395,7 @@ export default function Landing() {
                 whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/onboard')}
-                className="flex-shrink-0 bg-emerald-500 hover:bg-emerald-400 text-white font-black px-7 py-3.5 rounded-xl shadow-lg shadow-emerald-500/30 transition-all text-sm whitespace-nowrap"
+                className="flex-shrink-0 bg-slate-700 hover:bg-slate-700 text-white font-black px-7 py-3.5 rounded-xl shadow-lg shadow-black/40 transition-all text-sm whitespace-nowrap"
               >
                 ابدأ تجربتك المجانية ←
               </motion.button>
@@ -1417,7 +1411,7 @@ export default function Landing() {
           {/* Founding member price lock notice */}
           {(foundingSeats === null || foundingSeats > 0) && (
             <motion.div {...fadeUp(0.05)} className="mb-6 flex items-center justify-center gap-2">
-              <span className="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+              <span className="bg-slate-700/20 text-slate-300 border border-white/10 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
                 🔒 المشتركون الآن يحتفظون بهذا السعر للأبد
               </span>
             </motion.div>
@@ -1426,8 +1420,8 @@ export default function Landing() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {/* Free */}
             <motion.div {...fadeUp(0.05)}
-              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-indigo-500/40 hover:bg-white/[0.07] transition-all duration-300">
-              <h3 className="text-xl font-bold text-white mb-1">مجاني</h3>
+              className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-7 flex flex-col hover:border-white/10 hover:bg-white/[0.07] transition-all duration-300">
+              <h3 className="text-xl font-bold text-white mb-6">مجاني</h3>
               <p className="text-sm text-slate-400 mb-6">ابدأ مشروعك بدون تكلفة</p>
               <div className="mt-auto">
                 <div className="flex items-end gap-1 mb-6">
@@ -1437,7 +1431,7 @@ export default function Landing() {
                 <ul className="space-y-2.5 mb-7 text-sm text-slate-300">
                   {['موقع حجز خاص','حتى 30 حجز/شهر','إشعارات واتساب','تقارير مبسطة','3 ثيمات'].map(f => (
                     <li key={f} className="flex items-center gap-2">
-                      <CheckCircle size={15} className="text-indigo-400 flex-shrink-0" />
+                      <CheckCircle size={15} className="text-slate-300 flex-shrink-0" />
                       {f}
                     </li>
                   ))}
@@ -1452,10 +1446,10 @@ export default function Landing() {
 
             {/* Pro */}
             <motion.div {...fadeUp(0.1)}
-              className="relative rounded-3xl border-2 border-indigo-500/60 bg-gradient-to-br from-blue-900/40 to-purple-900/30 backdrop-blur-sm p-7 flex flex-col overflow-hidden">
+              className="relative rounded-3xl border-2 border-white/10 bg-slate-900/40 backdrop-blur-sm p-7 flex flex-col overflow-hidden">
               <div className="absolute top-5 left-5 flex gap-2">
-                <span className="bg-gradient-to-l from-blue-500 to-cyan-400 text-white text-xs font-black px-3 py-1 rounded-full">الأكثر طلباً</span>
-                <span className="bg-emerald-500 text-white text-xs font-black px-3 py-1 rounded-full">14 يوم مجاناً</span>
+                <span className="bg-slate-900/40 text-white text-xs font-black px-3 py-1 rounded-full">الأكثر طلباً</span>
+                <span className="bg-slate-700 text-white text-xs font-black px-3 py-1 rounded-full">14 يوم مجاناً</span>
               </div>
               <h3 className="text-xl font-black text-white mb-1 mt-8">Pro</h3>
               <p className="text-sm text-slate-300 mb-6">كل المميزات بدون حدود</p>
@@ -1466,7 +1460,7 @@ export default function Landing() {
                   <span className="text-slate-300 mb-2 text-lg">ر.س / شهر</span>
                 </div>
                 <div className="text-sm text-slate-400 mb-2">
-                  <span className="text-green-400 font-bold">أو 999 ر.س/سنة (وفّر 189)</span>
+                  <span className="text-slate-300 font-bold">أو 999 ر.س/سنة (وفّر 189)</span>
                 </div>
               </div>
 
@@ -1482,7 +1476,7 @@ export default function Landing() {
                   'مستشار ذكي AI',
                 ].map(f => (
                   <div key={f} className="flex items-center gap-2 text-sm text-white/80">
-                    <CheckCircle size={14} className="text-indigo-400 flex-shrink-0" />
+                    <CheckCircle size={14} className="text-slate-300 flex-shrink-0" />
                     {f}
                   </div>
                 ))}
@@ -1490,7 +1484,7 @@ export default function Landing() {
 
               <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/onboard')}
-                className="w-full py-4 rounded-xl bg-gradient-to-l from-blue-600 to-cyan-500 text-white font-black text-lg shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 transition-all">
+                className="w-full py-4 rounded-xl bg-slate-900/40 text-white font-black text-lg shadow-xl shadow-black/40 hover:shadow-black/40 transition-all">
                 ابدأ تجربة 14 يوم مجاناً
               </motion.button>
             </motion.div>
@@ -1500,7 +1494,7 @@ export default function Landing() {
           <motion.div {...fadeUp(0.3)} className="text-center mt-10 space-y-3">
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
               {[
-                { icon: '🎁', text: 'تجربة مجانية 14 يوم كاملة' },
+                { icon:'', text: 'تجربة مجانية 14 يوم كاملة' },
                 { icon: '💳', text: 'بدون بطاقة ائتمان' },
                 { icon: '🔓', text: 'إلغاء في أي وقت' },
                 { icon: '🧾', text: 'ضريبة القيمة المضافة شاملة' },
@@ -1521,12 +1515,12 @@ export default function Landing() {
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 to-transparent pointer-events-none" />
         <div className="max-w-5xl mx-auto relative z-10">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <span className="inline-block text-xs font-bold tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2 mb-4">
+            <span className="inline-block text-xs font-bold tracking-widest text-slate-300 bg-slate-700/10 border border-white/10 rounded-full px-4 py-2 mb-4">
               قبل وبعد Jdawil
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-4 leading-tight">
               الفرق واضح
-              <span className="bg-gradient-to-l from-emerald-400 to-teal-400 bg-clip-text text-transparent"> بالأرقام</span>
+              <span className="text-white"> بالأرقام</span>
             </h2>
             <p className="text-slate-400 text-lg">هذا ما يتغير فعلاً في أسلوب إدارة متجرك</p>
           </motion.div>
@@ -1538,7 +1532,7 @@ export default function Landing() {
               <div className="px-6 py-4 text-sm font-bold text-red-400 bg-red-500/5 border-r border-l border-white/5 text-center">
                 ❌ بدون نظام
               </div>
-              <div className="px-6 py-4 text-sm font-bold text-emerald-400 text-center bg-emerald-500/5">
+              <div className="px-6 py-4 text-sm font-bold text-slate-300 text-center bg-slate-700/5">
                 ✅ مع Jdawil
               </div>
             </div>
@@ -1551,7 +1545,7 @@ export default function Landing() {
               >
                 <div className="px-6 py-4 text-sm font-semibold text-white">{row.feature}</div>
                 <div className="px-6 py-4 text-sm text-slate-500 bg-red-500/[0.03] border-r border-l border-white/5 text-center">{row.before}</div>
-                <div className="px-6 py-4 text-sm text-emerald-300 font-medium text-center bg-emerald-500/[0.03]">{row.after}</div>
+                <div className="px-6 py-4 text-sm text-slate-300 font-medium text-center bg-slate-700/[0.03]">{row.after}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -1560,7 +1554,7 @@ export default function Landing() {
             <motion.button
               whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-gradient-to-l from-emerald-600 to-teal-500 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-emerald-500/25"
+              className="bg-slate-900/40 text-white px-10 py-[18px] rounded-2xl font-bold text-lg shadow-xl shadow-black/40"
             >
               أريد هذا التحول — ابدأ مجاناً
             </motion.button>
@@ -1573,12 +1567,12 @@ export default function Landing() {
       <section id="faq" className="relative py-28 px-4 overflow-hidden">
         <div className="max-w-3xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-14">
-            <span className="inline-block text-xs font-bold tracking-widest text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 mb-4">
+            <span className="inline-block text-xs font-bold tracking-widest text-slate-300 bg-slate-800/40 border border-white/10 rounded-full px-4 py-2 mb-4">
               الأسئلة الشائعة
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-black text-white mb-6">
               كل ما تريد معرفته
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent"> قبل البدء</span>
+              <span className="text-white"> قبل البدء</span>
             </h2>
             <p className="text-slate-400">لم تجد إجابتك؟ تواصل معنا عبر واتساب وسنرد فوراً</p>
           </motion.div>
@@ -1590,7 +1584,7 @@ export default function Landing() {
                 {...fadeUp(i * 0.05)}
                 className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                   openFaq === i
-                    ? 'border-indigo-500/40 bg-indigo-500/[0.06]'
+                    ? 'border-white/10 bg-orange-500/[0.06]'
                     : 'border-white/8 bg-white/[0.03] hover:border-white/15'
                 }`}
               >
@@ -1603,7 +1597,7 @@ export default function Landing() {
                   <motion.span
                     animate={{ rotate: openFaq === i ? 45 : 0 }}
                     transition={{ duration: 0.25 }}
-                    className={`text-2xl leading-none flex-shrink-0 ${openFaq === i ? 'text-indigo-400' : 'text-slate-600'}`}
+                    className={`text-2xl leading-none flex-shrink-0 ${openFaq === i ? 'text-slate-300' : 'text-slate-600'}`}
                   >
                     +
                   </motion.span>
@@ -1632,9 +1626,8 @@ export default function Landing() {
             <a
               href="https://wa.me/966500000000?text=أريد معرفة المزيد عن Jdawil"
               target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-xl font-bold transition-colors text-sm"
+              className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-500 text-white px-6 py-3 rounded-xl font-bold transition-colors text-sm"
             >
-              <span>💬</span>
               تحدث معنا على واتساب
             </a>
           </motion.div>
@@ -1643,62 +1636,44 @@ export default function Landing() {
       </section>
 
       {/* ══ CTA SECTION ═════════════════════════════════════════════════════ */}
-      <section className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-purple-900/30 to-blue-900/40" />
-        <motion.div
-          animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none"
-        />
-        <div className="absolute inset-0 border-y border-white/10" />
+      <section className="relative py-32 px-4 border-t border-white/[0.06]">
         <div className="relative z-10 max-w-3xl mx-auto text-center">
           <motion.div {...fadeUp()}>
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-              className="text-5xl mb-6 inline-block"
-            >
-              🚗
-            </motion.div>
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
-              سيارة عميلك تستاهل
-              <br />
-              <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">ومتجرك يستاهل Jdawil</span>
+            <h2 className="text-4xl sm:text-5xl font-black text-white mb-8 leading-[1.2] tracking-tight">
+              ابدأ اليوم — وعملاؤك يحجزون منك بكرة
             </h2>
-            <p className="text-slate-300 text-xl mb-12">١٤ يوم مجاناً — بدون بطاقة ائتمان — الإعداد يأخذ ٣ دقائق</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+            <p className="text-slate-400 text-lg mb-14 max-w-xl mx-auto leading-relaxed">
+              تجربة مجانية ١٤ يوم. بدون بطاقة ائتمان. الإعداد يأخذ ٣ دقائق.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <motion.button
-                whileHover={{ scale: 1.06 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/onboard')}
-                className="group relative bg-white text-blue-700 px-12 py-5 rounded-2xl font-black text-xl shadow-2xl shadow-black/30 overflow-hidden"
-                style={{ boxShadow: '0 0 40px rgba(255,255,255,0.15), 0 25px 50px rgba(0,0,0,0.3)' }}
+                className="bg-orange-500 hover:bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
               >
-                <span className="absolute inset-0 bg-gradient-to-l from-blue-50 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                <span className="relative flex items-center gap-2 justify-center">ابدأ الآن مجاناً <ChevronLeft size={22} /></span>
+                ابدأ مجاناً
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => window.open('https://wa.me/966500000000', '_blank')}
+                className="bg-white/[0.05] border border-white/[0.1] hover:border-white/[0.2] text-slate-300 px-8 py-4 rounded-xl font-bold text-base transition-all"
+              >
+                تواصل عبر واتساب
               </motion.button>
             </div>
-            <a
-              href="https://wa.me/966500000000?text=أبي أعرف أكثر عن Jdawil"
-              target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 transition-colors text-lg font-bold"
-            >
-              <span>💬</span>
-              أو تواصل معنا على واتساب
-            </a>
           </motion.div>
         </div>
       </section>
 
       {/* ══ TRUST BAR (before footer) ════════════════════════════════════════ */}
-      <div className="border-t border-white/[0.06] py-10 px-4">
+      <div className="border-t border-white/[0.06] py-12 px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { icon: '🔒', title: 'بيانات آمنة 100%', desc: 'تشفير SSL + عزل كامل بين المغاسل' },
-              { icon: '⚡', title: 'وقت تشغيل 99.9%', desc: 'خوادم موثوقة مع نسخ احتياطي يومي' },
-              { icon: '🇸🇦', title: 'مصنوع للسعودية', desc: 'واجهة عربية كاملة + دعم SAR + VAT' },
-              { icon: '🎧', title: 'دعم بشري فوري', desc: 'واتساب + بريد — ٧ أيام في الأسبوع' },
+              { title: 'بيانات آمنة 100%', desc: 'تشفير SSL + عزل كامل بين المتاجر' },
+              { title: 'وقت تشغيل 99.9%', desc: 'خوادم موثوقة مع نسخ احتياطي يومي' },
+              { title: 'مصنوع للسعودية', desc: 'واجهة عربية + SAR + ضريبة القيمة المضافة' },
+              { title: 'دعم بشري فوري', desc: 'واتساب + بريد — ٧ أيام في الأسبوع' },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -1706,7 +1681,6 @@ export default function Landing() {
                 viewport={{ once: true }} transition={{ delay: i * 0.08 }}
                 className="flex flex-col items-center gap-2"
               >
-                <span className="text-3xl">{item.icon}</span>
                 <p className="font-bold text-white text-sm">{item.title}</p>
                 <p className="text-xs text-slate-500 leading-snug">{item.desc}</p>
               </motion.div>
@@ -1722,16 +1696,16 @@ export default function Landing() {
             {/* Brand */}
             <div className="md:col-span-1">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <div className="w-10 h-10 rounded-xl bg-slate-900/40 flex items-center justify-center shadow-lg shadow-black/40">
                   <Droplets size={20} className="text-white" />
                 </div>
                 <div className="leading-tight">
                   <p className="font-black text-white text-lg">Jdawil</p>
-                  <p className="text-[10px] text-indigo-400/70 font-medium tracking-widest">Jdawil Platform</p>
+                  <p className="text-[10px] text-slate-300/70 font-medium tracking-widest">Jdawil Platform</p>
                 </div>
               </div>
               <p className="text-xs text-slate-500 leading-relaxed">
-                المنصة الأولى في السعودية لإدارة الحجوزات والخدمات — مغاسل، صالونات، خدمات منزلية.
+                منصة سعودية لإدارة الحجوزات والخدمات — لكل المشاريع الخدمية: صالونات، تنظيف، صيانة، تجميل، وغيرها.
               </p>
             </div>
 
@@ -1747,9 +1721,9 @@ export default function Landing() {
               </ul>
             </div>
 
-            {/* لأصحاب المغاسل */}
+            {/* لأصحاب المتاجر */}
             <div>
-              <h4 className="text-sm font-bold text-white mb-4">لأصحاب المغاسل</h4>
+              <h4 className="text-sm font-bold text-white mb-4">لأصحاب المتاجر</h4>
               <ul className="space-y-2.5 text-sm text-slate-500">
                 <li><Link to="/onboard" className="hover:text-white transition-colors">انضم بمتجرك</Link></li>
                 <li><Link to="/login" className="hover:text-white transition-colors">تسجيل الدخول</Link></li>
@@ -1774,9 +1748,9 @@ export default function Landing() {
                   <a
                     href="https://wa.me/966500000000"
                     target="_blank" rel="noopener noreferrer"
-                    className="hover:text-green-400 transition-colors flex items-center gap-2"
+                    className="hover:text-slate-300 transition-colors flex items-center gap-2"
                   >
-                    <span>💬</span> واتساب — دعم فوري
+                    واتساب — دعم فوري
                   </a>
                 </li>
                 <li className="text-slate-600">الرياض، المملكة العربية السعودية</li>
