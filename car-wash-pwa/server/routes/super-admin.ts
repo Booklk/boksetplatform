@@ -1,8 +1,15 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { db } from '../db/index.js';
 import { vendors, users, bookings, financials, vendorSubscriptionPayments, auditLogs, inAppNotifications, platformPlans } from '../db/schema.js';
 import { eq, sql, count, sum, desc, gte, like, or, asc } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
+import {
+  getAllSettingsForUI,
+  setSetting,
+  PlatformSettingKey,
+  SECRET_PLACEHOLDER,
+} from '../services/platformSettings.js';
 
 const router = Router();
 
@@ -461,6 +468,100 @@ router.get('/export/users', requireAuth, requireRole('super_admin'), async (_req
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'خطأ في التصدير' });
+  }
+});
+
+// ─── PLATFORM SETTINGS ──────────────────────────────────────────────────────
+//
+// GET  /api/super-admin/settings           — list all settings (encrypted
+//                                             values shown as ••••••••)
+// PUT  /api/super-admin/settings           — bulk update; entries equal to
+//                                             ••••••••  are ignored (kept as-is)
+// POST /api/super-admin/settings/test/:key — verify the saved credential
+//                                             actually works (Moyasar/WhatsApp)
+
+const ALLOWED_KEYS: PlatformSettingKey[] = [
+  'platform.platformName',
+  'platform.domain',
+  'platform.trialDays',
+  'platform.supportPhone',
+  'platform.supportEmail',
+  'moyasar.apiKey',
+  'whatsapp.defaultToken',
+  'whatsapp.defaultPhoneId',
+  'vapid.publicKey',
+  'vapid.privateKey',
+  'vapid.email',
+  'sentry.dsn',
+  'firebase.config',
+];
+
+router.get('/settings', requireAuth, requireRole('super_admin'), async (_req, res) => {
+  try {
+    const settings = await getAllSettingsForUI();
+    return res.json(settings);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+router.put('/settings', requireAuth, requireRole('super_admin'), async (req: AuthRequest, res) => {
+  try {
+    const body = z.record(z.string(), z.union([z.string(), z.null()])).parse(req.body);
+    const updatedBy = req.user!.id;
+    const updates: string[] = [];
+
+    for (const [key, value] of Object.entries(body)) {
+      if (!ALLOWED_KEYS.includes(key as PlatformSettingKey)) continue;
+      // Skip placeholder — means "keep existing encrypted value"
+      if (value === SECRET_PLACEHOLDER) continue;
+      await setSetting(key as PlatformSettingKey, value, updatedBy);
+      updates.push(key);
+    }
+
+    return res.json({ ok: true, updated: updates });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// Quick health-check for a saved credential (no plaintext exposure).
+router.post('/settings/test/:key', requireAuth, requireRole('super_admin'), async (req, res) => {
+  const { key } = req.params;
+  try {
+    const { getSetting } = await import('../services/platformSettings.js');
+
+    if (key === 'moyasar.apiKey') {
+      const apiKey = await getSetting('moyasar.apiKey');
+      if (!apiKey) return res.status(400).json({ ok: false, error: 'لم يتم ضبط مفتاح Moyasar' });
+      const r = await fetch('https://api.moyasar.com/v1/payments?per=1', {
+        headers: { Authorization: 'Basic ' + Buffer.from(apiKey + ':').toString('base64') },
+      });
+      return res.json({ ok: r.ok, status: r.status });
+    }
+
+    if (key === 'whatsapp.defaultToken') {
+      const token = await getSetting('whatsapp.defaultToken');
+      const phoneId = await getSetting('whatsapp.defaultPhoneId');
+      if (!token || !phoneId) return res.status(400).json({ ok: false, error: 'بيانات واتساب غير مكتملة' });
+      const r = await fetch(`https://graph.facebook.com/v20.0/${phoneId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.json({ ok: r.ok, status: r.status });
+    }
+
+    if (key === 'vapid.publicKey') {
+      const pub = await getSetting('vapid.publicKey');
+      const priv = await getSetting('vapid.privateKey');
+      return res.json({ ok: !!(pub && priv) });
+    }
+
+    return res.status(400).json({ ok: false, error: 'هذا الإعداد لا يدعم الفحص' });
+  } catch (e: any) {
+    return res.status(500).json({ ok: false, error: e?.message ?? 'فشل الفحص' });
   }
 });
 

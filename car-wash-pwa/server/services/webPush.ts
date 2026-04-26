@@ -10,20 +10,19 @@ import webpush from 'web-push';
 import { eq, and } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { pushSubscriptions } from '../db/schema.js';
+import { getSettings } from './platformSettings.js';
 
-let configured = false;
+let configuredKey: string | null = null;
 
-function ensureConfigured(): boolean {
-  if (configured) return true;
-  const pub = process.env.VAPID_PUBLIC_KEY;
-  const priv = process.env.VAPID_PRIVATE_KEY;
+async function ensureConfigured(): Promise<boolean> {
+  const { 'vapid.publicKey': pub, 'vapid.privateKey': priv, 'vapid.email': email } =
+    await getSettings(['vapid.publicKey', 'vapid.privateKey', 'vapid.email']);
   if (!pub || !priv) return false;
-  webpush.setVapidDetails(
-    `mailto:${process.env.VAPID_EMAIL ?? 'admin@jdawil.sa'}`,
-    pub,
-    priv,
-  );
-  configured = true;
+  // Re-init only if the key changed (super-admin may have rotated it)
+  if (configuredKey !== pub) {
+    webpush.setVapidDetails(`mailto:${email ?? 'admin@example.com'}`, pub, priv);
+    configuredKey = pub;
+  }
   return true;
 }
 
@@ -39,7 +38,7 @@ export async function sendWebPushToUser(
   userId: number,
   payload: PushPayload,
 ): Promise<{ sent: number; failed: number }> {
-  if (!ensureConfigured()) {
+  if (!(await ensureConfigured())) {
     return { sent: 0, failed: 0 };
   }
 

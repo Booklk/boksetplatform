@@ -11,9 +11,13 @@ import { db } from '../db/index.js';
 import { vendors } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 import { decrypt } from '../lib/crypto.js';
+import { getSetting } from './platformSettings.js';
 
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v19.0';
-const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
+
+async function getDomain(): Promise<string> {
+  return (await getSetting('platform.domain')) ?? 'jdawil.sa';
+}
 
 interface WhatsAppCredentials {
   token: string;
@@ -131,7 +135,8 @@ export async function notifyBookingConfirmedWithTracking(
 ) {
   const dateStr = scheduledAt.toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   const timeStr = scheduledAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
-  const trackingLine = (bookingId && trackingToken) ? `\n\n📍 تتبع مباشر:\nhttps://${DOMAIN}/track/${bookingId}/${trackingToken}` : '';
+  const domain = await getDomain();
+  const trackingLine = (bookingId && trackingToken) ? `\n\n📍 تتبع مباشر:\nhttps://${domain}/track/${bookingId}/${trackingToken}` : '';
   return sendMessage(phone, `✅ *${vendorName}*\n\nتم تأكيد حجزك!\n\n📋 #${bookingNumber}\n📦 ${packageName}\n📅 ${dateStr}\n⏰ ${timeStr}${trackingLine}\n\nشكراً لثقتك!`, vendorId);
 }
 

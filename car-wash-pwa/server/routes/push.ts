@@ -5,17 +5,13 @@ import { pushSubscriptions } from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import webpush from 'web-push';
+import { getSetting } from '../services/platformSettings.js';
 
 const router = Router();
 
-// Initialize VAPID keys (set in env)
-if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    `mailto:${process.env.VAPID_EMAIL ?? 'admin@jdawil.sa'}`,
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  );
-}
+// VAPID is now configured lazily from platform_settings (DB) or env fallback;
+// the actual webpush.setVapidDetails() call lives in services/webPush.ts so
+// the super-admin can rotate keys at runtime.
 
 // POST /api/push/subscribe — Register push subscription
 router.post('/subscribe', requireAuth, async (req: AuthRequest, res) => {
@@ -66,8 +62,9 @@ router.delete('/unsubscribe', requireAuth, async (req: AuthRequest, res) => {
 });
 
 // GET /api/push/vapid-public-key — Return VAPID public key for client registration
-router.get('/vapid-public-key', (_req, res) => {
-  return res.json({ publicKey: process.env.VAPID_PUBLIC_KEY ?? null });
+router.get('/vapid-public-key', async (_req, res) => {
+  const publicKey = await getSetting('vapid.publicKey');
+  return res.json({ publicKey: publicKey ?? null });
 });
 
 export default router;

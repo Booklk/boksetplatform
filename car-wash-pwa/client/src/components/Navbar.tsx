@@ -138,6 +138,7 @@ const superAdminNavSections: NavSection[] = [
       { to: '/super-admin/announce', icon: Send, label: 'إعلانات' },
       { to: '/super-admin/health', icon: Radio, label: 'صحة النظام' },
       { to: '/super-admin/audit-logs', icon: FileText, label: 'سجل العمليات' },
+      { to: '/super-admin/settings', icon: Settings, label: 'الإعدادات' },
     ],
   },
 ];

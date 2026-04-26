@@ -1437,3 +1437,36 @@ export const activityFeed = pgTable('activity_feed', {
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  PLATFORM SETTINGS — global, super-admin-managed config (key/value)       ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Each row is one setting. Sensitive values (API keys, secrets) are AES
+// encrypted before storage and decrypted on read via lib/crypto.ts. The
+// caller decides per-key whether to encrypt by setting `isEncrypted=true`.
+//
+// Keys we use:
+//   moyasar.apiKey          — encrypted
+//   whatsapp.defaultToken   — encrypted (platform fallback)
+//   whatsapp.defaultPhoneId — encrypted
+//   vapid.publicKey         — plain (public)
+//   vapid.privateKey        — encrypted
+//   vapid.email             — plain
+//   sentry.dsn              — plain
+//   firebase.config         — plain (JSON)
+//   platform.domain         — plain
+//   platform.trialDays      — plain (number-as-string)
+//   platform.supportPhone   — plain
+//   platform.supportEmail   — plain
+
+export const platformSettings = pgTable('platform_settings', {
+  id: serial('id').primaryKey(),
+  key: varchar('key', { length: 100 }).notNull().unique(),
+  value: text('value'),
+  isEncrypted: boolean('is_encrypted').notNull().default(false),
+  description: text('description'),
+  updatedBy: integer('updated_by').references(() => users.id),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});

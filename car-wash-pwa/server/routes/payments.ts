@@ -5,6 +5,7 @@ import { payments, bookings, vendors, users } from '../db/schema.js';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { decrypt } from '../lib/crypto.js';
+import { getSetting } from '../services/platformSettings.js';
 
 const router = Router();
 
@@ -147,9 +148,10 @@ router.post('/initiate', requireAuth, async (req: AuthRequest, res) => {
     }
 
     // Resolve Moyasar API key: vendor's own key or platform default
+    const platformKey = await getSetting('moyasar.apiKey');
     const apiKey =
       (paymentConfig?.apiKey as string | undefined) ??
-      process.env.MOYASAR_API_KEY ??
+      platformKey ??
       '';
 
     if (!apiKey) {
@@ -234,7 +236,7 @@ router.post('/verify', requireAuth, async (req: AuthRequest, res) => {
       .where(eq(vendors.id, payment.vendorId))
       .limit(1);
 
-    let apiKey = process.env.MOYASAR_API_KEY ?? '';
+    let apiKey = (await getSetting('moyasar.apiKey')) ?? '';
     if (vendor?.paymentConfig) {
       try {
         const raw = vendor.paymentConfig as unknown as string;

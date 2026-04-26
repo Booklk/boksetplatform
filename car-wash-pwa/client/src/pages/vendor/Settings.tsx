@@ -6,6 +6,7 @@ import {
   Phone, Mail, MapPin, Hash, Globe, MessageCircle,
   Image, Save, Eye, EyeOff, LogOut, Trash2, AlertTriangle,
   CheckCircle2, Clock, ArrowUpRight, Settings as SettingsIcon,
+  Plug, CreditCard, Loader2,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -43,6 +44,7 @@ interface NotificationPrefs {
 
 const TABS = [
   { id: 'business',       label: 'المتجر',      icon: Building2 },
+  { id: 'integrations',   label: 'التكاملات',   icon: Plug },
   { id: 'notifications',  label: 'الإشعارات',    icon: Bell },
   { id: 'plan',           label: 'باقتي',        icon: Crown },
   { id: 'security',       label: 'الأمان',       icon: Shield },
@@ -740,6 +742,213 @@ function AccountTab({ vendor }: { vendor?: VendorProfile }) {
   );
 }
 
+// ─── Tab: Integrations (WhatsApp + Payment Gateway) ───────────────────────────
+
+interface IntegrationStatus {
+  whatsapp: { configured: boolean; usingPlatform: boolean };
+  payment: { configured: boolean; provider: string | null; sandboxMode: boolean | null; usingPlatform: boolean };
+}
+
+function IntegrationsTab({ vendorId }: { vendorId?: number }) {
+  const qc = useQueryClient();
+  const [waToken, setWaToken] = useState('');
+  const [waPhoneId, setWaPhoneId] = useState('');
+  const [waShow, setWaShow] = useState(false);
+  const [moyasarKey, setMoyasarKey] = useState('');
+  const [moyasarShow, setMoyasarShow] = useState(false);
+  const [sandboxMode, setSandboxMode] = useState(true);
+
+  const { data: status, isLoading } = useQuery<IntegrationStatus>({
+    queryKey: ['vendor-integrations'],
+    queryFn: () => api.get('/vendors/me/integrations').then((r) => r.data),
+    enabled: !!vendorId,
+  });
+
+  const saveWhatsApp = useMutation({
+    mutationFn: () =>
+      api.post(`/vendors/${vendorId}/test-whatsapp`, { token: waToken, phoneId: waPhoneId }),
+    onSuccess: () => {
+      toast.success('تم حفظ بيانات واتساب — تأكد من رسالة الاختبار على جوالك');
+      setWaToken(''); setWaPhoneId('');
+      qc.invalidateQueries({ queryKey: ['vendor-integrations'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'فشل حفظ بيانات واتساب'),
+  });
+
+  const saveMoyasar = useMutation({
+    mutationFn: () =>
+      api.post(`/vendors/${vendorId}/payment-config`, { apiKey: moyasarKey, sandboxMode }),
+    onSuccess: () => {
+      toast.success('تم حفظ مفتاح Moyasar');
+      setMoyasarKey('');
+      qc.invalidateQueries({ queryKey: ['vendor-integrations'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'فشل حفظ المفتاح'),
+  });
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center py-16"><Loader2 className="animate-spin text-brand-400" /></div>;
+  }
+
+  const StatusBadge = ({ ok, fallback, label }: { ok: boolean; fallback: boolean; label: string }) => (
+    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full ${
+      ok ? 'bg-emerald-500/20 text-emerald-300' : fallback ? 'bg-blue-500/20 text-blue-300' : 'bg-amber-500/20 text-amber-300'
+    }`}>
+      <CheckCircle2 size={10} />
+      {ok ? `مفعّل — ${label}` : fallback ? 'يستخدم إعداد المنصة' : 'غير مهيأ'}
+    </span>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* WhatsApp */}
+      <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+        <div className="flex items-start justify-between mb-1">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+              <MessageCircle size={18} className="text-emerald-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white">واتساب الأعمال (Cloud API)</h3>
+              <p className="text-xs text-slate-400 mt-0.5">يستخدم لإرسال تأكيدات الحجز والتذكيرات</p>
+            </div>
+          </div>
+          {status && (
+            <StatusBadge
+              ok={status.whatsapp.configured}
+              fallback={status.whatsapp.usingPlatform}
+              label="حسابك"
+            />
+          )}
+        </div>
+
+        <div className="space-y-3 mt-5">
+          <div>
+            <label className="text-xs font-bold text-slate-300 block mb-1.5">Permanent Token</label>
+            <div className="relative">
+              <input
+                type={waShow ? 'text' : 'password'}
+                value={waToken}
+                onChange={(e) => setWaToken(e.target.value)}
+                placeholder="EAAG…"
+                className="w-full bg-slate-800/60 border border-white/10 rounded-xl px-3 pl-9 py-2.5 text-white text-sm outline-none font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => setWaShow(!waShow)}
+                className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white p-1"
+              >
+                {waShow ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-bold text-slate-300 block mb-1.5">Phone Number ID</label>
+            <input
+              type="text"
+              value={waPhoneId}
+              onChange={(e) => setWaPhoneId(e.target.value)}
+              placeholder="1234567890"
+              className="w-full bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none font-mono"
+            />
+          </div>
+          <button
+            onClick={() => saveWhatsApp.mutate()}
+            disabled={!waToken || !waPhoneId || saveWhatsApp.isPending}
+            className="w-full py-2.5 rounded-xl text-xs font-black text-white bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 transition flex items-center justify-center gap-2"
+          >
+            {saveWhatsApp.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            حفظ واختبار
+          </button>
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            احصل على هذه البيانات من{' '}
+            <a href="https://business.facebook.com" target="_blank" rel="noreferrer" className="text-brand-400 underline">
+              Meta Business Manager
+            </a>
+            {' '}→ WhatsApp → API setup. سيتم إرسال رسالة اختبار على رقم جوّال الحساب.
+          </p>
+        </div>
+      </section>
+
+      {/* Moyasar */}
+      <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+        <div className="flex items-start justify-between mb-1">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-violet-500/15 flex items-center justify-center">
+              <CreditCard size={18} className="text-violet-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white">بوابة الدفع — Moyasar</h3>
+              <p className="text-xs text-slate-400 mt-0.5">STC Pay، مدى، Apple Pay، فيزا</p>
+            </div>
+          </div>
+          {status && (
+            <StatusBadge
+              ok={status.payment.configured}
+              fallback={status.payment.usingPlatform}
+              label={status.payment.sandboxMode ? 'تجريبي' : 'حقيقي'}
+            />
+          )}
+        </div>
+
+        <div className="space-y-3 mt-5">
+          <div>
+            <label className="text-xs font-bold text-slate-300 block mb-1.5">Secret API Key</label>
+            <div className="relative">
+              <input
+                type={moyasarShow ? 'text' : 'password'}
+                value={moyasarKey}
+                onChange={(e) => setMoyasarKey(e.target.value)}
+                placeholder="sk_live_… أو sk_test_…"
+                className="w-full bg-slate-800/60 border border-white/10 rounded-xl px-3 pl-9 py-2.5 text-white text-sm outline-none font-mono"
+              />
+              <button
+                type="button"
+                onClick={() => setMoyasarShow(!moyasarShow)}
+                className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white p-1"
+              >
+                {moyasarShow ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
+          <label className="flex items-center gap-2 text-xs text-slate-300">
+            <input
+              type="checkbox"
+              checked={sandboxMode}
+              onChange={(e) => setSandboxMode(e.target.checked)}
+              className="accent-violet-500"
+            />
+            وضع تجريبي (sandbox) — مفاتيح <code className="px-1 rounded bg-slate-800">sk_test_</code>
+          </label>
+          <button
+            onClick={() => saveMoyasar.mutate()}
+            disabled={!moyasarKey || saveMoyasar.isPending}
+            className="w-full py-2.5 rounded-xl text-xs font-black text-white bg-violet-600 hover:bg-violet-500 disabled:opacity-40 transition flex items-center justify-center gap-2"
+          >
+            {saveMoyasar.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+            حفظ المفتاح
+          </button>
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            احصل على المفتاح من{' '}
+            <a href="https://dashboard.moyasar.com" target="_blank" rel="noreferrer" className="text-brand-400 underline">
+              dashboard.moyasar.com
+            </a>
+            {' '}→ Settings → API. المفتاح مشفّر AES-256 ولا يظهر بعد الحفظ.
+          </p>
+        </div>
+      </section>
+
+      <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-4 text-xs text-blue-200">
+        <p className="font-bold mb-1">ما الفرق بين الإعداد الخاص بي وإعداد المنصة؟</p>
+        <p className="text-blue-200/80 leading-relaxed">
+          إذا تركت الحقول فارغة، سيستخدم متجرك الإعداد الافتراضي للمنصة (موجود لدى الإدارة).
+          أضف بياناتك الخاصة لتستلم رسائل واتساب من رقمك التجاري ولتحصل المدفوعات في حسابك مباشرة.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Settings Page ────────────────────────────────────────────────────────
 
 export default function VendorSettings() {
@@ -755,6 +964,7 @@ export default function VendorSettings() {
 
   const tabContent: Record<TabId, React.ReactNode> = {
     business:      <BusinessTab vendor={vendor} />,
+    integrations:  <IntegrationsTab vendorId={vendorId} />,
     notifications: <NotificationsTab vendor={vendor} />,
     plan:          <PlanTab vendor={vendor} />,
     security:      <SecurityTab />,

@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { db } from './index.js';
-import { users, vendors, services, packages, inventory } from './schema.js';
+import { users, vendors, services, packages, inventory, platformSettings } from './schema.js';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 
@@ -97,6 +97,14 @@ async function seedWithVendor(vendorId: number) {
     { vendorId, name: 'مناشف ميكروفايبر', unit: 'قطعة', quantity: '50', minQuantity: '15', costPerUnit: '8' },
     { vendorId, name: 'معطر داخلي', unit: 'لتر', quantity: '15', minQuantity: '5', costPerUnit: '20' },
     { vendorId, name: 'منظف إطارات', unit: 'لتر', quantity: '12', minQuantity: '4', costPerUnit: '18' },
+  ]).onConflictDoNothing();
+
+  // Default platform settings — non-secret defaults only. Secrets must be
+  // entered by the super-admin via /super-admin/settings.
+  await db.insert(platformSettings).values([
+    { key: 'platform.platformName', value: 'جداول',     isEncrypted: false, description: 'Display name on emails / WhatsApp' },
+    { key: 'platform.domain',       value: 'jdawil.sa', isEncrypted: false, description: 'Primary platform domain' },
+    { key: 'platform.trialDays',    value: '14',        isEncrypted: false, description: 'Free trial duration for new vendors' },
   ]).onConflictDoNothing();
 
   console.log('✅ Seed complete!');

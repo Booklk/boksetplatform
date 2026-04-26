@@ -8,6 +8,7 @@ import { vendors, users, vendorSubscriptionPayments, services, packages, fleetVe
 import { eq, desc, sql, and, isNotNull, count } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { encrypt, decrypt } from '../lib/crypto.js';
+import { getSetting } from '../services/platformSettings.js';
 
 function signToken(user: { id: number; role: string; phone: string; vendorId?: number | null }) {
   return jwt.sign(
@@ -698,6 +699,41 @@ router.post('/:id/extend', requireAuth, requireRole('super_admin'), async (req, 
   }
 });
 
+// GET /api/vendors/me/integrations — show what's configured (no secrets exposed)
+router.get('/me/integrations', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
+
+    const [v] = await db.select({
+      whatsappPhoneId: vendors.whatsappPhoneId,
+      whatsappToken: vendors.whatsappToken,
+      paymentConfig: vendors.paymentConfig,
+    }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    if (!v) return res.status(404).json({ error: 'المتجر غير موجود' });
+
+    const cfg = (v.paymentConfig ?? {}) as { apiKey?: string; sandboxMode?: boolean; provider?: string };
+    const platformWhatsappToken = await getSetting('whatsapp.defaultToken');
+    const platformMoyasarKey = await getSetting('moyasar.apiKey');
+
+    return res.json({
+      whatsapp: {
+        configured: !!(v.whatsappPhoneId && v.whatsappToken),
+        usingPlatform: !v.whatsappToken && !!platformWhatsappToken,
+      },
+      payment: {
+        configured: !!cfg.apiKey,
+        provider: cfg.provider ?? null,
+        sandboxMode: cfg.sandboxMode ?? null,
+        usingPlatform: !cfg.apiKey && !!platformMoyasarKey,
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // POST /api/vendors/:id/payment-config — Save Moyasar key (encrypted)
 router.post('/:id/payment-config', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
@@ -817,9 +853,9 @@ router.post('/:id/platform-subscribe', requireAuth, requireRole('vendor_admin', 
     const planInfo = PLAN_PRICES[planKey];
     if (!planInfo) return res.status(400).json({ error: 'خطة غير صالحة' });
 
-    const apiKey = process.env.MOYASAR_API_KEY ?? '';
+    const apiKey = (await getSetting('moyasar.apiKey')) ?? '';
     if (!apiKey) {
-      return res.status(503).json({ error: 'بوابة الدفع غير مهيأة بعد، تواصل مع فريق Jdawil على واتساب.' });
+      return res.status(503).json({ error: 'بوابة الدفع غير مهيأة بعد، تواصل مع فريق الدعم على واتساب.' });
     }
 
     const baseUrl = process.env.BASE_URL ?? 'http://localhost:3001';
@@ -872,7 +908,7 @@ router.get('/:id/platform-subscribe/verify', async (req, res) => {
     }
 
     // Verify with Moyasar
-    const apiKey = process.env.MOYASAR_API_KEY ?? '';
+    const apiKey = (await getSetting('moyasar.apiKey')) ?? '';
     const verifyRes = await fetch(`https://api.moyasar.com/v1/payments/${paymentId}`, {
       headers: { Authorization: `Basic ${Buffer.from(apiKey + ':').toString('base64')}` },
     });
