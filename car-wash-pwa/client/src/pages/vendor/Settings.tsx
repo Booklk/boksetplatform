@@ -6,7 +6,7 @@ import {
   Phone, Mail, MapPin, Hash, Globe, MessageCircle,
   Image, Save, Eye, EyeOff, LogOut, Trash2, AlertTriangle,
   CheckCircle2, Clock, ArrowUpRight, Settings as SettingsIcon,
-  Plug, CreditCard, Loader2,
+  Plug, CreditCard, Loader2, Sparkles,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -993,6 +993,12 @@ function BotTab({ vendor }: { vendor?: VendorProfile }) {
     queryFn: () => api.get('/whatsapp-bot/settings').then((r) => r.data),
   });
 
+  const { data: addons } = useQuery<{ active: string[] }>({
+    queryKey: ['addons-me'],
+    queryFn: () => api.get('/addons/me').then((r) => r.data),
+  });
+  const addonsActive = addons?.active ?? [];
+
   useEffect(() => {
     if (data) {
       setDraft(data);
@@ -1085,6 +1091,18 @@ function BotTab({ vendor }: { vendor?: VendorProfile }) {
             <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${draft.aiEnabled ? 'right-0.5' : 'right-[calc(100%-1.375rem)]'}`} />
           </button>
         </div>
+
+        {/* Addon required hint when AI toggle is on but addon not active */}
+        {draft.aiEnabled && !addonsActive.includes('ai_bot') && (
+          <div className="mt-3 rounded-xl border border-orange-500/30 bg-orange-500/5 p-3 flex items-start gap-2">
+            <Sparkles size={14} className="text-orange-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1 text-xs">
+              <p className="font-bold text-orange-300">تحتاج تفعيل إضافة "بوت AI ذكي"</p>
+              <p className="text-orange-200/80 mt-0.5">المفتاح ينحفظ، لكن البوت لن يستخدم AI حتى تشترك في الإضافة (79 ر.س/شهر).</p>
+              <Link to="/vendor/addons" className="text-orange-400 underline text-[11px] mt-1 inline-block">فعّل الإضافة الآن ←</Link>
+            </div>
+          </div>
+        )}
 
         {draft.aiEnabled && (
           <div className="mt-4 pt-4 border-t border-white/5">

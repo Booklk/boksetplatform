@@ -19,6 +19,7 @@ import TrialBanner from '../../components/TrialBanner';
 import MilestoneCelebration from '../../components/MilestoneCelebration';
 import PushPrompt from '../../components/PushPrompt';
 import { SetupWizardModal } from '../../components/SetupWizardModal';
+import { BookingUsageBanner } from '../../components/BookingUsageBanner';
 
 interface DashboardStats {
   totalBookings?: number;
@@ -585,6 +586,9 @@ export default function VendorDashboard() {
 
         {/* Trial countdown banner */}
         <TrialBanner />
+
+        {/* Free-plan booking usage (renders nothing for paid plans) */}
+        <BookingUsageBanner />
 
         {/* Vendor Brand Greeting */}
         <div className="flex items-center gap-3 mb-6">
