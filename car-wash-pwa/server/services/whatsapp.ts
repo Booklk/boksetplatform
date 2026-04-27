@@ -91,6 +91,103 @@ async function sendMessage(phone: string, message: string, vendorId?: number | n
   }
 }
 
+/** Send a WhatsApp message with reply buttons (max 3 buttons, each title <= 20 chars). */
+export async function sendInteractiveButtons(
+  phone: string,
+  body: string,
+  buttons: Array<{ id: string; title: string }>,
+  vendorId?: number | null,
+  header?: string,
+): Promise<boolean> {
+  const creds = await getCredentials(vendorId);
+  if (!creds) return false;
+  const formatted = formatSaudiPhone(phone);
+
+  try {
+    const payload: Record<string, unknown> = {
+      messaging_product: 'whatsapp',
+      to: formatted,
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        ...(header ? { header: { type: 'text', text: header.slice(0, 60) } } : {}),
+        body: { text: body.slice(0, 1024) },
+        action: {
+          buttons: buttons.slice(0, 3).map((b) => ({
+            type: 'reply',
+            reply: { id: b.id, title: b.title.slice(0, 20) },
+          })),
+        },
+      },
+    };
+    const res = await fetch(`${WHATSAPP_API_URL}/${creds.phoneId}/messages`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${creds.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error('[WhatsApp buttons] failed:', err);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('[WhatsApp buttons] error:', e);
+    return false;
+  }
+}
+
+/** Send a WhatsApp list message — up to 10 rows in 1 section. */
+export async function sendInteractiveList(
+  phone: string,
+  body: string,
+  buttonText: string,
+  rows: Array<{ id: string; title: string; description?: string }>,
+  vendorId?: number | null,
+  header?: string,
+): Promise<boolean> {
+  const creds = await getCredentials(vendorId);
+  if (!creds) return false;
+  const formatted = formatSaudiPhone(phone);
+
+  try {
+    const payload: Record<string, unknown> = {
+      messaging_product: 'whatsapp',
+      to: formatted,
+      type: 'interactive',
+      interactive: {
+        type: 'list',
+        ...(header ? { header: { type: 'text', text: header.slice(0, 60) } } : {}),
+        body: { text: body.slice(0, 1024) },
+        action: {
+          button: buttonText.slice(0, 20),
+          sections: [{
+            rows: rows.slice(0, 10).map((r) => ({
+              id: r.id,
+              title: r.title.slice(0, 24),
+              ...(r.description ? { description: r.description.slice(0, 72) } : {}),
+            })),
+          }],
+        },
+      },
+    };
+    const res = await fetch(`${WHATSAPP_API_URL}/${creds.phoneId}/messages`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${creds.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error('[WhatsApp list] failed:', err);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('[WhatsApp list] error:', e);
+    return false;
+  }
+}
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 export async function sendRawWhatsAppMessage(phone: string, message: string, vendorId?: number | null): Promise<boolean> {

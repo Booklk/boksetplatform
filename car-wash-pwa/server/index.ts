@@ -66,6 +66,7 @@ import costFactorsRoutes from './routes/costFactors.js';
 import referralsRoutes from './routes/referrals.js';
 import brandKitRoutes from './routes/brand-kit.js';
 import campaignsRoutes from './routes/campaigns.js';
+import whatsappBotRoutes from './routes/whatsappBot.js';
 import timeBlocksRoutes from './routes/time-blocks.js';
 import giftCardsRoutes from './routes/gift-cards.js';
 import shopRoutes from './routes/shop.js';
@@ -246,7 +247,13 @@ const onboardLimiter = rateLimit({
 });
 app.use('/api/vendors/onboard', onboardLimiter);
 
-app.use('/api/', apiLimiter);
+// Bot webhooks are called by Meta, not users — exempt from rate limits.
+// Auth-protected routes inside /api/whatsapp-bot/* (settings) are still
+// rate-limited the normal way since the path skip is below.
+app.use('/api/', (req, res, next) => {
+  if (req.path.startsWith('/whatsapp-bot/webhook')) return next();
+  return apiLimiter(req, res, next);
+});
 
 // Serve uploaded files with caching
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
@@ -299,6 +306,8 @@ app.use('/api/cost-factors', requireAuth, costFactorsRoutes);
 app.use('/api/referrals', requireAuth, referralsRoutes);
 app.use('/api/brand-kit', requireAuth, brandKitRoutes);
 app.use('/api/campaigns', requireAuth, campaignsRoutes);
+// /webhook is public (Meta calls it), /settings is auth — handled inside the router
+app.use('/api/whatsapp-bot', whatsappBotRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);
 app.use('/api/gift-cards', requireAuth, giftCardsRoutes);
 app.use('/api/shop', shopRoutes);

@@ -45,6 +45,7 @@ interface NotificationPrefs {
 
 const TABS = [
   { id: 'business',       label: 'المتجر',      icon: Building2 },
+  { id: 'bot',            label: 'بوت واتساب',   icon: MessageCircle },
   { id: 'integrations',   label: 'التكاملات',   icon: Plug },
   { id: 'tracking',       label: 'التتبع والإعلانات', icon: SettingsIcon },
   { id: 'notifications',  label: 'الإشعارات',    icon: Bell },
@@ -963,6 +964,272 @@ interface TrackingIds {
   snapPixelId?: string;
 }
 
+// ─── Tab: WhatsApp Auto-Reply Bot ─────────────────────────────────────────────
+
+interface BotSettings {
+  enabled?: boolean;
+  greeting?: string;
+  handoffKeywords?: string[];
+  verifyToken?: string;
+  aiEnabled?: boolean;
+  // Governance — vendor controls what the bot is allowed to do
+  canBook?: boolean;
+  canApplyPromo?: boolean;
+  maxBookingValue?: number;
+  activeHours?: { start?: string; end?: string };
+  dailyBookingLimit?: number;
+  requireConfirmAbove?: number;
+}
+
+function BotTab({ vendor }: { vendor?: VendorProfile }) {
+  const qc = useQueryClient();
+  const [draft, setDraft] = useState<BotSettings>({});
+  const [keywordsInput, setKeywordsInput] = useState('');
+
+  const { data, isLoading } = useQuery<BotSettings>({
+    queryKey: ['bot-settings'],
+    queryFn: () => api.get('/whatsapp-bot/settings').then((r) => r.data),
+  });
+
+  useEffect(() => {
+    if (data) {
+      setDraft(data);
+      setKeywordsInput((data.handoffKeywords ?? []).join('، '));
+    }
+  }, [data]);
+
+  const save = useMutation({
+    mutationFn: () => api.put('/whatsapp-bot/settings', {
+      ...draft,
+      handoffKeywords: keywordsInput.split(/[،,\n]+/).map((s) => s.trim()).filter(Boolean),
+    }),
+    onSuccess: () => {
+      toast.success('تم حفظ إعدادات البوت');
+      qc.invalidateQueries({ queryKey: ['bot-settings'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'فشل الحفظ'),
+  });
+
+  const webhookUrl = vendor?.id
+    ? `${window.location.origin}/api/whatsapp-bot/webhook/${vendor.id}`
+    : '';
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center py-16"><Loader2 className="animate-spin text-orange-400" /></div>;
+  }
+
+  const enabled = draft.enabled ?? false;
+
+  return (
+    <div className="space-y-6" dir="rtl">
+      {/* Status banner */}
+      <div className={`rounded-2xl border p-5 ${enabled ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-white/8 bg-white/[0.02]'}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${enabled ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
+              <MessageCircle size={20} className={enabled ? 'text-emerald-400' : 'text-slate-500'} />
+            </div>
+            <div>
+              <p className="text-sm font-black text-white">بوت واتساب التلقائي</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                {enabled ? 'مفعّل — يرد على عملائك ٢٤ ساعة' : 'غير مفعّل'}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDraft({ ...draft, enabled: !enabled })}
+            className={`w-12 h-7 rounded-full relative transition-colors ${enabled ? 'bg-emerald-500' : 'bg-white/15'}`}
+          >
+            <div className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-all ${enabled ? 'right-0.5' : 'right-[calc(100%-1.625rem)]'}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* What it does */}
+      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+        <h3 className="text-sm font-black text-white mb-3">ماذا يفعل البوت؟</h3>
+        <ul className="space-y-2 text-xs text-slate-300">
+          {[
+            'يرحّب بعملائك الجدد ويميّز العميل المتكرر باسمه',
+            'يعرض الأسعار والخدمات بأزرار جاهزة (لا يكتب العميل)',
+            'يجيب على ساعات العمل والموقع تلقائياً',
+            'يأخذ حجزاً كاملاً: خدمة → موعد → تأكيد → ينشئ في النظام',
+            'يحوّل المحادثة لك عند طلب موظف أو شكوى',
+          ].map((line) => (
+            <li key={line} className="flex items-start gap-2">
+              <CheckCircle2 size={13} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Governance — what the bot is allowed to do */}
+      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+        <h3 className="text-sm font-black text-white mb-1">صلاحيات البوت</h3>
+        <p className="text-[11px] text-slate-400 mb-4">حدّد ما يستطيع البوت أن يفعله بالنيابة عنك. القيود تطبّق فوراً.</p>
+
+        <div className="space-y-3">
+          {/* canBook */}
+          <div className="flex items-start justify-between gap-3 py-2.5 border-b border-white/5">
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white">إنشاء الحجوزات</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">يقدر البوت يحجز للعميل بدون موافقتك. لو معطّل، البوت يطلب من العميل الانتظار حتى ترد عليه.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDraft({ ...draft, canBook: !(draft.canBook ?? false) })}
+              className={`flex-shrink-0 w-11 h-6 rounded-full relative transition-colors ${draft.canBook ? 'bg-emerald-500' : 'bg-white/15'}`}
+            >
+              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${draft.canBook ? 'right-0.5' : 'right-[calc(100%-1.375rem)]'}`} />
+            </button>
+          </div>
+
+          {/* canApplyPromo */}
+          <div className="flex items-start justify-between gap-3 py-2.5 border-b border-white/5">
+            <div className="flex-1">
+              <p className="text-sm font-bold text-white">تطبيق أكواد الخصم</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">يقدر يقترح/يطبّق أكواد الخصم النشطة لجذب العميل.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setDraft({ ...draft, canApplyPromo: !(draft.canApplyPromo ?? false) })}
+              className={`flex-shrink-0 w-11 h-6 rounded-full relative transition-colors ${draft.canApplyPromo ? 'bg-emerald-500' : 'bg-white/15'}`}
+            >
+              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${draft.canApplyPromo ? 'right-0.5' : 'right-[calc(100%-1.375rem)]'}`} />
+            </button>
+          </div>
+
+          {/* maxBookingValue */}
+          <div className="py-2.5 border-b border-white/5">
+            <label className="text-sm font-bold text-white block mb-1">الحد الأعلى لقيمة الحجز التلقائي (ر.س)</label>
+            <p className="text-[11px] text-slate-400 mb-2">حجوزات أعلى من هذا المبلغ تتطلب موافقتك أولاً.</p>
+            <input
+              type="number"
+              min={0}
+              value={draft.maxBookingValue ?? ''}
+              onChange={(e) => setDraft({ ...draft, maxBookingValue: e.target.value ? Number(e.target.value) : undefined })}
+              placeholder="مثلاً: 500"
+              className="w-32 bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2 text-white text-sm font-mono outline-none focus:border-orange-500/40"
+            />
+          </div>
+
+          {/* dailyBookingLimit */}
+          <div className="py-2.5 border-b border-white/5">
+            <label className="text-sm font-bold text-white block mb-1">حد الحجوزات اليومي للبوت</label>
+            <p className="text-[11px] text-slate-400 mb-2">بعد هذا العدد يتوقف البوت ويحوّل الحجوزات الجديدة لك.</p>
+            <input
+              type="number"
+              min={0}
+              value={draft.dailyBookingLimit ?? ''}
+              onChange={(e) => setDraft({ ...draft, dailyBookingLimit: e.target.value ? Number(e.target.value) : undefined })}
+              placeholder="مثلاً: 30"
+              className="w-32 bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2 text-white text-sm font-mono outline-none focus:border-orange-500/40"
+            />
+          </div>
+
+          {/* activeHours */}
+          <div className="py-2.5">
+            <label className="text-sm font-bold text-white block mb-1">ساعات نشاط البوت</label>
+            <p className="text-[11px] text-slate-400 mb-2">خارج هذه الساعات يحوّل البوت المحادثة لك مباشرة.</p>
+            <div className="flex items-center gap-2">
+              <input
+                type="time"
+                value={draft.activeHours?.start ?? ''}
+                onChange={(e) => setDraft({ ...draft, activeHours: { ...(draft.activeHours ?? {}), start: e.target.value } })}
+                className="bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-orange-500/40"
+              />
+              <span className="text-slate-500 text-xs">إلى</span>
+              <input
+                type="time"
+                value={draft.activeHours?.end ?? ''}
+                onChange={(e) => setDraft({ ...draft, activeHours: { ...(draft.activeHours ?? {}), end: e.target.value } })}
+                className="bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-orange-500/40"
+              />
+              <span className="text-[11px] text-slate-500">اتركها فارغة = ٢٤ ساعة</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Greeting */}
+      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 space-y-4">
+        <div>
+          <label className="text-xs font-bold text-slate-300 block mb-1.5">رسالة الترحيب</label>
+          <textarea
+            value={draft.greeting ?? ''}
+            onChange={(e) => setDraft({ ...draft, greeting: e.target.value })}
+            rows={4}
+            placeholder={`أهلاً بك في ${vendor?.nameAr ?? 'متجرنا'}!\nأقدر أعطيك الأسعار والمواعيد المتاحة.`}
+            className="w-full bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none resize-none focus:border-orange-500/40"
+          />
+          <p className="text-[11px] text-slate-500 mt-1">اتركها فارغة لاستخدام الترحيب الافتراضي</p>
+        </div>
+
+        <div>
+          <label className="text-xs font-bold text-slate-300 block mb-1.5">كلمات تحويل المحادثة لك</label>
+          <input
+            type="text"
+            value={keywordsInput}
+            onChange={(e) => setKeywordsInput(e.target.value)}
+            placeholder="موظف، شكوى، انسان"
+            className="w-full bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none focus:border-orange-500/40"
+          />
+          <p className="text-[11px] text-slate-500 mt-1">افصلها بفاصلة. عند ذكر العميل لأي منها يحوّل البوت المحادثة لك فوراً</p>
+        </div>
+
+        <div>
+          <label className="text-xs font-bold text-slate-300 block mb-1.5">Verify Token (لإعداد Meta)</label>
+          <input
+            type="text"
+            value={draft.verifyToken ?? ''}
+            onChange={(e) => setDraft({ ...draft, verifyToken: e.target.value })}
+            placeholder="أنشئ كلمة عشوائية 8+ حروف"
+            className="w-full bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-mono outline-none focus:border-orange-500/40"
+          />
+          <p className="text-[11px] text-slate-500 mt-1">انسخها وألصقها في Meta App → Webhooks → Verify Token</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => save.mutate()}
+          disabled={save.isPending}
+          className="w-full py-3 rounded-xl font-black text-white bg-orange-500 hover:bg-orange-400 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+        >
+          {save.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+          حفظ
+        </button>
+      </div>
+
+      {/* Webhook setup guide */}
+      <div className="rounded-2xl border border-orange-500/20 bg-orange-500/5 p-5">
+        <h3 className="text-sm font-black text-white mb-3">إعداد Meta App (مرة واحدة)</h3>
+        <ol className="space-y-2 text-xs text-slate-300 list-decimal pr-5">
+          <li>افتح <a href="https://developers.facebook.com/apps" target="_blank" rel="noreferrer" className="text-orange-400 underline">developers.facebook.com/apps</a></li>
+          <li>اختر تطبيقك → WhatsApp → Configuration → Webhook</li>
+          <li>الصق هذا الرابط في حقل Callback URL:</li>
+        </ol>
+        <div className="bg-slate-900/60 border border-white/10 rounded-xl p-3 mt-3 mb-3 flex items-center gap-2">
+          <code className="flex-1 text-xs text-orange-300 font-mono truncate">{webhookUrl}</code>
+          <button
+            type="button"
+            onClick={() => navigator.clipboard.writeText(webhookUrl).catch(() => {})}
+            className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-[10px] font-bold text-white"
+          >
+            نسخ
+          </button>
+        </div>
+        <ol className="space-y-2 text-xs text-slate-300 list-decimal pr-5" start={4}>
+          <li>الصق Verify Token الذي حفظته أعلاه</li>
+          <li>اشترك في حدث <code className="px-1 rounded bg-slate-800">messages</code> فقط</li>
+          <li>عد هنا وفعّل البوت من الأعلى</li>
+        </ol>
+      </div>
+    </div>
+  );
+}
+
 function TrackingTab({ vendor }: { vendor?: VendorProfile }) {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<TrackingIds>({});
@@ -1105,6 +1372,7 @@ export default function VendorSettings() {
 
   const tabContent: Record<TabId, React.ReactNode> = {
     business:      <BusinessTab vendor={vendor} />,
+    bot:           <BotTab vendor={vendor} />,
     integrations:  <IntegrationsTab vendorId={vendorId} />,
     tracking:      <TrackingTab vendor={vendor} />,
     notifications: <NotificationsTab vendor={vendor} />,
