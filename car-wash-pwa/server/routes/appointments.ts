@@ -269,6 +269,17 @@ router.post('/book', requireAuth, async (req: AuthRequest, res) => {
     const customerId = req.user!.id;
     const { vendorId, date, time } = data;
 
+    // Free-plan monthly booking limit
+    const { checkBookingAllowed } = await import('../services/planLimits.js');
+    const allowance = await checkBookingAllowed(vendorId);
+    if (!allowance.allowed) {
+      return res.status(402).json({
+        error: allowance.error,
+        usage: allowance.usage,
+        upgradeRequired: { plan: 'pro' },
+      });
+    }
+
     // Re-validate availability (prevent double-booking)
     const config = await getVendorConfig(vendorId);
     const slotStart = toUTC(date, time);

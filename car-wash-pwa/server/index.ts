@@ -67,6 +67,7 @@ import referralsRoutes from './routes/referrals.js';
 import brandKitRoutes from './routes/brand-kit.js';
 import campaignsRoutes from './routes/campaigns.js';
 import whatsappBotRoutes from './routes/whatsappBot.js';
+import addonsRoutes from './routes/addons.js';
 import timeBlocksRoutes from './routes/time-blocks.js';
 import giftCardsRoutes from './routes/gift-cards.js';
 import shopRoutes from './routes/shop.js';
@@ -294,27 +295,30 @@ app.use('/api/queue', queueRoutes);
 app.use('/api/pos', posRoutes);
 // Appointments: /config GET + /available GET are public; rest require auth via router-level guards
 app.use('/api/appointments', appointmentsRoutes);
-app.use('/api/payroll', payrollRoutes);
-app.use('/api/vat-report', vatReportRoutes);
+app.use('/api/payroll', requireAuth, requireAddon('financials'), payrollRoutes);
+app.use('/api/vat-report', requireAuth, requireAddon('financials'), vatReportRoutes);
 app.use('/api/shifts', shiftsRoutes);
 app.use('/api/support', supportRoutes);
-app.use('/api/dispatch', requireAuth, dispatchRoutes);
+app.use('/api/dispatch', requireAuth, requireAddon('gps_pro'), dispatchRoutes);
 app.use('/api/operations', requireAuth, operationsRoutes);
 app.use('/api/summary', requireAuth, summaryRoutes);
 app.use('/api/suppliers', requireAuth, suppliersRoutes);
-app.use('/api/cost-factors', requireAuth, costFactorsRoutes);
+app.use('/api/cost-factors', requireAuth, requireAddon('financials'), costFactorsRoutes);
 app.use('/api/referrals', requireAuth, referralsRoutes);
 app.use('/api/brand-kit', requireAuth, brandKitRoutes);
 app.use('/api/campaigns', requireAuth, campaignsRoutes);
 // /webhook is public (Meta calls it), /settings is auth — handled inside the router
 app.use('/api/whatsapp-bot', whatsappBotRoutes);
+app.use('/api/addons', addonsRoutes);
+
+import { requireAddon } from './middleware/requireAddon.js';
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);
 app.use('/api/gift-cards', requireAuth, giftCardsRoutes);
 app.use('/api/shop', shopRoutes);
 // Phase 1: Customer Acquisition + Security
 app.use('/api/automations', requireAuth, automationsRoutes);
 app.use('/api/segments', requireAuth, segmentsRoutes);
-app.use('/api/financial-statements', requireAuth, financialStatementsRoutes);
+app.use('/api/financial-statements', requireAuth, requireAddon('financials'), financialStatementsRoutes);
 app.use('/api/crm', requireAuth, crmRoutes);
 app.use('/api/recurring-bookings', requireAuth, recurringBookingsRoutes);
 app.use('/api/notification-center', requireAuth, notificationCenterRoutes);

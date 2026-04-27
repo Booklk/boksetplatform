@@ -13,6 +13,7 @@ import {
   sendRawWhatsAppMessage,
 } from '../services/whatsapp.js';
 import { randomBytes } from 'crypto';
+import { checkBookingAllowed } from '../services/planLimits.js';
 
 const router = Router();
 
@@ -51,6 +52,16 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
     const [pkg] = await db.select({ id: packages.id, price: packages.price, name: packages.name, serviceId: packages.serviceId, vendorId: packages.vendorId })
       .from(packages).where(eq(packages.id, data.packageId)).limit(1);
     if (!pkg) return res.status(404).json({ error: 'الباقة غير موجودة' });
+
+    // Free-plan monthly booking limit
+    const allowance = await checkBookingAllowed(pkg.vendorId);
+    if (!allowance.allowed) {
+      return res.status(402).json({
+        error: allowance.error,
+        usage: allowance.usage,
+        upgradeRequired: { plan: 'pro' },
+      });
+    }
 
     const [svc] = await db.select({ name: services.name })
       .from(services).where(eq(services.id, pkg.serviceId)).limit(1);

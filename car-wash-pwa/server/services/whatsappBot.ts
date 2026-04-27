@@ -529,10 +529,14 @@ export async function processIncomingMessage(
     case 'handoff':
       return void await handoff(msg.fromPhone, vendor);
     default:
-      // Try AI brain if enabled and within monthly cap
+      // Try AI brain if vendor has 'ai_bot' add-on, AI is enabled, and within cap
       if (settings.aiEnabled) {
-        const handled = await tryAiTurn(vendor, msg.fromPhone, msg.text, context);
-        if (handled) return;
+        const { isAddonActive } = await import('./addons.js');
+        const hasAddon = await isAddonActive(vendor.id, 'ai_bot');
+        if (hasAddon) {
+          const handled = await tryAiTurn(vendor, msg.fromPhone, msg.text, context);
+          if (handled) return;
+        }
       }
       return void await sendInteractiveButtons(
         msg.fromPhone,

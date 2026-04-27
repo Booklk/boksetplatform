@@ -8,6 +8,7 @@ import InstallPrompt from './components/InstallPrompt';
 import PushNotificationBanner from './components/PushNotificationBanner';
 import CommandPalette from './components/CommandPalette';
 import WhatsAppFAB from './components/WhatsAppFAB';
+import { AddonGate } from './components/AddonGate';
 
 // Eagerly loaded (critical path)
 import Landing from './pages/Landing';
@@ -72,6 +73,7 @@ const VendorLiveMap = lazy(() => import('./pages/vendor/LiveMap'));
 const VendorSubscriptions = lazy(() => import('./pages/vendor/Subscriptions'));
 const VendorCorporate = lazy(() => import('./pages/vendor/Corporate'));
 const VendorPlatformSub = lazy(() => import('./pages/vendor/PlatformSubscription'));
+const VendorAddons = lazy(() => import('./pages/vendor/Addons'));
 const VendorFleet = lazy(() => import('./pages/vendor/Fleet'));
 const VendorEmployees = lazy(() => import('./pages/vendor/Employees'));
 const VendorSetup = lazy(() => import('./pages/vendor/Setup'));
@@ -408,7 +410,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/livemap" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorLiveMap /></S>
+            <AddonGate addonId="gps_basic"><S><VendorLiveMap /></S></AddonGate>
           </RequireAuth>
         } />
         <Route path="/vendor/subscriptions" element={
@@ -458,12 +460,12 @@ function AppRoutes() {
         } />
         <Route path="/vendor/payroll" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorPayroll /></S>
+            <AddonGate addonId="financials"><S><VendorPayroll /></S></AddonGate>
           </RequireAuth>
         } />
         <Route path="/vendor/vat-report" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorVatReport /></S>
+            <AddonGate addonId="financials"><S><VendorVatReport /></S></AddonGate>
           </RequireAuth>
         } />
         <Route path="/vendor/ratings" element={
@@ -483,12 +485,17 @@ function AppRoutes() {
         } />
         <Route path="/vendor/dispatch" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorDispatch /></S>
+            <AddonGate addonId="gps_pro"><S><VendorDispatch /></S></AddonGate>
           </RequireAuth>
         } />
         <Route path="/vendor/settings" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <S><VendorSettings /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/addons" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorAddons /></S>
           </RequireAuth>
         } />
         <Route path="/vendor/operations" element={
@@ -508,12 +515,12 @@ function AppRoutes() {
         } />
         <Route path="/vendor/expenses" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <AppLayout withSidebar><S><VendorExpenses /></S></AppLayout>
+            <AddonGate addonId="financials"><AppLayout withSidebar><S><VendorExpenses /></S></AppLayout></AddonGate>
           </RequireAuth>
         } />
         <Route path="/vendor/profit-calculator" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <AppLayout withSidebar><S><VendorProfitCalculator /></S></AppLayout>
+            <AddonGate addonId="financials"><AppLayout withSidebar><S><VendorProfitCalculator /></S></AppLayout></AddonGate>
           </RequireAuth>
         } />
         <Route path="/vendor/services" element={
@@ -540,7 +547,7 @@ function AppRoutes() {
         } />
         <Route path="/vendor/financial-statements" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
-            <S><VendorFinancialStatements /></S>
+            <AddonGate addonId="financials"><S><VendorFinancialStatements /></S></AddonGate>
           </RequireAuth>
         } />
         <Route path="/vendor/crm" element={
