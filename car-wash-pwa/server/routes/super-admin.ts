@@ -494,6 +494,8 @@ const ALLOWED_KEYS: PlatformSettingKey[] = [
   'vapid.email',
   'sentry.dsn',
   'firebase.config',
+  'openai.apiKey',
+  'openai.model',
 ];
 
 router.get('/settings', requireAuth, requireRole('super_admin'), async (_req, res) => {

@@ -22,6 +22,7 @@ import { randomBytes } from 'crypto';
 import {
   sendRawWhatsAppMessage, sendInteractiveButtons, sendInteractiveList,
 } from './whatsapp.js';
+import { generateAiTurn } from './whatsappBotAI.js';
 
 interface BotSettings {
   enabled?: boolean;
@@ -33,15 +34,23 @@ interface BotSettings {
   maxBookingValue?: number;
   dailyBookingLimit?: number;
   activeHours?: { start?: string; end?: string };
+  // AI brain
+  aiEnabled?: boolean;
+  monthlyAiLimit?: number;
 }
 
 interface BotContext {
-  stage?: 'idle' | 'menu' | 'selecting_service' | 'selecting_time' | 'confirming';
+  stage?: 'idle' | 'menu' | 'selecting_service' | 'selecting_time' | 'confirming' | 'ai';
   pickedPackageId?: number;
   pickedPackageName?: string;
   pickedPackagePrice?: string;
   pickedDate?: string;
   pickedTime?: string;
+  // AI conversation memory + monthly counter
+  history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  aiCount?: number;
+  aiCountMonth?: string; // YYYY-MM key
+  customerName?: string;
 }
 
 const HANDOFF_DEFAULT = ['موظف', 'انسان', 'انسانه', 'شكوى', 'شخص حقيقي'];
@@ -520,6 +529,11 @@ export async function processIncomingMessage(
     case 'handoff':
       return void await handoff(msg.fromPhone, vendor);
     default:
+      // Try AI brain if enabled and within monthly cap
+      if (settings.aiEnabled) {
+        const handled = await tryAiTurn(vendor, msg.fromPhone, msg.text, context);
+        if (handled) return;
+      }
       return void await sendInteractiveButtons(
         msg.fromPhone,
         'لم أفهم طلبك تماماً. اختر من القائمة:',
@@ -531,4 +545,73 @@ export async function processIncomingMessage(
         vendorId,
       );
   }
+}
+
+// ─── AI brain fallback ──────────────────────────────────────────────────────
+
+function currentMonthKey(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+async function tryAiTurn(
+  vendor: VendorSlim,
+  fromPhone: string,
+  text: string,
+  context: BotContext,
+): Promise<boolean> {
+  const settings = botSettings(vendor);
+
+  // Reset monthly counter on month rollover
+  const month = currentMonthKey();
+  if (context.aiCountMonth !== month) {
+    context.aiCount = 0;
+    context.aiCountMonth = month;
+  }
+
+  // Hard cap: if vendor set a monthly limit, stop here
+  if (settings.monthlyAiLimit && (context.aiCount ?? 0) >= settings.monthlyAiLimit) {
+    return false; // fall through to default menu
+  }
+
+  const turn = await generateAiTurn(
+    {
+      vendor: {
+        id: vendor.id, nameAr: vendor.nameAr, slug: vendor.slug,
+        address: vendor.address, city: vendor.city,
+        industry: null,
+        settings: vendor.settings,
+      },
+      customerPhone: fromPhone,
+      history: context.history ?? [],
+      governance: {
+        canBook: settings.canBook ?? false,
+        canApplyPromo: settings.canApplyPromo ?? false,
+        maxBookingValue: settings.maxBookingValue,
+      },
+    },
+    text,
+  );
+
+  if (!turn) return false; // OpenAI key not configured
+
+  // Append turn to history (cap at 16 entries)
+  const history = context.history ?? [];
+  history.push({ role: 'user', content: text });
+  if (turn.reply) history.push({ role: 'assistant', content: turn.reply });
+  context.history = history.slice(-16);
+  context.aiCount = (context.aiCount ?? 0) + 1;
+  context.stage = 'ai';
+  await updateContext(fromPhone, vendor.id, context);
+
+  if (turn.shouldEscalate) {
+    if (turn.reply) await sendRawWhatsAppMessage(fromPhone, turn.reply, vendor.id);
+    await handoff(fromPhone, vendor);
+    return true;
+  }
+
+  if (turn.reply) {
+    await sendRawWhatsAppMessage(fromPhone, turn.reply, vendor.id);
+  }
+  return true;
 }

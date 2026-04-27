@@ -120,6 +120,9 @@ const settingsSchema = z.object({
   greeting: z.string().max(1024).optional(),
   handoffKeywords: z.array(z.string().max(40)).max(20).optional(),
   verifyToken: z.string().min(8).max(80).optional(),
+  // AI brain
+  aiEnabled: z.boolean().optional(),
+  monthlyAiLimit: z.number().int().min(0).max(1000000).optional(),
   // Governance
   canBook: z.boolean().optional(),
   canApplyPromo: z.boolean().optional(),

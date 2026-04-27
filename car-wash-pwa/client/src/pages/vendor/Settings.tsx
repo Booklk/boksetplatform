@@ -971,7 +971,9 @@ interface BotSettings {
   greeting?: string;
   handoffKeywords?: string[];
   verifyToken?: string;
+  // AI brain
   aiEnabled?: boolean;
+  monthlyAiLimit?: number;
   // Governance — vendor controls what the bot is allowed to do
   canBook?: boolean;
   canApplyPromo?: boolean;
@@ -1063,6 +1065,46 @@ function BotTab({ vendor }: { vendor?: VendorProfile }) {
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* AI brain card */}
+      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+        <div className="flex items-start justify-between gap-3 mb-1">
+          <div className="flex-1">
+            <h3 className="text-sm font-black text-white">العقل الذكي (AI)</h3>
+            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+              مفعّل: البوت يفهم أي صياغة بأي لهجة، يقترح، يقنع، ويرد بطريقة طبيعية. يبدأ باللهجة السعودية، ويتحول للإنجليزي تلقائياً لو العميل بدأ بالإنجليزي.
+              <br />معطّل: البوت يستخدم الأزرار والكلمات المفتاحية فقط (مجاني تماماً).
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDraft({ ...draft, aiEnabled: !(draft.aiEnabled ?? false) })}
+            className={`flex-shrink-0 w-11 h-6 rounded-full relative transition-colors ${draft.aiEnabled ? 'bg-emerald-500' : 'bg-white/15'}`}
+          >
+            <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${draft.aiEnabled ? 'right-0.5' : 'right-[calc(100%-1.375rem)]'}`} />
+          </button>
+        </div>
+
+        {draft.aiEnabled && (
+          <div className="mt-4 pt-4 border-t border-white/5">
+            <label className="text-sm font-bold text-white block mb-1">حد الرسائل الذكية شهرياً</label>
+            <p className="text-[11px] text-slate-400 mb-2">
+              بعد هذا الحد، البوت يرجع للأزرار العادية بدون تكلفة AI. تكلفة الرسالة الواحدة تقريباً ٠.٠٣ ر.س.
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={0}
+                value={draft.monthlyAiLimit ?? ''}
+                onChange={(e) => setDraft({ ...draft, monthlyAiLimit: e.target.value ? Number(e.target.value) : undefined })}
+                placeholder="500"
+                className="w-32 bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2 text-white text-sm font-mono outline-none focus:border-orange-500/40"
+              />
+              <span className="text-[11px] text-slate-500">رسالة/شهر — اتركها فارغة = بلا حد</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Governance — what the bot is allowed to do */}

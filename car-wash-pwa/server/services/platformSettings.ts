@@ -19,6 +19,8 @@ export type PlatformSettingKey =
   | 'vapid.email'
   | 'sentry.dsn'
   | 'firebase.config'
+  | 'openai.apiKey'
+  | 'openai.model'
   | 'platform.domain'
   | 'platform.trialDays'
   | 'platform.supportPhone'
@@ -30,6 +32,7 @@ const ENCRYPTED_KEYS: Set<PlatformSettingKey> = new Set([
   'whatsapp.defaultToken',
   'whatsapp.defaultPhoneId',
   'vapid.privateKey',
+  'openai.apiKey',
 ]);
 
 export const SECRET_PLACEHOLDER = '••••••••';
@@ -52,6 +55,8 @@ function envFallback(key: PlatformSettingKey): string | null {
     'vapid.email':             process.env.VAPID_EMAIL,
     'sentry.dsn':              process.env.SENTRY_DSN,
     'firebase.config':         process.env.FIREBASE_CONFIG,
+    'openai.apiKey':           process.env.OPENAI_API_KEY,
+    'openai.model':            process.env.OPENAI_MODEL,
     'platform.domain':         process.env.DOMAIN,
     'platform.trialDays':      process.env.TRIAL_DAYS,
     'platform.supportPhone':   process.env.SUPPORT_PHONE,
@@ -143,6 +148,8 @@ export async function getAllSettingsForUI(): Promise<
     'vapid.email',
     'sentry.dsn',
     'firebase.config',
+    'openai.apiKey',
+    'openai.model',
   ];
 
   return allKeys.map((key) => {
