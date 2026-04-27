@@ -19,6 +19,7 @@ interface VendorProfile {
   id: number;
   nameAr?: string;
   nameEn?: string;
+  slug?: string;
   phone?: string;
   email?: string;
   city?: string;
@@ -45,6 +46,7 @@ interface NotificationPrefs {
 const TABS = [
   { id: 'business',       label: 'المتجر',      icon: Building2 },
   { id: 'integrations',   label: 'التكاملات',   icon: Plug },
+  { id: 'tracking',       label: 'التتبع والإعلانات', icon: SettingsIcon },
   { id: 'notifications',  label: 'الإشعارات',    icon: Bell },
   { id: 'plan',           label: 'باقتي',        icon: Crown },
   { id: 'security',       label: 'الأمان',       icon: Shield },
@@ -949,6 +951,145 @@ function IntegrationsTab({ vendorId }: { vendorId?: number }) {
   );
 }
 
+// ─── Tab: Tracking & Ads (Google Ads, GA4, GTM, Meta, TikTok, Snap) ──────────
+
+interface TrackingIds {
+  ga4MeasurementId?: string;
+  googleAdsId?: string;
+  googleAdsConversion?: string;
+  gtmContainerId?: string;
+  metaPixelId?: string;
+  tiktokPixelId?: string;
+  snapPixelId?: string;
+}
+
+function TrackingTab({ vendor }: { vendor?: VendorProfile }) {
+  const qc = useQueryClient();
+  const [draft, setDraft] = useState<TrackingIds>({});
+
+  const { data, isLoading } = useQuery<TrackingIds>({
+    queryKey: ['vendor-tracking'],
+    queryFn: () => api.get('/vendors/me/tracking').then((r) => r.data),
+  });
+
+  useEffect(() => {
+    if (data) setDraft(data);
+  }, [data]);
+
+  const saveMutation = useMutation({
+    mutationFn: () => api.put('/vendors/me/tracking', draft),
+    onSuccess: () => {
+      toast.success('تم حفظ معرّفات التتبع');
+      qc.invalidateQueries({ queryKey: ['vendor-tracking'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'فشل الحفظ'),
+  });
+
+  const storeUrl = vendor?.slug
+    ? `${window.location.origin}/store/${vendor.slug}`
+    : window.location.origin;
+  const adUrlExample = `${storeUrl}?utm_source=google&utm_medium=cpc&utm_campaign=summer_sale`;
+
+  const fields: Array<{ key: keyof TrackingIds; label: string; placeholder: string; help: string }> = [
+    { key: 'gtmContainerId',     label: 'Google Tag Manager', placeholder: 'GTM-XXXXXXX', help: 'يدير كل الـ pixels من حاوية واحدة (موصى به للمتقدمين).' },
+    { key: 'ga4MeasurementId',   label: 'Google Analytics 4', placeholder: 'G-XXXXXXXXXX', help: 'لتحليل الزيارات والتحويلات في GA4.' },
+    { key: 'googleAdsId',        label: 'Google Ads Conversion ID', placeholder: 'AW-1234567890', help: 'لقياس تحويلات حملات Google Ads. خذها من Conversions → Tag setup.' },
+    { key: 'googleAdsConversion',label: 'Google Ads Conversion Label', placeholder: 'abcDeFgH1jk', help: 'الـ Conversion Label (الجزء بعد الـ /). تطلق على كل حجز ناجح.' },
+    { key: 'metaPixelId',        label: 'Meta Pixel (Facebook/Instagram)', placeholder: '123456789012345', help: 'Pixel ID من Meta Events Manager.' },
+    { key: 'tiktokPixelId',      label: 'TikTok Pixel', placeholder: 'C4XXXXXXXXXXXXXXXX', help: 'من TikTok Ads Manager → Events → Web Events.' },
+    { key: 'snapPixelId',        label: 'Snap Pixel', placeholder: 'XXXXXXXX-XXXX-XXXX-XXXX', help: 'من Snapchat Ads Manager → Events Manager.' },
+  ];
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center py-16"><Loader2 className="animate-spin text-orange-400" /></div>;
+  }
+
+  return (
+    <div className="space-y-6" dir="rtl">
+      {/* Intro */}
+      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+        <h3 className="text-sm font-black text-white mb-2">قِس نتائج إعلاناتك</h3>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          ألصق معرّفات التتبع الخاصة بمتجرك. ستطلق المنصة الأحداث القياسية تلقائياً على صفحة متجرك العامة وصفحة الحجز:{' '}
+          <code className="px-1 rounded bg-slate-800 text-orange-300">view_item</code>،{' '}
+          <code className="px-1 rounded bg-slate-800 text-orange-300">begin_checkout</code>،{' '}
+          <code className="px-1 rounded bg-slate-800 text-orange-300">purchase</code> — تشتغل عبر Google Ads، GA4، Meta، TikTok، وSnap.
+        </p>
+      </div>
+
+      {/* Fields */}
+      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5 space-y-4">
+        {fields.map((f) => (
+          <div key={f.key}>
+            <label className="text-xs font-bold text-slate-300 block mb-1.5">{f.label}</label>
+            <input
+              type="text"
+              value={draft[f.key] ?? ''}
+              onChange={(e) => setDraft({ ...draft, [f.key]: e.target.value })}
+              placeholder={f.placeholder}
+              className="w-full bg-slate-800/60 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-mono outline-none focus:border-orange-500/40"
+            />
+            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">{f.help}</p>
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={() => saveMutation.mutate()}
+          disabled={saveMutation.isPending}
+          className="w-full py-3 rounded-xl font-black text-white bg-orange-500 hover:bg-orange-400 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+        >
+          {saveMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+          حفظ
+        </button>
+      </div>
+
+      {/* Ready-made ad URLs */}
+      <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
+        <h3 className="text-sm font-black text-white mb-2">روابط جاهزة لإعلاناتك</h3>
+        <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+          استخدم هذه الروابط في إعلانات Google Ads / Meta / TikTok ليحسب النظام مصدر كل حجز ويربطه بحملتك.
+        </p>
+
+        <div className="space-y-3">
+          <UrlExample label="رابط متجرك الأساسي" url={storeUrl} />
+          <UrlExample label="مثال: حملة Google Ads صيف" url={adUrlExample} />
+          <UrlExample label="مثال: حملة Instagram عودة العملاء" url={`${storeUrl}?utm_source=instagram&utm_medium=paid_social&utm_campaign=winback`} />
+        </div>
+
+        <p className="text-[11px] text-slate-500 mt-4 leading-relaxed">
+          غيّر <code className="px-1 rounded bg-slate-800">utm_campaign</code> لكل حملة لتعرف أيهم يجلب أكثر حجوزات. ستجد التقرير في{' '}
+          <Link to="/vendor/advanced-analytics" className="text-orange-400 underline">التحليلات المتقدمة</Link>.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function UrlExample({ label, url }: { label: string; url: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="bg-slate-900/40 border border-white/8 rounded-xl p-3">
+      <p className="text-[11px] text-slate-500 mb-1.5">{label}</p>
+      <div className="flex items-center gap-2">
+        <code className="flex-1 text-xs text-orange-300 truncate font-mono">{url}</code>
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard.writeText(url).catch(() => {});
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          }}
+          className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[10px] font-bold text-white flex items-center gap-1"
+        >
+          {copied ? <CheckCircle2 size={11} /> : <SettingsIcon size={11} />}
+          {copied ? 'تم' : 'نسخ'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Settings Page ────────────────────────────────────────────────────────
 
 export default function VendorSettings() {
@@ -965,6 +1106,7 @@ export default function VendorSettings() {
   const tabContent: Record<TabId, React.ReactNode> = {
     business:      <BusinessTab vendor={vendor} />,
     integrations:  <IntegrationsTab vendorId={vendorId} />,
+    tracking:      <TrackingTab vendor={vendor} />,
     notifications: <NotificationsTab vendor={vendor} />,
     plan:          <PlanTab vendor={vendor} />,
     security:      <SecurityTab />,

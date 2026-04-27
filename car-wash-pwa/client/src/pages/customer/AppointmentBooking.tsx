@@ -10,6 +10,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { useVendorTracking, getStoredUtms } from '../../lib/tracking';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, ChevronLeft, ChevronRight, Clock, Car,
@@ -153,6 +154,7 @@ function StepIndicator({ step, color }: { step: number; color: string }) {
 
 export default function AppointmentBooking() {
   const { slug } = useParams<{ slug: string }>();
+  const { trackEvent } = useVendorTracking(slug);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -233,6 +235,7 @@ export default function AppointmentBooking() {
   const bookMutation = useMutation({
     mutationFn: async () => {
       if (!vendor || !selectedService || !selectedPackage || !selectedTime) throw new Error('بيانات ناقصة');
+      const utm = getStoredUtms();
       const { data } = await api.post('/appointments/book', {
         vendorId: vendor.id,
         date: selectedDate,
@@ -241,13 +244,35 @@ export default function AppointmentBooking() {
         packageId: selectedPackage.id,
         vehicleId: selectedVehicleId,
         notes: notes || undefined,
+        utmSource:   utm.utm_source,
+        utmMedium:   utm.utm_medium,
+        utmCampaign: utm.utm_campaign,
+        utmContent:  utm.utm_content,
+        utmTerm:     utm.utm_term,
       });
       return data;
     },
     onSuccess: (data) => {
       setBookingSuccess({ bookingNumber: data.booking.bookingNumber, time: selectedTime! });
+      const price = parseFloat(selectedPackage?.price ?? '0');
+      trackEvent('purchase', {
+        value: isNaN(price) ? undefined : price,
+        itemName: selectedPackage?.name ?? selectedService?.name,
+        transactionId: data.booking?.bookingNumber,
+      });
     },
   });
+
+  // Fire begin_checkout when reaching the final review step
+  useEffect(() => {
+    if (selectedService && selectedPackage && selectedTime) {
+      const price = parseFloat(selectedPackage?.price ?? '0');
+      trackEvent('begin_checkout', {
+        value: isNaN(price) ? undefined : price,
+        itemName: selectedPackage?.name ?? selectedService?.name,
+      });
+    }
+  }, [selectedService, selectedPackage, selectedTime, trackEvent]);
 
   const color = vendor?.primaryColor ?? '#2563eb';
   const activeServices = services.filter((s) => s.isActive);

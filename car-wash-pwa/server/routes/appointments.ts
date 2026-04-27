@@ -255,6 +255,12 @@ const bookSchema = z.object({
   packageId: z.number().optional(),
   vehicleId: z.number().optional(),
   notes: z.string().optional(),
+  // Marketing attribution from URL utm_* params (captured by client)
+  utmSource:   z.string().max(100).optional(),
+  utmMedium:   z.string().max(100).optional(),
+  utmCampaign: z.string().max(100).optional(),
+  utmContent:  z.string().max(200).optional(),
+  utmTerm:     z.string().max(200).optional(),
 });
 
 router.post('/book', requireAuth, async (req: AuthRequest, res) => {
@@ -327,6 +333,11 @@ router.post('/book', requireAuth, async (req: AuthRequest, res) => {
       statusHistory: [{ status: 'confirmed', at: new Date().toISOString(), by: customerId }],
       paymentMethod: 'cash',
       paymentStatus: 'pending',
+      utmSource: data.utmSource,
+      utmMedium: data.utmMedium,
+      utmCampaign: data.utmCampaign,
+      utmContent: data.utmContent,
+      utmTerm: data.utmTerm,
     }).returning();
 
     // Notify via WhatsApp (fire and forget)

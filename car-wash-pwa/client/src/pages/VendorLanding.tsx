@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useVendorTracking } from '../lib/tracking';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -138,12 +139,18 @@ function ServicesSkeleton() {
 export default function VendorLanding() {
   const { slug } = useParams<{ slug: string }>();
   const [activeServiceId, setActiveServiceId] = useState<number | null>(null);
+  const { trackEvent } = useVendorTracking(slug);
 
   const { data: vendor, isLoading: vendorLoading } = useQuery<VendorPublic>({
     queryKey: ['vendor-public', slug],
     queryFn: () => api.get(`/vendors/public/${slug}`).then((r) => r.data),
     enabled: !!slug,
   });
+
+  // Fire view_store once the vendor loads
+  useEffect(() => {
+    if (vendor) trackEvent('view_store', { itemName: vendor.nameAr });
+  }, [vendor, trackEvent]);
 
   const { data: services = [], isLoading: servicesLoading } = useQuery<Service[]>({
     queryKey: ['services-public', vendor?.id],

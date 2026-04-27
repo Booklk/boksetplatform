@@ -35,6 +35,12 @@ const createBookingSchema = z.object({
   notes: z.string().optional(),
   // For employee creating booking for a customer
   customerId: z.number().optional(),
+  // Marketing attribution — passed by client from URL query params
+  utmSource:   z.string().max(100).optional(),
+  utmMedium:   z.string().max(100).optional(),
+  utmCampaign: z.string().max(100).optional(),
+  utmContent:  z.string().max(200).optional(),
+  utmTerm:     z.string().max(200).optional(),
 });
 
 // Customer: create booking
@@ -75,6 +81,11 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       status: 'pending',
       statusHistory: [{ status: 'pending', at: new Date().toISOString(), by: req.user!.id }],
       trackingToken,
+      utmSource: data.utmSource,
+      utmMedium: data.utmMedium,
+      utmCampaign: data.utmCampaign,
+      utmContent: data.utmContent,
+      utmTerm: data.utmTerm,
     }).returning();
 
     // Auto-assign to nearest available vehicle (inside transaction to prevent double-booking)

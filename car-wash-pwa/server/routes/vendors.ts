@@ -770,6 +770,71 @@ router.post('/:id/extend', requireAuth, requireRole('super_admin'), async (req, 
   }
 });
 
+// GET /api/vendors/public/:slug/tracking — Tracking pixel IDs for the vendor's
+// public store. These IDs are designed to be embedded in the page source
+// (Google/Meta/etc. expect them in the browser), so no auth needed — but we
+// only return the small subset of tracking-related keys, never other settings.
+router.get('/public/:slug/tracking', async (req, res) => {
+  try {
+    const [v] = await db.select({ settings: vendors.settings, slug: vendors.slug })
+      .from(vendors).where(eq(vendors.slug, req.params.slug)).limit(1);
+    if (!v) return res.json({});
+    const t = ((v.settings ?? {}) as Record<string, unknown>).tracking ?? {};
+    return res.json(t);
+  } catch (e) {
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// GET /api/vendors/me/tracking — Vendor admin: read current tracking IDs
+router.get('/me/tracking', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
+    const [v] = await db.select({ settings: vendors.settings }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    if (!v) return res.status(404).json({ error: 'المتجر غير موجود' });
+    const t = ((v.settings ?? {}) as Record<string, unknown>).tracking ?? {};
+    return res.json(t);
+  } catch (e) {
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// PUT /api/vendors/me/tracking — Save tracking IDs (merged into vendor.settings.tracking)
+const trackingSchema = z.object({
+  ga4MeasurementId:    z.string().regex(/^G-[A-Z0-9]+$/i).optional().or(z.literal('')),
+  googleAdsId:         z.string().regex(/^AW-\d+$/i).optional().or(z.literal('')),
+  googleAdsConversion: z.string().optional().or(z.literal('')),
+  gtmContainerId:      z.string().regex(/^GTM-[A-Z0-9]+$/i).optional().or(z.literal('')),
+  metaPixelId:         z.string().regex(/^\d{10,20}$/).optional().or(z.literal('')),
+  tiktokPixelId:       z.string().optional().or(z.literal('')),
+  snapPixelId:         z.string().optional().or(z.literal('')),
+});
+
+router.put('/me/tracking', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط بهذا الحساب' });
+    const data = trackingSchema.parse(req.body);
+
+    // Strip empty strings so we store null instead of ""
+    const tracking: Record<string, string> = {};
+    for (const [k, v] of Object.entries(data)) {
+      if (v && typeof v === 'string') tracking[k] = v.trim();
+    }
+
+    const [current] = await db.select({ settings: vendors.settings }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const merged = { ...(current?.settings ?? {}), tracking };
+    await db.update(vendors).set({ settings: merged, updatedAt: new Date() }).where(eq(vendors.id, vendorId));
+
+    return res.json({ ok: true, tracking });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message ?? 'صيغة غير صحيحة' });
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // GET /api/vendors/me/integrations — show what's configured (no secrets exposed)
 router.get('/me/integrations', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {

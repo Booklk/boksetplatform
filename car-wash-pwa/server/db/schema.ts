@@ -226,6 +226,12 @@ export const bookings = pgTable('bookings', {
   refundAmount: decimal('refund_amount', { precision: 10, scale: 2 }),
   // Tracking token for public live-tracking link (no auth required)
   trackingToken: varchar('tracking_token', { length: 64 }),
+  // Marketing attribution — captured from URL query params on booking creation
+  utmSource: varchar('utm_source', { length: 100 }),
+  utmMedium: varchar('utm_medium', { length: 100 }),
+  utmCampaign: varchar('utm_campaign', { length: 100 }),
+  utmContent: varchar('utm_content', { length: 200 }),
+  utmTerm: varchar('utm_term', { length: 200 }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
