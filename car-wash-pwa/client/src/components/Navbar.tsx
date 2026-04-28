@@ -135,6 +135,7 @@ const superAdminNavSections: NavSection[] = [
       { to: '/super-admin/users', icon: Users, label: 'المستخدمين' },
       { to: '/super-admin/revenue', icon: TrendingUp, label: 'الإيرادات' },
       { to: '/super-admin/profitability', icon: DollarSign, label: 'الربحية' },
+      { to: '/super-admin/billing-audit', icon: FileText, label: 'سجل الأحداث المالية' },
       { to: '/super-admin/plans', icon: CreditCard, label: 'الباقات' },
       { to: '/super-admin/support', icon: HelpCircle, label: 'الدعم' },
       { to: '/super-admin/announce', icon: Send, label: 'إعلانات' },

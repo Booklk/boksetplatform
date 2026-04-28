@@ -579,4 +579,45 @@ router.get('/profitability', requireAuth, requireRole('super_admin'), async (_re
   }
 });
 
+// GET /api/super-admin/billing-audit — append-only billing events log
+//   Filters: ?event=quota_exceeded&vendorId=12&days=30
+router.get('/billing-audit', requireAuth, requireRole('super_admin'), async (req, res) => {
+  try {
+    const { billingAudit } = await import('../db/schema.js');
+    const eventFilter = req.query.event as string | undefined;
+    const vendorFilter = req.query.vendorId ? Number(req.query.vendorId) : undefined;
+    const days = Math.min(Number(req.query.days ?? 30), 365);
+
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const conditions = [gte(billingAudit.createdAt, since)];
+    if (eventFilter) conditions.push(eq(billingAudit.event, eventFilter));
+    if (vendorFilter) conditions.push(eq(billingAudit.vendorId, vendorFilter));
+
+    const rows = await db.select({
+      id: billingAudit.id,
+      vendorId: billingAudit.vendorId,
+      event: billingAudit.event,
+      resource: billingAudit.resource,
+      amount: billingAudit.amount,
+      metadata: billingAudit.metadata,
+      createdAt: billingAudit.createdAt,
+      vendorName: vendors.nameAr,
+    })
+      .from(billingAudit)
+      .leftJoin(vendors, eq(billingAudit.vendorId, vendors.id))
+      .where(conditions.length === 1 ? conditions[0] : sql`${conditions.reduce((a, c, i) => i === 0 ? c : sql`${a} AND ${c}`, sql`true`)}`)
+      .orderBy(desc(billingAudit.createdAt))
+      .limit(500);
+
+    // Aggregate by event type for the summary row
+    const summary: Record<string, number> = {};
+    for (const r of rows) summary[r.event] = (summary[r.event] ?? 0) + 1;
+
+    return res.json({ rows, summary, total: rows.length });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 export default router;

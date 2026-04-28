@@ -488,6 +488,44 @@ cron.schedule('*/15 * * * *', async () => {
   }
 });
 
+// Daily at 09:00: profitability watchdog — pings the platform owner via
+// WhatsApp if any vendor is operating at a loss, so action can be taken
+// before losses accumulate over the month.
+cron.schedule('0 9 * * *', async () => {
+  try {
+    const { computeAllProfitability } = await import('./services/profitability.js');
+    const { getSetting } = await import('./services/platformSettings.js');
+    const { sendRawWhatsAppMessage } = await import('./services/whatsapp.js');
+
+    const result = await computeAllProfitability();
+    if (result.totals.losingCount === 0) return;
+
+    const ownerPhone = await getSetting('platform.supportPhone');
+    if (!ownerPhone) {
+      console.log(`[Loss Alert] ${result.totals.losingCount} vendor(s) losing money — but no platform.supportPhone set`);
+      return;
+    }
+
+    const top3 = result.vendors
+      .filter((v) => v.health === 'losing')
+      .slice(0, 3)
+      .map((v) => `• ${v.nameAr}: ${v.netMargin.toFixed(2)} ر.س`)
+      .join('\n');
+
+    const msg =
+      `⚠️ تنبيه ربحية المنصة\n\n` +
+      `${result.totals.losingCount} تاجر يخسّر هذا الشهر:\n${top3}` +
+      (result.totals.losingCount > 3 ? `\n+ ${result.totals.losingCount - 3} آخرين` : '') +
+      `\n\nصافي خسائر اليوم: ${Math.abs(result.totals.margin < 0 ? result.totals.margin : 0).toFixed(2)} ر.س\n` +
+      `راجع /super-admin/profitability للتفاصيل.`;
+
+    await sendRawWhatsAppMessage(ownerPhone, msg).catch(() => {});
+    console.log(`[Loss Alert] Notified owner about ${result.totals.losingCount} losing vendor(s)`);
+  } catch (e) {
+    console.error('[Loss Alert]', e);
+  }
+});
+
 // Every hour: send reminder for bookings 24h away
 cron.schedule('0 * * * *', async () => {
   try {
