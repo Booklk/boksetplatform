@@ -1501,6 +1501,63 @@ export const billingAuditVendorIdx = index('idx_billing_audit_vendor').on(billin
 export const billingAuditEventIdx = index('idx_billing_audit_event').on(billingAudit.event);
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// ██  MOBILE APP ORDERS — vendor pays once to convert their store into a       ██
+// ██  ready-to-publish iOS / Android app project (source code delivered).      ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Three plans:
+//   - android      Android source only (Capacitor + Android Studio project)
+//   - ios          iOS source only (Capacitor + Xcode project)
+//   - both         Combo of both (discounted vs sum of individual)
+// Plus an a-la-carte:
+//   - support_hour  Additional developer hour beyond the included support
+//
+// Vendor handles their own Apple Developer / Google Play accounts and
+// publishes the apps under their own developer accounts. Platform's job
+// ends at handover of source code + manual.
+
+export const mobileAppOrders = pgTable('mobile_app_orders', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  planId: varchar('plan_id', { length: 20 }).notNull(),
+  // android | ios | both | support_hour
+  pricePaidSar: decimal('price_paid_sar', { precision: 10, scale: 2 }).notNull(),
+  status: varchar('status', { length: 30 }).notNull().default('pending_payment'),
+  // pending_payment | paid | in_production | ready | delivered | cancelled | refunded
+
+  // App branding the vendor provided
+  appName: varchar('app_name', { length: 100 }),
+  iconUrl: text('icon_url'),
+  primaryColor: varchar('primary_color', { length: 7 }),
+  description: text('description'),
+  keywords: text('keywords'),
+  privacyPolicyUrl: text('privacy_policy_url'),
+  bundleId: varchar('bundle_id', { length: 200 }),
+
+  // Payment integration
+  paymentRef: varchar('payment_ref', { length: 100 }),
+  paidAt: timestamp('paid_at'),
+
+  // Delivery
+  androidApkUrl: text('android_apk_url'),
+  iosProjectUrl: text('ios_project_url'),
+  githubRepoUrl: text('github_repo_url'),
+  manualUrl: text('manual_url'),
+  deliveredAt: timestamp('delivered_at'),
+
+  // Support hours included + used (resets on each order)
+  supportHoursIncluded: integer('support_hours_included').notNull().default(2),
+  supportHoursUsed: decimal('support_hours_used', { precision: 5, scale: 2 }).notNull().default('0'),
+
+  adminNotes: text('admin_notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const mobileAppOrdersVendorIdx = index('idx_mobile_app_orders_vendor').on(mobileAppOrders.vendorId);
+export const mobileAppOrdersStatusIdx = index('idx_mobile_app_orders_status').on(mobileAppOrders.status);
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // ██  PLATFORM SETTINGS — global, super-admin-managed config (key/value)       ██
 // ═══════════════════════════════════════════════════════════════════════════════
 //

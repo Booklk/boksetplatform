@@ -579,6 +579,89 @@ router.get('/profitability', requireAuth, requireRole('super_admin'), async (_re
   }
 });
 
+// GET /api/super-admin/mobile-app-orders — all mobile app orders
+router.get('/mobile-app-orders', requireAuth, requireRole('super_admin'), async (_req, res) => {
+  try {
+    const { mobileAppOrders } = await import('../db/schema.js');
+    const { getPlan } = await import('../services/mobileAppPlans.js');
+    const list = await db.select({
+      order: mobileAppOrders,
+      vendorName: vendors.nameAr,
+      vendorSlug: vendors.slug,
+    })
+      .from(mobileAppOrders)
+      .leftJoin(vendors, eq(mobileAppOrders.vendorId, vendors.id))
+      .orderBy(desc(mobileAppOrders.createdAt));
+    return res.json(list.map((r) => ({
+      ...r.order,
+      vendorName: r.vendorName,
+      vendorSlug: r.vendorSlug,
+      plan: getPlan(r.order.planId),
+    })));
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+const updateOrderSchema = z.object({
+  status: z.enum(['pending_payment', 'paid', 'in_production', 'ready', 'delivered', 'cancelled', 'refunded']).optional(),
+  androidApkUrl: z.string().url().optional().or(z.literal('')),
+  iosProjectUrl: z.string().url().optional().or(z.literal('')),
+  githubRepoUrl: z.string().url().optional().or(z.literal('')),
+  manualUrl: z.string().url().optional().or(z.literal('')),
+  adminNotes: z.string().max(2000).optional(),
+});
+
+router.patch('/mobile-app-orders/:id', requireAuth, requireRole('super_admin'), async (req: AuthRequest, res) => {
+  try {
+    const { mobileAppOrders } = await import('../db/schema.js');
+    const id = Number(req.params.id);
+    const data = updateOrderSchema.parse(req.body);
+    const updates: Record<string, unknown> = { ...data, updatedAt: new Date() };
+    if (data.status === 'delivered') updates.deliveredAt = new Date();
+    if (data.status === 'paid') updates.paidAt = new Date();
+
+    const [updated] = await db.update(mobileAppOrders)
+      .set(updates)
+      .where(eq(mobileAppOrders.id, id))
+      .returning();
+    if (!updated) return res.status(404).json({ error: 'الطلب غير موجود' });
+
+    // Audit
+    try {
+      const { billingAudit } = await import('../db/schema.js');
+      await db.insert(billingAudit).values({
+        vendorId: updated.vendorId,
+        event: 'mobile_app_order_updated',
+        resource: updated.planId,
+        metadata: { orderId: id, changes: data, by: req.user!.id },
+      });
+    } catch {/* noop */}
+
+    // Notify vendor on status change
+    if (data.status === 'delivered' || data.status === 'ready') {
+      try {
+        const [v] = await db.select({ phone: vendors.phone, nameAr: vendors.nameAr })
+          .from(vendors).where(eq(vendors.id, updated.vendorId)).limit(1);
+        if (v?.phone) {
+          const { sendRawWhatsAppMessage } = await import('../services/whatsapp.js');
+          const msg = data.status === 'delivered'
+            ? `✅ تم تسليم تطبيق "${updated.appName}"\n\nالملفات جاهزة للتحميل من لوحة التحكم → التطبيق المحمول.\n\nراجع دليل النشر المرفق.`
+            : `🎉 تطبيقك جاهز!\n\n"${updated.appName}" جاهز للتحميل من لوحة التحكم.`;
+          await sendRawWhatsAppMessage(v.phone, msg).catch(() => {});
+        }
+      } catch {/* noop */}
+    }
+
+    return res.json(updated);
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 // GET /api/super-admin/billing-audit — append-only billing events log
 //   Filters: ?event=quota_exceeded&vendorId=12&days=30
 router.get('/billing-audit', requireAuth, requireRole('super_admin'), async (req, res) => {

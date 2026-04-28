@@ -319,6 +319,9 @@ app.use('/api/campaigns', requireAuth, campaignsRoutes);
 app.use('/api/whatsapp-bot', whatsappBotRoutes);
 app.use('/api/addons', addonsRoutes);
 
+import mobileAppRoutes from './routes/mobileApp.js';
+app.use('/api/mobile-app', mobileAppRoutes);
+
 import { requireAddon } from './middleware/requireAddon.js';
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);
 app.use('/api/gift-cards', requireAuth, giftCardsRoutes);
