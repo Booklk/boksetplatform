@@ -242,6 +242,8 @@ function GlassInput({
   placeholder,
   dir,
   required,
+  inputMode,
+  autoComplete,
 }: {
   icon: typeof Phone;
   type?: string;
@@ -250,6 +252,8 @@ function GlassInput({
   placeholder: string;
   dir?: string;
   required?: boolean;
+  inputMode?: 'tel' | 'numeric' | 'text' | 'email' | 'url' | 'search' | 'decimal' | 'none';
+  autoComplete?: string;
 }) {
   const [focused, setFocused] = useState(false);
 
@@ -278,6 +282,8 @@ function GlassInput({
 
         <input
           type={type}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
           value={value}
           onChange={onChange}
           onFocus={() => setFocused(true)}
@@ -569,6 +575,8 @@ export default function Login() {
                     <GlassInput
                       icon={Phone}
                       type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="05xxxxxxxx"

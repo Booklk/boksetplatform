@@ -322,6 +322,9 @@ app.use('/api/addons', addonsRoutes);
 import mobileAppRoutes from './routes/mobileApp.js';
 app.use('/api/mobile-app', mobileAppRoutes);
 
+import storeManifestRoutes from './routes/storeManifest.js';
+app.use('/api/store', storeManifestRoutes);
+
 import { requireAddon } from './middleware/requireAddon.js';
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);
 app.use('/api/gift-cards', requireAuth, giftCardsRoutes);

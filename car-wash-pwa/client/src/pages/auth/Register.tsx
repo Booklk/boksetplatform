@@ -128,6 +128,8 @@ export default function Register() {
                 <label className="label">رقم الجوال السعودي</label>
                 <input
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   placeholder="05xxxxxxxx"

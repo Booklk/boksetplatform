@@ -55,11 +55,12 @@ export function BottomNav() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 260, damping: 22, delay: 0.15 }}
       className="fixed bottom-0 inset-x-0 z-50 md:hidden"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       dir="rtl"
     >
       {/* Glassmorphism bar */}
-      <div className="bg-slate-900/80 backdrop-blur-xl border-t border-slate-700/50 safe-bottom">
-        <div className="flex items-stretch justify-around px-1 pt-2 pb-1">
+      <div className="bg-slate-900/80 backdrop-blur-xl border-t border-slate-700/50">
+        <div className="flex items-stretch justify-around px-1 pt-2 pb-2">
           {TABS.map((tab) => {
             const active = isActive(tab);
             const showBadge = tab.badge && activeCount > 0;
@@ -71,7 +72,7 @@ export function BottomNav() {
                 <button
                   key={tab.path}
                   onClick={() => handleTabPress(tab)}
-                  className="flex-1 flex flex-col items-center gap-1 relative min-w-0 -mt-5"
+                  className="flex-1 flex flex-col items-center gap-1 relative min-w-0 -mt-5 min-h-[44px]"
                   aria-label={tab.label}
                 >
                   <motion.div
@@ -82,7 +83,7 @@ export function BottomNav() {
                     <Icon className="w-6 h-6 text-white" strokeWidth={2.5} />
                   </motion.div>
                   <span
-                    className={`text-[10px] font-bold leading-none truncate max-w-full transition-colors ${
+                    className={`text-xs font-bold leading-tight truncate max-w-full transition-colors ${
                       active ? 'text-brand-400' : 'text-slate-500'
                     }`}
                   >
@@ -96,7 +97,7 @@ export function BottomNav() {
               <button
                 key={tab.path}
                 onClick={() => handleTabPress(tab)}
-                className="flex-1 flex flex-col items-center gap-1 py-1.5 px-1 relative min-w-0"
+                className="flex-1 flex flex-col items-center gap-1 py-2.5 px-1 relative min-w-0 min-h-[52px]"
                 aria-label={tab.label}
               >
                 {/* Animated active indicator pill */}
@@ -141,7 +142,7 @@ export function BottomNav() {
 
                 {/* Label */}
                 <span
-                  className={`text-[10px] font-bold leading-none truncate max-w-full transition-colors ${
+                  className={`text-xs font-bold leading-tight truncate max-w-full transition-colors ${
                     active ? 'text-brand-400' : 'text-slate-500'
                   }`}
                 >
