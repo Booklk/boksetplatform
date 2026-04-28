@@ -741,29 +741,155 @@ router.post('/:id/suspend', requireAuth, requireRole('super_admin'), async (req,
   }
 });
 
-// POST /api/vendors/:id/extend — Super Admin: extend subscription by N days
-router.post('/:id/extend', requireAuth, requireRole('super_admin'), async (req, res) => {
+// POST /api/vendors/:id/extend — Super Admin: grant a complimentary subscription
+// extension. Models the standard SaaS "credit"/"comp" pattern:
+//   - Categorized reason (not free text) so reporting/analytics is meaningful
+//   - Equivalent SAR value computed and recorded so cost shows in profitability
+//   - Audit log per grant + cumulative days-granted tracker per vendor
+//   - Notification to vendor so they know they got a gift (transparency)
+//   - Idempotent: extends from later of (now, current end date) — never shrinks
+const GRANT_REASONS = [
+  'goodwill',         // tactical relationship management
+  'compensation',     // service issue compensation
+  'beta_partner',     // early adopter / partner program
+  'marketing',        // promotional / contest
+  'internal_test',    // staff or QA account
+  'other',
+] as const;
+
+const PLAN_MONTHLY_PRICES: Record<string, number> = {
+  free: 0, pro: 99, pro_m: 99, pro_y: 84, enterprise: 799,
+};
+
+router.post('/:id/extend', requireAuth, requireRole('super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = parseInt(req.params.id);
-    const { days = 30 } = req.body;
+    if (!vendorId || isNaN(vendorId)) return res.status(400).json({ error: 'معرّف غير صالح' });
 
-    const [existing] = await db.select({ subscriptionEndDate: vendors.subscriptionEndDate })
-      .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const data = z.object({
+      days: z.number().int().min(1).max(365),
+      plan: z.enum(['pro', 'pro_m', 'pro_y', 'enterprise']).optional(),
+      reason: z.enum(GRANT_REASONS),
+      note: z.string().max(500).optional(),
+    }).parse(req.body);
 
-    const base = existing?.subscriptionEndDate && new Date(existing.subscriptionEndDate) > new Date()
-      ? new Date(existing.subscriptionEndDate)
+    const [existing] = await db.select({
+      subscriptionEndDate: vendors.subscriptionEndDate,
+      subscriptionPlan: vendors.subscriptionPlan,
+      nameAr: vendors.nameAr,
+      phone: vendors.phone,
+    }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    if (!existing) return res.status(404).json({ error: 'المتجر غير موجود' });
+
+    const oldEndDate = existing.subscriptionEndDate;
+    const finalPlan = data.plan ?? existing.subscriptionPlan ?? 'pro';
+    const base = oldEndDate && new Date(oldEndDate) > new Date()
+      ? new Date(oldEndDate)
       : new Date();
+    base.setDate(base.getDate() + data.days);
 
-    base.setDate(base.getDate() + Number(days));
+    // Equivalent SAR value of the granted period (for cost-of-goodwill reporting)
+    const monthlyPrice = PLAN_MONTHLY_PRICES[finalPlan] ?? 99;
+    const grantedValueSar = Math.round((data.days / 30) * monthlyPrice * 100) / 100;
 
     const [vendor] = await db.update(vendors).set({
       subscriptionEndDate: base,
+      subscriptionPlan: finalPlan,
       subscriptionStatus: 'active',
       isActive: true,
       updatedAt: new Date(),
     }).where(eq(vendors.id, vendorId)).returning();
 
-    return res.json(vendor);
+    // Append-only audit — used to compute cumulative gift days per vendor
+    try {
+      const { billingAudit } = await import('../db/schema.js');
+      await db.insert(billingAudit).values({
+        vendorId,
+        event: 'subscription_grant',
+        resource: 'subscription_days',
+        amount: String(grantedValueSar),
+        metadata: {
+          days: data.days,
+          plan: finalPlan,
+          reason: data.reason,
+          note: data.note ?? null,
+          oldEndDate: oldEndDate ? new Date(oldEndDate).toISOString() : null,
+          newEndDate: base.toISOString(),
+          grantedByUserId: req.user!.id,
+          grantedValueSar,
+        },
+      });
+    } catch (e) {
+      console.error('[grant audit failed]', e);
+    }
+
+    // Notify the vendor (best-effort) so they know about the comp
+    if (existing.phone) {
+      try {
+        const { sendRawWhatsAppMessage } = await import('../services/whatsapp.js');
+        const reasonAr = ({
+          goodwill:      'تقدير لشراكتنا',
+          compensation:  'تعويض',
+          beta_partner:  'برنامج الشركاء المبكرين',
+          marketing:     'عرض ترويجي',
+          internal_test: 'حساب اختباري',
+          other:         'منحة من الإدارة',
+        } as Record<string, string>)[data.reason] ?? 'منحة';
+
+        await sendRawWhatsAppMessage(
+          existing.phone,
+          `🎁 تم تمديد اشتراكك في المنصة\n\n` +
+          `+${data.days} يوم على باقة ${finalPlan}\n` +
+          `ينتهي: ${base.toLocaleDateString('ar-SA')}\n` +
+          `السبب: ${reasonAr}`,
+          vendorId,
+        ).catch(() => {});
+      } catch {/* noop */}
+    }
+
+    return res.json({
+      vendor,
+      grant: {
+        days: data.days,
+        plan: finalPlan,
+        reason: data.reason,
+        oldEndDate,
+        newEndDate: base,
+        grantedValueSar,
+      },
+    });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// GET /api/vendors/:id/grants — Super Admin: list all complimentary extensions
+router.get('/:id/grants', requireAuth, requireRole('super_admin'), async (req, res) => {
+  try {
+    const vendorId = parseInt(req.params.id);
+    if (!vendorId || isNaN(vendorId)) return res.status(400).json({ error: 'معرّف غير صالح' });
+
+    const { billingAudit } = await import('../db/schema.js');
+    const list = await db.select({
+      id: billingAudit.id,
+      amount: billingAudit.amount,
+      metadata: billingAudit.metadata,
+      createdAt: billingAudit.createdAt,
+    })
+      .from(billingAudit)
+      .where(and(
+        eq(billingAudit.vendorId, vendorId),
+        eq(billingAudit.event, 'subscription_grant'),
+      ))
+      .orderBy(desc(billingAudit.createdAt))
+      .limit(50);
+
+    const totalDays = list.reduce((s, g) => s + Number((g.metadata as { days?: number })?.days ?? 0), 0);
+    const totalValueSar = list.reduce((s, g) => s + parseFloat(g.amount ?? '0'), 0);
+
+    return res.json({ list, totalDays, totalValueSar });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'خطأ في الخادم' });

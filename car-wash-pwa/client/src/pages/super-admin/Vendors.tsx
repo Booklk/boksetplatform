@@ -91,23 +91,11 @@ function VendorActionsMenu({
     onError: () => toast.error('فشل التعليق'),
   });
 
-  const extendMutation = useMutation({
-    mutationFn: () =>
-      axios.post(`/api/vendors/${vendor.id}/extend`, { days: 30 }, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
-    onSuccess: () => {
-      toast.success('تم تمديد الاشتراك 30 يوم');
-      queryClient.invalidateQueries({ queryKey: ['super-admin-vendors'] });
-      onClose();
-    },
-    onError: () => toast.error('فشل التمديد'),
-  });
+  const [showGrantModal, setShowGrantModal] = useState(false);
 
   const isLoading =
     activateMutation.isPending ||
-    suspendMutation.isPending ||
-    extendMutation.isPending;
+    suspendMutation.isPending;
 
   return (
     <motion.div
@@ -133,14 +121,204 @@ function VendorActionsMenu({
         تعليق
       </button>
       <button
-        onClick={() => extendMutation.mutate()}
+        onClick={() => { setShowGrantModal(true); onClose(); }}
         disabled={isLoading}
         className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-blue-300 hover:bg-slate-700/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
         <CalendarPlus size={14} />
-        تمديد 30 يوم
+        منح اشتراك مجاني...
       </button>
+
+      {showGrantModal && (
+        <GrantSubscriptionModal vendor={vendor} onClose={() => setShowGrantModal(false)} />
+      )}
     </motion.div>
+  );
+}
+
+// ─── Grant subscription modal ──────────────────────────────────────────────
+
+const GRANT_REASONS = [
+  { id: 'goodwill',      label: 'تقدير لشراكة العميل', desc: 'إدارة العلاقات وتوطيدها' },
+  { id: 'compensation',  label: 'تعويض عن مشكلة',       desc: 'تعويض على خلل في الخدمة' },
+  { id: 'beta_partner',  label: 'شريك مبكر / Beta',     desc: 'مكافأة للمتبنّين الأوائل' },
+  { id: 'marketing',     label: 'حملة ترويجية',          desc: 'مسابقة أو هدية تسويقية' },
+  { id: 'internal_test', label: 'حساب اختباري',          desc: 'موظفين أو QA' },
+  { id: 'other',         label: 'أخرى',                  desc: 'يتطلب ملاحظة' },
+] as const;
+
+const PRESET_DAYS = [7, 30, 90, 180, 365];
+const PLAN_OPTIONS = [
+  { id: 'pro',        label: 'Pro شهري',     price: 99 },
+  { id: 'pro_y',      label: 'Pro سنوي',     price: 84 },
+  { id: 'enterprise', label: 'Enterprise',   price: 799 },
+];
+
+function GrantSubscriptionModal({
+  vendor,
+  onClose,
+}: {
+  vendor: Vendor;
+  onClose: () => void;
+}) {
+  const { token } = useAuth();
+  const queryClient = useQueryClient();
+  const [days, setDays] = useState(30);
+  const [plan, setPlan] = useState<'pro' | 'pro_y' | 'enterprise'>('pro');
+  const [reason, setReason] = useState<typeof GRANT_REASONS[number]['id']>('goodwill');
+  const [note, setNote] = useState('');
+
+  const planPrice = PLAN_OPTIONS.find((p) => p.id === plan)?.price ?? 99;
+  const valueSar = Math.round((days / 30) * planPrice * 100) / 100;
+
+  const grantMutation = useMutation({
+    mutationFn: () =>
+      axios.post(`/api/vendors/${vendor.id}/extend`, {
+        days, plan, reason, note: note || undefined,
+      }, { headers: { Authorization: `Bearer ${token}` } }),
+    onSuccess: () => {
+      toast.success(`تم منح ${days} يوم بقيمة ${valueSar} ر.س`);
+      queryClient.invalidateQueries({ queryKey: ['super-admin-vendors'] });
+      onClose();
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'فشل المنح'),
+  });
+
+  const noteRequired = reason === 'other';
+  const canGrant = days > 0 && (!noteRequired || note.length >= 5);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+      onClick={onClose}
+      dir="rtl"
+    >
+      <div
+        className="bg-slate-900 border border-white/10 rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-black text-white">منح اشتراك مجاني</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white text-xl leading-none">×</button>
+        </div>
+
+        <p className="text-xs text-slate-400 mb-5">
+          المتجر: <span className="text-white font-bold">{vendor.nameAr}</span>
+        </p>
+
+        {/* Days */}
+        <div className="mb-4">
+          <label className="text-xs font-bold text-slate-300 block mb-2">المدة</label>
+          <div className="flex gap-1.5 mb-2 flex-wrap">
+            {PRESET_DAYS.map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setDays(d)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                  days === d ? 'bg-orange-500 text-white' : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                }`}
+              >
+                {d} يوم
+              </button>
+            ))}
+          </div>
+          <input
+            type="number"
+            min={1}
+            max={365}
+            value={days}
+            onChange={(e) => setDays(Math.max(1, Math.min(365, parseInt(e.target.value) || 0)))}
+            className="w-32 bg-slate-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm font-mono outline-none"
+          />
+        </div>
+
+        {/* Plan */}
+        <div className="mb-4">
+          <label className="text-xs font-bold text-slate-300 block mb-2">الباقة المُمنوحة</label>
+          <div className="grid grid-cols-3 gap-2">
+            {PLAN_OPTIONS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setPlan(p.id as any)}
+                className={`p-3 rounded-xl text-xs border transition-colors ${
+                  plan === p.id
+                    ? 'border-orange-500 bg-orange-500/10 text-orange-300'
+                    : 'border-white/10 bg-white/5 text-slate-400 hover:bg-white/10'
+                }`}
+              >
+                <p className="font-bold">{p.label}</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">{p.price} ر.س/شهر</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Reason */}
+        <div className="mb-4">
+          <label className="text-xs font-bold text-slate-300 block mb-2">السبب</label>
+          <div className="space-y-1.5">
+            {GRANT_REASONS.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => setReason(r.id)}
+                className={`w-full text-right px-3 py-2 rounded-lg text-xs transition-colors ${
+                  reason === r.id
+                    ? 'bg-orange-500/10 border border-orange-500/30'
+                    : 'bg-white/[0.02] border border-white/8 hover:bg-white/5'
+                }`}
+              >
+                <p className={`font-bold ${reason === r.id ? 'text-orange-300' : 'text-white'}`}>{r.label}</p>
+                <p className="text-[10px] text-slate-500">{r.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Note */}
+        <div className="mb-5">
+          <label className="text-xs font-bold text-slate-300 block mb-1.5">
+            ملاحظة {noteRequired && <span className="text-red-300">(مطلوبة)</span>}
+          </label>
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={2}
+            placeholder="اختياري — تفاصيل إضافية للسجل"
+            className="w-full bg-slate-800 border border-white/10 rounded-lg px-3 py-2 text-white text-sm outline-none resize-none"
+          />
+        </div>
+
+        {/* Cost preview */}
+        <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3 mb-5">
+          <p className="text-xs font-bold text-amber-300 mb-1">ملخص</p>
+          <div className="text-xs text-amber-200 space-y-0.5">
+            <p>المنحة: <span className="font-bold">{days} يوم</span> من باقة <span className="font-bold">{plan}</span></p>
+            <p>القيمة المعادلة: <span className="font-bold">{valueSar} ر.س</span> (تُحتسب كتكلفة goodwill في تقرير الربحية)</p>
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-sm font-bold"
+          >
+            إلغاء
+          </button>
+          <button
+            type="button"
+            onClick={() => grantMutation.mutate()}
+            disabled={!canGrant || grantMutation.isPending}
+            className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-white text-sm font-black disabled:opacity-50"
+          >
+            {grantMutation.isPending ? 'جاري المنح...' : 'منح الآن'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
