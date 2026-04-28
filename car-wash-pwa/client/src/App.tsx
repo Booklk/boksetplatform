@@ -230,7 +230,10 @@ function AppLayout({ children, withSidebar }: { children: React.ReactNode; withS
     <div className={`min-h-screen ${hasSidebar ? 'md:pr-64' : ''}`}>
       <Navbar />
       {isCustomer && <PushNotificationBanner />}
-      <main className={`pt-14 ${isCustomer ? 'pb-24 md:pb-4' : 'pb-20 md:pb-4'}`}>
+      <main
+        className={`pt-14 ${isCustomer ? 'pb-24 md:pb-4' : 'pb-20 md:pb-4'}`}
+        style={{ paddingBottom: `calc(${isCustomer ? '6rem' : '5rem'} + env(safe-area-inset-bottom))` }}
+      >
         {children}
       </main>
       {isCustomer && <BottomNav />}

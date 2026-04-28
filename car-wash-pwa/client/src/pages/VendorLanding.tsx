@@ -366,10 +366,12 @@ export default function VendorLanding() {
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDesc} />
         <script type="application/ld+json">{JSON.stringify(localBusinessSchema)}</script>
-        <link rel="manifest" href={`/api/manifest/${slug}.json`} />
+        <link rel="manifest" href={`/api/store/${slug}/manifest.json`} />
         <meta name="theme-color" content={color} />
         <meta name="apple-mobile-web-app-title" content={vendor.nameAr} />
-        {vendor.logoUrl && <link rel="apple-touch-icon" href={vendor.logoUrl} />}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="apple-touch-icon" href={vendor.logoUrl ?? `/api/store/${slug}/icon`} />
       </Helmet>
     <VendorThemeProvider slug={slug}>
     <div

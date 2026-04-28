@@ -383,6 +383,9 @@ app.use('/api/brand-kit', requireAuth, brandKitRoutes);
 app.use('/api/campaigns', requireAuth, campaignsRoutes);
 import mobileAppRoutes from './routes/mobileApp.js';
 app.use('/api/mobile-app', mobileAppRoutes);
+
+import storeManifestRoutes from './routes/storeManifest.js';
+app.use('/api/store', storeManifestRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);
 app.use('/api/gift-cards', requireAuth, giftCardsRoutes);
 app.use('/api/shop', shopRoutes);

@@ -449,6 +449,8 @@ export default function VendorOnboarding() {
                     <Phone size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input
                       type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       placeholder="05xxxxxxxx"
