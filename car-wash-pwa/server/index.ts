@@ -381,6 +381,8 @@ app.use('/api/cost-factors', requireAuth, costFactorsRoutes);
 app.use('/api/referrals', requireAuth, referralsRoutes);
 app.use('/api/brand-kit', requireAuth, brandKitRoutes);
 app.use('/api/campaigns', requireAuth, campaignsRoutes);
+import mobileAppRoutes from './routes/mobileApp.js';
+app.use('/api/mobile-app', mobileAppRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);
 app.use('/api/gift-cards', requireAuth, giftCardsRoutes);
 app.use('/api/shop', shopRoutes);

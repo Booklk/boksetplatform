@@ -82,6 +82,7 @@ const VendorLiveMap = lazy(() => import('./pages/vendor/LiveMap'));
 const VendorSubscriptions = lazy(() => import('./pages/vendor/Subscriptions'));
 const VendorCorporate = lazy(() => import('./pages/vendor/Corporate'));
 const VendorPlatformSub = lazy(() => import('./pages/vendor/PlatformSubscription'));
+const VendorMobileApp = lazy(() => import('./pages/vendor/MobileApp'));
 const VendorFleet = lazy(() => import('./pages/vendor/Fleet'));
 const VendorEmployees = lazy(() => import('./pages/vendor/Employees'));
 const VendorSetup = lazy(() => import('./pages/vendor/Setup'));
@@ -140,6 +141,7 @@ const SuperAdminHealth = lazy(() => import('./pages/super-admin/Health'));
 const SuperAdminAnnounce = lazy(() => import('./pages/super-admin/Announce'));
 const SuperAdminAuditLogs = lazy(() => import('./pages/super-admin/AuditLogs'));
 const SuperAdminPlans = lazy(() => import('./pages/super-admin/Plans'));
+const SuperAdminMobileApps = lazy(() => import('./pages/super-admin/MobileAppOrders'));
 
 // Appointment booking
 const AppointmentBooking = lazy(() => import('./pages/customer/AppointmentBooking'));
@@ -530,6 +532,11 @@ function AppRoutes() {
             <S><VendorSettings /></S>
           </RequireAuth>
         } />
+        <Route path="/vendor/mobile-app" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorMobileApp /></S>
+          </RequireAuth>
+        } />
         <Route path="/vendor/operations" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <S><VendorOperations /></S>
@@ -778,6 +785,11 @@ function AppRoutes() {
         <Route path="/super-admin/plans" element={
           <RequireAuth roles={['super_admin']}>
             <S><SuperAdminPlans /></S>
+          </RequireAuth>
+        } />
+        <Route path="/super-admin/mobile-app-orders" element={
+          <RequireAuth roles={['super_admin']}>
+            <S><SuperAdminMobileApps /></S>
           </RequireAuth>
         } />
 
