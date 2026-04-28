@@ -200,7 +200,15 @@ app.use(cors({
 }));
 
 app.use(morgan('dev'));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  verify: (req: any, _res, buf) => {
+    // Preserve raw body for webhook HMAC signature verification
+    if (req.url?.startsWith('/api/whatsapp-bot/webhook')) {
+      req.rawBody = buf;
+    }
+  },
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // ─── RATE LIMITING ──────────────────────────────────────────────────────────

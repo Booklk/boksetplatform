@@ -461,8 +461,14 @@ router.post('/:id/status', requireAuth, requireRole('employee', 'admin', 'vendor
     const [booking] = await db.select().from(bookings).where(eq(bookings.id, id)).limit(1);
     if (!booking) return res.status(404).json({ error: 'الحجز غير موجود' });
 
-    // Vendor isolation: employee/admin can only update their vendor's bookings
-    if (req.user!.vendorId && booking.vendorId !== req.user!.vendorId) {
+    // Vendor isolation: employee/admin/vendor_admin MUST have a vendorId
+    // and it MUST match the booking's vendorId. The previous version
+    // skipped the check when vendorId was missing — this handler doesn't
+    // accept super_admin in its role list, but this is defense in depth.
+    if (!req.user!.vendorId) {
+      return res.status(403).json({ error: 'يجب أن يكون الحساب مرتبطاً بمتجر' });
+    }
+    if (booking.vendorId !== req.user!.vendorId) {
       return res.status(403).json({ error: 'غير مصرح' });
     }
 

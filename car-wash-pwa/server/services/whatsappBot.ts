@@ -471,6 +471,11 @@ interface IncomingMessage {
   text: string;
   buttonId?: string;
   listSelection?: string;
+  /**
+   * The webhook reserved an AI message quota slot for us. If false, AI is
+   * out of budget for this period — we fall through to free button menus.
+   */
+  aiQuotaReserved?: boolean;
 }
 
 export async function processIncomingMessage(
@@ -529,8 +534,10 @@ export async function processIncomingMessage(
     case 'handoff':
       return void await handoff(msg.fromPhone, vendor);
     default:
-      // Try AI brain if vendor has 'ai_bot' add-on, AI is enabled, and within cap
-      if (settings.aiEnabled) {
+      // The webhook already reserved (or denied) the AI quota slot for this
+      // message via usageGuard. We only invoke the LLM if BOTH the vendor
+      // has aiEnabled AND the quota was actually reserved — never double-charge.
+      if (settings.aiEnabled && msg.aiQuotaReserved) {
         const { isAddonActive } = await import('./addons.js');
         const hasAddon = await isAddonActive(vendor.id, 'ai_bot');
         if (hasAddon) {
@@ -578,17 +585,10 @@ async function tryAiTurn(
     return false;
   }
 
-  // Atomic plan-level quota check — denies if subscription inactive,
-  // addon missing, monthly cap hit, or overflow disabled.
-  const { checkAndRecord } = await import('./usageGuard.js');
-  const guard = await checkAndRecord({
-    vendorId: vendor.id,
-    resource: 'ai_messages',
-    amount: 1,
-  });
-  if (!guard.allowed) {
-    return false; // fall through to button menu — vendor sees no error, customer keeps using bot
-  }
+  // The webhook already reserved this turn's AI quota via checkAndRecord
+  // before invoking us. Re-checking here would double-charge. The
+  // subscription-active and addon-active gates are still applied via
+  // isAddonActive() in the caller.
 
   const turn = await generateAiTurn(
     {

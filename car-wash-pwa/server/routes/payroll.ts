@@ -40,13 +40,27 @@ router.put('/configs/:employeeId', requireAuth, requireRole('vendor_admin', 'adm
       commissionRate: z.union([z.string(), z.number()]).transform(String).optional(),
     }).parse(req.body);
 
+    // Verify the employee belongs to this vendor — prevents cross-vendor IDOR.
+    const [emp] = await db.select({ id: users.id })
+      .from(users)
+      .where(and(eq(users.id, employeeId), eq(users.vendorId, vendorId)))
+      .limit(1);
+    if (!emp) return res.status(404).json({ error: 'الموظف غير موجود' });
+
+    // Both sides of the upsert now scope by (employeeId AND vendorId)
     const existing = await db.select().from(employeeSalaryConfig)
-      .where(eq(employeeSalaryConfig.employeeId, employeeId)).limit(1);
+      .where(and(
+        eq(employeeSalaryConfig.employeeId, employeeId),
+        eq(employeeSalaryConfig.vendorId, vendorId),
+      )).limit(1);
 
     if (existing.length) {
       const [updated] = await db.update(employeeSalaryConfig)
         .set({ ...data, updatedAt: new Date() })
-        .where(eq(employeeSalaryConfig.employeeId, employeeId))
+        .where(and(
+          eq(employeeSalaryConfig.employeeId, employeeId),
+          eq(employeeSalaryConfig.vendorId, vendorId),
+        ))
         .returning();
       return res.json(updated);
     } else {

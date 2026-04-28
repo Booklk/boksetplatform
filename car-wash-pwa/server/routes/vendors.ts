@@ -675,6 +675,34 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
       }).optional(),
     }).parse(req.body);
 
+    // Strip protected keys from settings JSON. These can ONLY be modified
+    // through their dedicated endpoints (toggleAddon, super-admin extend,
+    // payment webhooks). A vendor cannot grant themselves add-ons or extend
+    // their own subscription by injecting them into the settings blob.
+    const PROTECTED_SETTINGS_KEYS = new Set([
+      'addons', 'subscriptionStatus', 'subscriptionEndDate', 'subscriptionPlan',
+      'trialEndsAt', 'isActive', 'overflowEnabled',
+    ]);
+    if (allowed.settings && req.user!.role !== 'super_admin') {
+      for (const k of Object.keys(allowed.settings)) {
+        if (PROTECTED_SETTINGS_KEYS.has(k)) {
+          delete allowed.settings[k];
+        }
+      }
+      // Merge into existing settings instead of replacing — never lose
+      // server-managed keys from a partial update.
+      const [existing] = await db.select({ settings: vendors.settings })
+        .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+      const merged = { ...(existing?.settings ?? {}), ...allowed.settings };
+      // Preserve server-managed keys verbatim
+      for (const k of PROTECTED_SETTINGS_KEYS) {
+        if (k in (existing?.settings ?? {})) {
+          (merged as Record<string, unknown>)[k] = (existing!.settings as Record<string, unknown>)[k];
+        }
+      }
+      allowed.settings = merged;
+    }
+
     // Encrypt sensitive fields if provided
     const updateData: Record<string, unknown> = { ...allowed, updatedAt: new Date() };
     if (allowed.whatsappToken) updateData.whatsappToken = encrypt(allowed.whatsappToken);

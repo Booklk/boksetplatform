@@ -159,10 +159,17 @@ export async function checkAndRecord(opts: CheckOptions): Promise<CheckResult> {
     return { allowed: false, denyReason: 'plan_locked', used: 0, limit: 0, remaining: 0 };
   }
 
-  // Ensure the row exists for this period (idempotent insert)
+  // Ensure the row exists with the CURRENT resolved limit. Using upsert
+  // (not onConflictDoNothing) means concurrent first-of-month calls all
+  // converge on the same row with the same limit; if the limit changed
+  // since the row was created (e.g. addon was just toggled), we refresh
+  // it to the new value before the atomic increment runs.
   await db.insert(monthlyUsage)
     .values({ vendorId, resource, period, used: 0, limit })
-    .onConflictDoNothing();
+    .onConflictDoUpdate({
+      target: [monthlyUsage.vendorId, monthlyUsage.resource, monthlyUsage.period],
+      set: { limit, updatedAt: new Date() },
+    });
 
   // 3) Atomic conditional increment.
   //    For unlimited (limit=null): increment unconditionally.

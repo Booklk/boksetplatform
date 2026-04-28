@@ -52,6 +52,19 @@ router.post('/', requireAuth, requireRole('vendor_admin', 'admin'), async (req: 
       return res.status(400).json({ error: 'لا يوجد عملاء في هذه الشريحة' });
     }
 
+    // Concurrency lock: only one campaign per vendor may be in 'sending' state
+    // at a time. Prevents the parallel-campaigns quota-exhaustion exploit.
+    const inFlight = await db.select({ id: whatsappCampaigns.id })
+      .from(whatsappCampaigns)
+      .where(and(
+        eq(whatsappCampaigns.vendorId, vendorId),
+        eq(whatsappCampaigns.status, 'sending'),
+      ))
+      .limit(1);
+    if (inFlight.length > 0) {
+      return res.status(429).json({ error: 'هناك حملة قيد الإرسال — انتظر حتى تنتهي قبل إطلاق حملة جديدة' });
+    }
+
     // Atomic quota guard for the entire batch — denies if quota would be
     // exceeded BEFORE we start sending (no partial sends + double-charge).
     const { checkAndRecord } = await import('../services/usageGuard.js');

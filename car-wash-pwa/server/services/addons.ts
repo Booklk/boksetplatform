@@ -104,11 +104,23 @@ export function listAddons(): Addon[] {
 /**
  * Check whether a vendor has an active add-on. Tracking-related add-ons
  * are hierarchical: gps_pro implies gps_basic.
+ *
+ * Crucially: even if vendor.settings.addons still lists an add-on, this
+ * returns FALSE the moment subscriptionStatus leaves (trial, active).
+ * The 15-min cleanup cron is defense-in-depth, NOT the only enforcement.
  */
 export async function isAddonActive(vendorId: number, addonId: AddonId): Promise<boolean> {
-  const [v] = await db.select({ settings: vendors.settings })
+  const [v] = await db.select({
+    settings: vendors.settings,
+    status: vendors.subscriptionStatus,
+  })
     .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
   if (!v) return false;
+
+  // Subscription state gate — runs BEFORE we even read the addons list.
+  // Closes the cron window where status flipped to suspended but
+  // settings.addons still has stale entries.
+  if (!['trial', 'active'].includes(v.status)) return false;
 
   const active = ((v.settings ?? {}) as { addons?: string[] }).addons ?? [];
   if (active.includes(addonId)) return true;
