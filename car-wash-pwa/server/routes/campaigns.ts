@@ -52,6 +52,25 @@ router.post('/', requireAuth, requireRole('vendor_admin', 'admin'), async (req: 
       return res.status(400).json({ error: 'لا يوجد عملاء في هذه الشريحة' });
     }
 
+    // Atomic quota guard for the entire batch — denies if quota would be
+    // exceeded BEFORE we start sending (no partial sends + double-charge).
+    const { checkAndRecord } = await import('../services/usageGuard.js');
+    const guard = await checkAndRecord({
+      vendorId,
+      resource: 'whatsapp_marketing',
+      amount: recipients.length,
+    });
+    if (!guard.allowed) {
+      const reason =
+        guard.denyReason === 'subscription_inactive' ? 'الاشتراك غير مفعّل' :
+        guard.denyReason === 'plan_locked'           ? 'حملات الواتساب تتطلب إضافة بوت AI' :
+        `الكمية (${recipients.length}) تتجاوز حدك الشهري المتبقي. المستخدم: ${guard.used}/${guard.limit}.`;
+      return res.status(402).json({
+        error: reason,
+        usage: { used: guard.used, limit: guard.limit, remaining: guard.remaining },
+      });
+    }
+
     // Insert campaign record
     const [campaign] = await db.insert(whatsappCampaigns).values({
       vendorId,

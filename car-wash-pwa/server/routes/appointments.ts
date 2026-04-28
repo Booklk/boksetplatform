@@ -269,13 +269,20 @@ router.post('/book', requireAuth, async (req: AuthRequest, res) => {
     const customerId = req.user!.id;
     const { vendorId, date, time } = data;
 
-    // Free-plan monthly booking limit
-    const { checkBookingAllowed } = await import('../services/planLimits.js');
-    const allowance = await checkBookingAllowed(vendorId);
-    if (!allowance.allowed) {
+    // Atomic quota guard
+    const { checkAndRecord } = await import('../services/usageGuard.js');
+    const guard = await checkAndRecord({
+      vendorId,
+      resource: 'bookings',
+      amount: 1,
+    });
+    if (!guard.allowed) {
+      const reason =
+        guard.denyReason === 'subscription_inactive' ? 'الاشتراك غير مفعّل لهذا المتجر' :
+        `وصل المتجر للحد الشهري (${guard.limit} حجز). يرجى الترقية.`;
       return res.status(402).json({
-        error: allowance.error,
-        usage: allowance.usage,
+        error: reason,
+        usage: { used: guard.used, limit: guard.limit, remaining: guard.remaining },
         upgradeRequired: { plan: 'pro' },
       });
     }

@@ -1,6 +1,6 @@
 import {
   pgTable, text, integer, decimal, boolean, timestamp,
-  jsonb, serial, varchar, unique, numeric, index, type AnyPgColumn,
+  jsonb, serial, varchar, unique, numeric, index, uniqueIndex, type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 
 // ─── VENDORS (Multi-Tenant Core) ──────────────────────────────────────────────
@@ -1443,6 +1443,62 @@ export const activityFeed = pgTable('activity_feed', {
   metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  MONTHLY USAGE COUNTERS — billing/quota enforcement                       ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// One row per (vendor_id, resource, period). All cost-incurring actions go
+// through usageGuard.checkAndRecord() which atomically increments these
+// counters AFTER verifying the new total wouldn't exceed the plan + addon
+// quota for that resource. Race conditions are prevented via the unique
+// constraint on (vendor_id, resource, period) + an atomic SQL UPDATE.
+//
+// `period` is a 'YYYY-MM' string keyed to UTC month rollover. Rows are
+// never deleted — they form the audit trail of what was consumed.
+
+export const monthlyUsage = pgTable('monthly_usage', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  resource: varchar('resource', { length: 40 }).notNull(),
+  // bookings | ai_messages | whatsapp_marketing | storage_mb
+  period: varchar('period', { length: 7 }).notNull(),
+  // YYYY-MM
+  used: integer('used').notNull().default(0),
+  limit: integer('limit'),
+  // null = unlimited; mirrors the resolved cap at the time the row was created
+  overflowCount: integer('overflow_count').notNull().default(0),
+  overflowAmountSar: decimal('overflow_amount_sar', { precision: 10, scale: 2 }).notNull().default('0'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const monthlyUsageUnique = uniqueIndex('idx_monthly_usage_unique')
+  .on(monthlyUsage.vendorId, monthlyUsage.resource, monthlyUsage.period);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  BILLING AUDIT LOG — every billable / quota event                         ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Append-only record of every event that affects what we charge or what
+// the vendor is allowed to do. Used for support, dispute resolution, and
+// reconciliation. Never updated, never deleted.
+
+export const billingAudit = pgTable('billing_audit', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  event: varchar('event', { length: 50 }).notNull(),
+  // addon_activated | addon_deactivated | quota_exceeded | quota_warning
+  // | overflow_charged | subscription_suspended | subscription_resumed
+  // | trial_started | trial_expired | payment_succeeded | payment_failed
+  resource: varchar('resource', { length: 40 }),
+  amount: decimal('amount', { precision: 10, scale: 2 }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const billingAuditVendorIdx = index('idx_billing_audit_vendor').on(billingAudit.vendorId);
+export const billingAuditEventIdx = index('idx_billing_audit_event').on(billingAudit.event);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ██  PLATFORM SETTINGS — global, super-admin-managed config (key/value)       ██

@@ -53,12 +53,22 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       .from(packages).where(eq(packages.id, data.packageId)).limit(1);
     if (!pkg) return res.status(404).json({ error: 'الباقة غير موجودة' });
 
-    // Free-plan monthly booking limit
-    const allowance = await checkBookingAllowed(pkg.vendorId);
-    if (!allowance.allowed) {
+    // Atomic quota guard — works for both free plan limit AND blocks
+    // suspended/expired vendors entirely (no way to bypass).
+    const { checkAndRecord } = await import('../services/usageGuard.js');
+    const guard = await checkAndRecord({
+      vendorId: pkg.vendorId,
+      resource: 'bookings',
+      amount: 1,
+    });
+    if (!guard.allowed) {
+      const reason =
+        guard.denyReason === 'subscription_inactive' ? 'الاشتراك غير مفعّل لهذا المتجر' :
+        guard.denyReason === 'plan_locked'           ? 'هذه الميزة تتطلب ترقية الباقة' :
+        `وصل المتجر للحد الشهري (${guard.limit} حجز). يرجى الترقية لاستقبال المزيد.`;
       return res.status(402).json({
-        error: allowance.error,
-        usage: allowance.usage,
+        error: reason,
+        usage: { used: guard.used, limit: guard.limit, remaining: guard.remaining },
         upgradeRequired: { plan: 'pro' },
       });
     }

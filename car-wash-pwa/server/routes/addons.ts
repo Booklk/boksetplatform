@@ -15,6 +15,7 @@ import {
   ADDONS, AddonId, getAddon, listAddons, toggleAddon,
 } from '../services/addons.js';
 import { getMonthlyBookingUsage } from '../services/planLimits.js';
+import { getAllQuotas } from '../services/usageGuard.js';
 
 const router = Router();
 
@@ -60,13 +61,26 @@ router.post('/me/:id/toggle', requireAuth, requireRole('vendor_admin', 'admin'),
   }
 });
 
-// GET /api/addons/me/usage — vendor's current month booking counter
+// GET /api/addons/me/usage — vendor's current month booking counter (legacy shape)
 router.get('/me/usage', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId;
     if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط' });
     const usage = await getMonthlyBookingUsage(vendorId);
     return res.json(usage);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// GET /api/addons/me/quotas — full per-resource quota status for dashboard
+router.get('/me/quotas', requireAuth, requireRole('vendor_admin', 'admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    if (!vendorId) return res.status(400).json({ error: 'لا يوجد متجر مرتبط' });
+    const quotas = await getAllQuotas(vendorId);
+    return res.json(quotas);
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: 'خطأ في الخادم' });

@@ -566,16 +566,28 @@ async function tryAiTurn(
 ): Promise<boolean> {
   const settings = botSettings(vendor);
 
-  // Reset monthly counter on month rollover
+  // Reset monthly counter on month rollover (legacy in-memory counter)
   const month = currentMonthKey();
   if (context.aiCountMonth !== month) {
     context.aiCount = 0;
     context.aiCountMonth = month;
   }
 
-  // Hard cap: if vendor set a monthly limit, stop here
+  // Hard cap: vendor's per-store soft limit (informational, in addition to plan cap)
   if (settings.monthlyAiLimit && (context.aiCount ?? 0) >= settings.monthlyAiLimit) {
-    return false; // fall through to default menu
+    return false;
+  }
+
+  // Atomic plan-level quota check — denies if subscription inactive,
+  // addon missing, monthly cap hit, or overflow disabled.
+  const { checkAndRecord } = await import('./usageGuard.js');
+  const guard = await checkAndRecord({
+    vendorId: vendor.id,
+    resource: 'ai_messages',
+    amount: 1,
+  });
+  if (!guard.allowed) {
+    return false; // fall through to button menu — vendor sees no error, customer keeps using bot
   }
 
   const turn = await generateAiTurn(

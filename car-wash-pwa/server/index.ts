@@ -467,6 +467,19 @@ if (process.env.NODE_ENV === 'production') {
 
 // ─── CRON JOBS ────────────────────────────────────────────────────────────────
 
+// Every 15 min: enforce subscription state — disable addons on any vendor
+// whose subscription has expired/been suspended/cancelled. Defense in depth
+// in case the immediate hook on subscription change misses one.
+cron.schedule('*/15 * * * *', async () => {
+  try {
+    const { syncAddonsWithSubscription } = await import('./services/addons.js');
+    const n = await syncAddonsWithSubscription();
+    if (n > 0) console.log(`[Subscription Guard] Disabled addons on ${n} inactive vendor(s)`);
+  } catch (e) {
+    console.error('[Subscription Guard]', e);
+  }
+});
+
 // Every hour: send reminder for bookings 24h away
 cron.schedule('0 * * * *', async () => {
   try {

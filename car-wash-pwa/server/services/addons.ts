@@ -119,18 +119,26 @@ export async function isAddonActive(vendorId: number, addonId: AddonId): Promise
   return false;
 }
 
-/** Toggle an add-on for a vendor. Returns the updated addon list. */
+/** Toggle an add-on for a vendor. Audited. Refuses if subscription is inactive. */
 export async function toggleAddon(
   vendorId: number,
   addonId: AddonId,
   enable: boolean,
 ): Promise<string[]> {
-  const [v] = await db.select({ settings: vendors.settings })
-    .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+  const [v] = await db.select({
+    settings: vendors.settings,
+    status: vendors.subscriptionStatus,
+  }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
   if (!v) throw new Error('vendor not found');
+
+  // Block activation when subscription isn't usable.
+  if (enable && !['trial', 'active'].includes(v.status)) {
+    throw new Error('الاشتراك غير مفعّل — لا يمكن إضافة إضافات الآن');
+  }
 
   const current = (v.settings ?? {}) as Record<string, unknown>;
   const addons = new Set<string>(((current.addons as string[]) ?? []));
+  const wasActive = addons.has(addonId);
   if (enable) addons.add(addonId);
   else addons.delete(addonId);
 
@@ -143,5 +151,59 @@ export async function toggleAddon(
     .set({ settings: { ...current, addons: list }, updatedAt: new Date() })
     .where(eq(vendors.id, vendorId));
 
+  // Audit only on actual state change (avoid duplicate logs)
+  if (wasActive !== enable) {
+    const addon = ADDONS[addonId];
+    try {
+      const { billingAudit } = await import('../db/schema.js');
+      await db.insert(billingAudit).values({
+        vendorId,
+        event: enable ? 'addon_activated' : 'addon_deactivated',
+        resource: addonId,
+        amount: enable ? String(addon.priceSar) : null,
+        metadata: { addonName: addon.nameAr, monthly: addon.priceSar },
+      });
+    } catch {/* audit must never block */}
+  }
+
   return list;
+}
+
+/**
+ * Sync addons with subscription state — called on a cron + on subscription
+ * status change. Vendors whose subscription expired/suspended/cancelled get
+ * ALL their add-ons disabled atomically. Returns count of vendors affected.
+ */
+export async function syncAddonsWithSubscription(): Promise<number> {
+  const { billingAudit } = await import('../db/schema.js');
+  const all = await db.select({
+    id: vendors.id,
+    status: vendors.subscriptionStatus,
+    settings: vendors.settings,
+  }).from(vendors);
+
+  let affected = 0;
+  for (const v of all) {
+    if (['trial', 'active'].includes(v.status)) continue;
+    const current = (v.settings ?? {}) as { addons?: string[] };
+    const had = current.addons ?? [];
+    if (had.length === 0) continue;
+
+    await db.update(vendors)
+      .set({
+        settings: { ...current, addons: [] },
+        updatedAt: new Date(),
+      })
+      .where(eq(vendors.id, v.id));
+
+    try {
+      await db.insert(billingAudit).values({
+        vendorId: v.id,
+        event: 'addons_disabled_subscription_inactive',
+        metadata: { previousAddons: had, status: v.status },
+      });
+    } catch {/* noop */}
+    affected++;
+  }
+  return affected;
 }
