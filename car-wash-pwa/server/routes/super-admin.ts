@@ -567,4 +567,16 @@ router.post('/settings/test/:key', requireAuth, requireRole('super_admin'), asyn
   }
 });
 
+// GET /api/super-admin/profitability — per-vendor revenue/cost/margin
+router.get('/profitability', requireAuth, requireRole('super_admin'), async (_req, res) => {
+  try {
+    const { computeAllProfitability } = await import('../services/profitability.js');
+    const result = await computeAllProfitability();
+    return res.json(result);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 export default router;

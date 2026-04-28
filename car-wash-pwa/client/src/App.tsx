@@ -118,6 +118,7 @@ const SuperAdminAnnounce = lazy(() => import('./pages/super-admin/Announce'));
 const SuperAdminAuditLogs = lazy(() => import('./pages/super-admin/AuditLogs'));
 const SuperAdminPlans = lazy(() => import('./pages/super-admin/Plans'));
 const SuperAdminSettings = lazy(() => import('./pages/super-admin/Settings'));
+const SuperAdminProfitability = lazy(() => import('./pages/super-admin/Profitability'));
 
 // Appointment booking
 const AppointmentBooking = lazy(() => import('./pages/customer/AppointmentBooking'));
@@ -681,6 +682,11 @@ function AppRoutes() {
         <Route path="/super-admin/settings" element={
           <RequireAuth roles={['super_admin']}>
             <S><SuperAdminSettings /></S>
+          </RequireAuth>
+        } />
+        <Route path="/super-admin/profitability" element={
+          <RequireAuth roles={['super_admin']}>
+            <S><SuperAdminProfitability /></S>
           </RequireAuth>
         } />
 
