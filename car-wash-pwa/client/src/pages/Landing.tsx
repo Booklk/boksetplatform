@@ -74,7 +74,7 @@ const features = [
   },
   {
     Icon: Gift,
-    gradient: 'from-orange-500 to-orange-500',
+    gradient: 'from-indigo-600 to-indigo-600',
     glow: 'shadow-violet-500/25',
     border: 'border-white/10',
     title: 'برامج ولاء تخليهم يرجعون',
@@ -83,10 +83,10 @@ const features = [
 ];
 
 const stats = [
-  { to: 120, suffix: '+', label: 'متجر مسجل', color: 'from-orange-500 to-orange-500' },
-  { to: 15000, suffix: '+', label: 'حجز مكتمل', color: 'from-orange-500 to-orange-500' },
-  { to: 4.9, suffix: '', label: 'تقييم', color: 'from-orange-500 to-orange-500', isDecimal: true },
-  { to: 2, suffix: '+ مليون ر.س', label: 'إيرادات عملائنا', color: 'from-orange-500 to-orange-500' },
+  { to: 120, suffix: '+', label: 'متجر مسجل', color: 'from-indigo-600 to-indigo-600' },
+  { to: 15000, suffix: '+', label: 'حجز مكتمل', color: 'from-indigo-600 to-indigo-600' },
+  { to: 4.9, suffix: '', label: 'تقييم', color: 'from-indigo-600 to-indigo-600', isDecimal: true },
+  { to: 2, suffix: '+ مليون ر.س', label: 'إيرادات عملائنا', color: 'from-indigo-600 to-indigo-600' },
 ];
 
 const testimonials = [
@@ -96,7 +96,7 @@ const testimonials = [
     text: 'قبل Jdawil كنت أدير كل شيء على واتساب! الآن الحجوزات تنظم نفسها والإيرادات زادت ٤٠٪ في أول شهرين.',
     rating: 5,
     avatar: 'أ',
-    color: 'from-orange-500 to-orange-500',
+    color: 'from-indigo-600 to-indigo-600',
   },
   {
     name: 'محمد العتيبي',
@@ -104,7 +104,7 @@ const testimonials = [
     text: 'الميزة اللي أحبها هي تتبع الموظفين. العميل يشوف الموظف وين هو. الثقة اللي بنيناها مع عملائنا لا تقدر بثمن.',
     rating: 5,
     avatar: 'م',
-    color: 'from-orange-500 to-orange-500',
+    color: 'from-indigo-600 to-indigo-600',
   },
   {
     name: 'خالد الدوسري',
@@ -112,7 +112,7 @@ const testimonials = [
     text: 'إعداد بسيط جداً — حطيت مفتاح API للدفع وبدأنا نستقبل مدفوعات STC Pay في نفس اليوم. مافي كود ولا تعقيد.',
     rating: 5,
     avatar: 'خ',
-    color: 'from-orange-500 to-orange-500',
+    color: 'from-indigo-600 to-indigo-600',
   },
 ];
 
@@ -132,36 +132,44 @@ const comparisonRows: { feature: string; before: string; after: string }[] = [
 
 const faqs = [
   {
-    q: 'ما هو Jdawil؟',
-    a: 'Jdawil هو برنامج SaaS متكامل لإدارة الحجوزات والخدمات في المملكة العربية السعودية. يوفر حجوزات ذكية، تتبع GPS مباشر للموظفين والسيارات، مدفوعات STC Pay ومدى، إدارة رواتب، وفواتير PDF — كل شيء في مكان واحد بدون تعقيد.',
+    q: 'هل المنصة مناسبة لقطاعي تحديداً؟',
+    a: 'منصة جداول صُمّمت لتخدم ٩+ قطاعات: الصالونات، التجميل المنزلي، تنظيف المنازل، صيانة المكيفات، السباكة، الكهرباء، مغاسل السيارات، الخدمات الطبية المنزلية، والفري لانسر. كل قطاع يحصل على إعدادات وميزات ملائمة له تلقائياً عند التسجيل (مثلاً: GPS لمن يخدم في الميدان، طابور انتظار لمن لديه فرع ثابت).',
   },
   {
-    q: 'هل يناسب المغاسل المتنقلة والثابتة معاً؟',
-    a: 'نعم. Jdawil مُصمَّم من اليوم الأول لكلا النوعين. الخدمة المتنقلة تستفيد من تتبع GPS، حساب وقت الوصول، وتوزيع الحجوزات على السيارات المتاحة. المتجر الثابت تستفيد من نظام الطابور والكاشير وإدارة العملاء.',
+    q: 'كم تكلف منصة جداول مقارنة بالحلول الأخرى؟',
+    a: 'الباقة المجانية: ١٠٠ حجز شهرياً، مجاني للأبد. باقة Pro: ٩٩ ر.س/شهر للمميزات الأساسية. الإضافات الاختيارية (بوت ذكي / GPS متقدم / قوائم مالية) من ٣٩ إلى ٨٩ ر.س للوحدة. للمقارنة: تطبيقات مماثلة من خارج السعودية تبدأ من ١,٢٠٠ ر.س/شهر، وحلول الوكالات المخصّصة تبدأ من ١٥,٠٠٠ ر.س للإعداد.',
   },
   {
-    q: 'كم سعر الاشتراك وهل توجد رسوم إضافية؟',
-    a: 'Jdawil مجاني للأبد مع 30 حجز/شهر. باقة Pro بـ 99 ر.س شهرياً أو 999 ر.س سنوياً لكل شيء مفتوح. بدون عمولة على المدفوعات.',
+    q: 'هل أحتاج تثبيت تطبيق أو معرفة برمجية؟',
+    a: 'لا. التسجيل في ٣ دقائق من الجوال أو الكمبيوتر. لا حاجة لمصمم أو مبرمج. لا حاجة لأجهزة خاصة — هاتفك كافٍ. التحديثات تصلك تلقائياً.',
   },
   {
-    q: 'هل أحتاج تثبيت تطبيق أو شراء أجهزة؟',
-    a: 'لا. Jdawil يعمل كـ PWA من المتصفح على أي جهاز. يمكن تثبيته على الشاشة الرئيسية بدون متجر تطبيقات. لا يحتاج أجهزة خاصة — جوالك كافٍ.',
+    q: 'هل تستلم منصة جداول أموال عملائي؟',
+    a: 'لا. تربط حسابك في Moyasar (أو أي مزود سعودي معتمد) مباشرة بنفسك. الأموال تذهب لحسابك البنكي مباشرة بدون أي وسيط. منصة جداول لا تلمس أموالك. تدعم STC Pay، مدى، Apple Pay، وفيزا.',
   },
   {
-    q: 'كيف تعمل المدفوعات الإلكترونية؟',
-    a: 'تربط حساب ميسر أو Checkout.com الخاص بك بمفتاح API. المال يذهب مباشرة لحسابك البنكي — Jdawil لا يلمس أموالك. يدعم STC Pay، مدى، Apple Pay، وNFC.',
+    q: 'كيف يحجز عميلي؟',
+    a: 'تشارك معه رابط متجرك (yourdomain.com/store/your-name)، أو رمز QR، أو يضيفه على شاشة جواله كتطبيق. ثم يختار الخدمة، يرى الأوقات المتاحة، يحجز، ويستلم تأكيداً عبر واتساب فوراً.',
   },
   {
-    q: 'ماذا يحدث بعد انتهاء التجربة المجانية؟',
-    a: 'تختار خطة وتشترك بأي طريقة دفع. إذا اخترت عدم الاستمرار، تُصدَّر بياناتك كاملةً بصيغة Excel وتُحذف بياناتك من الخوادم خلال 30 يوماً. لا يوجد أي التزام.',
+    q: 'هل أستطيع تحويل متجري إلى تطبيق فعلي على App Store / Google Play؟',
+    a: 'نعم. ندعم تحويل المتجر إلى تطبيق Android فقط (٢,٥٠٠ ر.س)، iOS فقط (٣,٥٠٠ ر.س)، أو الاثنين معاً (٥,٠٠٠ ر.س). دفعة واحدة فقط. تستلم الكود المصدري + دليل النشر. أنت تنشره تحت حساب المطوّر الخاص بك.',
   },
   {
-    q: 'هل البيانات آمنة؟',
-    a: 'نعم. كل متجر معزول تماماً عن الأخرى (Multi-tenant isolation). البيانات مشفرة أثناء النقل وعند التخزين. يتم نسخ احتياطي يومي تلقائي.',
+    q: 'ماذا يحدث لبياناتي إذا أردت إيقاف الخدمة؟',
+    a: 'تُصدَّر بياناتك كاملةً بصيغة Excel/CSV قبل الحذف. تُحذف من خوادمنا خلال ٣٠ يوماً. لا التزام، لا غرامة إلغاء. ميزة قانونية: البيانات تبقى في خوادم على الأراضي السعودية.',
   },
   {
-    q: 'هل أستطيع إدارة أكثر من متجر؟',
-    a: 'نعم. تتوفر خطط للفروع المتعددة (2-3 فروع، 4-10 فروع) بلوحة تحكم موحدة تتيح مقارنة أداء كل فرع وإدارة الموظفين والمخزون من مكان واحد.',
+    q: 'كيف تحمي خصوصية عملائي؟',
+    a: 'العزل الكامل بين المتاجر (Multi-tenant isolation): متجر آخر لا يرى بياناتك أبداً. تشفير AES-256 لكل البيانات الحساسة (أرقام البطاقات، أكواد الـ API). نسخ احتياطية يومية تلقائية. متوافقون مع نظام حماية البيانات الشخصية السعودي (PDPL).',
+  },
+  {
+    q: 'هل يدعم النظام أكثر من فرع؟',
+    a: 'نعم. لوحة تحكم واحدة تدير جميع فروعك. تشاهد أداء كل فرع منفصلاً، تنقل الموظفين بين الفروع، تطلق عروض خاصة بفرع، وتقارن الإيرادات. متوفر في باقة Enterprise.',
+  },
+  {
+    q: 'كيف أحصل على دعم؟',
+    a: 'دعم باللغة العربية ٧ أيام أسبوعياً عبر واتساب وبريد إلكتروني. وقت الاستجابة المتوسط: ٢٠ دقيقة. الباقات الأعلى تحصل على مدير حساب مخصّص ودعم فوري.',
   },
 ];
 
@@ -279,8 +287,8 @@ export default function Landing() {
 
       {/* ── Background — clean, minimal ── */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
-        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-orange-500/[0.07] blur-[150px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-orange-500/[0.04] blur-[120px]" />
+        <div className="absolute -top-48 right-[-20%] w-[600px] h-[600px] rounded-full bg-indigo-600/[0.07] blur-[150px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-600/[0.04] blur-[120px]" />
       </div>
 
       {/* ══ NAVBAR ══════════════════════════════════════════════════════════ */}
@@ -312,11 +320,11 @@ export default function Landing() {
               item.isLink
                 ? <Link key={item.label} to={item.href!} className="relative text-slate-400 hover:text-white text-sm font-medium transition-colors group">
                     {item.label}
-                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-orange-500 group-hover:w-full transition-all duration-300" />
+                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-indigo-600 group-hover:w-full transition-all duration-300" />
                   </Link>
                 : <a key={item.label} href={item.href} className="relative text-slate-400 hover:text-white text-sm font-medium transition-colors group">
                     {item.label}
-                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-orange-500 group-hover:w-full transition-all duration-300" />
+                    <span className="absolute -bottom-0.5 right-0 w-0 h-px bg-indigo-600 group-hover:w-full transition-all duration-300" />
                   </a>
             ))}
             {user ? (
@@ -370,54 +378,56 @@ export default function Landing() {
       <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center pt-16 px-4 overflow-hidden">
 
         <motion.div style={{ opacity: heroOpacity, y: heroY, scale: heroScale }} className="relative z-10 max-w-5xl mx-auto text-center">
-          {/* Badge — clean */}
+          {/* Badge — corporate trust signal */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/[0.08] rounded-full px-4 py-1.5 mb-8"
+            className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-1.5 mb-8"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-slate-700 animate-pulse" />
-            <span className="text-xs text-slate-400 font-medium">+9 قطاعات خدمية · مغاسل · صالونات · تنظيف · صيانة · تجميل · سباكة · كهرباء · فري لانسر</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs text-indigo-300 font-bold tracking-wide">المنصة الأولى عربياً للمتاجر الخدمية + التطبيقات</span>
           </motion.div>
 
-          {/* H1 — clean, direct */}
+          {/* H1 — direct value prop with measurable outcome */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-[64px] font-black leading-[1.15] tracking-tight mb-6"
           >
-            <span className="text-white">عندك خدمة وتبي عملاء؟</span>
+            <span className="text-white">من متجر بسيط</span>
             <br />
-            <span className="text-slate-300">جداول يبني لك نظام حجوزات كامل</span>
+            <span className="text-white">إلى نظام حجوزات + تطبيق</span>
+            <br />
+            <span className="bg-gradient-to-l from-indigo-400 to-amber-400 bg-clip-text text-transparent">في ٣ دقائق</span>
           </motion.h1>
 
-          {/* Subtitle */}
+          {/* Subtitle — concrete outcome */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            المشكلة مو بخدمتك — المشكلة إن عملاءك ما يلقون طريقة سهلة يحجزون.
+            موقع حجز + إدارة موظفين + مدفوعات + بوت واتساب + تقارير — في منصة واحدة.
             <br className="hidden sm:block" />
-            <span className="text-white font-semibold">جداول يعطيك موقع حجز + إدارة موظفين + مدفوعات + تقارير — خلال 5 دقائق.</span>
+            <span className="text-white font-semibold">يستخدمها صالونات، مغاسل، تنظيف منازل، صيانة، تجميل وأي خدمة بمواعيد.</span>
           </motion.p>
 
-          {/* CTAs — clean */}
+          {/* CTAs — corporate */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-3 justify-center mb-8"
+            className="flex flex-col sm:flex-row gap-3 justify-center mb-6"
           >
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-orange-500 hover:bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors shadow-lg shadow-indigo-600/30"
             >
-              ابدأ مجاناً — 14 يوم
+              ابدأ تجربة مجانية ١٤ يوم
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.97 }}
@@ -475,10 +485,10 @@ export default function Landing() {
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-1">
                   {[
-                    'from-orange-500 to-orange-500',
-                    'from-orange-500 to-orange-500',
-                    'from-orange-500 to-orange-500',
-                    'from-orange-500 to-orange-500',
+                    'from-indigo-600 to-indigo-600',
+                    'from-indigo-600 to-indigo-600',
+                    'from-indigo-600 to-indigo-600',
+                    'from-indigo-600 to-indigo-600',
                   ].map((g, i) => (
                     <div key={i} className={`h-14 rounded-2xl bg-gradient-to-br ${g} border border-white/10 p-2`}>
                       <div className="h-2 w-3/4 rounded-full bg-white/30 mb-1.5" />
@@ -580,7 +590,7 @@ export default function Landing() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-orange-500 hover:bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="bg-indigo-600 hover:bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
             >
               جرّب الفرق بنفسك — مجاناً
             </motion.button>
@@ -661,7 +671,7 @@ export default function Landing() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => navigate('/onboard')}
-              className="bg-orange-500 hover:bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+              className="bg-indigo-600 hover:bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
             >
               ابدأ الآن — مجاناً
             </motion.button>
@@ -673,7 +683,7 @@ export default function Landing() {
 
       {/* ══ ROI CALCULATOR ══════════════════════════════════════════════════ */}
       <section id="roi-calculator" className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-500 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-600 via-transparent to-transparent pointer-events-none" />
         {/* Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-slate-700/8 blur-[140px] pointer-events-none rounded-full" />
 
@@ -904,12 +914,12 @@ export default function Landing() {
           {/* Centered divider with logo */}
           <motion.div {...fadeUp(0.3)} className="flex items-center justify-center mt-12">
             <div className="flex flex-col items-center gap-3">
-              <div className="h-8 w-px bg-gradient-to-b from-transparent to-orange-500" />
+              <div className="h-8 w-px bg-gradient-to-b from-transparent to-indigo-600" />
               <div className="flex items-center gap-3 bg-white/[0.05] border border-white/15 rounded-2xl px-6 py-3">
                 <span className="text-2xl">💧</span>
                 <span className="font-black text-white text-lg tracking-tight">Jdawil</span>
               </div>
-              <div className="h-8 w-px bg-gradient-to-t from-transparent to-orange-500" />
+              <div className="h-8 w-px bg-gradient-to-t from-transparent to-indigo-600" />
             </div>
           </motion.div>
         </div>
@@ -918,7 +928,7 @@ export default function Landing() {
 
       {/* ══ HOW IT WORKS (3 MINUTES) ════════════════════════════════════════ */}
       <section id="how-it-works" className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-500 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-600 via-transparent to-transparent pointer-events-none" />
         <div className="relative z-10 max-w-5xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-16">
             <div className="inline-flex items-center gap-2 bg-slate-700/10 border border-white/10 rounded-full px-4 py-1.5 mb-5">
@@ -942,7 +952,7 @@ export default function Landing() {
                   title: 'سجّل متجرك',
                   subtitle: '٣٠ ثانية',
                   desc: 'أدخل الاسم والجوال والمدينة',
-                  gradient: 'from-orange-500 to-orange-500',
+                  gradient: 'from-indigo-600 to-indigo-600',
                   glow: 'shadow-black/40',
                 },
                 {
@@ -950,7 +960,7 @@ export default function Landing() {
                   title: 'أضف خدماتك وأسعارك',
                   subtitle: 'دقيقتان',
                   desc: '٣ نقرات وأسعارك جاهزة',
-                  gradient: 'from-orange-500 to-orange-500',
+                  gradient: 'from-indigo-600 to-indigo-600',
                   glow: 'shadow-black/40',
                 },
                 {
@@ -958,7 +968,7 @@ export default function Landing() {
                   title: 'استقبل أول حجز',
                   subtitle: 'فوري',
                   desc: 'شارك رابطك — وابدأ',
-                  gradient: 'from-orange-500 to-orange-500',
+                  gradient: 'from-indigo-600 to-indigo-600',
                   glow: 'shadow-black/40',
                 },
               ].map(({ num, title, subtitle, desc, gradient, glow }, i) => (
@@ -1001,7 +1011,7 @@ export default function Landing() {
 
       {/* ══ LIVE DASHBOARD PREVIEW ══════════════════════════════════════════ */}
       <section className="relative py-28 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-500 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-600 via-transparent to-transparent pointer-events-none" />
         {/* Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-slate-800/40 blur-[120px] pointer-events-none rounded-full" />
 
@@ -1038,7 +1048,7 @@ export default function Landing() {
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1.5 bg-slate-800/40 text-slate-300 text-xs px-3 py-1.5 rounded-full border border-white/10">
-                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
                     ٣ موظفين نشطين
                   </div>
                 </div>
@@ -1047,10 +1057,10 @@ export default function Landing() {
               {/* Stat cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
-                  { label: 'حجوزات اليوم', value: '١٢', sub: '+٣ من أمس', color: 'from-orange-500 to-orange-500', icon: '📅' },
-                  { label: 'إيراد هذا الشهر', value: '١٢,٤٥٠', sub: 'ريال', color: 'from-orange-500 to-orange-500', icon: '💰' },
-                  { label: 'متوسط التقييم', value: '٤.٨', sub: 'من ٨٩ تقييم', color: 'from-orange-500 to-orange-500', icon: '★' },
-                  { label: 'عملاء جدد', value: '٢٨', sub: 'هذا الشهر', color: 'from-orange-500 to-orange-500', icon: '👥' },
+                  { label: 'حجوزات اليوم', value: '١٢', sub: '+٣ من أمس', color: 'from-indigo-600 to-indigo-600', icon: '📅' },
+                  { label: 'إيراد هذا الشهر', value: '١٢,٤٥٠', sub: 'ريال', color: 'from-indigo-600 to-indigo-600', icon: '💰' },
+                  { label: 'متوسط التقييم', value: '٤.٨', sub: 'من ٨٩ تقييم', color: 'from-indigo-600 to-indigo-600', icon: '★' },
+                  { label: 'عملاء جدد', value: '٢٨', sub: 'هذا الشهر', color: 'from-indigo-600 to-indigo-600', icon: '👥' },
                 ].map((card, i) => (
                   <motion.div key={i}
                     initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
@@ -1098,7 +1108,7 @@ export default function Landing() {
                   <span className="text-sm font-bold text-white block mb-3">حجوزات الآن</span>
                   <div className="space-y-2.5">
                     {[
-                      { name: 'خالد العمري', service: 'غسيل شامل', status: 'في الطريق', color: 'bg-orange-500' },
+                      { name: 'خالد العمري', service: 'غسيل شامل', status: 'في الطريق', color: 'bg-indigo-600' },
                       { name: 'سعد الغامدي', service: 'تلميع خارجي', status: 'جاري', color: 'bg-slate-700' },
                       { name: 'فهد المطيري', service: 'غسيل داخلي', status: 'مؤكد', color: 'bg-slate-700' },
                     ].map((b, i) => (
@@ -1184,7 +1194,7 @@ export default function Landing() {
                   key={i}
                   onClick={() => setTestimonialIdx(i)}
                   className={`rounded-full transition-all duration-300 ${
-                    i === testimonialIdx ? 'w-7 h-2 bg-orange-500' : 'w-2 h-2 bg-white/20 hover:bg-white/40'
+                    i === testimonialIdx ? 'w-7 h-2 bg-indigo-600' : 'w-2 h-2 bg-white/20 hover:bg-white/40'
                   }`}
                 />
               ))}
@@ -1355,7 +1365,7 @@ export default function Landing() {
 
       {/* ══ PRICING SECTION ═════════════════════════════════════════════════ */}
       <section className="relative py-28 px-4 overflow-hidden" id="pricing">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-500 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-600 to-transparent pointer-events-none" />
         <div className="relative z-10 max-w-6xl mx-auto">
           <motion.div {...fadeUp()} className="text-center mb-10">
             <span className="inline-block text-xs font-bold tracking-widest text-slate-300 uppercase bg-slate-800/40 border border-white/10 rounded-full px-4 py-2 mb-4">
@@ -1384,7 +1394,7 @@ export default function Landing() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="text-white font-black text-xl sm:text-2xl leading-tight">
-                    جرب أي باقة مجاناً لمدة <span className="text-orange-400">14 يوم</span> كاملة
+                    جرب أي باقة مجاناً لمدة <span className="text-indigo-400">14 يوم</span> كاملة
                   </p>
                   <p className="text-slate-400 text-sm mt-1">
                     بدون بطاقة ائتمان • بدون التزام • إلغاء بضغطة واحدة
@@ -1584,7 +1594,7 @@ export default function Landing() {
                 {...fadeUp(i * 0.05)}
                 className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                   openFaq === i
-                    ? 'border-white/10 bg-orange-500/[0.06]'
+                    ? 'border-white/10 bg-indigo-600/[0.06]'
                     : 'border-white/8 bg-white/[0.03] hover:border-white/15'
                 }`}
               >
@@ -1626,7 +1636,7 @@ export default function Landing() {
             <a
               href="https://wa.me/966500000000?text=أريد معرفة المزيد عن Jdawil"
               target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-500 text-white px-6 py-3 rounded-xl font-bold transition-colors text-sm"
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold transition-colors text-sm"
             >
               تحدث معنا على واتساب
             </a>
@@ -1649,7 +1659,7 @@ export default function Landing() {
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/onboard')}
-                className="bg-orange-500 hover:bg-orange-500 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
+                className="bg-indigo-600 hover:bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold text-base transition-colors"
               >
                 ابدأ مجاناً
               </motion.button>
