@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>خريطة منصة Jdawil</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #040812;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #64748b;
+    font-size: .85rem;
+    margin-bottom: 40px;
+  }
+
+  /* ── GRID ─────────────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ── ROLE CARD ─────────────────────────────────────────── */
+  .role-card {
+    border-radius: 20px;
+    border: 1px solid;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .role-header {
+    padding: 20px 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .role-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .role-title { font-size: 1.15rem; font-weight: 800; }
+  .role-desc  { font-size: .75rem; margin-top: 2px; opacity: .7; }
+  .role-badge {
+    margin-right: auto;
+    font-size: .65rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+
+  .role-body { padding: 0 16px 20px; flex: 1; }
+
+  /* ── SECTION INSIDE ROLE ─────────────────────────────── */
+  .section { margin-bottom: 14px; }
+  .section-label {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .5;
+    margin-bottom: 6px;
+    padding-right: 4px;
+  }
+  .pages { display: flex; flex-wrap: wrap; gap: 6px; }
+  .page-chip {
+    font-size: .72rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid;
+    cursor: default;
+    transition: opacity .15s;
+    white-space: nowrap;
+  }
+  .page-chip:hover { opacity: .75; }
+
+  /* ── COLORS PER ROLE ─────────────────────────────────── */
+
+  /* Customer — blue */
+  .role-customer {
+    background: linear-gradient(160deg, #0f172a 60%, #0d1f3c);
+    border-color: #1e40af44;
+  }
+  .role-customer .role-icon { background: #1e3a8a33; color: #60a5fa; }
+  .role-customer .role-title { color: #93c5fd; }
+  .role-customer .role-badge { color: #60a5fa; border-color: #3b82f644; background: #1e40af22; }
+  .role-customer .section-label { color: #60a5fa; }
+  .role-customer .page-chip { color: #bfdbfe; border-color: #1e40af55; background: #1e3a8a22; }
+
+  /* Employee — green */
+  .role-employee {
+    background: linear-gradient(160deg, #0f172a 60%, #0a1f13);
+    border-color: #16653444;
+  }
+  .role-employee .role-icon { background: #14532d33; color: #4ade80; }
+  .role-employee .role-title { color: #86efac; }
+  .role-employee .role-badge { color: #4ade80; border-color: #16a34a44; background: #14532d22; }
+  .role-employee .section-label { color: #4ade80; }
+  .role-employee .page-chip { color: #bbf7d0; border-color: #15803d55; background: #14532d22; }
+
+  /* Vendor Admin — purple */
+  .role-vendor {
+    background: linear-gradient(160deg, #0f172a 60%, #150d2b);
+    border-color: #4c1d9544;
+  }
+  .role-vendor .role-icon { background: #3b0764 33; color: #c084fc; }
+  .role-vendor .role-title { color: #d8b4fe; }
+  .role-vendor .role-badge { color: #a855f7; border-color: #7c3aed44; background: #3b076422; }
+  .role-vendor .section-label { color: #c084fc; }
+  .role-vendor .page-chip { color: #e9d5ff; border-color: #6d28d955; background: #3b076422; }
+
+  /* Super Admin — amber */
+  .role-super {
+    background: linear-gradient(160deg, #0f172a 60%, #1c1200);
+    border-color: #78350f44;
+  }
+  .role-super .role-icon { background: #78350f33; color: #fbbf24; }
+  .role-super .role-title { color: #fde68a; }
+  .role-super .role-badge { color: #f59e0b; border-color: #b4530444; background: #78350f22; }
+  .role-super .section-label { color: #fbbf24; }
+  .role-super .page-chip { color: #fef3c7; border-color: #92400e55; background: #78350f22; }
+
+  /* Public — slate */
+  .role-public {
+    background: linear-gradient(160deg, #0f172a 60%, #111827);
+    border-color: #37415155;
+  }
+  .role-public .role-icon { background: #37415133; color: #94a3b8; }
+  .role-public .role-title { color: #cbd5e1; }
+  .role-public .role-badge { color: #94a3b8; border-color: #37415155; background: #37415122; }
+  .role-public .section-label { color: #94a3b8; }
+  .role-public .page-chip { color: #e2e8f0; border-color: #47556955; background: #37415122; }
+
+  /* ── DIVIDER ───────────────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #334155, transparent);
+    margin: 10px 0;
+  }
+
+  /* ── SERVER SECTION ───────────────────────────────────── */
+  .server-section {
+    max-width: 1400px;
+    margin: 48px auto 0;
+  }
+  .server-title {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: .1em;
+    margin-bottom: 20px;
+  }
+  .api-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .api-chip {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: .7rem;
+    font-family: monospace;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .api-chip .method {
+    font-size: .6rem;
+    font-weight: 800;
+    padding: 2px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .get  { background: #14532d; color: #4ade80; }
+  .post { background: #1e3a8a; color: #60a5fa; }
+  .put  { background: #78350f; color: #fbbf24; }
+  .del  { background: #7f1d1d; color: #f87171; }
+  .pat  { background: #312e81; color: #a5b4fc; }
+
+  /* ── FLOW CHART ─────────────────────────────────────── */
+  .flow-section {
+    max-width: 1400px;
+    margin: 48px auto 0;
+  }
+  .flow-title {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: .1em;
+    margin-bottom: 20px;
+  }
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 24px;
+    background: #0a0f1a;
+    border: 1px solid #1e293b;
+    border-radius: 20px;
+  }
+  .flow-node {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 10px 16px;
+    text-align: center;
+    font-size: .75rem;
+    font-weight: 600;
+  }
+  .flow-arrow {
+    color: #475569;
+    font-size: 1.2rem;
+    font-weight: 300;
+  }
+  .flow-node.highlight { border-color: #3b82f6; color: #93c5fd; }
+
+  /* ── STATS BAR ───────────────────────────────────────── */
+  .stats-bar {
+    max-width: 1400px;
+    margin: 0 auto 32px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .stat {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 10px 20px;
+    text-align: center;
+  }
+  .stat-n  { font-size: 1.5rem; font-weight: 900; color: #60a5fa; }
+  .stat-lb { font-size: .7rem; color: #64748b; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<h1>🚗 منصة Jdawil</h1>
+<p class="subtitle">خريطة كاملة للأدوار والصفحات والـ API — 5 أدوار · 60+ صفحة · 40+ مسار API</p>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+  <div class="stat"><div class="stat-n">5</div><div class="stat-lb">أدوار</div></div>
+  <div class="stat"><div class="stat-n">60+</div><div class="stat-lb">صفحة</div></div>
+  <div class="stat"><div class="stat-n">40+</div><div class="stat-lb">مسار API</div></div>
+  <div class="stat"><div class="stat-n">27</div><div class="stat-lb">جدول DB</div></div>
+  <div class="stat"><div class="stat-n">WebSocket</div><div class="stat-lb">GPS Live</div></div>
+  <div class="stat"><div class="stat-n">Multi-tenant</div><div class="stat-lb">Vendor Isolation</div></div>
+</div>
+
+<!-- Role Cards Grid -->
+<div class="grid">
+
+  <!-- ── PUBLIC / UNAUTHENTICATED ─────────────────────── -->
+  <div class="role-card role-public">
+    <div class="role-header">
+      <div class="role-icon">🌐</div>
+      <div>
+        <div class="role-title">عام (بدون تسجيل)</div>
+        <div class="role-desc">أي زائر — لا يحتاج حساب</div>
+      </div>
+      <span class="role-badge">Public</span>
+    </div>
+    <div class="role-body">
+      <div class="section">
+        <div class="section-label">صفحات الاستكشاف</div>
+        <div class="pages">
+          <span class="page-chip">/ الرئيسية</span>
+          <span class="page-chip">/marketplace السوق</span>
+          <span class="page-chip">/store/:slug صفحة مغسلة</span>
+          <span class="page-chip">/store/:slug/book حجز</span>
+          <span class="page-chip">/onboard تسجيل مغسلة</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">المصادقة</div>
+        <div class="pages">
+          <span class="page-chip">/login تسجيل الدخول</span>
+          <span class="page-chip">/register إنشاء حساب</span>
+          <span class="page-chip">/onboarding إعداد حساب</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">الطابور العام</div>
+        <div class="pages">
+          <span class="page-chip">/queue/:slug شاشة الطابور</span>
+          <span class="page-chip">/queue/:slug/join انضم للطابور</span>
+          <span class="page-chip">/track/:id/:token تتبع مباشر</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CUSTOMER ─────────────────────────────────────── -->
+  <div class="role-card role-customer">
+    <div class="role-header">
+      <div class="role-icon">👤</div>
+      <div>
+        <div class="role-title">العميل</div>
+        <div class="role-desc">يحجز الغسيل ويتابع الطلب</div>
+      </div>
+      <span class="role-badge">customer</span>
+    </div>
+    <div class="role-body">
+      <div class="section">
+        <div class="section-label">الرئيسية والحجوزات</div>
+        <div class="pages">
+          <span class="page-chip">/app الرئيسية</span>
+          <span class="page-chip">/app/bookings حجوزاتي</span>
+          <span class="page-chip">/app/booking/:id تفاصيل حجز</span>
+          <span class="page-chip">/app/book/:packageId احجز الآن</span>
+          <span class="page-chip">/app/tracking/:id تتبع مباشر</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">الحساب والمزايا</div>
+        <div class="pages">
+          <span class="page-chip">/app/vehicles سياراتي</span>
+          <span class="page-chip">/app/loyalty نقاط الولاء</span>
+          <span class="page-chip">/app/subscriptions اشتراكاتي</span>
+          <span class="page-chip">/app/referrals الإحالات</span>
+          <span class="page-chip">/app/achievements الإنجازات</span>
+          <span class="page-chip">/app/invoice/:id الفاتورة</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">الحجز المتقدم</div>
+        <div class="pages">
+          <span class="page-chip">/store/:slug/book حجز المواعيد</span>
+          <span class="page-chip">/app/rate/:id تقييم الخدمة</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">الميزات الرئيسية</div>
+        <div class="pages">
+          <span class="page-chip">🔔 إشعارات Push</span>
+          <span class="page-chip">📍 تتبع GPS مباشر</span>
+          <span class="page-chip">💳 دفع إلكتروني</span>
+          <span class="page-chip">⭐ تقييم الخدمة</span>
+          <span class="page-chip">🎁 برنامج ولاء</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EMPLOYEE ──────────────────────────────────────── -->
+  <div class="role-card role-employee">
+    <div class="role-header">
+      <div class="role-icon">🧹</div>
+      <div>
+        <div class="role-title">الموظف / السائق</div>
+        <div class="role-desc">ينفذ الطلبات ويشارك موقعه</div>
+      </div>
+      <span class="role-badge">employee</span>
+    </div>
+    <div class="role-body">
+      <div class="section">
+        <div class="section-label">طلباتي</div>
+        <div class="pages">
+          <span class="page-chip">/employee لوحة الطلبات</span>
+          <span class="page-chip">/employee/order/:id تفاصيل الطلب</span>
+          <span class="page-chip">/employee/new-booking حجز جديد</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">داخل تفاصيل الطلب</div>
+        <div class="pages">
+          <span class="page-chip">📍 مشاركة الموقع GPS</span>
+          <span class="page-chip">📷 صور قبل/بعد</span>
+          <span class="page-chip">💳 تحصيل الدفع</span>
+          <span class="page-chip">📄 الفاتورة</span>
+          <span class="page-chip">📱 اتصال + واتساب</span>
+          <span class="page-chip">🗺️ خرائط قوقل</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">حالة الدوام</div>
+        <div class="pages">
+          <span class="page-chip">✅ تفعيل/إيقاف الدوام</span>
+          <span class="page-chip">💰 أرباح لحظية</span>
+          <span class="page-chip">🚗 المركبة المعيّنة</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section">
+        <div class="section-label">سير العمل (Status Flow)</div>
+        <div class="pages">
+          <span class="page-chip">⏳ pending</span>
+          <span class="page-chip">🚗 on_way</span>
+          <span class="page-chip">📍 arrived</span>
+          <span class="page-chip">🧹 in_progress</span>
+          <span class="page-chip">✅ completed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VENDOR ADMIN ──────────────────────────────────── -->
+  <div class="role-card role-vendor" style="grid-column: span 2;">
+    <div class="role-header">
+      <div class="role-icon">🏪</div>
+      <div>
+        <div class="role-title">صاحب المغسلة (Vendor Admin)</div>
+        <div class="role-desc">يدير عملياته بشكل كامل — Multi-tenant isolation</div>
+      </div>
+      <span class="role-badge">vendor_admin</span>
+    </div>
+    <div class="role-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+
+        <div>
+          <div class="section">
+            <div class="section-label">🎛️ التشغيل اليومي</div>
+            <div class="pages">
+              <span class="page-chip">/vendor لوحة التحكم</span>
+              <span class="page-chip">/vendor/queue طابور الخدمة</span>
+              <span class="page-chip">/vendor/pos نقطة البيع</span>
+              <span class="page-chip">/vendor/calendar التقويم</span>
+              <span class="page-chip">/vendor/dispatch التوزيع</span>
+              <span class="page-chip">/vendor/livemap الخريطة المباشرة</span>
+              <span class="page-chip">/vendor/operations العمليات</span>
+              <span class="page-chip">/vendor/schedule الجداول</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">👥 الموارد البشرية</div>
+            <div class="pages">
+              <span class="page-chip">/vendor/employees الموظفون</span>
+              <span class="page-chip">/vendor/shifts ساعات العمل</span>
+              <span class="page-chip">/vendor/payroll الرواتب</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section">
+            <div class="section-label">💰 المالية</div>
+            <div class="pages">
+              <span class="page-chip">/vendor/expenses المصروفات</span>
+              <span class="page-chip">/vendor/profit-calculator حاسبة الربح</span>
+              <span class="page-chip">/vendor/invoices الفواتير</span>
+              <span class="page-chip">/vendor/vat-report تقرير الضريبة</span>
+              <span class="page-chip">/vendor/exports تصدير البيانات</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">📊 التحليلات والذكاء</div>
+            <div class="pages">
+              <span class="page-chip">/vendor/analytics تحليلات + AI</span>
+              <span class="page-chip">/vendor/ratings التقييمات</span>
+              <span class="page-chip">🧠 رؤى ذكية</span>
+              <span class="page-chip">📈 تنبؤات الإيرادات</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">🚛 الأسطول</div>
+            <div class="pages">
+              <span class="page-chip">/vendor/fleet إدارة الأسطول</span>
+              <span class="page-chip">🚗 تعيين مركبات</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section">
+            <div class="section-label">🛍️ العملاء والخدمات</div>
+            <div class="pages">
+              <span class="page-chip">/vendor/services الخدمات</span>
+              <span class="page-chip">/vendor/promos العروض</span>
+              <span class="page-chip">/vendor/subscriptions الاشتراكات</span>
+              <span class="page-chip">/vendor/corporate الشركات</span>
+              <span class="page-chip">/vendor/dynamic-pricing تسعير ديناميكي</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-label">⚙️ الإعدادات</div>
+            <div class="pages">
+              <span class="page-chip">/vendor/branding الهوية البصرية</span>
+              <span class="page-chip">/vendor/suppliers الموردون</span>
+              <span class="page-chip">/vendor/platform-sub اشتراك المنصة</span>
+              <span class="page-chip">/vendor/support الدعم الفني</span>
+              <span class="page-chip">/vendor/settings الإعدادات</span>
+              <span class="page-chip">/vendor/setup الإعداد الأولي</span>
+              <span class="page-chip">/vendor/wizard معالج الإعداد</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <div class="section-label">🎯 المزايا الحصرية</div>
+        <div class="pages">
+          <span class="page-chip">🧠 SmartInsights — رؤى مخصصة</span>
+          <span class="page-chip">🎁 TrialBanner — 14 يوم تجربة</span>
+          <span class="page-chip">🎉 MilestoneCelebration — confetti</span>
+          <span class="page-chip">🔔 PushPrompt — إشعارات</span>
+          <span class="page-chip">♾️ برامج الولاء</span>
+          <span class="page-chip">📦 الطلب التلقائي للمخزون</span>
+          <span class="page-chip">📡 GPS Tracking لحظي</span>
+          <span class="page-chip">🌐 دومين مخصص</span>
+          <span class="page-chip">📲 PWA مخصص</span>
+          <span class="page-chip">💬 WhatsApp تلقائي</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SUPER ADMIN ─────────────────────────────────── -->
+  <div class="role-card role-super">
+    <div class="role-header">
+      <div class="role-icon">👑</div>
+      <div>
+        <div class="role-title">مدير المنصة</div>
+        <div class="role-desc">يدير جميع المغاسل والإيرادات</div>
+      </div>
+      <span class="role-badge">super_admin</span>
+    </div>
+    <div class="role-body">
+      <div class="section">
+        <div class="section-label">لوحات التحكم</div>
+        <div class="pages">
+          <span class="page-chip">/super-admin لوحة التحكم</span>
+          <span class="page-chip">/super-admin/vendors إدارة المغاسل</span>
+          <span class="page-chip">/super-admin/revenue الإيرادات</span>
+          <span class="page-chip">/super-admin/support الدعم</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">إدارة المغاسل</div>
+        <div class="pages">
+          <span class="page-chip">✅ تفعيل مغسلة</span>
+          <span class="page-chip">⏸️ تعليق مغسلة</span>
+          <span class="page-chip">📅 تمديد اشتراك (+30 يوم)</span>
+          <span class="page-chip">📊 إحصائيات المنصة</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">الإيرادات</div>
+        <div class="pages">
+          <span class="page-chip">💰 إيرادات الاشتراكات</span>
+          <span class="page-chip">📈 نمو المنصة</span>
+          <span class="page-chip">📋 آخر المدفوعات</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── BOOKING FLOW ────────────────────────────────────── -->
+<div class="flow-section">
+  <div class="flow-title">▶ رحلة الحجز الكاملة</div>
+  <div class="flow-diagram">
+    <div class="flow-node highlight">العميل<br><small>/store/:slug</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">يختار الخدمة<br><small>اختيار الباقة</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">يكمل الحجز<br><small>POST /bookings</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">WhatsApp تلقائي<br><small>تذكير الموعد</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node highlight">الموظف<br><small>/employee</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">يبدأ التنقل<br><small>GPS مباشر</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">ينفذ الخدمة<br><small>صور قبل/بعد</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">يحصّل الدفع<br><small>STC/مدى/نقد</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node highlight">الفاتورة<br><small>PDF + WhatsApp</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node">العميل يقيّم<br><small>⭐ + نقاط ولاء</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node highlight">التحليلات<br><small>vendor/analytics</small></div>
+  </div>
+</div>
+
+<!-- ── API ROUTES ──────────────────────────────────────── -->
+<div class="server-section">
+  <div class="server-title">▶ مسارات الـ API (40+ endpoint)</div>
+  <div class="api-grid">
+    <div class="api-chip"><span class="method get">GET</span> /api/bookings</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/bookings</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/bookings/:id/status</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/vendors/public</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/vendors/onboard</div>
+    <div class="api-chip"><span class="method put">PUT</span> /api/vendors/:id</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/vendors/:id/activate</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/vendors/:id/suspend</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/vendors/:id/extend</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/payments/initiate</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/payments/verify</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/payments/booking/:id</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/invoices</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/invoices</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/invoices/:id/send-whatsapp</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/reports/insights</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/reports/predictions</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/reports/revenue</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/tracking/location</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/tracking/vendor/active</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/tracking/booking/:id/live</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/loyalty/balance</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/loyalty/earn</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/subscriptions/plans</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/subscriptions/subscribe</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/corporate</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/corporate</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/employees</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/employees</div>
+    <div class="api-chip"><span class="method pat">PATCH</span> /api/employees/:id/toggle</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/suppliers</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/suppliers/orders</div>
+    <div class="api-chip"><span class="method pat">PATCH</span> /api/suppliers/auto-reorder-toggle</div>
+    <div class="api-chip"><span class="method pat">PATCH</span> /api/suppliers/item/:id/auto-reorder</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/queue/session/today</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/queue/next</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/push/subscribe</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/super-admin/stats</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/super-admin/vendors</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/super-admin/revenue</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/vat-report</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/vat-report/invoice/:id</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/appointments/available</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/appointments/book</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/dispatch/assign</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/fleet/with-crew</div>
+    <div class="api-chip"><span class="method get">GET</span> /api/pos/summary</div>
+    <div class="api-chip"><span class="method post">POST</span> /api/pos/transaction</div>
+  </div>
+</div>
+
+<br><br>
+
+</body>
+</html>
