@@ -1,5 +1,5 @@
 /**
- * Jadawel Copilot — global AI chat drawer.
+ * Jdawil Copilot — global AI chat drawer.
  *
  * Keyboard:  Cmd/Ctrl+I    → toggle
  *            Esc           → close

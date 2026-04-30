@@ -17,7 +17,7 @@ let ready = false;
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   try {
     webpush.setVapidDetails(
-      `mailto:${process.env.VAPID_EMAIL ?? 'admin@jadawel.sa'}`,
+      `mailto:${process.env.VAPID_EMAIL ?? 'admin@jdawil.sa'}`,
       process.env.VAPID_PUBLIC_KEY,
       process.env.VAPID_PRIVATE_KEY,
     );

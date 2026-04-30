@@ -455,15 +455,15 @@ export default function Blog() {
         <meta property="og:title" content="مدونة جداول — دلائل لأصحاب المشاريع" />
         <meta property="og:description" content="دلائل ومقالات لصاحب المشروع السعودي." />
         <meta property="og:locale" content="ar_SA" />
-        <link rel="canonical" href="https://bokset.sa/blog" />
+        <link rel="canonical" href="https://jdawil.sa/blog" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Blog',
           name: 'مدونة جداول',
-          url: 'https://bokset.sa/blog',
+          url: 'https://jdawil.sa/blog',
           description: 'دلائل لأصحاب المشاريع الخدمية السعودية',
           inLanguage: 'ar',
-          publisher: { '@type': 'Organization', name: 'Jadawel', url: 'https://bokset.sa' },
+          publisher: { '@type': 'Organization', name: 'Jdawil', url: 'https://jdawil.sa' },
         })}</script>
       </Helmet>
       <div>

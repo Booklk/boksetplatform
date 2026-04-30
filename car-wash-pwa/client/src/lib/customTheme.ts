@@ -145,17 +145,17 @@ export const RADIUS_VALUES: Record<CustomThemeRadius, string> = {
 
 /**
  * Convert a CustomTheme to CSS custom properties for the storefront root.
- * Keys are --jadawel-* so they don't collide with anything.
+ * Keys are --jdawil-* so they don't collide with anything.
  */
 export function themeToCssVars(theme: CustomTheme): Record<string, string> {
   return {
-    '--jadawel-bg': theme.bg,
-    '--jadawel-surface': theme.surface,
-    '--jadawel-button': theme.button,
-    '--jadawel-accent': theme.accent,
-    '--jadawel-text': theme.text,
-    '--jadawel-calendar': theme.calendar,
-    '--jadawel-radius': RADIUS_VALUES[theme.radius],
+    '--jdawil-bg': theme.bg,
+    '--jdawil-surface': theme.surface,
+    '--jdawil-button': theme.button,
+    '--jdawil-accent': theme.accent,
+    '--jdawil-text': theme.text,
+    '--jdawil-calendar': theme.calendar,
+    '--jdawil-radius': RADIUS_VALUES[theme.radius],
     'colorScheme': theme.mode,
   };
 }

@@ -63,7 +63,7 @@ export default function MarketingFooter() {
               </div>
               <div className="leading-none">
                 <p className="text-white font-black text-base">جداول</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">Jadawel</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Jdawil</p>
               </div>
             </Link>
             <p className="text-slate-400 text-sm leading-relaxed mt-4 max-w-sm">

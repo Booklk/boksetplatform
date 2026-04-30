@@ -147,7 +147,7 @@ export const tamara: PaymentAdapter = {
         notification:  input.returnUrl.replace(/\/callback.*$/, '/webhook'),
       },
       merchant_meta: input.metadata,
-      platform: 'jadawel',
+      platform: 'jdawil',
       is_mobile: false,
     };
 
@@ -198,7 +198,7 @@ export const tamara: PaymentAdapter = {
       headers: headersFor(creds),
       body: JSON.stringify({
         total_amount: money(amountSar ?? 0),
-        comment: 'Jadawel refund',
+        comment: 'Jdawil refund',
       }),
     });
     const json = (await res.json()) as any;

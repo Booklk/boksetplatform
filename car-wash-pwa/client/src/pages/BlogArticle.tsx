@@ -5,7 +5,7 @@ import { Clock, ArrowRight, CheckCircle } from 'lucide-react';
 import { ARTICLES } from './Blog';
 import MarketingLayout from '../components/marketing/MarketingLayout';
 
-const DOMAIN = 'https://bokset.sa';
+const DOMAIN = 'https://jdawil.sa';
 
 function RegisterCTA() {
   return (
@@ -96,8 +96,8 @@ export default function BlogArticle() {
     inLanguage: 'ar',
     datePublished: article.date,
     dateModified: article.date,
-    author: { '@type': 'Organization', name: 'Jadawel', url: DOMAIN },
-    publisher: { '@type': 'Organization', name: 'Jadawel', url: DOMAIN, logo: `${DOMAIN}/icons/icon-192x192.png` },
+    author: { '@type': 'Organization', name: 'Jdawil', url: DOMAIN },
+    publisher: { '@type': 'Organization', name: 'Jdawil', url: DOMAIN, logo: `${DOMAIN}/icons/icon-192x192.png` },
     mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
   };
 

@@ -60,7 +60,7 @@ export async function runDormantRemarket(vendorId: number, cfg: AutopilotConfig[
       `هلا ${c.name.split(' ')[0]} 👋\n` +
       `مشتاقين لك في ${vendor.nameAr}!\n` +
       `ما شفناك من فترة — جرّب تحجز وخلّنا نشوفك من جديد.\n` +
-      `https://jadawel.sa/store/${vendor.slug}`;
+      `https://jdawil.sa/store/${vendor.slug}`;
 
     const ok = await sendRawWhatsAppMessage(c.phone, message, vendorId);
     await recordDecision(vendorId, 'autopilot.dormant_message', {

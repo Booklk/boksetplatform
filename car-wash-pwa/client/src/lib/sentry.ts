@@ -8,7 +8,7 @@ export function initSentry() {
   Sentry.init({
     dsn,
     environment: import.meta.env.MODE,
-    release: `jadawel-client@1.0.0`,
+    release: `jdawil-client@1.0.0`,
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),

@@ -97,7 +97,7 @@ router.get('/qr/:slug', async (req, res) => {
   if (!vendor) return res.status(404).json({ error: 'المتجر غير موجود' });
   try {
     const QRCode = (await import('qrcode')).default;
-    const base = (process.env.CLIENT_URL ?? 'https://jadawel.sa').replace(/\/$/, '');
+    const base = (process.env.CLIENT_URL ?? 'https://jdawil.sa').replace(/\/$/, '');
     const url  = `${base}/store/${slug}`;
     const svg  = await QRCode.toString(url, {
       type: 'svg',

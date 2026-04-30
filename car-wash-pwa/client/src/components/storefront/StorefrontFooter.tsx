@@ -2,7 +2,7 @@
  * StorefrontFooter — vendor storefront footer with:
  *   - The vendor's custom pages that opted into nav.
  *   - Always-visible links: unified Privacy policy, the vendor's Terms
- *     (when present), and the "Powered by Jadawel" mark (unless the
+ *     (when present), and the "Powered by Jdawil" mark (unless the
  *     vendor turned on white-label or is on a custom domain).
  */
 
@@ -72,11 +72,11 @@ export default function StorefrontFooter({ vendorSlug, customTheme, whiteLabel }
               </Link>
             )}
             {/* Unified platform privacy — served from /privacy on the
-                platform. On a vendor's custom domain this opens Jadawel's
+                platform. On a vendor's custom domain this opens Jdawil's
                 privacy page in a new tab; on the platform itself it's a
                 same-site link. */}
             <a
-              href="https://bokset.sa/privacy"
+              href="https://jdawil.sa/privacy"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm opacity-70 hover:opacity-100 transition-opacity inline-flex items-center gap-1.5"
@@ -92,8 +92,8 @@ export default function StorefrontFooter({ vendorSlug, customTheme, whiteLabel }
         {!whiteLabel && (
           <p className="text-center text-[10px] opacity-40" style={{ color: customTheme.text }}>
             Powered by{' '}
-            <a href="https://bokset.sa" target="_blank" rel="noopener noreferrer" className="hover:opacity-100">
-              Jadawel
+            <a href="https://jdawil.sa" target="_blank" rel="noopener noreferrer" className="hover:opacity-100">
+              Jdawil
             </a>
           </p>
         )}

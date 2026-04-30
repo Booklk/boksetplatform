@@ -202,14 +202,14 @@ export default function VendorLanding() {
   const heroTextId = storeSettings.heroTextId ?? 'classic';
   const customTagline = storeSettings.customTagline as string | undefined;
 
-  // White-label flag — Pro vendors can hide the "Powered by Jadawel" mark
-  // and strip the Jadawel mention from the page title.
+  // White-label flag — Pro vendors can hide the "Powered by Jdawil" mark
+  // and strip the Jdawil mention from the page title.
   // White-label is either an explicit Pro opt-in, OR implied when the
-  // customer reached us on the vendor's own custom domain (no Jadawel
+  // customer reached us on the vendor's own custom domain (no Jdawil
   // brand should leak on someone else's domain).
   const onCustomDomain = typeof window !== 'undefined' && (() => {
     const h = window.location.hostname.toLowerCase();
-    const platform = ['jadawel.sa', 'bokset.sa', 'localhost', '127.0.0.1'];
+    const platform = ['jdawil.sa', 'jdawil.sa', 'localhost', '127.0.0.1'];
     return !platform.some((d) => h === d || h.endsWith(`.${d}`));
   })();
   const whiteLabel = storeSettings.whiteLabel === true || onCustomDomain;
@@ -224,13 +224,13 @@ export default function VendorLanding() {
   // Vendor's custom theme (colours / radius / mode), if they configured one.
   const customTheme: CustomTheme = (storeSettings.customTheme as CustomTheme | undefined) ?? DEFAULT_CUSTOM_THEME;
   const customThemeStyle = {
-    '--jadawel-bg': customTheme.bg,
-    '--jadawel-surface': customTheme.surface,
-    '--jadawel-button': customTheme.button,
-    '--jadawel-accent': customTheme.accent,
-    '--jadawel-text': customTheme.text,
-    '--jadawel-calendar': customTheme.calendar,
-    '--jadawel-radius': RADIUS_VALUES[customTheme.radius],
+    '--jdawil-bg': customTheme.bg,
+    '--jdawil-surface': customTheme.surface,
+    '--jdawil-button': customTheme.button,
+    '--jdawil-accent': customTheme.accent,
+    '--jdawil-text': customTheme.text,
+    '--jdawil-calendar': customTheme.calendar,
+    '--jdawil-radius': RADIUS_VALUES[customTheme.radius],
     colorScheme: customTheme.mode,
   } as React.CSSProperties;
 

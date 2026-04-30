@@ -40,7 +40,7 @@ export default function MarketingHeader() {
           </div>
           <div className="leading-none">
             <p className="text-white font-black text-base">جداول</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Jadawel</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Jdawil</p>
           </div>
         </Link>
 

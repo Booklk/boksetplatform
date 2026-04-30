@@ -249,7 +249,7 @@ export default function CommandPalette() {
                 <span className="flex items-center gap-1"><kbd className="bg-slate-800 border border-slate-700 rounded px-1">↑↓</kbd> للتنقل</span>
                 <span className="flex items-center gap-1"><kbd className="bg-slate-800 border border-slate-700 rounded px-1">↵</kbd> فتح</span>
                 <span className="flex items-center gap-1"><kbd className="bg-slate-800 border border-slate-700 rounded px-1">ESC</kbd> إغلاق</span>
-                <span className="mr-auto">Jadawel</span>
+                <span className="mr-auto">Jdawil</span>
               </div>
             </div>
           </motion.div>

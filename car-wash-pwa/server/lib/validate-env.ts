@@ -33,7 +33,7 @@ export function validateEnv() {
     { key: 'PORT',         label: 'رقم المنفذ',     fallback: '3001' },
     { key: 'CLIENT_URL',   label: 'رابط الواجهة',   fallback: 'http://localhost:5173' },
     { key: 'BASE_URL',     label: 'رابط الباك إند', fallback: 'http://localhost:3001' },
-    { key: 'DOMAIN',       label: 'الدومين',        fallback: 'jadawel.sa' },
+    { key: 'DOMAIN',       label: 'الدومين',        fallback: 'jdawil.sa' },
     ...(!isProd ? [
       { key: 'ENCRYPTION_KEY',         label: 'مفتاح التشفير',           fallback: 'dev-only' },
       { key: 'WHATSAPP_TOKEN',         label: 'توكن واتساب',             fallback: 'console fallback' },

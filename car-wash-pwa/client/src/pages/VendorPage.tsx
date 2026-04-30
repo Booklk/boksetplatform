@@ -262,7 +262,7 @@ export default function VendorPage() {
       <Helmet>
         <title>{page.title} — {vendor?.nameAr ?? 'المتجر'}</title>
         <meta name="description" content={`${page.title} — ${vendor?.nameAr ?? ''}`} />
-        <link rel="canonical" href={`https://bokset.sa/store/${vendorSlug}/p/${page.slug}`} />
+        <link rel="canonical" href={`https://jdawil.sa/store/${vendorSlug}/p/${page.slug}`} />
       </Helmet>
 
       <div

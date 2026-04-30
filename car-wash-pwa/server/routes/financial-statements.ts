@@ -583,7 +583,7 @@ router.get('/export-professional', requireAuth, requireRole('vendor_admin', 'adm
         ['نطاق التقرير', years.map(String).join('، ')],
         ['تاريخ الإصدار', new Date().toLocaleDateString('ar-SA')],
         [],
-        ['تم إنشاء هذا التقرير من منصة جداول (jadawel) — bokset.sa'],
+        ['تم إنشاء هذا التقرير من منصة جداول (jdawil) — jdawil.sa'],
       ];
       const cover = XLSX.utils.aoa_to_sheet(coverRows);
       cover['!cols'] = [{ wch: 28 }, { wch: 44 }];

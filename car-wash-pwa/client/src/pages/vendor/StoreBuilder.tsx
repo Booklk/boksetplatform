@@ -137,7 +137,7 @@ export default function StoreBuilder() {
   const [customTheme, setCustomTheme] = useState<CustomTheme>(DEFAULT_CUSTOM_THEME);
   const [activePresetId, setActivePresetId] = useState<string | null>(PALETTE_PRESETS[0].id);
 
-  // White-label: Pro feature — hides the "Powered by Jadawel" mark on /store/:slug
+  // White-label: Pro feature — hides the "Powered by Jdawil" mark on /store/:slug
   const [whiteLabel, setWhiteLabel] = useState(false);
 
   const [hydrated, setHydrated] = useState(false);
@@ -553,7 +553,7 @@ export default function StoreBuilder() {
                         <p className="text-[10px] text-slate-500 mt-0.5">
                           {whiteLabel && isPaidSubscriber
                             ? 'علامة جداول مخفيّة — موقعك يظهر باسمك فقط'
-                            : 'يظهر "Powered by Jadawel" في أسفل صفحة موقعك'}
+                            : 'يظهر "Powered by Jdawil" في أسفل صفحة موقعك'}
                         </p>
                       </div>
                       <div

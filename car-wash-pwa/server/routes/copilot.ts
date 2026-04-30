@@ -1,5 +1,5 @@
 /**
- * Jadawel Copilot — AI agent with function calling.
+ * Jdawil Copilot — AI agent with function calling.
  *
  * Scope: vendor_admin / admin only. The agent reads and writes within
  * the vendor's tenant, never across tenants. Writes return a preview

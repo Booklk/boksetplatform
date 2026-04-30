@@ -192,7 +192,7 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Dynamic CORS: support platform domains + vendor custom domains
 const isProd = process.env.NODE_ENV === 'production';
-const platformDomains = (process.env.PLATFORM_DOMAINS ?? 'jadawel.sa,localhost,127.0.0.1')
+const platformDomains = (process.env.PLATFORM_DOMAINS ?? 'jdawil.sa,localhost,127.0.0.1')
   .split(',').map(d => d.trim()).filter(Boolean);
 const clientUrl = process.env.CLIENT_URL ?? 'http://localhost:5173';
 
@@ -622,7 +622,7 @@ app.get('/api/internal/domain/ask', async (req, res) => {
 
     // Never issue certs for platform/self domains — Caddy handles those
     // with its own site blocks.
-    const platformDoms = (process.env.PLATFORM_DOMAINS ?? 'jadawel.sa,localhost,127.0.0.1')
+    const platformDoms = (process.env.PLATFORM_DOMAINS ?? 'jdawil.sa,localhost,127.0.0.1')
       .split(',').map(d => d.trim().toLowerCase());
     if (platformDoms.some(d => raw === d || raw.endsWith(`.${d}`))) {
       return res.status(404).send('platform domain');
@@ -839,7 +839,7 @@ cron.schedule('0 9 * * *', async () => {
     for (const row of (soon as any).rows ?? soon ?? []) {
       const days = Number(row.days_left);
       const when = days <= 0 ? 'اليوم' : days === 1 ? 'بكرة' : `خلال ${days} أيام`;
-      const msg = `مرحبا ${row.name_ar} 👋\nباقتك الحالية في جداول تنتهي ${when}. جدّد عشان ما تنقص المميزات المتقدمة (الإشعارات/POS/الولاء/...).\nتجديد بضغطة: https://jadawel.sa/vendor/platform-sub`;
+      const msg = `مرحبا ${row.name_ar} 👋\nباقتك الحالية في جداول تنتهي ${when}. جدّد عشان ما تنقص المميزات المتقدمة (الإشعارات/POS/الولاء/...).\nتجديد بضغطة: https://jdawil.sa/vendor/platform-sub`;
       await sendPlatformWhatsApp(row.phone, msg);
     }
   } catch (e) {
@@ -1419,7 +1419,7 @@ process.on('uncaughtException', (error) => {
 attachRealtime(server);
 
 server.listen(PORT, () => {
-  console.log(`🚗 Jadawel SaaS Server running on http://localhost:${PORT}`);
+  console.log(`🚗 Jdawil SaaS Server running on http://localhost:${PORT}`);
   console.log(`🔌 WebSocket server ready on ws://localhost:${PORT}/ws`);
   console.log(`⚡ Realtime ready on ws://localhost:${PORT}/realtime`);
   console.log(`📡 Environment: ${process.env.NODE_ENV ?? 'development'}`);

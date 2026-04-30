@@ -5,9 +5,9 @@
  *
  * Each provider dashboard gets its own unique URL so the vendor can paste
  * the right one in the right place:
- *   https://jadawel.sa/api/payment-gateway/webhook/abc123/moyasar
- *   https://jadawel.sa/api/payment-gateway/webhook/abc123/tabby
- *   https://jadawel.sa/api/payment-gateway/webhook/abc123/tamara
+ *   https://jdawil.sa/api/payment-gateway/webhook/abc123/moyasar
+ *   https://jdawil.sa/api/payment-gateway/webhook/abc123/tabby
+ *   https://jdawil.sa/api/payment-gateway/webhook/abc123/tamara
  *
  * We verify signatures with that specific provider's credentials and
  * never trust the URL alone.

@@ -17,7 +17,7 @@ export default function Terms() {
           <ul className="list-disc list-inside text-gray-300 space-y-2 leading-relaxed">
             <li>
               <span className="font-medium text-white">المنصة:</span> منصة جداول
-              (Jadawel) الإلكترونية وتطبيقاتها.
+              (Jdawil) الإلكترونية وتطبيقاتها.
             </li>
             <li>
               <span className="font-medium text-white">المستخدم:</span> أي شخص

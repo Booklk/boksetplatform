@@ -1,5 +1,5 @@
 /**
- * Jadawel Copilot — tools the LLM can call.
+ * Jdawil Copilot — tools the LLM can call.
  *
  * Design rules:
  *   - Read tools run immediately.

@@ -71,7 +71,7 @@ export async function runReorderInventory(vendorId: number, cfg: AutopilotConfig
         const extra = actions.length > 5 ? `\n… و ${actions.length - 5} صنف إضافي` : '';
         await sendPlatformWhatsApp(
           vendor.phone,
-          `🤖 الطيار الآلي أعاد طلب المخزون المنخفض:\n${lines}${extra}\n\nافتح متجرك: https://jadawel.sa/vendor/inventory`,
+          `🤖 الطيار الآلي أعاد طلب المخزون المنخفض:\n${lines}${extra}\n\nافتح متجرك: https://jdawil.sa/vendor/inventory`,
         );
       }
     } catch (e) { console.error('[reorder notify]', e); }

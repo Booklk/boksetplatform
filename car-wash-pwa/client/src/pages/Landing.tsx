@@ -95,7 +95,7 @@ const testimonials = [
   {
     name: 'أحمد الشمري',
     role: 'صاحب الفخامة — الرياض',
-    text: 'قبل Jadawel كنت أدير كل شيء على واتساب! الآن الحجوزات تنظم نفسها والإيرادات زادت ٤٠٪ في أول شهرين.',
+    text: 'قبل Jdawil كنت أدير كل شيء على واتساب! الآن الحجوزات تنظم نفسها والإيرادات زادت ٤٠٪ في أول شهرين.',
     rating: 5,
     avatar: 'أ',
     color: 'from-blue-500 to-cyan-500',
@@ -123,24 +123,24 @@ const marqueeText = 'حجوزات ذكية ✦ GPS مباشر ✦ برامج ا�
 
 const faqs = [
   {
-    q: 'ما هو Jadawel؟',
-    a: 'Jadawel هو برنامج SaaS متكامل لإدارة الحجوزات والخدمات في المملكة العربية السعودية. يوفر حجوزات ذكية، تتبع GPS مباشر للموظفين والسيارات، مدفوعات STC Pay ومدى، إدارة رواتب، وفواتير PDF — كل شيء في مكان واحد بدون تعقيد.',
+    q: 'ما هو Jdawil؟',
+    a: 'Jdawil هو برنامج SaaS متكامل لإدارة الحجوزات والخدمات في المملكة العربية السعودية. يوفر حجوزات ذكية، تتبع GPS مباشر للموظفين والسيارات، مدفوعات STC Pay ومدى، إدارة رواتب، وفواتير PDF — كل شيء في مكان واحد بدون تعقيد.',
   },
   {
     q: 'هل يناسب المغاسل المتنقلة والثابتة معاً؟',
-    a: 'نعم. Jadawel مُصمَّم من اليوم الأول لكلا النوعين. الخدمة المتنقلة تستفيد من تتبع GPS، حساب وقت الوصول، وتوزيع الحجوزات على السيارات المتاحة. المتجر الثابت تستفيد من نظام الطابور والكاشير وإدارة العملاء.',
+    a: 'نعم. Jdawil مُصمَّم من اليوم الأول لكلا النوعين. الخدمة المتنقلة تستفيد من تتبع GPS، حساب وقت الوصول، وتوزيع الحجوزات على السيارات المتاحة. المتجر الثابت تستفيد من نظام الطابور والكاشير وإدارة العملاء.',
   },
   {
     q: 'كم سعر الاشتراك وهل توجد رسوم إضافية؟',
-    a: 'Jadawel مجاني للأبد مع 30 حجز/شهر. باقة Pro بـ 99 ر.س شهرياً أو 999 ر.س سنوياً لكل شيء مفتوح. بدون عمولة على المدفوعات.',
+    a: 'Jdawil مجاني للأبد مع 30 حجز/شهر. باقة Pro بـ 99 ر.س شهرياً أو 999 ر.س سنوياً لكل شيء مفتوح. بدون عمولة على المدفوعات.',
   },
   {
     q: 'هل أحتاج تثبيت تطبيق أو شراء أجهزة؟',
-    a: 'لا. Jadawel يعمل كـ PWA من المتصفح على أي جهاز. يمكن تثبيته على الشاشة الرئيسية بدون متجر تطبيقات. لا يحتاج أجهزة خاصة — جوالك كافٍ.',
+    a: 'لا. Jdawil يعمل كـ PWA من المتصفح على أي جهاز. يمكن تثبيته على الشاشة الرئيسية بدون متجر تطبيقات. لا يحتاج أجهزة خاصة — جوالك كافٍ.',
   },
   {
     q: 'كيف تعمل المدفوعات الإلكترونية؟',
-    a: 'تربط حساب ميسر أو Checkout.com الخاص بك بمفتاح API. المال يذهب مباشرة لحسابك البنكي — Jadawel لا يلمس أموالك. يدعم STC Pay، مدى، Apple Pay، وNFC.',
+    a: 'تربط حساب ميسر أو Checkout.com الخاص بك بمفتاح API. المال يذهب مباشرة لحسابك البنكي — Jdawil لا يلمس أموالك. يدعم STC Pay، مدى، Apple Pay، وNFC.',
   },
   {
     q: 'ماذا يحدث بعد انتهاء التجربة المجانية؟',
@@ -465,7 +465,7 @@ export default function Landing() {
             <div className="grid grid-cols-3 text-xs font-bold text-slate-500 border-b border-white/[0.06] px-6 py-3">
               <span></span>
               <span className="text-center text-red-400/70">بدون نظام</span>
-              <span className="text-center text-indigo-400/70">مع Jadawel</span>
+              <span className="text-center text-indigo-400/70">مع Jdawil</span>
             </div>
             {[
               { area: 'استقبال الحجوزات', before: 'واتساب فوضى — تنسى رد', after: 'العميل يحجز بنفسه 24/7' },
@@ -603,7 +603,7 @@ export default function Landing() {
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black mb-4">
               احسب دخلك مع
-              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Jadawel</span>
+              <span className="bg-gradient-to-l from-blue-400 to-cyan-400 bg-clip-text text-transparent"> Jdawil</span>
             </h2>
             <p className="text-slate-400 text-lg">حرّك الشريط — وشاهد الأرقام تتغير</p>
           </motion.div>
@@ -713,7 +713,7 @@ export default function Landing() {
 
                     {/* Plan Cost */}
                     <div className="bg-gradient-to-br from-amber-950/40 to-orange-950/30 border border-amber-500/20 rounded-2xl p-4">
-                      <p className="text-xs text-amber-400 font-bold mb-1">تكلفة Jadawel الملائمة لك</p>
+                      <p className="text-xs text-amber-400 font-bold mb-1">تكلفة Jdawil الملائمة لك</p>
                       <p className="text-2xl font-black text-amber-300">
                         {washesPerDay <= 5 ? '0' : '99'}
                         <span className="text-sm font-bold text-amber-500 mr-2">{washesPerDay <= 5 ? 'مجاني' : 'ر.س / شهر'}</span>
@@ -770,7 +770,7 @@ export default function Landing() {
               {...fadeUp(0.1)}
               className="bg-red-950/20 border border-red-500/20 rounded-3xl p-8 flex flex-col"
             >
-              <h3 className="text-2xl font-black text-red-300 mb-6 text-center">😤 قبل Jadawel</h3>
+              <h3 className="text-2xl font-black text-red-300 mb-6 text-center">😤 قبل Jdawil</h3>
               <ul className="space-y-4">
                 {[
                   'تنسيق المواعيد عبر واتساب — فوضى كاملة',
@@ -797,7 +797,7 @@ export default function Landing() {
               {...fadeUp(0.2)}
               className="bg-emerald-950/20 border border-emerald-500/20 rounded-3xl p-8 flex flex-col"
             >
-              <h3 className="text-2xl font-black text-emerald-300 mb-6 text-center">✨ بعد Jadawel</h3>
+              <h3 className="text-2xl font-black text-emerald-300 mb-6 text-center">✨ بعد Jdawil</h3>
               <ul className="space-y-4">
                 {[
                   'حجز تلقائي — العميل يحجز من هاتفه',
@@ -826,7 +826,7 @@ export default function Landing() {
               <div className="h-8 w-px bg-gradient-to-b from-transparent to-blue-500/50" />
               <div className="flex items-center gap-3 bg-white/[0.05] border border-white/15 rounded-2xl px-6 py-3">
                 <span className="text-2xl">💧</span>
-                <span className="font-black text-white text-lg tracking-tight">Jadawel</span>
+                <span className="font-black text-white text-lg tracking-tight">Jdawil</span>
               </div>
               <div className="h-8 w-px bg-gradient-to-t from-transparent to-blue-500/50" />
             </div>
@@ -933,7 +933,7 @@ export default function Landing() {
               داشبورد متجرك
               <span className="bg-gradient-to-l from-blue-400 to-cyan-300 bg-clip-text text-transparent"> في ثانية واحدة</span>
             </h2>
-            <p className="text-slate-400 text-lg">هذا ما تراه كل صباح عند فتح Jadawel</p>
+            <p className="text-slate-400 text-lg">هذا ما تراه كل صباح عند فتح Jdawil</p>
           </motion.div>
 
           {/* Mock Dashboard */}
@@ -1043,7 +1043,7 @@ export default function Landing() {
                     {label}
                   </div>
                 ))}
-                <div className="mr-auto text-[10px] text-slate-600">Jadawel v1.0</div>
+                <div className="mr-auto text-[10px] text-slate-600">Jdawil v1.0</div>
               </div>
             </div>
           </motion.div>
@@ -1242,7 +1242,7 @@ export default function Landing() {
                     أنت من العملاء المؤسسين — سعرك محفوظ للأبد
                   </p>
                   <p className="text-amber-100 text-sm mt-0.5">
-                    أول 100 متجر تسجل في Jadawel تحتفظ بسعر اليوم حتى لو رفعنا الأسعار لاحقاً
+                    أول 100 متجر تسجل في Jdawil تحتفظ بسعر اليوم حتى لو رفعنا الأسعار لاحقاً
                   </p>
                   {foundingSeats !== null && (
                     <div className="mt-1.5 inline-flex items-center gap-1.5">
@@ -1466,7 +1466,7 @@ export default function Landing() {
                 ❌ بدون نظام
               </div>
               <div className="px-6 py-4 text-sm font-bold text-emerald-400 text-center bg-emerald-500/5">
-                ✅ مع Jadawel
+                ✅ مع Jdawil
               </div>
             </div>
             {comparisonRows.map((row, i) => (
@@ -1559,7 +1559,7 @@ export default function Landing() {
           <motion.div {...fadeUp(0.3)} className="mt-10 p-6 rounded-2xl bg-white/[0.03] border border-white/8 text-center">
             <p className="text-slate-400 mb-3">لا تزال لديك أسئلة؟</p>
             <a
-              href="https://wa.me/966500000000?text=أريد معرفة المزيد عن Jadawel"
+              href="https://wa.me/966500000000?text=أريد معرفة المزيد عن Jdawil"
               target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-6 py-3 rounded-xl font-bold transition-colors text-sm"
             >
@@ -1592,7 +1592,7 @@ export default function Landing() {
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
               سيارة عميلك تستاهل
               <br />
-              <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">ومتجرك يستاهل Jadawel</span>
+              <span className="bg-gradient-to-l from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">ومتجرك يستاهل Jdawil</span>
             </h2>
             <p className="text-slate-300 text-xl mb-12">١٤ يوم مجاناً — بدون بطاقة ائتمان — الإعداد يأخذ ٣ دقائق</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
@@ -1608,7 +1608,7 @@ export default function Landing() {
               </motion.button>
             </div>
             <a
-              href="https://wa.me/966500000000?text=أبي أعرف أكثر عن Jadawel"
+              href="https://wa.me/966500000000?text=أبي أعرف أكثر عن Jdawil"
               target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 transition-colors text-lg font-bold"
             >

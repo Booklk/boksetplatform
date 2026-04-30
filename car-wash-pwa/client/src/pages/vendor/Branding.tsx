@@ -174,7 +174,7 @@ function DomainSetupCard({ domain }: { domain: string }) {
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<DomainCheckResponse | null>(null);
   const hasDomain = domain.trim().length > 3;
-  const platformHost = 'app.jadawel.sa';
+  const platformHost = 'app.jdawil.sa';
 
   async function runCheck() {
     if (!hasDomain) return;

@@ -153,7 +153,7 @@ router.post('/', async (req: RawRequest, res: Response) => {
       });
       if (notifyPhone) await sendPlatformWhatsApp(
         notifyPhone,
-        `⚠️ فشل خصم اشتراك جداول. ممكن تحدّث بطاقتك من: https://jadawel.sa/vendor/platform-sub`,
+        `⚠️ فشل خصم اشتراك جداول. ممكن تحدّث بطاقتك من: https://jdawil.sa/vendor/platform-sub`,
       );
       return;
     }

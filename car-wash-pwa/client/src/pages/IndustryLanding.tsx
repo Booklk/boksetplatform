@@ -35,7 +35,7 @@ export default function IndustryLanding() {
   if (!industry) return <Navigate to="/" replace />;
 
   const template = getTheme(industry.recommendedTemplateId);
-  const pageUrl = `https://bokset.sa/for/${industry.slug}`;
+  const pageUrl = `https://jdawil.sa/for/${industry.slug}`;
   const metaDescription = `${industry.heroSubtitle} — ${industry.secondaryKeywords.join(' · ')}`;
 
   return (
@@ -56,7 +56,7 @@ export default function IndustryLanding() {
             '@type': 'Service',
             name: industry.heroTitle,
             description: industry.heroSubtitle,
-            provider: { '@type': 'Organization', name: 'Jadawel', url: 'https://bokset.sa' },
+            provider: { '@type': 'Organization', name: 'Jdawil', url: 'https://jdawil.sa' },
             areaServed: { '@type': 'Country', name: 'Saudi Arabia' },
             inLanguage: 'ar',
           })}

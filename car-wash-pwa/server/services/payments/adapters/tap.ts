@@ -54,7 +54,7 @@ export const tap: PaymentAdapter = {
         amount: input.amountSar,
         currency: 'SAR',
         description: input.description,
-        statement_descriptor: 'Jadawel',
+        statement_descriptor: 'Jdawil',
         metadata: input.metadata,
         source: { id: 'src_all' },
         redirect: { url: input.returnUrl },
