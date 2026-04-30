@@ -166,9 +166,9 @@ export const INDUSTRY_LANDINGS: IndustryLandingContent[] = [
     ctaText: 'أنشئ موقع صالونك مجاناً',
   },
 
-  // ─── CLEANING COMPANIES ────────────────────────────────────────────────────
+  // ─── HOME CLEANING ──────────────────────────────────────────────────────────
   {
-    slug: 'cleaning',
+    slug: 'home-cleaning',
     arName: 'شركات التنظيف',
     enName: 'Cleaning Companies',
     heroBadge: 'لشركات تنظيف المباني والمنازل',
@@ -304,3 +304,15 @@ export function getIndustry(slug: string | undefined): IndustryLandingContent | 
 
 /** Industry slugs only — for routing / sitemap iteration. */
 export const INDUSTRY_SLUGS = INDUSTRY_LANDINGS.map((i) => i.slug);
+
+/**
+ * Convert a server INDUSTRIES key (e.g. 'home_cleaning', 'ac_maintenance')
+ * into the URL slug used by the /for/:industry landing page.
+ *
+ * Returns undefined if the industry has no dedicated landing page yet.
+ */
+export function industryKeyToSlug(industryKey: string | null | undefined): string | undefined {
+  if (!industryKey) return undefined;
+  const slug = industryKey.replaceAll('_', '-');
+  return INDUSTRY_SLUGS.includes(slug) ? slug : undefined;
+}

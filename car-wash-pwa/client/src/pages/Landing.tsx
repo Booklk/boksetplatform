@@ -510,14 +510,15 @@ export default function Landing() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {[
-              { icon: '🚗', name: 'مغاسل سيارات',        desc: 'متنقلة وثابتة — حجوزات + GPS + تتبع', link: '/for/car-wash', dedicated: true },
-              { icon: '💈', name: 'صالونات وحلاقة',       desc: 'مواعيد + خدمات + ولاء عملاء',          link: '/for/salon',    dedicated: true },
-              { icon: '💄', name: 'تجميل منزلي وسبا',    desc: 'مكياج + مساج + حمام مغربي',            link: '/for/salon',    dedicated: true },
-              { icon: '🏠', name: 'شركات تنظيف',          desc: 'مباني + منازل + مناسبات + عقود',       link: '/for/cleaning', dedicated: true },
-              { icon: '📦', name: 'شركات نقل العفش',     desc: 'محلي + بين المدن + تعبئة وتغليف',      link: '/for/movers',   dedicated: true },
-              { icon: '❄️', name: 'صيانة مكيفات',        desc: 'تنظيف + صيانة + تركيب + فريون',        link: '/onboard' },
-              { icon: '🔧', name: 'سباكة وكهرباء',       desc: 'تسليك + تمديدات + صيانة عامة',         link: '/onboard' },
-              { icon: '💼', name: 'أي خدمة أخرى',         desc: 'مصور، مدرب، معلم، طباخ — أي نشاط',     link: '/onboard' },
+              { icon: '🚗', name: 'مغاسل سيارات',        desc: 'متنقلة وثابتة — حجوزات + GPS + تتبع',  link: '/for/car-wash',       dedicated: true },
+              { icon: '💈', name: 'صالونات وحلاقة',       desc: 'مواعيد + خدمات + ولاء عملاء',           link: '/for/salon',          dedicated: true },
+              { icon: '💄', name: 'تجميل منزلي وسبا',    desc: 'مكياج + مساج + حمام مغربي',             link: '/for/beauty-home',    dedicated: true },
+              { icon: '🏠', name: 'تنظيف منازل وشركات', desc: 'فلل + شقق + عقود B2B',                 link: '/for/home-cleaning',  dedicated: true },
+              { icon: '❄️', name: 'صيانة مكيفات',        desc: 'تنظيف + صيانة + تركيب + فريون',         link: '/for/ac-maintenance', dedicated: true },
+              { icon: '🔧', name: 'سباكة وكشف تسرّبات', desc: 'تسليك + كشف + إصلاح + طوارئ',          link: '/for/plumbing',       dedicated: true },
+              { icon: '⚡', name: 'كهرباء وتمديدات',      desc: 'فحص + تمديد + لوحات + كاميرات',         link: '/for/electrical',     dedicated: true },
+              { icon: '💼', name: 'فري لانسر',             desc: 'مصور، مدرب، معلم، طباخ — أي نشاط',     link: '/for/freelancer',     dedicated: true },
+              { icon: '📦', name: 'شركات نقل العفش',     desc: 'محلي + بين المدن + تعبئة وتغليف',       link: '/for/movers',         dedicated: true },
             ].map((industry, i) => (
               <motion.a
                 key={industry.name}
