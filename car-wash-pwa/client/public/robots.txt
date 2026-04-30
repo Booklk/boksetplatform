@@ -1,0 +1,43 @@
+# جداول (Jadawel) — منصة الحجوزات للأعمال الخدمية السعودية
+# https://bokset.sa
+
+User-agent: *
+Allow: /
+Allow: /marketplace
+Allow: /store/
+Allow: /onboard
+Allow: /blog
+Allow: /blog/
+Allow: /for/
+Allow: /demo
+Allow: /pricing
+Allow: /privacy
+Allow: /terms
+Allow: /city/
+
+Disallow: /vendor/
+Disallow: /admin/
+Disallow: /employee/
+Disallow: /app/
+Disallow: /super-admin/
+Disallow: /super-admin/login
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+
+# Sitemaps
+Sitemap: https://bokset.sa/sitemap.xml
+
+# Google-specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Others
+User-agent: *
+Crawl-delay: 1
