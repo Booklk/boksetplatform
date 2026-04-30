@@ -47,6 +47,20 @@ const industries = [
     heroText: 'اطلب صيانة',
   },
   {
+    id: 'plumbing', icon: '🔧', name: 'سباكة',
+    services: ['زيارة فحص — 150 ر.س', 'تسليك مجاري — 200 ر.س', 'كشف تسرّب — 350 ر.س', 'صيانة سخان — 180 ر.س', 'تركيب أدوات صحية — 250 ر.س'],
+    color: '#0ea5e9',
+    mockStats: { bookings: 35, revenue: '5,400', rating: 4.7, customers: 98 },
+    heroText: 'اطلب فني',
+  },
+  {
+    id: 'electrical', icon: '⚡', name: 'كهرباء',
+    services: ['زيارة فحص — 100 ر.س', 'إصلاح عطل — 200 ر.س', 'تركيب إضاءة — 150 ر.س', 'تمديد نقطة — 200 ر.س', 'لوحة كهرباء — 800 ر.س'],
+    color: '#eab308',
+    mockStats: { bookings: 29, revenue: '4,200', rating: 4.8, customers: 76 },
+    heroText: 'اطلب كهربائي',
+  },
+  {
     id: 'freelancer', icon: '💼', name: 'فري لانسر',
     services: ['جلسة تصوير — 200 ر.س', 'تدريب شخصي — 150 ر.س', 'درس خصوصي — 80 ر.س', 'استشارة — 100 ر.س', 'طبخ منزلي — 250 ر.س'],
     color: '#f59e0b',
