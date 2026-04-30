@@ -18,6 +18,8 @@ export interface User {
     subscriptionStatus?: string;
     subscriptionPlan?: string;
     paymentConfig?: Record<string, unknown> | null;
+    industry?: string;
+    industryLabel?: string;
   };
 }
 

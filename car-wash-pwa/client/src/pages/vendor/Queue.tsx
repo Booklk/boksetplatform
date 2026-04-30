@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
+import { useIndustryFlags } from '../../hooks/useIndustryFlags';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -75,11 +76,13 @@ function AddCustomerModal({
   onClose,
   services,
   onSuccess,
+  showVehicleFields,
 }: {
   open: boolean;
   onClose: () => void;
   services: Service[];
   onSuccess: (ticket: QueueTicket & { position: number; estimatedWaitMinutes: number }) => void;
+  showVehicleFields: boolean;
 }) {
   const [form, setForm] = useState({
     customerName: '',
@@ -140,10 +143,10 @@ function AddCustomerModal({
 
           <div className="space-y-3">
             {[
-              { key: 'customerName', label: 'اسم العميل', placeholder: 'اختياري', icon: User },
-              { key: 'customerPhone', label: 'رقم الهاتف', placeholder: 'اختياري', icon: Phone },
-              { key: 'vehiclePlate', label: 'رقم اللوحة', placeholder: 'اختياري', icon: Car },
-            ].map(({ key, label, placeholder, icon: Icon }) => (
+              { key: 'customerName', label: 'اسم العميل', placeholder: 'اختياري', icon: User, show: true },
+              { key: 'customerPhone', label: 'رقم الهاتف', placeholder: 'اختياري', icon: Phone, show: true },
+              { key: 'vehiclePlate', label: 'رقم اللوحة', placeholder: 'اختياري', icon: Car, show: showVehicleFields },
+            ].filter((f) => f.show).map(({ key, label, placeholder, icon: Icon }) => (
               <div key={key}>
                 <label className="block text-white/60 text-xs mb-1">{label}</label>
                 <div className="relative">
@@ -159,19 +162,21 @@ function AddCustomerModal({
               </div>
             ))}
 
-            <div>
-              <label className="block text-white/60 text-xs mb-1">نوع السيارة</label>
-              <select
-                value={form.vehicleType}
-                onChange={(e) => setForm((f) => ({ ...f, vehicleType: e.target.value }))}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
-              >
-                <option value="">اختر النوع</option>
-                {['سيدان', 'SUV', 'بيكاب', 'فان', 'هاتشباك', 'كوبيه'].map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
+            {showVehicleFields && (
+              <div>
+                <label className="block text-white/60 text-xs mb-1">نوع السيارة</label>
+                <select
+                  value={form.vehicleType}
+                  onChange={(e) => setForm((f) => ({ ...f, vehicleType: e.target.value }))}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500/50"
+                >
+                  <option value="">اختر النوع</option>
+                  {['سيدان', 'SUV', 'بيكاب', 'فان', 'هاتشباك', 'كوبيه'].map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {services.length > 0 && (
               <div>
@@ -250,6 +255,7 @@ function TicketIssuedToast({
 
 export default function VendorQueue() {
   const { user } = useAuth();
+  const flags = useIndustryFlags();
   const qc = useQueryClient();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTicket, setNewTicket] = useState<any>(null);
@@ -558,6 +564,7 @@ export default function VendorQueue() {
         open={showAddModal}
         onClose={() => setShowAddModal(false)}
         services={services}
+        showVehicleFields={flags.vehicleFieldsEnabled}
         onSuccess={(t) => {
           setNewTicket(t);
           qc.invalidateQueries({ queryKey: ['queue-session-today'] });

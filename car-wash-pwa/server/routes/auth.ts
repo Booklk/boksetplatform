@@ -218,6 +218,10 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
         logoUrl: vendors.logoUrl,
         primaryColor: vendors.primaryColor,
         subscriptionStatus: vendors.subscriptionStatus,
+        // Drives industry-aware UI on the vendor side: vehicle fields,
+        // service-type pickers, copy on dashboards, etc.
+        industry: vendors.industry,
+        industryLabel: vendors.industryLabel,
       }).from(vendors).where(eq(vendors.id, user.vendorId)).limit(1);
       return res.json({ ...user, vendor: vendor ?? null });
     }

@@ -8,12 +8,14 @@ import { Booking, Employee } from '../../types';
 import { formatDateTime, formatCurrency, STATUS_LABELS } from '../../lib/utils';
 import StatusBadge from '../../components/StatusBadge';
 import EmptyState from '../../components/EmptyState';
+import { useIndustryFlags } from '../../hooks/useIndustryFlags';
 import RefundDialog from '../../components/vendor/RefundDialog';
 
 const STATUS_OPTIONS = ['', 'pending', 'confirmed', 'on_way', 'arrived', 'in_progress', 'completed', 'cancelled'];
 
 export default function AdminBookings() {
   const queryClient = useQueryClient();
+  const flags = useIndustryFlags();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -84,7 +86,9 @@ export default function AdminBookings() {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="بحث برقم الحجز، الاسم، الجوال، اللوحة..."
+            placeholder={flags.vehicleFieldsEnabled
+              ? 'بحث برقم الحجز، الاسم، الجوال، اللوحة...'
+              : 'بحث برقم الحجز، الاسم، أو الجوال...'}
             className="input-field pr-9"
           />
         </div>

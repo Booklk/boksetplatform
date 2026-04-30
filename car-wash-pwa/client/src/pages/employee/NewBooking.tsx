@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { Search, UserPlus } from 'lucide-react';
 import api from '../../lib/api';
 import { Service, Customer } from '../../types';
+import { useIndustryFlags } from '../../hooks/useIndustryFlags';
 import { formatCurrency, VEHICLE_TYPES } from '../../lib/utils';
 import { NORTH_RIYADH_NEIGHBORHOODS } from '../../lib/constants';
 import MapPicker from '../../components/MapPicker';
@@ -14,6 +15,7 @@ type CustomerMode = 'search' | 'new';
 
 export default function EmployeeNewBooking() {
   const navigate = useNavigate();
+  const flags = useIndustryFlags();
   const [customerMode, setCustomerMode] = useState<CustomerMode>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -181,25 +183,29 @@ export default function EmployeeNewBooking() {
                 <label className="label">رقم الجوال *</label>
                 <input type="tel" value={newCustomer.phone} onChange={e => setNewCustomer(f => ({ ...f, phone: e.target.value }))} className="input-field" placeholder="05xxxxxxxx" dir="ltr" required />
               </div>
-              <div>
-                <label className="label">نوع السيارة</label>
-                <select value={newCustomer.vehicleType} onChange={e => setNewCustomer(f => ({ ...f, vehicleType: e.target.value }))} className="input-field">
-                  <option value="">اختر...</option>
-                  {VEHICLE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="label">رقم اللوحة</label>
-                <input type="text" value={newCustomer.vehiclePlate} onChange={e => setNewCustomer(f => ({ ...f, vehiclePlate: e.target.value }))} className="input-field" placeholder="أ ب ج 1234" />
-              </div>
-              <div>
-                <label className="label">الموديل</label>
-                <input type="text" value={newCustomer.vehicleModel} onChange={e => setNewCustomer(f => ({ ...f, vehicleModel: e.target.value }))} className="input-field" placeholder="كامري 2023" />
-              </div>
-              <div>
-                <label className="label">اللون</label>
-                <input type="text" value={newCustomer.vehicleColor} onChange={e => setNewCustomer(f => ({ ...f, vehicleColor: e.target.value }))} className="input-field" placeholder="أبيض" />
-              </div>
+              {flags.vehicleFieldsEnabled && (
+                <>
+                  <div>
+                    <label className="label">نوع السيارة</label>
+                    <select value={newCustomer.vehicleType} onChange={e => setNewCustomer(f => ({ ...f, vehicleType: e.target.value }))} className="input-field">
+                      <option value="">اختر...</option>
+                      {VEHICLE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="label">رقم اللوحة</label>
+                    <input type="text" value={newCustomer.vehiclePlate} onChange={e => setNewCustomer(f => ({ ...f, vehiclePlate: e.target.value }))} className="input-field" placeholder="أ ب ج 1234" />
+                  </div>
+                  <div>
+                    <label className="label">الموديل</label>
+                    <input type="text" value={newCustomer.vehicleModel} onChange={e => setNewCustomer(f => ({ ...f, vehicleModel: e.target.value }))} className="input-field" placeholder="كامري 2023" />
+                  </div>
+                  <div>
+                    <label className="label">اللون</label>
+                    <input type="text" value={newCustomer.vehicleColor} onChange={e => setNewCustomer(f => ({ ...f, vehicleColor: e.target.value }))} className="input-field" placeholder="أبيض" />
+                  </div>
+                </>
+              )}
             </div>
             <button
               type="button"

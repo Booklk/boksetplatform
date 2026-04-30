@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
+import { useIndustryFlags } from '../../hooks/useIndustryFlags';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -458,6 +459,7 @@ function ManualBookingDrawer({
   color: string;
 }) {
   const qc = useQueryClient();
+  const flags = useIndustryFlags();
   const [mode, setMode] = useState<'search' | 'new'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<CustomerSearchResult[]>([]);
@@ -712,22 +714,24 @@ function ManualBookingDrawer({
                       className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
                       dir="ltr"
                     />
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        type="text"
-                        value={newCustomer.vehicleType}
-                        onChange={(e) => setNewCustomer((f) => ({ ...f, vehicleType: e.target.value }))}
-                        placeholder="نوع السيارة"
-                        className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
-                      />
-                      <input
-                        type="text"
-                        value={newCustomer.vehiclePlate}
-                        onChange={(e) => setNewCustomer((f) => ({ ...f, vehiclePlate: e.target.value }))}
-                        placeholder="رقم اللوحة"
-                        className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
-                      />
-                    </div>
+                    {flags.vehicleFieldsEnabled && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={newCustomer.vehicleType}
+                          onChange={(e) => setNewCustomer((f) => ({ ...f, vehicleType: e.target.value }))}
+                          placeholder="نوع السيارة"
+                          className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                        />
+                        <input
+                          type="text"
+                          value={newCustomer.vehiclePlate}
+                          onChange={(e) => setNewCustomer((f) => ({ ...f, vehiclePlate: e.target.value }))}
+                          placeholder="رقم اللوحة"
+                          className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                        />
+                      </div>
+                    )}
                     <button
                       onClick={() => createCustomer.mutate()}
                       disabled={
@@ -824,25 +828,29 @@ function ManualBookingDrawer({
                 )}
               </div>
 
-              {/* ── Step 4: Vehicle + Notes ─────────────────────── */}
+              {/* ── Step 4: Vehicle (car_wash only) + Notes ─────── */}
               <div className="mb-5 space-y-2">
-                <p className="text-sm font-black text-white mb-2">④ السيارة وملاحظات</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={vehicleType}
-                    onChange={(e) => setVehicleType(e.target.value)}
-                    placeholder="نوع السيارة"
-                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
-                  />
-                  <input
-                    type="text"
-                    value={vehiclePlate}
-                    onChange={(e) => setVehiclePlate(e.target.value)}
-                    placeholder="اللوحة"
-                    className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
-                  />
-                </div>
+                <p className="text-sm font-black text-white mb-2">
+                  {flags.vehicleFieldsEnabled ? '④ السيارة وملاحظات' : '④ ملاحظات'}
+                </p>
+                {flags.vehicleFieldsEnabled && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      value={vehicleType}
+                      onChange={(e) => setVehicleType(e.target.value)}
+                      placeholder="نوع السيارة"
+                      className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                    />
+                    <input
+                      type="text"
+                      value={vehiclePlate}
+                      onChange={(e) => setVehiclePlate(e.target.value)}
+                      placeholder="اللوحة"
+                      className="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm outline-none"
+                    />
+                  </div>
+                )}
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}

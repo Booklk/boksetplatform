@@ -5,9 +5,11 @@ import { Search, Phone, Car } from 'lucide-react';
 import api from '../../lib/api';
 import { Customer } from '../../types';
 import { formatDate } from '../../lib/utils';
+import { useIndustryFlags } from '../../hooks/useIndustryFlags';
 
 export default function AdminCustomers() {
   const [search, setSearch] = useState('');
+  const flags = useIndustryFlags();
 
   const { data: customers = [], isLoading } = useQuery<Customer[]>({
     queryKey: ['customers'],
@@ -33,7 +35,9 @@ export default function AdminCustomers() {
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="بحث بالاسم، الجوال، أو رقم اللوحة..."
+          placeholder={flags.vehicleFieldsEnabled
+            ? 'بحث بالاسم، الجوال، أو رقم اللوحة...'
+            : 'بحث بالاسم أو الجوال...'}
           className="input-field pr-9"
         />
       </div>
