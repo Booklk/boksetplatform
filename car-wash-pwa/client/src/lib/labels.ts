@@ -194,3 +194,33 @@ export const PLATFORM_LABELS = {
   booking: 'الحجز',
   tagline: 'أنشئ موقع حجوزاتك بجميع المميزات اللي يحتاجها مشروعك',
 } as const;
+
+/**
+ * Behavioral flags per industry — drives conditional UI like vehicle steps,
+ * address requirements, etc. Mirrors `vehicleFieldsEnabled` /
+ * `locationRequired` from server/lib/industries.ts so client doesn't need
+ * a round-trip to know what to render.
+ */
+export interface IndustryFlags {
+  vehicleFieldsEnabled: boolean;
+  locationRequired: boolean;
+}
+
+const FLAGS: Record<string, IndustryFlags> = {
+  car_wash:       { vehicleFieldsEnabled: true,  locationRequired: true },
+  home_cleaning:  { vehicleFieldsEnabled: false, locationRequired: true },
+  ac_maintenance: { vehicleFieldsEnabled: false, locationRequired: true },
+  plumbing:       { vehicleFieldsEnabled: false, locationRequired: true },
+  electrical:     { vehicleFieldsEnabled: false, locationRequired: true },
+  salon:          { vehicleFieldsEnabled: false, locationRequired: false },
+  beauty_home:    { vehicleFieldsEnabled: false, locationRequired: true },
+  freelancer:     { vehicleFieldsEnabled: false, locationRequired: true },
+  other:          { vehicleFieldsEnabled: false, locationRequired: true },
+};
+
+const DEFAULT_FLAGS: IndustryFlags = { vehicleFieldsEnabled: false, locationRequired: true };
+
+export function getIndustryFlags(industry?: string | null): IndustryFlags {
+  if (!industry) return DEFAULT_FLAGS;
+  return FLAGS[industry] ?? DEFAULT_FLAGS;
+}

@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Car, User, Phone, Hash, Clock, ChevronLeft } from 'lucide-react';
 import api from '../lib/api';
+import { getIndustryFlags, getLabels } from '../lib/labels';
 
 interface VendorInfo {
   id: number;
   nameAr: string;
   logoUrl?: string;
   primaryColor?: string;
+  industry?: string;
 }
 
 interface IssuedTicket {
@@ -66,19 +68,24 @@ function StepVehicle({
 function StepInfo({
   form,
   onChange,
+  showVehiclePlate,
 }: {
   form: { vehiclePlate: string; customerName: string; customerPhone: string };
   onChange: (key: string, value: string) => void;
+  showVehiclePlate: boolean;
 }) {
+  const fields = [
+    ...(showVehiclePlate
+      ? [{ key: 'vehiclePlate', label: 'رقم اللوحة', placeholder: 'مثال: أ ب ج 1234', icon: Car }]
+      : []),
+    { key: 'customerName', label: 'اسمك', placeholder: 'اسمك الكريم', icon: User },
+    { key: 'customerPhone',label: 'رقم الجوال', placeholder: '05xxxxxxxx', icon: Phone },
+  ];
   return (
     <div>
       <h2 className="text-xl font-bold text-white mb-5 text-center">معلوماتك (اختيارية)</h2>
       <div className="space-y-4">
-        {[
-          { key: 'vehiclePlate', label: 'رقم اللوحة', placeholder: 'مثال: أ ب ج 1234', icon: Car },
-          { key: 'customerName', label: 'اسمك', placeholder: 'اسمك الكريم', icon: User },
-          { key: 'customerPhone',label: 'رقم الجوال', placeholder: '05xxxxxxxx', icon: Phone },
-        ].map(({ key, label, placeholder, icon: Icon }) => (
+        {fields.map(({ key, label, placeholder, icon: Icon }) => (
           <div key={key}>
             <label className="block text-white/60 text-sm mb-1.5">{label}</label>
             <div className="relative">
@@ -188,7 +195,14 @@ export default function QueueJoin() {
   });
 
   const primaryColor = vendor?.primaryColor ?? '#3b82f6';
-  const vendorName = vendor?.nameAr ?? 'مغسلة السيارات';
+  const labels = getLabels(vendor?.industry);
+  const vendorName = vendor?.nameAr ?? labels.businessName;
+  const flags = getIndustryFlags(vendor?.industry);
+
+  // Skip the vehicle step entirely for industries that don't use vehicles.
+  useEffect(() => {
+    if (!flags.vehicleFieldsEnabled && step === 'vehicle') setStep('info');
+  }, [flags.vehicleFieldsEnabled, step]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -211,7 +225,7 @@ export default function QueueJoin() {
   };
 
   const handleReset = () => {
-    setStep('vehicle');
+    setStep(flags.vehicleFieldsEnabled ? 'vehicle' : 'info');
     setVehicleType('');
     setForm({ vehiclePlate: '', customerName: '', customerPhone: '' });
     setIssuedTicket(null);
@@ -305,6 +319,7 @@ export default function QueueJoin() {
                 <StepInfo
                   form={form}
                   onChange={(k, v) => setForm((f) => ({ ...f, [k]: v }))}
+                  showVehiclePlate={flags.vehicleFieldsEnabled}
                 />
                 <div className="mt-6 space-y-3">
                   <button
@@ -319,12 +334,14 @@ export default function QueueJoin() {
                       <><Hash className="w-6 h-6" /> احصل على رقمك</>
                     )}
                   </button>
-                  <button
-                    onClick={() => setStep('vehicle')}
-                    className="w-full py-2 text-white/40 text-sm hover:text-white/60 transition-colors"
-                  >
-                    ← رجوع
-                  </button>
+                  {flags.vehicleFieldsEnabled && (
+                    <button
+                      onClick={() => setStep('vehicle')}
+                      className="w-full py-2 text-white/40 text-sm hover:text-white/60 transition-colors"
+                    >
+                      ← رجوع
+                    </button>
+                  )}
                 </div>
               </motion.div>
             )}

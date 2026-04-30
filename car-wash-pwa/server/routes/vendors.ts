@@ -184,6 +184,10 @@ router.get('/public/:slug', async (req, res) => {
       rating: vendors.rating,
       reviewsCount: vendors.reviewsCount,
       settings: vendors.settings,
+      // Industry drives client-side conditional UI (vehicle fields,
+      // service-type pickers, queue copy, etc.).
+      industry: vendors.industry,
+      industryLabel: vendors.industryLabel,
       // Expose these so the storefront can render a friendly "closed"
       // state instead of a broken page when the vendor is paused.
       isActive: vendors.isActive,
