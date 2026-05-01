@@ -15,6 +15,7 @@ import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 import { EmptyState } from '../../components/ui';
 import SetupChecklist from '../../components/SetupChecklist';
+import { MoneyBackBanner } from '../../components/MoneyBackBanner';
 import SmartInsights from '../../components/SmartInsights';
 import MorningBrief from '../../components/vendor/MorningBrief';
 import PrayerTimesBadge from '../../components/vendor/PrayerTimesBadge';
@@ -683,6 +684,9 @@ export default function VendorDashboard() {
             </div>
           </motion.div>
         )}
+
+        {/* 60-day money-back guarantee banner (auto-hides after window) */}
+        <MoneyBackBanner />
 
         {/* Setup Checklist */}
         <SetupChecklist />

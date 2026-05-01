@@ -384,6 +384,9 @@ app.use('/api/campaigns', requireAuth, campaignsRoutes);
 import mobileAppRoutes from './routes/mobileApp.js';
 app.use('/api/mobile-app', mobileAppRoutes);
 
+import moneyBackRoutes from './routes/money-back.js';
+app.use('/api/money-back', moneyBackRoutes);
+
 import storeManifestRoutes from './routes/storeManifest.js';
 app.use('/api/store', storeManifestRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);

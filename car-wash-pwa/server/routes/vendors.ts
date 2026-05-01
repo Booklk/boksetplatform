@@ -289,6 +289,7 @@ router.post('/onboard', async (req, res) => {
     const slug = autoSlug(nameAr, normalizedPhone);
     const passwordHash = await bcrypt.hash(password, 12);
     const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+    const moneyBackUntil = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
 
     // Check if this registration qualifies as a founding member (first 100)
     const [{ total: vendorCount }] = await db.select({ total: count() }).from(vendors);
@@ -312,6 +313,7 @@ router.post('/onboard', async (req, res) => {
         subscriptionPlan: plan === 'free' ? 'free' : 'pro',
         isActive: true,
         trialEndsAt,
+        moneyBackUntil,
         isFoundingMember,
         foundingMemberSince: isFoundingMember ? now : undefined,
       }).returning();

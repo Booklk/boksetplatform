@@ -29,6 +29,11 @@ export const vendors = pgTable('vendors', {
   subscriptionStartDate: timestamp('subscription_start_date'),
   subscriptionEndDate: timestamp('subscription_end_date'),
   trialEndsAt: timestamp('trial_ends_at'),
+  // 60-day no-questions-asked refund window from signup. Set on /onboard
+  // and consumed by the cancel-with-refund flow. After this date passes,
+  // cancellation still works but refunds revert to standard prorated rules.
+  moneyBackUntil: timestamp('money_back_until'),
+  moneyBackUsed: boolean('money_back_used').notNull().default(false),
 
   // BYOC: vendor's own WhatsApp Business credentials (AES-256 encrypted)
   whatsappPhoneId: varchar('whatsapp_phone_id', { length: 255 }), // encrypted

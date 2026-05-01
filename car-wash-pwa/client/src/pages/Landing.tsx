@@ -342,13 +342,31 @@ export default function Landing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex items-center justify-center gap-6 text-xs text-slate-600 mb-20"
+            className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-slate-600 mb-8"
           >
             <span>بدون بطاقة ائتمانية</span>
             <span className="w-px h-3 bg-white/[0.08]" />
             <span>جاهز خلال 5 دقائق</span>
             <span className="w-px h-3 bg-white/[0.08]" />
             <span>باقة مجانية للأبد</span>
+          </motion.div>
+
+          {/* 60-Day Money-Back Guarantee Banner */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="mx-auto max-w-3xl mb-20 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.06] px-5 py-4 flex items-start sm:items-center gap-3"
+          >
+            <span className="shrink-0 w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-300 text-lg">🛡️</span>
+            <div className="text-right">
+              <p className="text-emerald-200 font-bold text-sm sm:text-base">
+                ضمان استرداد كامل خلال 60 يوم
+              </p>
+              <p className="text-emerald-100/70 text-xs sm:text-sm leading-relaxed mt-0.5">
+                جرّب جداول 60 يوم. ما عجبك؟ نرجّع لك كل ريال دفعته خلال 7 أيام عمل — بدون أسئلة، بدون شروط مخفيّة.
+              </p>
+            </div>
           </motion.div>
 
           {/* Stats */}

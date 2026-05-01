@@ -222,6 +222,10 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
         // service-type pickers, copy on dashboards, etc.
         industry: vendors.industry,
         industryLabel: vendors.industryLabel,
+        // Trust banners + cancel-with-refund flow read these.
+        moneyBackUntil: vendors.moneyBackUntil,
+        moneyBackUsed: vendors.moneyBackUsed,
+        createdAt: vendors.createdAt,
       }).from(vendors).where(eq(vendors.id, user.vendorId)).limit(1);
       return res.json({ ...user, vendor: vendor ?? null });
     }
