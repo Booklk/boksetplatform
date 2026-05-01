@@ -69,6 +69,7 @@ const vendorNavSections: NavSection[] = [
   {
     label: 'المالية',
     items: [
+      { to: '/vendor/roi', icon: TrendingUp, label: 'عائدك من Jdawil ✨' },
       { to: '/vendor/financial-statements', icon: FileText, label: 'القوائم المالية' },
       { to: '/vendor/expenses', icon: ReceiptText, label: 'المصروفات والدخل' },
       { to: '/vendor/profit-calculator', icon: Calculator, label: 'حاسبة الربح' },
