@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import SocialProofTicker from '../components/SocialProofTicker';
 import MarketingLayout from '../components/marketing/MarketingLayout';
+import { AntiMarketplace } from '../components/marketing/AntiMarketplace';
 import { Button } from '../components/ui';
 
 /* ── Water drop particle type ── */
@@ -1665,6 +1666,9 @@ export default function Landing() {
           </div>
         </div>
       </div>
+
+      {/* Anti-Marketplace pitch + Findio savings calculator */}
+      <AntiMarketplace />
 
       {/* FOOTER moved to MarketingFooter (global) */}
 
