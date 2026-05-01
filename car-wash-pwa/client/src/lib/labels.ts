@@ -207,15 +207,19 @@ export interface IndustryFlags {
 }
 
 const FLAGS: Record<string, IndustryFlags> = {
-  car_wash:       { vehicleFieldsEnabled: true,  locationRequired: true },
-  home_cleaning:  { vehicleFieldsEnabled: false, locationRequired: true },
-  ac_maintenance: { vehicleFieldsEnabled: false, locationRequired: true },
-  plumbing:       { vehicleFieldsEnabled: false, locationRequired: true },
-  electrical:     { vehicleFieldsEnabled: false, locationRequired: true },
-  salon:          { vehicleFieldsEnabled: false, locationRequired: false },
-  beauty_home:    { vehicleFieldsEnabled: false, locationRequired: true },
-  freelancer:     { vehicleFieldsEnabled: false, locationRequired: true },
-  other:          { vehicleFieldsEnabled: false, locationRequired: true },
+  car_wash:              { vehicleFieldsEnabled: true,  locationRequired: true },
+  home_cleaning:         { vehicleFieldsEnabled: false, locationRequired: true },
+  ac_maintenance:        { vehicleFieldsEnabled: false, locationRequired: true },
+  appliance_repair:      { vehicleFieldsEnabled: false, locationRequired: true },
+  plumbing:              { vehicleFieldsEnabled: false, locationRequired: true },
+  electrical:            { vehicleFieldsEnabled: false, locationRequired: true },
+  salon:                 { vehicleFieldsEnabled: false, locationRequired: false },
+  spa:                   { vehicleFieldsEnabled: false, locationRequired: false },
+  beauty_home:           { vehicleFieldsEnabled: false, locationRequired: true },
+  clinic:                { vehicleFieldsEnabled: false, locationRequired: false },
+  professional_services: { vehicleFieldsEnabled: false, locationRequired: false },
+  freelancer:            { vehicleFieldsEnabled: false, locationRequired: true },
+  other:                 { vehicleFieldsEnabled: false, locationRequired: true },
 };
 
 const DEFAULT_FLAGS: IndustryFlags = { vehicleFieldsEnabled: false, locationRequired: true };

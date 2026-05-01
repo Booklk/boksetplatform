@@ -27,12 +27,16 @@ interface OnboardForm {
 
 const INDUSTRY_OPTIONS = [
   { id: 'car_wash', label: 'مغسلة سيارات', icon: '🚗' },
+  { id: 'salon', label: 'صالون / حلاق', icon: '💈' },
+  { id: 'clinic', label: 'عيادة صغيرة', icon: '🩺' },
+  { id: 'spa', label: 'مركز سبا', icon: '🌸' },
+  { id: 'beauty_home', label: 'تجميل منزلي', icon: '💄' },
   { id: 'home_cleaning', label: 'تنظيف منازل', icon: '🏠' },
+  { id: 'appliance_repair', label: 'صيانة الأجهزة', icon: '🛠️' },
   { id: 'ac_maintenance', label: 'صيانة مكيفات', icon: '❄️' },
   { id: 'plumbing', label: 'سباكة', icon: '🔧' },
   { id: 'electrical', label: 'كهرباء', icon: '⚡' },
-  { id: 'salon', label: 'صالون / حلاق', icon: '💈' },
-  { id: 'beauty_home', label: 'تجميل منزلي / سبا / مساج', icon: '💄' },
+  { id: 'professional_services', label: 'استشارات ومحاماة', icon: '⚖️' },
   { id: 'freelancer', label: 'فري لانسر', icon: '💼' },
   { id: 'other', label: 'خدمات أخرى', icon: '⭐' },
 ];

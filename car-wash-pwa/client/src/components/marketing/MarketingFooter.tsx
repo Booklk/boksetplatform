@@ -11,11 +11,15 @@ const PRODUCT_LINKS = [
 const INDUSTRY_LINKS = [
   { to: '/for/car-wash', label: 'مغاسل السيارات' },
   { to: '/for/salon', label: 'الصالونات والتجميل' },
-  { to: '/for/beauty-home', label: 'تجميل منزلي وسبا' },
+  { to: '/for/clinic', label: 'العيادات الصغيرة' },
+  { to: '/for/spa', label: 'مراكز السبا' },
+  { to: '/for/beauty-home', label: 'تجميل منزلي' },
   { to: '/for/home-cleaning', label: 'تنظيف منازل' },
+  { to: '/for/appliance-repair', label: 'صيانة الأجهزة' },
   { to: '/for/ac-maintenance', label: 'صيانة المكيفات' },
   { to: '/for/plumbing', label: 'سباكة وكشف تسرّبات' },
   { to: '/for/electrical', label: 'كهرباء وتمديدات' },
+  { to: '/for/professional-services', label: 'استشارات ومحاماة' },
   { to: '/for/freelancer', label: 'فري لانسر' },
   { to: '/for/movers', label: 'شركات نقل العفش' },
 ];
