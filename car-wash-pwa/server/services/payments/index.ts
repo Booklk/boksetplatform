@@ -292,3 +292,89 @@ export async function getEnabledProviders(vendorId: number): Promise<Array<{
 function safeDecrypt(s: string): string | undefined {
   try { return decrypt(s); } catch { return undefined; }
 }
+
+/**
+ * High-level: take a bookingId, return a hosted-checkout URL using the
+ * vendor's default (or explicitly chosen) payment provider.
+ *
+ * Used by the WhatsApp bot to send deposit links to customers after a
+ * booking is created — the same logic the storefront uses, just without
+ * the HTTP layer in between.
+ */
+export async function createBookingCheckoutUrl(
+  bookingId: number,
+  opts: {
+    amountSar?: number;          // override; defaults to booking.totalPrice
+    providerSlug?: ProviderSlug; // override; defaults to vendor's default
+    returnUrl?: string;
+    description?: string;
+  } = {},
+): Promise<{ url: string; provider: ProviderSlug; amountSar: number } | null> {
+  const { bookings, users, vendors: vendorsTable, packages, services } =
+    await import('../../db/schema.js');
+
+  const [booking] = await db.select({
+    id: bookings.id,
+    bookingNumber: bookings.bookingNumber,
+    vendorId: bookings.vendorId,
+    customerId: bookings.customerId,
+    packageId: bookings.packageId,
+    address: bookings.address,
+    totalPrice: bookings.totalPrice,
+  }).from(bookings).where(eq(bookings.id, bookingId)).limit(1);
+  if (!booking) return null;
+
+  const cfg = await readConfig(booking.vendorId);
+  const chosen = opts.providerSlug ?? cfg.defaultProvider;
+  if (!chosen) return null;
+  const vp = await getVendorProvider(booking.vendorId, chosen);
+  if (!vp) return null;
+
+  const [customer] = await db.select({
+    name: users.name, phone: users.phone, email: users.email,
+  }).from(users).where(eq(users.id, booking.customerId!)).limit(1);
+  const [vendor] = await db.select({ city: vendorsTable.city })
+    .from(vendorsTable).where(eq(vendorsTable.id, booking.vendorId)).limit(1);
+  const [pkg] = booking.packageId ? await db.select({
+    name: packages.name, serviceName: services.name,
+  })
+    .from(packages)
+    .leftJoin(services, eq(services.id, packages.serviceId))
+    .where(eq(packages.id, booking.packageId))
+    .limit(1) : [null];
+
+  const clientUrl = (process.env.CLIENT_URL ?? 'http://localhost:5173').replace(/\/$/, '');
+  const returnUrl = opts.returnUrl ?? `${clientUrl}/booking/${booking.id}/payment-return`;
+  const amountSar = opts.amountSar ?? Number(booking.totalPrice ?? 0);
+  if (!(amountSar > 0)) return null;
+  const itemName = [pkg?.serviceName, pkg?.name].filter(Boolean).join(' — ')
+    || `حجز #${booking.bookingNumber}`;
+
+  const checkout = await vp.adapter.createCheckout(vp.creds, {
+    amountSar,
+    description: opts.description ?? `حجز #${booking.bookingNumber}`,
+    returnUrl,
+    metadata: {
+      bookingId: String(booking.id),
+      vendorId: String(booking.vendorId),
+      provider: chosen,
+    },
+    customer: {
+      name:        customer?.name ?? undefined,
+      phone:       customer?.phone ?? undefined,
+      email:       customer?.email ?? undefined,
+      addressLine: booking.address ?? undefined,
+      city:        vendor?.city ?? 'الرياض',
+      country:     'SA',
+    },
+    items: [{
+      name: itemName,
+      quantity: 1,
+      unitPriceSar: amountSar,
+      reference: booking.bookingNumber,
+    }],
+  });
+
+  if (!checkout?.url) return null;
+  return { url: checkout.url, provider: chosen, amountSar };
+}

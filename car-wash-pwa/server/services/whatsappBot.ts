@@ -441,11 +441,35 @@ async function commitBooking(
   context.stage = 'idle';
   await updateContext(toPhone, vendor.id, context);
 
+  const totalPrice = parseInt(context.pickedPackagePrice ?? '0');
+
   await sendRawWhatsAppMessage(
     toPhone,
-    `✅ تم تأكيد الحجز\n\n📋 رقم الحجز: #${booking.bookingNumber}\n📦 ${context.pickedPackageName}\n📅 ${new Date(context.pickedDate).toLocaleString('ar-SA')}\n💰 ${parseInt(context.pickedPackagePrice ?? '0')} ر.س\n\nشكراً لاختيارك ${vendor.nameAr} 💙`,
+    `✅ تم تأكيد الحجز\n\n📋 رقم الحجز: #${booking.bookingNumber}\n📦 ${context.pickedPackageName}\n📅 ${new Date(context.pickedDate).toLocaleString('ar-SA')}\n💰 ${totalPrice} ر.س\n\nشكراً لاختيارك ${vendor.nameAr} 💙`,
     vendor.id,
   );
+
+  // Generate a payment link if vendor has a payment provider configured.
+  // 30٪ deposit by default — protects against no-shows. Failure here is
+  // non-blocking; booking remains confirmed in the DB.
+  try {
+    const { createBookingCheckoutUrl } = await import('./payments/index.js');
+    const depositAmount = Math.max(10, Math.round(totalPrice * 0.3));
+    const checkout = await createBookingCheckoutUrl(booking.id, {
+      amountSar: depositAmount,
+      description: `عربون حجز #${booking.bookingNumber}`,
+    });
+    if (checkout?.url) {
+      await sendRawWhatsAppMessage(
+        toPhone,
+        `💳 لتأمين موعدك، ندفع عربون ${depositAmount} ر.س فقط (يُخصم من المبلغ الكامل):\n\n${checkout.url}\n\nيمكنك الدفع بمدى أو Apple Pay — آمن 100٪.`,
+        vendor.id,
+      );
+    }
+  } catch (err) {
+    console.error('[whatsappBot/depositLink]', err);
+    // Vendor without payment gateway = booking stays confirmed without deposit.
+  }
 }
 
 async function handoff(toPhone: string, vendor: VendorSlim) {
