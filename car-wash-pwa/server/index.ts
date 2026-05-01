@@ -387,6 +387,9 @@ app.use('/api/mobile-app', mobileAppRoutes);
 import moneyBackRoutes from './routes/money-back.js';
 app.use('/api/money-back', moneyBackRoutes);
 
+import systemStatusRoutes from './routes/system-status.js';
+app.use('/api/system-status', systemStatusRoutes);
+
 import storeManifestRoutes from './routes/storeManifest.js';
 app.use('/api/store', storeManifestRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);

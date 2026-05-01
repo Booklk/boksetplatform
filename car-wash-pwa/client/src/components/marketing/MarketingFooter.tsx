@@ -26,6 +26,7 @@ const INDUSTRY_LINKS = [
 
 const RESOURCE_LINKS = [
   { to: '/blog', label: 'المدونة' },
+  { to: '/status', label: 'حالة المنصة' },
   { to: '/privacy', label: 'سياسة الخصوصية' },
   { to: '/terms', label: 'الشروط والأحكام' },
 ];
