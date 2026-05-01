@@ -4,8 +4,8 @@
  * of the page contents.
  *
  * Usage:
- *   <AddonGate addonId="financials">
- *     <PayrollPage />
+ *   <AddonGate addonId="ai_bot">
+ *     <WhatsAppBotPage />
  *   </AddonGate>
  */
 import { ReactNode } from 'react';

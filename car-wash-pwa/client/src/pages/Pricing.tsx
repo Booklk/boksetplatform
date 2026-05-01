@@ -50,15 +50,23 @@ const FALLBACK_PLANS: PlatformPlan[] = [
       '🧾 نقطة بيع (POS) + كاشير',
       '📦 إدارة مخزون وموردين',
       '👤 CRM + تصنيف عملاء + برنامج ولاء',
-      '🗺️ Google Maps متكامل',
-      '📊 قوائم مالية متقدمة',
-      '👥 إدارة موظفين + رواتب + بونصات + GPS',
+      '📊 قوائم مالية متقدمة + تقارير ضريبية',
+      '👥 إدارة موظفين + رواتب + بونصات',
       '📈 لوحة تحكم متقدمة + تحليلات',
       '🤖 المستشار الذكي بالـ AI',
       'دعم فني ذو أولوية',
     ],
   },
 ];
+
+// Pay-only-for-what-costs-us: GPS تستهلك Google Maps API، البوت يستهلك OpenAI.
+// نمررها بسعر فعلي + هامش بسيط بدلاً من رفع سعر Pro للجميع.
+export const COST_PASS_THROUGH_ADDONS = [
+  { id: 'gps_basic', label: 'تتبع GPS أساسي (حتى 5 موظفين)', price: 50, unit: 'شهرياً' },
+  { id: 'gps_pro', label: 'تتبع GPS غير محدود + ETA + Geofence', price: 100, unit: 'شهرياً' },
+  { id: 'ai_bot', label: 'بوت واتساب الذكي (1,000 محادثة)', price: 100, unit: 'شهرياً' },
+  { id: 'ai_bot_pro', label: 'بوت واتساب الذكي Pro (5,000 محادثة)', price: 150, unit: 'شهرياً' },
+] as const;
 
 // Plans are now fetched live from /api/plans inside Pricing(). FALLBACK_PLANS
 // defined above this file handles the loading / offline case.

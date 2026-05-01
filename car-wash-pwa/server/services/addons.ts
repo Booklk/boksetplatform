@@ -1,5 +1,11 @@
 /**
- * Vendor Add-ons catalog — paid extensions on top of the base plan.
+ * Vendor Add-ons catalog — paid extensions for features with REAL
+ * marginal cost only. Anything with near-zero per-use cost (financials,
+ * payroll, CRM, automations, etc.) is part of the Pro 99 SAR plan.
+ *
+ * Add-ons exist because Maps and OpenAI bill the platform per request.
+ * The vendor pays for what actually costs us money — transparent,
+ * not exploitative.
  *
  * Each add-on gates a specific bundle of features. The vendor owns
  * `vendor.settings.addons: string[]` listing the active add-on IDs.
@@ -12,7 +18,7 @@ import { db } from '../db/index.js';
 import { vendors } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
 
-export type AddonId = 'financials' | 'ai_bot' | 'gps_basic' | 'gps_pro';
+export type AddonId = 'ai_bot' | 'ai_bot_pro' | 'gps_basic' | 'gps_pro';
 
 export interface Addon {
   id: AddonId;
@@ -23,52 +29,59 @@ export interface Addon {
   features: string[];
   /** Recurring per-use fee on top of monthly (e.g. AI overflow per message) */
   overflow?: { unit: string; pricePerUnit: number; included: number };
-  category: 'finance' | 'automation' | 'tracking';
+  category: 'automation' | 'tracking';
+  /** Why this is a paid add-on instead of bundled in Pro. */
+  costExplanation: string;
 }
 
 export const ADDONS: Record<AddonId, Addon> = {
-  financials: {
-    id: 'financials',
-    nameAr: 'القوائم المالية والرواتب',
-    descriptionAr: 'كشوف الرواتب، الفواتير، تقارير الأرباح والخسائر، وضريبة القيمة المضافة — كل ما يحتاجه محاسبك',
-    priceSar: 39,
-    category: 'finance',
+  ai_bot: {
+    id: 'ai_bot',
+    nameAr: 'بوت واتساب الذكي',
+    descriptionAr: 'بوت AI يفهم اللهجة السعودية، يحجز ويبيع ويرد على الشكاوى — يحلّ محل موظف ردود',
+    priceSar: 100,
+    category: 'automation',
+    overflow: { unit: 'رسالة', pricePerUnit: 0.05, included: 1000 },
+    costExplanation: 'كل محادثة AI تكلّفنا فعلياً عند OpenAI + Meta WhatsApp. السعر يغطي التكلفة + هامش بسيط.',
     features: [
-      'كشوف الرواتب الشهرية + العمولات',
-      'القوائم المالية (دخل / مصروفات / أرباح)',
-      'تقارير ضريبة القيمة المضافة',
-      'تتبع المصروفات + التصنيف',
-      'حاسبة الأرباح لكل خدمة',
-      'تصدير Excel / PDF',
+      '1,000 محادثة شهرياً',
+      'لهجة سعودية + تبديل تلقائي للإنجليزي',
+      'يفهم voice notes (صوت → نص)',
+      'يفهم الصور (تشخيص أعطال، تأكيد العمل)',
+      'حجز كامل عبر الواتساب + رابط دفع',
+      'تعرّف على العميل العائد + Upsell ذكي',
+      'تسليم تلقائي للموظف عند الشكوى',
+      'بعد 1,000 محادثة: 0.05 ر.س لكل محادثة (تكلفة + هامش)',
     ],
   },
 
-  ai_bot: {
-    id: 'ai_bot',
-    nameAr: 'بوت AI ذكي للواتساب',
-    descriptionAr: 'بوت يفهم أي صياغة، يقترح، يقنع، ويسوي حجوزات تلقائياً — بلهجة سعودية أو إنجليزي',
-    priceSar: 79,
+  ai_bot_pro: {
+    id: 'ai_bot_pro',
+    nameAr: 'بوت واتساب الذكي — Pro',
+    descriptionAr: 'كل ميزات البوت + 5,000 محادثة شهرياً + استجابة أسرع — للمنشآت ذات الحجم الكبير',
+    priceSar: 150,
     category: 'automation',
-    overflow: { unit: 'رسالة', pricePerUnit: 0.3, included: 300 },
+    overflow: { unit: 'رسالة', pricePerUnit: 0.04, included: 5000 },
+    costExplanation: 'ضعف الحجم بنفس النموذج — هامش أعلى لك مع تكلفة أقل لكل محادثة.',
     features: [
-      '300 رسالة AI شهرياً',
-      'لهجة سعودية + تبديل تلقائي للإنجليزي',
-      'يفهم أي صياغة بدون قوالب',
-      'يحجز فعلياً في النظام',
-      'يقترح خصومات مناسبة',
-      'تسليم تلقائي للموظف عند الشكوى',
-      'بعد 300 رسالة: 0.30 ر.س لكل رسالة',
+      'كل ميزات البوت الذكي',
+      '5,000 محادثة شهرياً',
+      'استجابة أسرع (priority queue)',
+      'تخصيص شخصية البوت لقطاعك',
+      'تقارير محادثات أعمق',
+      'بعد 5,000 محادثة: 0.04 ر.س لكل محادثة',
     ],
   },
 
   gps_basic: {
     id: 'gps_basic',
     nameAr: 'تتبع GPS أساسي',
-    descriptionAr: 'تتبع لحظي للموظفين على الخريطة + رابط تتبع للعميل أثناء توصيل الخدمة',
-    priceSar: 39,
+    descriptionAr: 'تتبع لحظي حتى 5 موظفين + رابط تتبع للعميل أثناء توصيل الخدمة',
+    priceSar: 50,
     category: 'tracking',
+    costExplanation: 'كل تحديث موقع يستهلك Google Maps API. السعر يغطي التكلفة + هامش بسيط.',
     features: [
-      'موقع لحظي للموظفين',
+      'موقع لحظي حتى 5 موظفين',
       'رابط تتبع لكل عميل',
       'خريطة الأسطول للتاجر',
       'سجل المواقع 7 أيام',
@@ -78,12 +91,13 @@ export const ADDONS: Record<AddonId, Addon> = {
 
   gps_pro: {
     id: 'gps_pro',
-    nameAr: 'تتبع GPS احترافي',
-    descriptionAr: 'كل ميزات الأساسي + التوزيع الذكي + ETA + Geofence + سجل ٣٠ يوم',
-    priceSar: 89,
+    nameAr: 'تتبع GPS غير محدود',
+    descriptionAr: 'موظفون غير محدودون + التوزيع الذكي + ETA + Geofence + سجل ٣٠ يوم',
+    priceSar: 100,
     category: 'tracking',
+    costExplanation: 'حجم أعلى من استهلاك الخرائط + تحليلات إضافية — للمنشآت متعددة الموظفين.',
     features: [
-      'كل ميزات GPS الأساسي',
+      'موظفون غير محدودون',
       'التوزيع الذكي (أقرب موظف للحجز)',
       'ETA لحظي يصل للعميل',
       'Geofence (تنبيه دخول/خروج المنطقة)',

@@ -77,7 +77,7 @@ describe('Security: settings JSON injection', () => {
   it('vendor cannot grant themselves addons via settings injection', () => {
     const malicious = {
       crNumber: '1010123456',
-      addons: ['ai_bot', 'gps_pro', 'financials'],
+      addons: ['ai_bot', 'gps_pro', 'ai_bot_pro'],
     };
     const cleaned = stripProtected(malicious);
     expect(cleaned).toHaveProperty('crNumber');
@@ -161,7 +161,7 @@ describe('Security: addon access gated by subscription state', () => {
   });
 
   it('expired vendor does NOT have access', () => {
-    expect(isAddonActive('expired', ['financials'], 'financials')).toBe(false);
+    expect(isAddonActive('expired', ['ai_bot'], 'ai_bot')).toBe(false);
   });
 
   it('active vendor with addon has access', () => {
