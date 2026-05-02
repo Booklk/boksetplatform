@@ -11,6 +11,7 @@ import { useAuth } from '../hooks/useAuth';
 import SocialProofTicker from '../components/SocialProofTicker';
 import MarketingLayout from '../components/marketing/MarketingLayout';
 import { AntiMarketplace } from '../components/marketing/AntiMarketplace';
+import { SocialProof } from '../components/onboarding/SocialProof';
 import { Button } from '../components/ui';
 
 /* ── Water drop particle type ── */
@@ -351,6 +352,11 @@ export default function Landing() {
             <span className="w-px h-3 bg-white/[0.08]" />
             <span>باقة مجانية للأبد</span>
           </motion.div>
+
+          {/* Live social proof — vendor count */}
+          <div className="flex justify-center mb-6">
+            <SocialProof />
+          </div>
 
           {/* 60-Day Money-Back Guarantee Banner */}
           <motion.div

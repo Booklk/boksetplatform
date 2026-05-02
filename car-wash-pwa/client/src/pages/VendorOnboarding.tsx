@@ -11,6 +11,7 @@ import api from '../lib/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 import MarketingLayout from '../components/marketing/MarketingLayout';
+import { WelcomeProof, SocialProof } from '../components/onboarding/SocialProof';
 
 interface OnboardForm {
   ownerName: string;
@@ -408,7 +409,7 @@ export default function VendorOnboarding() {
               transition={{ duration: 0.35 }}
               className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8"
             >
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-purple-900/40 border border-purple-700/40 rounded-xl flex items-center justify-center">
                   <Building2 size={20} className="text-purple-400" />
                 </div>
@@ -416,6 +417,11 @@ export default function VendorOnboarding() {
                   <h2 className="font-black text-white text-lg">معلومات مشروعك</h2>
                   <p className="text-slate-500 text-xs">أدخل البيانات الأساسية</p>
                 </div>
+              </div>
+
+              {/* Social proof — live vendor count */}
+              <div className="mb-5">
+                <SocialProof compact />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -503,16 +509,20 @@ export default function VendorOnboarding() {
                         key={opt.id}
                         type="button"
                         onClick={() => setForm({ ...form, industry: opt.id })}
-                        className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center transition-all ${
+                        className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center transition-all min-h-[68px] ${
                           form.industry === opt.id
                             ? 'border-blue-500 bg-blue-500/10 text-blue-400'
                             : 'border-white/[0.08] bg-white/[0.03] text-slate-400 hover:border-white/[0.15]'
                         }`}
                       >
                         <span className="text-xl">{opt.icon}</span>
-                        <span className="text-[11px] font-bold">{opt.label}</span>
+                        <span className="text-[11px] font-bold leading-tight">{opt.label}</span>
                       </button>
                     ))}
+                  </div>
+                  {/* Industry-aware welcome proof */}
+                  <div className="mt-3">
+                    <WelcomeProof industry={form.industry || null} />
                   </div>
                 </div>
 
