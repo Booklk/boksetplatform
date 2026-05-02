@@ -393,6 +393,9 @@ app.use('/api/system-status', systemStatusRoutes);
 import roiRoutes from './routes/roi.js';
 app.use('/api/roi', roiRoutes);
 
+import teamRoomRoutes from './routes/team-room.js';
+app.use('/api/team', teamRoomRoutes);
+
 import storeManifestRoutes from './routes/storeManifest.js';
 app.use('/api/store', storeManifestRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);

@@ -6,6 +6,7 @@ import {
   ReceiptText, ShoppingBag, TrendingUp, LayoutGrid, Radio,
   HelpCircle, Calculator, Layers, UserCheck, MapPin, Sparkles,
   Send, Gift, Bot, Target, Bell, UserCircle, Repeat, PieChart, Brain,
+  MessageSquare,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
@@ -61,6 +62,7 @@ const vendorNavSections: NavSection[] = [
   {
     label: 'الموارد البشرية',
     items: [
+      { to: '/vendor/team-room', icon: MessageSquare, label: 'غرفة المتجر 💬' },
       { to: '/vendor/employees', icon: Users, label: 'الموظفون' },
       { to: '/vendor/leaderboard', icon: Star, label: 'لوحة المتصدرين' },
       { to: '/vendor/payroll', icon: DollarSign, label: 'الرواتب' },

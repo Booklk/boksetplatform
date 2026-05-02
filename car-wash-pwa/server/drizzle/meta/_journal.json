@@ -5,8 +5,43 @@
     {
       "idx": 0,
       "version": "6",
+      "when": 1777138513875,
+      "tag": "0000_initial",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777191264291,
+      "tag": "0001_platform_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777281175795,
+      "tag": "0002_marketing_attribution",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1777342308398,
+      "tag": "0003_usage_governance",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
       "when": 1777405468917,
       "tag": "0004_mobile_app_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1778000000000,
+      "tag": "0005_team_room",
       "breakpoints": true
     }
   ]

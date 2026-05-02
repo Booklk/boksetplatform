@@ -1,6 +1,6 @@
 import {
   pgTable, text, integer, decimal, boolean, timestamp,
-  jsonb, serial, varchar, unique, numeric, index, type AnyPgColumn,
+  jsonb, serial, varchar, unique, numeric, index, uniqueIndex, type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 
 // ─── VENDORS (Multi-Tenant Core) ──────────────────────────────────────────────
@@ -1593,3 +1593,63 @@ export const mobileAppOrders = pgTable('mobile_app_orders', {
 
 export const mobileAppOrdersVendorIdx = index('idx_mobile_app_orders_vendor').on(mobileAppOrders.vendorId);
 export const mobileAppOrdersStatusIdx = index('idx_mobile_app_orders_status').on(mobileAppOrders.status);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  TEAM ROOM — غرفة المتجر الخاصة (private channel per vendor)              ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// One channel per vendor — the owner is automatically the host. They
+// add their employees (existing users.vendorId = vendor.id) and the
+// channel becomes the team's internal chat + task board. No support
+// for cross-vendor channels (intentional — keeps data scoping tight).
+
+export const teamMessages = pgTable('team_messages', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  authorId: integer('author_id').notNull().references(() => users.id),
+  body: text('body').notNull(),
+  // Attachment fields are intentionally simple — URL-based for v1.
+  // Storage uploads are already wired via routes/uploads.ts.
+  attachmentUrl: text('attachment_url'),
+  attachmentType: varchar('attachment_type', { length: 30 }),
+  // Pin admin announcements at the top of the room.
+  pinned: boolean('pinned').notNull().default(false),
+  // Soft delete so audit history is preserved.
+  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const teamMessagesVendorIdx = index('idx_team_messages_vendor').on(teamMessages.vendorId, teamMessages.createdAt);
+
+export const teamTasks = pgTable('team_tasks', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  createdById: integer('created_by_id').notNull().references(() => users.id),
+  // Optional assignee — null = unassigned (visible to whole team).
+  assigneeId: integer('assignee_id').references(() => users.id),
+  title: varchar('title', { length: 200 }).notNull(),
+  description: text('description'),
+  status: varchar('status', { length: 20 }).notNull().default('open'),
+  // open | in_progress | done | cancelled
+  priority: varchar('priority', { length: 10 }).notNull().default('normal'),
+  // low | normal | high | urgent
+  dueAt: timestamp('due_at'),
+  completedAt: timestamp('completed_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const teamTasksVendorIdx = index('idx_team_tasks_vendor').on(teamTasks.vendorId, teamTasks.status);
+export const teamTasksAssigneeIdx = index('idx_team_tasks_assignee').on(teamTasks.assigneeId, teamTasks.status);
+
+// Per-user "last read" pointer so we can show unread counts without
+// scanning every message on every dashboard visit.
+export const teamReadCursors = pgTable('team_read_cursors', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  userId: integer('user_id').notNull().references(() => users.id),
+  lastReadMessageId: integer('last_read_message_id'),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const teamReadCursorsUnique = uniqueIndex('idx_team_read_cursors_unique').on(teamReadCursors.vendorId, teamReadCursors.userId);
