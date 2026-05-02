@@ -411,6 +411,134 @@ export const STORE_THEMES: StoreTheme[] = [
     preview: { heroStyle: 'full-cover', cardStyle: 'elevated', ctaStyle: 'rounded', bgPattern: 'mesh',
       showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: true },
   },
+
+  // 26. AC Maintenance — emergency-ready home services template
+  {
+    id: 'ac-service',
+    name: 'صيانة مكيفات',
+    desc: 'موسم الحر — استجابة سريعة + عقد سنوي + قطع غيار',
+    category: 'premium',
+    industry: 'ac_maintenance',
+    industryLabel: 'صيانة المكيفات',
+    features: { gps: true, b2b: true },
+    gradient: 'from-cyan-950 to-sky-900', accent: '#0891b2',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'glass', ctaStyle: 'rounded', bgPattern: 'wave',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 27. Plumbing — emergency-first
+  {
+    id: 'plumbing-emergency',
+    name: 'سباكة وطوارئ',
+    desc: 'زر طوارئ بارز + كشف تسرّبات + تقارير PDF',
+    category: 'premium',
+    industry: 'plumbing',
+    industryLabel: 'سباكة',
+    features: { gps: true, quote: true, b2b: true },
+    gradient: 'from-blue-950 to-cyan-900', accent: '#0369a1',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'bordered', ctaStyle: 'square', bgPattern: 'clean',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 28. Electrical — projects + B2B
+  {
+    id: 'electrical-projects',
+    name: 'كهرباء وتمديدات',
+    desc: 'عروض أسعار للمشاريع + شهادات سلامة + B2B',
+    category: 'premium',
+    industry: 'electrical',
+    industryLabel: 'كهرباء',
+    features: { quote: true, b2b: true, gps: true },
+    gradient: 'from-yellow-950 to-amber-900', accent: '#ca8a04',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'solid', ctaStyle: 'rounded', bgPattern: 'grid',
+      showRating: true, showAreas: true, showSlots: false, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 29. Appliance Repair — annual contracts emphasis
+  {
+    id: 'appliance-service',
+    name: 'صيانة الأجهزة',
+    desc: 'عقد صيانة سنوي + قطع غيار + سجل أجهزة العميل',
+    category: 'premium',
+    industry: 'appliance_repair',
+    industryLabel: 'صيانة الأجهزة',
+    features: { gps: true, b2b: true },
+    gradient: 'from-zinc-900 to-slate-900', accent: '#475569',
+    preview: { heroStyle: 'full-cover', cardStyle: 'bordered', ctaStyle: 'rounded', bgPattern: 'clean',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 30. Beauty Home / Spa-at-home — alias of beauty-at-home with the
+  // industries.ts label "beauty-home-elegant" so vendors who pick
+  // beauty_home land on this exact theme.
+  {
+    id: 'beauty-home-elegant',
+    name: 'تجميل منزلي راقٍ',
+    desc: 'مكياج وعناية في المنزل — معرض صور + عربون + خصوصية',
+    category: 'premium',
+    industry: 'beauty_home',
+    industryLabel: 'تجميل منزلي',
+    features: { gallery: true, privacy: true },
+    gradient: 'from-pink-950 to-rose-900', accent: '#be185d',
+    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'pill', bgPattern: 'pattern',
+      showRating: true, showAreas: true, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: true },
+  },
+
+  // 31. Freelancer / Studio Portfolio
+  {
+    id: 'freelancer-portfolio',
+    name: 'فري لانسر',
+    desc: 'صفحة شخصية + معرض أعمال + باقات + عربون',
+    category: 'premium',
+    industry: 'freelancer',
+    industryLabel: 'فري لانسر',
+    features: { gallery: true, quote: true },
+    gradient: 'from-violet-950 to-fuchsia-900', accent: '#7c3aed',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'glass', ctaStyle: 'rounded', bgPattern: 'mesh',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: true },
+  },
+
+  // 32. Clinic Modern — appointments + patient privacy
+  {
+    id: 'clinic-modern',
+    name: 'عيادة عصرية',
+    desc: 'مواعيد دقيقة + خصوصية مرضى + تأمين + قبل/بعد',
+    category: 'premium',
+    industry: 'clinic',
+    industryLabel: 'عيادات صغيرة',
+    features: { gallery: true, privacy: true },
+    gradient: 'from-sky-950 to-cyan-900', accent: '#0284c7',
+    preview: { heroStyle: 'gradient-split', cardStyle: 'elevated', ctaStyle: 'rounded', bgPattern: 'clean',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: true, accentGlow: false },
+  },
+
+  // 33. Professional Services — consultant elegance
+  {
+    id: 'consultant-elegant',
+    name: 'استشاري / محامي',
+    desc: 'صفحة جلسات + باقات شهرية + عربون + سرّية تامة',
+    category: 'premium',
+    industry: 'professional_services',
+    industryLabel: 'الخدمات المهنية',
+    features: { quote: true, privacy: true },
+    gradient: 'from-stone-950 to-zinc-900', accent: '#a16207',
+    preview: { heroStyle: 'bold-centered', cardStyle: 'solid', ctaStyle: 'square', bgPattern: 'clean',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: false },
+  },
+
+  // 34. Spa Wellness — full-day packages emphasis
+  {
+    id: 'spa-wellness',
+    name: 'مركز سبا — Wellness',
+    desc: 'باقات يوم كامل + اشتراكات شهرية + متجر منتجات',
+    category: 'premium',
+    industry: 'spa',
+    industryLabel: 'مراكز سبا',
+    features: { gallery: true, privacy: true },
+    gradient: 'from-teal-950 to-emerald-900', accent: '#0d9488',
+    preview: { heroStyle: 'full-cover', cardStyle: 'glass', ctaStyle: 'pill', bgPattern: 'pattern',
+      showRating: true, showAreas: false, showSlots: true, showReviews: true, showWhatsApp: true, showCallButton: false, accentGlow: true },
+  },
 ];
 
 /** Look up a theme by id; falls back to universal-clean. */
