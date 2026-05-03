@@ -1,46 +1,72 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Home, Sparkles, CalendarPlus, ClipboardList, User } from 'lucide-react';
+import { Home, Sparkles, CalendarPlus, ClipboardList, User, LayoutGrid, MessageSquare, Plus, Settings } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import api from '../lib/api';
 import { haptics } from '../lib/haptics';
 import { Booking } from '../types';
+import { useAuth } from '../hooks/useAuth';
 
 interface Tab {
   path: string;
   label: string;
   icon: LucideIcon;
-  badge?: boolean;
+  badge?: 'bookings' | 'unread';
   isCenter?: boolean;
 }
 
-const TABS: Tab[] = [
+const CUSTOMER_TABS: Tab[] = [
   { path: '/app',                label: 'الرئيسية',  icon: Home },
-  { path: '/app/bookings',       label: 'حجوزاتي',   icon: ClipboardList, badge: true },
+  { path: '/app/bookings',       label: 'حجوزاتي',   icon: ClipboardList, badge: 'bookings' },
   { path: '/app/book/1',         label: 'احجز الآن', icon: CalendarPlus, isCenter: true },
   { path: '/app/loyalty',        label: 'نقاطي',     icon: Sparkles },
-  { path: '/app/subscriptions',  label: 'اشتراكاتي', icon: User },
+  { path: '/app/profile',        label: 'حسابي',     icon: User },
+];
+
+const VENDOR_TABS: Tab[] = [
+  { path: '/vendor',             label: 'الرئيسية',     icon: Home },
+  { path: '/vendor/queue',       label: 'الطابور',      icon: LayoutGrid },
+  { path: '/vendor/calendar',    label: 'حجز جديد',    icon: Plus, isCenter: true },
+  { path: '/vendor/team-room',   label: 'غرفة الفريق',  icon: MessageSquare, badge: 'unread' },
+  { path: '/vendor/settings',    label: 'الإعدادات',    icon: Settings },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const role = user?.role;
 
-  // Badge: count active bookings
+  // Pick tabs by role. Vendors and employees see operational tabs; customers see booking tabs.
+  const isVendorSide = role === 'vendor_admin' || role === 'admin' || role === 'employee';
+  const TABS = isVendorSide ? VENDOR_TABS : CUSTOMER_TABS;
+
+  // Customer-side bookings badge — only fetched for customers.
   const { data: bookings = [] } = useQuery<Booking[]>({
     queryKey: ['my-bookings-badge'],
     queryFn: () => api.get('/bookings/my').then(r => r.data),
     refetchInterval: 30_000,
     staleTime: 15_000,
+    enabled: !isVendorSide,
   });
 
-  const activeCount = bookings.filter(b =>
+  const activeBookingCount = bookings.filter(b =>
     ['pending', 'confirmed', 'on_way', 'arrived', 'in_progress'].includes(b.status)
   ).length;
 
+  // Vendor-side team-room unread badge.
+  const { data: teamUnread } = useQuery<{ count: number }>({
+    queryKey: ['team-unread-badge'],
+    queryFn: () => api.get('/team/unread-count').then(r => r.data),
+    refetchInterval: 30_000,
+    staleTime: 15_000,
+    enabled: isVendorSide,
+  });
+  const unreadCount = teamUnread?.count ?? 0;
+
   const isActive = (tab: Tab) => {
-    if (tab.path === '/app') return location.pathname === '/app';
+    if (tab.path === '/app' || tab.path === '/vendor') return location.pathname === tab.path;
     return location.pathname.startsWith(tab.path);
   };
 
@@ -63,7 +89,12 @@ export function BottomNav() {
         <div className="flex items-stretch justify-around px-1 pt-2 pb-2">
           {TABS.map((tab) => {
             const active = isActive(tab);
-            const showBadge = tab.badge && activeCount > 0;
+            const badgeCount = tab.badge === 'bookings'
+              ? activeBookingCount
+              : tab.badge === 'unread'
+              ? unreadCount
+              : 0;
+            const showBadge = tab.badge && badgeCount > 0;
             const Icon = tab.icon;
 
             /* Center floating button (احجز الآن) */
@@ -134,7 +165,7 @@ export function BottomNav() {
                       className="absolute -top-1 -left-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center"
                     >
                       <span className="text-[9px] font-black text-white leading-none">
-                        {activeCount > 9 ? '9+' : activeCount}
+                        {badgeCount > 9 ? '9+' : badgeCount}
                       </span>
                     </motion.span>
                   )}

@@ -1653,3 +1653,44 @@ export const teamReadCursors = pgTable('team_read_cursors', {
 });
 
 export const teamReadCursorsUnique = uniqueIndex('idx_team_read_cursors_unique').on(teamReadCursors.vendorId, teamReadCursors.userId);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  HR SUITE — leave requests + attendance check-in/out                       ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Leave types: annual | sick | emergency | unpaid
+// Status:      pending | approved | rejected | cancelled
+
+export const leaveRequests = pgTable('leave_requests', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  employeeId: integer('employee_id').notNull().references(() => users.id),
+  type: varchar('type', { length: 20 }).notNull().default('annual'),
+  status: varchar('status', { length: 20 }).notNull().default('pending'),
+  fromDate: timestamp('from_date').notNull(),
+  toDate: timestamp('to_date').notNull(),
+  reason: text('reason'),
+  reviewedBy: integer('reviewed_by').references(() => users.id),
+  reviewedAt: timestamp('reviewed_at'),
+  reviewNote: text('review_note'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const leaveRequestsVendorIdx = index('idx_leave_requests_vendor').on(leaveRequests.vendorId, leaveRequests.status);
+export const leaveRequestsEmployeeIdx = index('idx_leave_requests_employee').on(leaveRequests.employeeId);
+
+// Attendance: one row per check-in event. checkOutAt nullable until shift ends.
+export const attendanceRecords = pgTable('attendance_records', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  employeeId: integer('employee_id').notNull().references(() => users.id),
+  checkInAt: timestamp('check_in_at').notNull().defaultNow(),
+  checkOutAt: timestamp('check_out_at'),
+  // Optional GPS at check-in for field employees.
+  checkInLat: decimal('check_in_lat', { precision: 9, scale: 6 }),
+  checkInLng: decimal('check_in_lng', { precision: 9, scale: 6 }),
+  notes: text('notes'),
+});
+
+export const attendanceVendorIdx = index('idx_attendance_vendor').on(attendanceRecords.vendorId, attendanceRecords.checkInAt);
+export const attendanceEmployeeIdx = index('idx_attendance_employee').on(attendanceRecords.employeeId, attendanceRecords.checkInAt);

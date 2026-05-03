@@ -14,6 +14,7 @@ import {
   DollarSign,
   FileText,
   QrCode,
+  CalendarClock,
 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
@@ -570,7 +571,7 @@ export default function BookingDetail() {
                 onClick={() => setShowReschedule(true)}
                 className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl transition-colors"
               >
-                🔄
+                <CalendarClock size={16} />
                 تغيير الموعد
               </button>
               <button

@@ -43,6 +43,13 @@
       "when": 1778000000000,
       "tag": "0005_team_room",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1778100000000,
+      "tag": "0006_hr_suite",
+      "breakpoints": true
     }
   ]
 }

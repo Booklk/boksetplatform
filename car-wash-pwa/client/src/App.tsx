@@ -89,6 +89,8 @@ const VendorMobileApp = lazy(() => import('./pages/vendor/MobileApp'));
 const VendorRoi = lazy(() => import('./pages/vendor/Roi'));
 const VendorTeamRoom = lazy(() => import('./pages/vendor/TeamRoom'));
 const VendorLoyaltySettings = lazy(() => import('./pages/vendor/LoyaltySettings'));
+const VendorHrSuite = lazy(() => import('./pages/vendor/HrSuite'));
+const VendorAcademy = lazy(() => import('./pages/vendor/Academy'));
 const VendorFleet = lazy(() => import('./pages/vendor/Fleet'));
 const VendorEmployees = lazy(() => import('./pages/vendor/Employees'));
 const VendorSetup = lazy(() => import('./pages/vendor/Setup'));
@@ -228,6 +230,8 @@ function RequireAuth({ children, roles }: { children: React.ReactNode; roles?: s
 function AppLayout({ children, withSidebar }: { children: React.ReactNode; withSidebar?: boolean }) {
   const { user } = useAuth();
   const isCustomer = user?.role === 'customer';
+  const isVendorSide = user?.role === 'vendor_admin' || user?.role === 'admin' || user?.role === 'employee';
+  const showBottomNav = isCustomer || isVendorSide;
   const hasSidebar = withSidebar ||
     user?.role === 'admin' ||
     user?.role === 'vendor_admin' ||
@@ -237,12 +241,12 @@ function AppLayout({ children, withSidebar }: { children: React.ReactNode; withS
       <Navbar />
       {isCustomer && <PushNotificationBanner />}
       <main
-        className={`pt-14 ${isCustomer ? 'pb-24 md:pb-4' : 'pb-20 md:pb-4'}`}
-        style={{ paddingBottom: `calc(${isCustomer ? '6rem' : '5rem'} + env(safe-area-inset-bottom))` }}
+        className={`pt-14 ${showBottomNav ? 'pb-24 md:pb-4' : 'pb-4'}`}
+        style={{ paddingBottom: `calc(${showBottomNav ? '6rem' : '1rem'} + env(safe-area-inset-bottom))` }}
       >
         {children}
       </main>
-      {isCustomer && <BottomNav />}
+      {showBottomNav && <BottomNav />}
       <WhatsAppFAB />
     </div>
   );
@@ -251,6 +255,22 @@ function AppLayout({ children, withSidebar }: { children: React.ReactNode; withS
 // Wrapper for lazy pages inside Suspense
 function S({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageLoader />}>{children}</Suspense>;
+}
+
+// Mounts BottomNav for vendor/employee on mobile, but only outside the
+// /app/* (customer) tree which already gets it via AppLayout. Sidebar
+// stays on desktop (md+) untouched.
+function VendorMobileNavMount() {
+  const { user } = useAuth();
+  const location = useLocation();
+  const isVendorSide = user?.role === 'vendor_admin' || user?.role === 'admin' || user?.role === 'employee';
+  const inVendorRoute = location.pathname.startsWith('/vendor') || location.pathname.startsWith('/employee') || location.pathname.startsWith('/admin');
+  if (!isVendorSide || !inVendorRoute) return null;
+  return (
+    <div className="md:hidden">
+      <BottomNav />
+    </div>
+  );
 }
 
 // ─── Inner component that lives inside BrowserRouter (has access to router hooks) ───
@@ -270,6 +290,7 @@ function AppRoutes() {
     <MilestoneCelebrant />
     <Copilot />
     <CommandPalette />
+    <VendorMobileNavMount />
     <AnimatePresence mode="wait">
     <Routes location={location} key={location.pathname}>
         {/* ── Public ────────────────────────────────────────────────────── */}
@@ -570,6 +591,16 @@ function AppRoutes() {
         <Route path="/vendor/loyalty-settings" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <S><VendorLoyaltySettings /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/hr" element={
+          <RequireAuth roles={['vendor_admin', 'admin', 'employee']}>
+            <S><VendorHrSuite /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/academy" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorAcademy /></S>
           </RequireAuth>
         } />
         <Route path="/vendor/operations" element={
