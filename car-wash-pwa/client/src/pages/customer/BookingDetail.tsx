@@ -18,6 +18,7 @@ import {
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDateTime, formatCurrency } from '../../lib/utils';
+import { RescheduleModal } from '../../components/customer/RescheduleModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -301,6 +302,7 @@ export default function BookingDetail() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [invoiceData, setInvoiceData] = useState<Invoice | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showReschedule, setShowReschedule] = useState(false);
   const [cancelResult, setCancelResult] = useState<CancelResult | null>(null);
 
   const headers = { Authorization: `Bearer ${token}` };
@@ -563,13 +565,22 @@ export default function BookingDetail() {
               />
             </div>
 
-            <button
-              onClick={() => setShowCancelModal(true)}
-              className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl transition-colors"
-            >
-              <X size={16} />
-              إلغاء الحجز
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={() => setShowReschedule(true)}
+                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-black py-3 rounded-xl transition-colors"
+              >
+                🔄
+                تغيير الموعد
+              </button>
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-black py-3 rounded-xl transition-colors"
+              >
+                <X size={16} />
+                إلغاء الحجز
+              </button>
+            </div>
           </div>
         )}
 
@@ -634,6 +645,15 @@ export default function BookingDetail() {
           onConfirm={(reason) => cancelMutation.mutate(reason)}
           onClose={() => setShowCancelModal(false)}
           isPending={cancelMutation.isPending}
+        />
+      )}
+
+      {/* ── Reschedule Modal ── */}
+      {showReschedule && booking && (
+        <RescheduleModal
+          bookingId={booking.id}
+          currentScheduledAt={booking.scheduledAt}
+          onClose={() => setShowReschedule(false)}
         />
       )}
     </div>

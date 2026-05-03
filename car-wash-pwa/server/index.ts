@@ -396,6 +396,9 @@ app.use('/api/roi', roiRoutes);
 import teamRoomRoutes from './routes/team-room.js';
 app.use('/api/team', teamRoomRoutes);
 
+import customerProfileRoutes from './routes/customer-profile.js';
+app.use('/api/customer-profile', customerProfileRoutes);
+
 import storeManifestRoutes from './routes/storeManifest.js';
 app.use('/api/store', storeManifestRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);

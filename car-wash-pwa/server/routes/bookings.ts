@@ -878,4 +878,92 @@ router.post('/intent/:id/recover', requireAuth, async (req, res) => {
   }
 });
 
+// POST /api/bookings/:id/reschedule — customer (or vendor) moves the booking
+//   to a new time. Validates that the new slot is at least 2 hours in the
+//   future and the booking is in a state that allows rescheduling.
+router.post('/:id/reschedule', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { scheduledAt, reason } = z.object({
+      scheduledAt: z.string().datetime(),
+      reason: z.string().max(300).optional(),
+    }).parse(req.body);
+
+    const [booking] = await db.select().from(bookings).where(eq(bookings.id, id)).limit(1);
+    if (!booking) return res.status(404).json({ error: 'الحجز غير موجود' });
+
+    const role = req.user!.role;
+    const isCustomer = role === 'customer';
+    const isVendor = role === 'vendor_admin' || role === 'admin';
+
+    if (isCustomer && booking.customerId !== req.user!.id) return res.status(403).json({ error: 'غير مصرح' });
+    if (isVendor && booking.vendorId !== req.user!.vendorId) return res.status(403).json({ error: 'غير مصرح' });
+
+    if (['completed', 'cancelled'].includes(booking.status)) {
+      return res.status(400).json({ error: 'لا يمكن إعادة جدولة هذا الحجز' });
+    }
+    if (booking.status === 'in_progress' || booking.status === 'on_way') {
+      return res.status(400).json({ error: 'الحجز قيد التنفيذ — تواصل مع التاجر' });
+    }
+
+    const newAt = new Date(scheduledAt);
+    if (Number.isNaN(newAt.getTime())) {
+      return res.status(400).json({ error: 'تاريخ غير صحيح' });
+    }
+    // Must be at least 2 hours in the future to give the vendor time to react.
+    const minLeadMs = 2 * 60 * 60 * 1000;
+    if (newAt.getTime() < Date.now() + minLeadMs) {
+      return res.status(400).json({ error: 'الموعد الجديد يجب أن يكون بعد ساعتين على الأقل' });
+    }
+
+    // Customer self-service: allow at most 2 reschedules per booking.
+    const reschedCount = ((booking.statusHistory as any[]) || [])
+      .filter((h: any) => h?.status === 'rescheduled').length;
+    if (isCustomer && reschedCount >= 2) {
+      return res.status(429).json({ error: 'بلغت الحد الأقصى لإعادة الجدولة. تواصل مع التاجر.' });
+    }
+
+    const previousAt = booking.scheduledAt;
+    const history = [...((booking.statusHistory as any[]) || []), {
+      status: 'rescheduled',
+      at: new Date().toISOString(),
+      by: req.user!.id,
+      from: previousAt,
+      to: newAt.toISOString(),
+      reason: reason ?? null,
+    }];
+
+    const [updated] = await db.update(bookings)
+      .set({
+        scheduledAt: newAt,
+        statusHistory: history,
+      })
+      .where(eq(bookings.id, id))
+      .returning();
+
+    // Notify vendor of the change so they can react.
+    try {
+      const { sendRawWhatsAppMessage } = await import('../services/whatsapp.js');
+      const [v] = await db.select({ phone: vendors.phone, nameAr: vendors.nameAr })
+        .from(vendors).where(eq(vendors.id, booking.vendorId)).limit(1);
+      if (v?.phone) {
+        const fmtAr = (d: Date) => d.toLocaleString('ar-SA', {
+          dateStyle: 'short', timeStyle: 'short',
+        });
+        await sendRawWhatsAppMessage(
+          v.phone,
+          `🔄 تغيير موعد حجز #${booking.bookingNumber}\nمن: ${fmtAr(new Date(previousAt))}\nإلى: ${fmtAr(newAt)}${reason ? `\nالسبب: ${reason}` : ''}`,
+          booking.vendorId,
+        ).catch(() => {});
+      }
+    } catch { /* non-blocking */ }
+
+    return res.json({ success: true, booking: updated });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error('[bookings/reschedule]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 export default router;

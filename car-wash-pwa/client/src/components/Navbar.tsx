@@ -18,6 +18,8 @@ import { useVendorTheme } from '../store/vendorTheme';
 const customerNav = [
   { to: '/app', icon: Home, label: 'الرئيسية' },
   { to: '/app/bookings', icon: Calendar, label: 'حجوزاتي' },
+  { to: '/app/notifications', icon: Bell, label: 'الإشعارات' },
+  { to: '/app/profile', icon: UserCircle, label: 'حسابي' },
 ];
 
 const employeeNav = [

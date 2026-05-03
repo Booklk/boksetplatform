@@ -32,6 +32,8 @@ const DepositPage = lazy(() => import('./pages/customer/Deposit'));
 const RatePage = lazy(() => import('./pages/customer/Rate'));
 const CustomerVehicles = lazy(() => import('./pages/customer/Vehicles'));
 const CustomerLoyalty = lazy(() => import('./pages/customer/Loyalty'));
+const CustomerProfile = lazy(() => import('./pages/customer/Profile'));
+const CustomerNotifications = lazy(() => import('./pages/customer/Notifications'));
 const LiveTracking = lazy(() => import('./pages/customer/LiveTracking'));
 
 const EmployeeDashboard = lazy(() => import('./pages/employee/Dashboard'));
@@ -321,6 +323,16 @@ function AppRoutes() {
         <Route path="/app/vehicles" element={
           <RequireAuth roles={['customer']}>
             <AppLayout><S><CustomerVehicles /></S></AppLayout>
+          </RequireAuth>
+        } />
+        <Route path="/app/profile" element={
+          <RequireAuth roles={['customer']}>
+            <AppLayout><S><CustomerProfile /></S></AppLayout>
+          </RequireAuth>
+        } />
+        <Route path="/app/notifications" element={
+          <RequireAuth roles={['customer']}>
+            <AppLayout><S><CustomerNotifications /></S></AppLayout>
           </RequireAuth>
         } />
         <Route path="/app/loyalty" element={
