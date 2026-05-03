@@ -88,6 +88,7 @@ const VendorPlatformSub = lazy(() => import('./pages/vendor/PlatformSubscription
 const VendorMobileApp = lazy(() => import('./pages/vendor/MobileApp'));
 const VendorRoi = lazy(() => import('./pages/vendor/Roi'));
 const VendorTeamRoom = lazy(() => import('./pages/vendor/TeamRoom'));
+const VendorLoyaltySettings = lazy(() => import('./pages/vendor/LoyaltySettings'));
 const VendorFleet = lazy(() => import('./pages/vendor/Fleet'));
 const VendorEmployees = lazy(() => import('./pages/vendor/Employees'));
 const VendorSetup = lazy(() => import('./pages/vendor/Setup'));
@@ -564,6 +565,11 @@ function AppRoutes() {
         <Route path="/vendor/team-room" element={
           <RequireAuth roles={['vendor_admin', 'admin', 'employee']}>
             <S><VendorTeamRoom /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/loyalty-settings" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorLoyaltySettings /></S>
           </RequireAuth>
         } />
         <Route path="/vendor/operations" element={

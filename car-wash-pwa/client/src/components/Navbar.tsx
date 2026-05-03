@@ -99,6 +99,7 @@ const vendorNavSections: NavSection[] = [
       { to: '/vendor/automations', icon: Bot, label: 'الأتمتة التسويقية' },
       { to: '/vendor/segments', icon: Target, label: 'ذكاء العملاء' },
       { to: '/vendor/campaigns', icon: Send, label: 'حملات واتساب' },
+      { to: '/vendor/loyalty-settings', icon: Gift, label: 'برنامج الولاء ⭐' },
       { to: '/vendor/gift-cards', icon: Gift, label: 'بطاقات الهدايا' },
       { to: '/vendor/shop', icon: ShoppingBag, label: 'متجر المنتجات' },
       { to: '/vendor/promos', icon: Layers, label: 'العروض والخصومات' },
