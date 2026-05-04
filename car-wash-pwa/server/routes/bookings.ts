@@ -188,16 +188,27 @@ router.post('/', requireAuth, async (req: AuthRequest, res) => {
       });
     }
 
-    // Fire-and-forget vendor owner push — lets the owner know a new
-    // booking landed even if the dashboard tab is closed.
+    // Fire-and-forget push to the whole vendor team — booking events
+    // are must-not-miss, so we use requireInteraction + actions.
     try {
-      const { sendPushToVendorOwners } = await import('../services/push.js');
-      await sendPushToVendorOwners(pkg.vendorId, {
-        title: 'حجز جديد 🔔',
-        body: `حجز ${booking.bookingNumber} — ${pkg.name}`,
-        url: '/vendor/operations',
-        tag: `booking-${booking.id}`,
+      const { sendPushToVendorTeam } = await import('../services/push.js');
+      const customerLabel = customer?.name ? `من ${customer.name}` : '';
+      const dt = new Date(booking.scheduledAt).toLocaleString('ar-SA', {
+        dateStyle: 'short', timeStyle: 'short',
       });
+      await sendPushToVendorTeam(pkg.vendorId, {
+        title: '🔔 حجز جديد',
+        body: `${pkg.name} ${customerLabel} • ${dt}`,
+        url: `/admin/bookings`,
+        tag: `booking-${booking.id}`,
+        requireInteraction: true,
+        vibrate: [180, 80, 180, 80, 180],
+        actions: [
+          { action: 'view', title: 'فتح الحجز', url: `/admin/bookings` },
+          { action: 'queue', title: 'الطابور', url: `/vendor/queue` },
+        ],
+        data: { bookingId: booking.id, vendorId: pkg.vendorId, kind: 'booking.created' },
+      }, { includeEmployees: true, assigneeId: booking.employeeId ?? null });
     } catch (e) { console.error('[bookings push owner]', e); }
 
     // Real-time broadcast — every connected dashboard tab for this vendor
@@ -775,6 +786,22 @@ router.post('/:id/cancel', requireAuth, async (req: AuthRequest, res) => {
       hoursBeforeService: String(Math.round(hoursBeforeService * 10) / 10), // decimal → string ✓
     });
 
+    // Push the vendor team — only meaningful when the customer cancels
+    // (vendors already know when they themselves cancel).
+    if (isCustomer) {
+      try {
+        const { sendPushToVendorTeam } = await import('../services/push.js');
+        await sendPushToVendorTeam(booking.vendorId, {
+          title: '❌ إلغاء حجز',
+          body: `حجز #${booking.bookingNumber} — السبب: ${reason.slice(0, 80)}`,
+          url: '/admin/bookings',
+          tag: `booking-${booking.id}`,
+          vibrate: [120, 60, 120],
+          data: { bookingId: booking.id, kind: 'booking.cancelled' },
+        }, { includeEmployees: true, assigneeId: booking.employeeId ?? null });
+      } catch (e) { console.error('[bookings push cancel]', e); }
+    }
+
     return res.json({ ...updated, refundPercent, refundAmount });
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
@@ -942,14 +969,14 @@ router.post('/:id/reschedule', requireAuth, async (req: AuthRequest, res) => {
       .returning();
 
     // Notify vendor of the change so they can react.
+    const fmtAr = (d: Date) => d.toLocaleString('ar-SA', {
+      dateStyle: 'short', timeStyle: 'short',
+    });
     try {
       const { sendRawWhatsAppMessage } = await import('../services/whatsapp.js');
       const [v] = await db.select({ phone: vendors.phone, nameAr: vendors.nameAr })
         .from(vendors).where(eq(vendors.id, booking.vendorId)).limit(1);
       if (v?.phone) {
-        const fmtAr = (d: Date) => d.toLocaleString('ar-SA', {
-          dateStyle: 'short', timeStyle: 'short',
-        });
         await sendRawWhatsAppMessage(
           v.phone,
           `🔄 تغيير موعد حجز #${booking.bookingNumber}\nمن: ${fmtAr(new Date(previousAt))}\nإلى: ${fmtAr(newAt)}${reason ? `\nالسبب: ${reason}` : ''}`,
@@ -957,6 +984,19 @@ router.post('/:id/reschedule', requireAuth, async (req: AuthRequest, res) => {
         ).catch(() => {});
       }
     } catch { /* non-blocking */ }
+
+    // Push the vendor team — actionable, includes the new time.
+    try {
+      const { sendPushToVendorTeam } = await import('../services/push.js');
+      await sendPushToVendorTeam(booking.vendorId, {
+        title: '🔄 تغيير موعد',
+        body: `#${booking.bookingNumber} — الموعد الجديد ${fmtAr(newAt)}`,
+        url: '/vendor/calendar',
+        tag: `booking-${booking.id}`,
+        vibrate: [140, 60, 140],
+        data: { bookingId: booking.id, kind: 'booking.rescheduled' },
+      }, { includeEmployees: true, assigneeId: booking.employeeId ?? null });
+    } catch (e) { console.error('[bookings push reschedule]', e); }
 
     return res.json({ success: true, booking: updated });
   } catch (e: any) {

@@ -66,23 +66,41 @@ self.addEventListener('push', (event) => {
   let data: {
     title?: string; body?: string; icon?: string; badge?: string;
     tag?: string; data?: { url?: string; [k: string]: unknown };
+    actions?: Array<{ action: string; title: string; url?: string }>;
+    requireInteraction?: boolean;
+    vibrate?: number[];
   } = {};
-  try { data = event.data.json(); } catch { data = { title: 'جداول', body: event.data.text() }; }
-  const title = data.title ?? 'جداول';
+  try { data = event.data.json(); } catch { data = { title: 'Jdawil', body: event.data.text() }; }
+  const title = data.title ?? 'Jdawil';
   const options: NotificationOptions = {
     body: data.body ?? '',
     icon: data.icon ?? '/icons/icon-192x192.png',
     badge: data.badge ?? '/icons/icon-96x96.png',
     tag: data.tag,
-    data: data.data ?? {},
+    data: { ...(data.data ?? {}), actions: data.actions ?? [] },
     dir: 'rtl',
-  };
+    // High-priority pushes (booking events) keep the notification visible
+    // until the vendor taps it — no missed bookings.
+    requireInteraction: data.requireInteraction ?? false,
+    vibrate: data.vibrate ?? [120, 60, 120],
+    // Up to 2 action buttons render on Android. iOS ignores them.
+    actions: (data.actions ?? []).slice(0, 2).map((a) => ({
+      action: a.action,
+      title: a.title,
+    })),
+  } as NotificationOptions;
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = (event.notification.data as { url?: string } | null)?.url ?? '/';
+  const data = (event.notification.data as { url?: string; actions?: Array<{ action: string; url?: string }> } | null) ?? {};
+  // Action button → its own URL if defined, otherwise the default URL.
+  let targetUrl = data.url ?? '/';
+  if (event.action && Array.isArray(data.actions)) {
+    const match = data.actions.find((a) => a.action === event.action);
+    if (match?.url) targetUrl = match.url;
+  }
   event.waitUntil((async () => {
     const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const client of allClients) {

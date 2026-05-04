@@ -16,6 +16,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { EmptyState } from '../../components/ui';
 import SetupChecklist from '../../components/SetupChecklist';
 import { MoneyBackBanner } from '../../components/MoneyBackBanner';
+import { VendorPushPrompt } from '../../components/VendorPushPrompt';
 import SmartInsights from '../../components/SmartInsights';
 import MorningBrief from '../../components/vendor/MorningBrief';
 import PrayerTimesBadge from '../../components/vendor/PrayerTimesBadge';
@@ -684,6 +685,9 @@ export default function VendorDashboard() {
             </div>
           </motion.div>
         )}
+
+        {/* Vendor push notifications enrollment (one-time prompt) */}
+        <VendorPushPrompt />
 
         {/* 60-day money-back guarantee banner (auto-hides after window) */}
         <MoneyBackBanner />

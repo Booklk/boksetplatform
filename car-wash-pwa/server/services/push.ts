@@ -35,6 +35,11 @@ export interface PushPayload {
   icon?: string;
   badge?: string;
   data?: Record<string, unknown>;
+  actions?: Array<{ action: string; title: string; url?: string }>;
+  /** Keeps the notification on screen until tapped — use for must-not-miss events. */
+  requireInteraction?: boolean;
+  /** Custom vibration pattern (Android). */
+  vibrate?: number[];
 }
 
 export async function sendPush(userId: number, payload: PushPayload): Promise<{ delivered: number; failed: number }> {
@@ -51,6 +56,9 @@ export async function sendPush(userId: number, payload: PushPayload): Promise<{ 
     icon: payload.icon ?? '/icons/icon-192x192.png',
     badge: payload.badge ?? '/icons/icon-96x96.png',
     data: { url: payload.url, ...(payload.data ?? {}) },
+    actions: payload.actions ?? [],
+    requireInteraction: payload.requireInteraction ?? false,
+    vibrate: payload.vibrate,
   });
   let delivered = 0;
   let failed = 0;
@@ -87,4 +95,33 @@ export async function sendPushToVendorOwners(vendorId: number, payload: PushPayl
     delivered += r.delivered;
   }
   return { delivered };
+}
+
+/**
+ * Send to the entire vendor team (admins + employees + the specific
+ * assignee if any). Used for booking events the whole staff should see.
+ */
+export async function sendPushToVendorTeam(
+  vendorId: number,
+  payload: PushPayload,
+  opts: { includeEmployees?: boolean; assigneeId?: number | null } = {},
+) {
+  const { users } = await import('../db/schema.js');
+  const { or, inArray } = await import('drizzle-orm');
+  const roles = ['vendor_admin', 'admin'];
+  if (opts.includeEmployees) roles.push('employee');
+  const team = await db.select({ id: users.id }).from(users)
+    .where(and(
+      eq(users.vendorId, vendorId),
+      inArray(users.role, roles),
+    ));
+  const targetIds = new Set(team.map((u) => u.id));
+  if (opts.assigneeId) targetIds.add(opts.assigneeId);
+
+  let delivered = 0;
+  for (const id of targetIds) {
+    const r = await sendPush(id, payload);
+    delivered += r.delivered;
+  }
+  return { delivered, recipients: targetIds.size };
 }
