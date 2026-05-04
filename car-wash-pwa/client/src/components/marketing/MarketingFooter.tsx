@@ -4,6 +4,7 @@ import { ShieldCheck, Check } from 'lucide-react';
 const PRODUCT_LINKS = [
   { to: '/pricing', label: 'الأسعار' },
   { to: '/demo', label: 'تجربة مباشرة' },
+  { to: '/demo-request', label: 'احجز جلسة Demo' },
   { to: '/onboard', label: 'سجّل منشأتك' },
   { to: '/login', label: 'دخول التاجر' },
 ];
@@ -25,6 +26,7 @@ const INDUSTRY_LINKS = [
 ];
 
 const RESOURCE_LINKS = [
+  { to: '/help', label: 'مركز المساعدة' },
   { to: '/blog', label: 'المدونة' },
   { to: '/status', label: 'حالة المنصة' },
   { to: '/privacy', label: 'سياسة الخصوصية' },

@@ -414,6 +414,16 @@ app.use('/api/quotations', quotationsRoutes);
 import aiWeeklyRoutes from './routes/ai-weekly.js';
 app.use('/api/ai-weekly', aiWeeklyRoutes);
 
+import marketingAttrRoutes from './routes/marketing-attribution.js';
+app.use('/api/marketing-attribution', marketingAttrRoutes);
+
+import leadsRoutes from './routes/leads.js';
+app.use('/api/leads', leadsRoutes);
+
+import seoRoutes from './routes/seo.js';
+// SEO endpoints mount at root, not /api.
+app.use('/', seoRoutes);
+
 import storeManifestRoutes from './routes/storeManifest.js';
 app.use('/api/store', storeManifestRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);

@@ -1801,3 +1801,66 @@ export const quotations = pgTable('quotations', {
 
 export const quotationsVendorIdx = index('idx_quotations_vendor').on(quotations.vendorId, quotations.status);
 export const quotationsTokenIdx = uniqueIndex('idx_quotations_token').on(quotations.publicShareToken);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  MARKETING ATTRIBUTION — first-touch UTM tracking per visitor             ██
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const marketingAttribution = pgTable('marketing_attribution', {
+  id: serial('id').primaryKey(),
+  // Anonymous identifier from localStorage; null until visitor lands.
+  anonId: varchar('anon_id', { length: 64 }).notNull().unique(),
+  // First-touch landing
+  landingPath: text('landing_path'),
+  referrer: text('referrer'),
+  utmSource: varchar('utm_source', { length: 100 }),
+  utmMedium: varchar('utm_medium', { length: 100 }),
+  utmCampaign: varchar('utm_campaign', { length: 200 }),
+  utmTerm: varchar('utm_term', { length: 200 }),
+  utmContent: varchar('utm_content', { length: 200 }),
+  gclid: varchar('gclid', { length: 200 }),
+  fbclid: varchar('fbclid', { length: 200 }),
+  ttclid: varchar('ttclid', { length: 200 }),
+  ip: varchar('ip', { length: 50 }),
+  userAgent: text('user_agent'),
+  // Conversion link — set when this visitor signs up as a vendor.
+  convertedToVendorId: integer('converted_to_vendor_id').references(() => vendors.id),
+  convertedAt: timestamp('converted_at'),
+  visitCount: integer('visit_count').notNull().default(1),
+  firstSeenAt: timestamp('first_seen_at').notNull().defaultNow(),
+  lastSeenAt: timestamp('last_seen_at').notNull().defaultNow(),
+});
+
+export const marketingAttributionUtmIdx = index('idx_marketing_attribution_utm').on(marketingAttribution.utmSource, marketingAttribution.utmCampaign);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  LEADS — demo requests + contact + newsletter capture                      ██
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const leads = pgTable('leads', {
+  id: serial('id').primaryKey(),
+  channel: varchar('channel', { length: 20 }).notNull(),
+  // demo | contact | newsletter
+  name: varchar('name', { length: 120 }),
+  phone: varchar('phone', { length: 30 }),
+  email: varchar('email', { length: 200 }),
+  message: text('message'),
+  industry: varchar('industry', { length: 50 }),
+  bestTimeToCall: varchar('best_time_to_call', { length: 50 }),
+  status: varchar('status', { length: 20 }).notNull().default('new'),
+  // new | contacted | qualified | converted | lost
+  utmSource: varchar('utm_source', { length: 100 }),
+  utmMedium: varchar('utm_medium', { length: 100 }),
+  utmCampaign: varchar('utm_campaign', { length: 200 }),
+  utmTerm: varchar('utm_term', { length: 200 }),
+  utmContent: varchar('utm_content', { length: 200 }),
+  ip: varchar('ip', { length: 50 }),
+  userAgent: text('user_agent'),
+  notes: text('notes'),
+  convertedToVendorId: integer('converted_to_vendor_id').references(() => vendors.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const leadsChannelIdx = index('idx_leads_channel').on(leads.channel, leads.status);
+export const leadsCreatedIdx = index('idx_leads_created').on(leads.createdAt);

@@ -112,7 +112,7 @@ export function MoneyBackBanner() {
             >
               <option value="">اختر السبب</option>
               <option value="ميزة ناقصة">ميزة محددة ناقصة</option>
-              <option value="السعر">السعر مش مناسب</option>
+              <option value="السعر">السعر موب مناسب</option>
               <option value="تعقيد">النظام معقد علي</option>
               <option value="مشكلة تقنية">واجهت مشاكل تقنية</option>
               <option value="غيّرت رأيي">غيّرت رأيي بدون سبب محدد</option>

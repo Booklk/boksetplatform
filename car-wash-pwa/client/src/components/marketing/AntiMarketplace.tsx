@@ -50,7 +50,7 @@ export function AntiMarketplace() {
           <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">
             تكون <span className="text-amber-300">صاحب علامتك</span>،
             <br />
-            مش <span className="text-rose-400">عامل عند منصة</span>.
+            موب <span className="text-rose-400">عامل عند منصة</span>.
           </h2>
           <p className="text-slate-400 max-w-xl mx-auto mt-4 leading-relaxed">
             تطبيقات مثل Findio و Mrsool تأخذ عميلك وتقتطع 20-25٪ من كل عملية.

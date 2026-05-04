@@ -3,6 +3,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from './hooks/useAuth';
 import { useDomainVendor } from './hooks/useDomainVendor';
+import { useCaptureAttribution } from './lib/attribution';
 import { BottomNav } from './components/BottomNav';
 import InstallPrompt from './components/InstallPrompt';
 import { PdplCookieBanner } from './components/PdplCookieBanner';
@@ -65,6 +66,8 @@ const Terms = lazy(() => import('./pages/Terms'));
 const CityLanding = lazy(() => import('./pages/CityLanding'));
 const PricingPage = lazy(() => import('./pages/Pricing'));
 const StatusPage = lazy(() => import('./pages/Status'));
+const DemoRequest = lazy(() => import('./pages/DemoRequest'));
+const HelpPage = lazy(() => import('./pages/Help'));
 
 const VendorDashboard = lazy(() => import('./pages/vendor/Dashboard'));
 const VendorQueue = lazy(() => import('./pages/vendor/Queue'));
@@ -282,6 +285,7 @@ function VendorMobileNavMount() {
 // ─── Inner component that lives inside BrowserRouter (has access to router hooks) ───
 function AppRoutes() {
   useDomainVendor();
+  useCaptureAttribution();
   const { init } = useAuth();
   const location = useLocation();
   useEffect(() => { init(); }, []);
@@ -322,6 +326,8 @@ function AppRoutes() {
         <Route path="/city/:city" element={<S><CityLanding /></S>} />
         <Route path="/pricing" element={<S><PricingPage /></S>} />
         <Route path="/status" element={<S><StatusPage /></S>} />
+        <Route path="/demo-request" element={<S><DemoRequest /></S>} />
+        <Route path="/help" element={<S><HelpPage /></S>} />
 
         {/* ── Customer ──────────────────────────────────────────────────── */}
         <Route path="/app" element={
