@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { User, Phone, Mail, Car, MapPin, MessageCircle, Globe, AlertTriangle, Trash2 } from 'lucide-react';
+import { User, Phone, Mail, Car, MapPin, MessageCircle, AlertTriangle, Trash2, ShieldCheck } from 'lucide-react';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
@@ -162,6 +162,27 @@ export default function CustomerProfile() {
           </div>
         </motion.section>
       )}
+
+      {/* Privacy & data rights */}
+      <motion.section
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.08 }}
+        className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5 mb-5"
+      >
+        <h2 className="text-emerald-200 font-bold text-base mb-2 flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4" /> حقوقك في بياناتك
+        </h2>
+        <p className="text-slate-400 text-xs mb-3 leading-relaxed">
+          متوافقون مع نظام حماية البيانات الشخصية السعودي (PDPL). تقدر تحمّل بياناتك أو تطّلع على سجل موافقاتك في أي وقت.
+        </p>
+        <a
+          href="/app/privacy"
+          className="inline-block bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 text-xs font-bold px-3.5 py-2 rounded-lg"
+        >
+          مركز الخصوصية والبيانات
+        </a>
+      </motion.section>
 
       {/* PDPL — delete account */}
       <motion.section

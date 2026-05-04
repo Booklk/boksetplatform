@@ -44,6 +44,7 @@ const vendorNavSections: NavSection[] = [
     label: 'الرئيسية',
     items: [
       { to: '/vendor', icon: Home, label: 'لوحة التحكم' },
+      { to: '/vendor/ai-weekly', icon: Brain, label: 'تقريرك الأسبوعي 🧠' },
       { to: '/vendor/studio', icon: Sparkles, label: 'استوديو التصميم الذكي ✨' },
       { to: '/vendor/ai-advisor', icon: Brain, label: 'المستشار الذكي' },
       { to: '/vendor/queue', icon: LayoutGrid, label: 'طابور الخدمة' },
@@ -66,6 +67,7 @@ const vendorNavSections: NavSection[] = [
     items: [
       { to: '/vendor/team-room', icon: MessageSquare, label: 'غرفة المتجر 💬' },
       { to: '/vendor/hr', icon: UserCheck, label: 'الإجازات والحضور' },
+      { to: '/vendor/employee-docs', icon: FileText, label: 'وثائق الموظفين' },
       { to: '/vendor/employees', icon: Users, label: 'الموظفون' },
       { to: '/vendor/leaderboard', icon: Star, label: 'لوحة المتصدرين' },
       { to: '/vendor/payroll', icon: DollarSign, label: 'الرواتب' },
@@ -75,6 +77,7 @@ const vendorNavSections: NavSection[] = [
     label: 'المالية',
     items: [
       { to: '/vendor/roi', icon: TrendingUp, label: 'عائدك من Jdawil ✨' },
+      { to: '/vendor/quotations', icon: FileText, label: 'عروض الأسعار 📋' },
       { to: '/vendor/financial-statements', icon: FileText, label: 'القوائم المالية' },
       { to: '/vendor/expenses', icon: ReceiptText, label: 'المصروفات والدخل' },
       { to: '/vendor/profit-calculator', icon: Calculator, label: 'حاسبة الربح' },

@@ -50,6 +50,13 @@
       "when": 1778100000000,
       "tag": "0006_hr_suite",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1778200000000,
+      "tag": "0007_pdpl_docs_quotes",
+      "breakpoints": true
     }
   ]
 }

@@ -402,6 +402,18 @@ app.use('/api/customer-profile', customerProfileRoutes);
 import hrRoutes from './routes/hr.js';
 app.use('/api/hr', hrRoutes);
 
+import pdplRoutes from './routes/pdpl.js';
+app.use('/api/pdpl', pdplRoutes);
+
+import employeeDocsRoutes from './routes/employee-docs.js';
+app.use('/api/employee-docs', employeeDocsRoutes);
+
+import quotationsRoutes from './routes/quotations.js';
+app.use('/api/quotations', quotationsRoutes);
+
+import aiWeeklyRoutes from './routes/ai-weekly.js';
+app.use('/api/ai-weekly', aiWeeklyRoutes);
+
 import storeManifestRoutes from './routes/storeManifest.js';
 app.use('/api/store', storeManifestRoutes);
 app.use('/api/time-blocks', requireAuth, timeBlocksRoutes);

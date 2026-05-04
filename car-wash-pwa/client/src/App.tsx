@@ -5,6 +5,7 @@ import { useAuth } from './hooks/useAuth';
 import { useDomainVendor } from './hooks/useDomainVendor';
 import { BottomNav } from './components/BottomNav';
 import InstallPrompt from './components/InstallPrompt';
+import { PdplCookieBanner } from './components/PdplCookieBanner';
 import PushNotificationBanner from './components/PushNotificationBanner';
 import CommandPalette from './components/CommandPalette';
 import WhatsAppFAB from './components/WhatsAppFAB';
@@ -91,6 +92,11 @@ const VendorTeamRoom = lazy(() => import('./pages/vendor/TeamRoom'));
 const VendorLoyaltySettings = lazy(() => import('./pages/vendor/LoyaltySettings'));
 const VendorHrSuite = lazy(() => import('./pages/vendor/HrSuite'));
 const VendorAcademy = lazy(() => import('./pages/vendor/Academy'));
+const VendorEmployeeDocs = lazy(() => import('./pages/vendor/EmployeeDocs'));
+const VendorQuotations = lazy(() => import('./pages/vendor/Quotations'));
+const VendorAiWeekly = lazy(() => import('./pages/vendor/AiWeekly'));
+const CustomerPrivacy = lazy(() => import('./pages/customer/Privacy'));
+const QuotePublic = lazy(() => import('./pages/QuotePublic'));
 const VendorFleet = lazy(() => import('./pages/vendor/Fleet'));
 const VendorEmployees = lazy(() => import('./pages/vendor/Employees'));
 const VendorSetup = lazy(() => import('./pages/vendor/Setup'));
@@ -284,6 +290,7 @@ function AppRoutes() {
     <>
     <NetworkStatus />
     <InstallPrompt />
+    <PdplCookieBanner />
     <UpdateToast />
     <ImpersonationBanner />
     <LiveBookingNotifier />
@@ -603,6 +610,27 @@ function AppRoutes() {
             <S><VendorAcademy /></S>
           </RequireAuth>
         } />
+        <Route path="/vendor/employee-docs" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorEmployeeDocs /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/quotations" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorQuotations /></S>
+          </RequireAuth>
+        } />
+        <Route path="/vendor/ai-weekly" element={
+          <RequireAuth roles={['vendor_admin', 'admin']}>
+            <S><VendorAiWeekly /></S>
+          </RequireAuth>
+        } />
+        <Route path="/app/privacy" element={
+          <RequireAuth roles={['customer']}>
+            <AppLayout><S><CustomerPrivacy /></S></AppLayout>
+          </RequireAuth>
+        } />
+        <Route path="/quote/:token" element={<S><QuotePublic /></S>} />
         <Route path="/vendor/operations" element={
           <RequireAuth roles={['vendor_admin', 'admin']}>
             <S><VendorOperations /></S>

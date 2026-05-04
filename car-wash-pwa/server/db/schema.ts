@@ -1694,3 +1694,110 @@ export const attendanceRecords = pgTable('attendance_records', {
 
 export const attendanceVendorIdx = index('idx_attendance_vendor').on(attendanceRecords.vendorId, attendanceRecords.checkInAt);
 export const attendanceEmployeeIdx = index('idx_attendance_employee').on(attendanceRecords.employeeId, attendanceRecords.checkInAt);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  PDPL CONSENT LOG — append-only proof of every consent capture            ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// Saudi PDPL requires the controller (Jdawil + each vendor) to prove
+// when, how, and what the data subject consented to. Each row is a
+// single consent event — never updated, never deleted.
+
+export const pdplConsents = pgTable('pdpl_consents', {
+  id: serial('id').primaryKey(),
+  // Either userId (logged-in subject) or anonId (cookie-only).
+  userId: integer('user_id').references(() => users.id),
+  anonId: varchar('anon_id', { length: 64 }),
+  vendorId: integer('vendor_id').references(() => vendors.id),
+  scope: varchar('scope', { length: 40 }).notNull(),
+  // cookies | terms | privacy | marketing | data_processing | photo_use
+  granted: boolean('granted').notNull(),
+  // What text/version the subject saw — version-stamp for audit defense.
+  documentVersion: varchar('document_version', { length: 30 }),
+  ip: varchar('ip', { length: 50 }),
+  userAgent: text('user_agent'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const pdplConsentsUserIdx = index('idx_pdpl_consents_user').on(pdplConsents.userId, pdplConsents.scope);
+export const pdplConsentsVendorIdx = index('idx_pdpl_consents_vendor').on(pdplConsents.vendorId, pdplConsents.scope);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  EMPLOYEE DOCUMENTS — contracts, IDs, certificates                        ██
+// ═══════════════════════════════════════════════════════════════════════════════
+//
+// One row per uploaded document. URL points to uploads bucket.
+
+export const employeeDocuments = pgTable('employee_documents', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  employeeId: integer('employee_id').notNull().references(() => users.id),
+  category: varchar('category', { length: 30 }).notNull(),
+  // contract | id | iqama | health_card | training_cert | bank_iban | other
+  title: varchar('title', { length: 200 }).notNull(),
+  fileUrl: text('file_url').notNull(),
+  // Optional renewal tracking — if set, we surface a 30-day-before alert.
+  expiresAt: timestamp('expires_at'),
+  notes: text('notes'),
+  uploadedById: integer('uploaded_by_id').notNull().references(() => users.id),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const employeeDocumentsVendorIdx = index('idx_employee_documents_vendor').on(employeeDocuments.vendorId);
+export const employeeDocumentsEmployeeIdx = index('idx_employee_documents_employee').on(employeeDocuments.employeeId);
+export const employeeDocumentsExpiryIdx = index('idx_employee_documents_expiry').on(employeeDocuments.expiresAt);
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ██  QUOTATIONS & PROPOSALS — vendor sends a quote, customer accepts          ██
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const quotations = pgTable('quotations', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id),
+  createdById: integer('created_by_id').notNull().references(() => users.id),
+  // Recipient — either an existing user or a free-text contact.
+  customerId: integer('customer_id').references(() => users.id),
+  recipientName: varchar('recipient_name', { length: 200 }).notNull(),
+  recipientPhone: varchar('recipient_phone', { length: 30 }),
+  recipientEmail: varchar('recipient_email', { length: 200 }),
+
+  quoteNumber: varchar('quote_number', { length: 30 }).notNull().unique(),
+  title: varchar('title', { length: 200 }).notNull(),
+  // Free-form scope of work (markdown-ish text rendered in the PDF).
+  scope: text('scope').notNull(),
+  // Line items the renderer turns into a table.
+  items: jsonb('items').$type<Array<{
+    description: string;
+    quantity: number;
+    unitPriceSar: number;
+    totalSar: number;
+  }>>().notNull().default([]),
+  subtotalSar: decimal('subtotal_sar', { precision: 12, scale: 2 }).notNull().default('0'),
+  vatSar: decimal('vat_sar', { precision: 12, scale: 2 }).notNull().default('0'),
+  totalSar: decimal('total_sar', { precision: 12, scale: 2 }).notNull().default('0'),
+
+  validUntil: timestamp('valid_until'),
+  termsText: text('terms_text'),
+  notesToCustomer: text('notes_to_customer'),
+
+  status: varchar('status', { length: 20 }).notNull().default('draft'),
+  // draft | sent | viewed | accepted | rejected | expired
+  publicShareToken: varchar('public_share_token', { length: 64 }).notNull(),
+  // Customer-facing acceptance (digital signature) — name typed on screen
+  // + IP + UA + accept timestamp = legally defensible.
+  acceptedSignatureName: varchar('accepted_signature_name', { length: 200 }),
+  acceptedAt: timestamp('accepted_at'),
+  acceptedIp: varchar('accepted_ip', { length: 50 }),
+  acceptedUserAgent: text('accepted_user_agent'),
+
+  sentAt: timestamp('sent_at'),
+  viewedAt: timestamp('viewed_at'),
+  rejectedAt: timestamp('rejected_at'),
+  rejectionReason: text('rejection_reason'),
+
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const quotationsVendorIdx = index('idx_quotations_vendor').on(quotations.vendorId, quotations.status);
+export const quotationsTokenIdx = uniqueIndex('idx_quotations_token').on(quotations.publicShareToken);
