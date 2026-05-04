@@ -350,6 +350,8 @@ router.post('/onboard', async (req, res) => {
       }
 
       // 3. Auto-seed default services & packages from industry template
+      let seededServicesCount = 0;
+      let seededPackagesCount = 0;
       try {
         const { INDUSTRIES } = await import('../lib/industries.js');
         const template = INDUSTRIES[vendorIndustry as keyof typeof INDUSTRIES];
@@ -361,6 +363,7 @@ router.post('/onboard', async (req, res) => {
               icon: svc.icon ?? null,
               isActive: true,
             }).returning();
+            seededServicesCount++;
 
             const svcPackages = template.defaultPackages?.filter(p => p.serviceName === svc.nameAr) ?? [];
             for (const pkg of svcPackages) {
@@ -375,6 +378,7 @@ router.post('/onboard', async (req, res) => {
                 features: pkg.features ? [...pkg.features] : [],
                 isActive: true,
               });
+              seededPackagesCount++;
             }
           }
         }
@@ -382,6 +386,8 @@ router.post('/onboard', async (req, res) => {
         console.error('[onboard template seed]', _e);
         // Non-blocking — vendor can create services manually
       }
+      (vendor as any).seededServicesCount = seededServicesCount;
+      (vendor as any).seededPackagesCount = seededPackagesCount;
 
       return { vendor, user };
     });

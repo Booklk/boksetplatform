@@ -12,6 +12,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 import MarketingLayout from '../components/marketing/MarketingLayout';
 import { WelcomeProof, SocialProof } from '../components/onboarding/SocialProof';
+import { LivePreview } from '../components/onboarding/LivePreview';
+import { CelebrationStep } from '../components/onboarding/CelebrationStep';
 
 interface OnboardForm {
   ownerName: string;
@@ -209,17 +211,31 @@ export default function VendorOnboarding() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const [createdVendor, setCreatedVendor] = useState<{
+    slug: string;
+    nameAr: string;
+    industry: string;
+    seededServicesCount: number;
+    seededPackagesCount: number;
+  } | null>(null);
+
   const { mutate: submitOnboard, isPending } = useMutation({
     mutationFn: (data: OnboardForm) => api.post('/vendors/onboard', data).then((r) => r.data),
     onSuccess: (res) => {
-      // Auto-login the vendor admin immediately
+      // Auto-login the vendor admin immediately so the celebration page
+      // (and the dashboard CTA from it) works without a second login.
       if (res.token && res.user) {
         login(res.token, res.user);
-        toast.success('مرحباً بك! تم إنشاء حسابك بنجاح 🎉');
-        navigate('/vendor/wizard');
-      } else {
-        setSuccess(true);
       }
+      const v = res.vendor ?? {};
+      setCreatedVendor({
+        slug: v.slug ?? '',
+        nameAr: v.nameAr ?? form.nameAr,
+        industry: v.industry ?? form.industry,
+        seededServicesCount: v.seededServicesCount ?? 0,
+        seededPackagesCount: v.seededPackagesCount ?? 0,
+      });
+      setSuccess(true);
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.error ?? 'حدث خطأ، يرجى المحاولة مجدداً');
@@ -255,10 +271,32 @@ export default function VendorOnboarding() {
   const selectedPlan = PLAN_TYPES.find((p) => p.id === form.plan) ?? PLAN_TYPES[2];
   const whatsappOnboard = `https://wa.me/966500000000?text=${encodeURIComponent(`مرحباً، أريد الانضمام إلى منصة Jdawil - ${form.nameAr}`)}`;
 
+  if (success && createdVendor) {
+    const industryLabel = INDUSTRY_OPTIONS.find((o) => o.id === createdVendor.industry)?.label ?? createdVendor.industry;
+    return (
+      <div className="min-h-screen bg-surface-1 font-arabic flex items-start justify-center px-3 sm:px-4 py-8" dir="rtl">
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-900/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-purple-900/15 rounded-full blur-3xl" />
+        </div>
+        <div className="relative z-10 w-full max-w-3xl">
+          <CelebrationStep
+            vendorName={createdVendor.nameAr}
+            slug={createdVendor.slug}
+            industryLabel={industryLabel}
+            servicesCount={createdVendor.seededServicesCount}
+            packagesCount={createdVendor.seededPackagesCount}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Legacy success state — kept as fallback for the unauthenticated path
+  // (when /vendors/onboard returns success but no token, e.g. partial flow).
   if (success) {
     return (
       <div className="min-h-screen bg-surface-1 font-arabic flex items-center justify-center px-4" dir="rtl">
-        {/* Background */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-900/20 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-purple-900/15 rounded-full blur-3xl" />
@@ -354,7 +392,7 @@ export default function VendorOnboarding() {
         <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-indigo-900/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-3xl mx-auto px-4 py-10">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-10 lg:grid lg:grid-cols-[1fr_320px] lg:gap-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -827,6 +865,18 @@ export default function VendorOnboarding() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Live preview — sticky on desktop, hidden on mobile */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-24">
+            <LivePreview
+              nameAr={form.nameAr}
+              industry={form.industry || null}
+              primaryColor="#6366f1"
+              city={form.city}
+            />
+          </div>
+        </aside>
       </div>
     </MarketingLayout>
   );
