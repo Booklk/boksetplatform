@@ -26,6 +26,7 @@ import MilestoneCelebration from '../../components/MilestoneCelebration';
 import PushPrompt from '../../components/PushPrompt';
 import { SetupWizardModal } from '../../components/SetupWizardModal';
 import { getSaudiGreeting } from '../../lib/saudi';
+import { CountUp } from '../../components/ui/CountUp';
 
 interface DashboardStats {
   totalBookings?: number;
@@ -481,7 +482,9 @@ export default function VendorDashboard() {
   const statCards = [
     {
       label: 'حجوزات اليوم',
-      value: summary?.todayBookings,
+      value: summary?.todayBookings !== undefined
+        ? <CountUp to={summary.todayBookings} duration={800} />
+        : undefined,
       sub: summary?.completedToday !== undefined ? `${summary.completedToday} مكتمل` : undefined,
       icon: Calendar,
       gradient: 'from-purple-500 to-indigo-600',
@@ -498,7 +501,7 @@ export default function VendorDashboard() {
     {
       label: 'الإيرادات هذا الشهر',
       value: summary?.monthIncome !== undefined
-        ? summary.monthIncome.toLocaleString('ar-SA') + ' ر.س'
+        ? <><CountUp to={summary.monthIncome} duration={1100} /> <span className="text-xs font-normal opacity-80">ر.س</span></>
         : undefined,
       sub: summary?.monthGrowth != null
         ? `${summary.monthGrowth > 0 ? '+' : ''}${summary.monthGrowth.toFixed(0)}٪ vs الشهر الماضي`
@@ -523,7 +526,7 @@ export default function VendorDashboard() {
     {
       label: 'صافي الربح هذا الشهر',
       value: summary?.monthProfit !== undefined
-        ? summary.monthProfit.toLocaleString('ar-SA') + ' ر.س'
+        ? <><CountUp to={summary.monthProfit} duration={1200} /> <span className="text-xs font-normal opacity-80">ر.س</span></>
         : undefined,
       sub: summary?.monthExpenses !== undefined
         ? `مصروفات: ${summary.monthExpenses.toLocaleString('ar-SA')} ر.س`

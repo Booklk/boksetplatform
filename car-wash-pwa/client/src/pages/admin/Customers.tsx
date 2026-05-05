@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Search, Phone, Car } from 'lucide-react';
+import { Search, Phone, Car, Users } from 'lucide-react';
 import api from '../../lib/api';
 import { Customer } from '../../types';
 import { formatDate } from '../../lib/utils';
 import { useIndustryFlags } from '../../hooks/useIndustryFlags';
+import { Stagger, StaggerItem } from '../../components/ui/Stagger';
+import { MotivationalEmpty } from '../../components/ui/MotivationalEmpty';
+import { LastUpdated } from '../../components/ui/TrustSignals';
 
 export default function AdminCustomers() {
   const [search, setSearch] = useState('');
   const flags = useIndustryFlags();
 
-  const { data: customers = [], isLoading } = useQuery<Customer[]>({
+  const { data: customers = [], isLoading, dataUpdatedAt } = useQuery<Customer[]>({
     queryKey: ['customers'],
     queryFn: () => api.get('/customers').then(r => r.data),
   });
@@ -45,15 +47,11 @@ export default function AdminCustomers() {
       {isLoading ? (
         <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="card animate-pulse h-16" />)}</div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((customer, i) => (
-            <motion.div
-              key={customer.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04 }}
-              className="card"
-            >
+        <Stagger>
+          <div className="space-y-3">
+            {filtered.map((customer) => (
+              <StaggerItem key={customer.id}>
+                <div className="card">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -84,17 +82,23 @@ export default function AdminCustomers() {
                   </a>
                 </div>
               </div>
-            </motion.div>
-          ))}
+                </div>
+              </StaggerItem>
+            ))}
 
-          {filtered.length === 0 && (
-            <div className="card text-center py-12 text-slate-400">
-              <div className="text-4xl mb-3">👥</div>
-              <p>لا توجد نتائج</p>
-            </div>
-          )}
-        </div>
+            {filtered.length === 0 && (
+              <MotivationalEmpty
+                icon={Users}
+                accent="blue"
+                title={search ? 'لا نتائج لبحثك' : 'ما عندك عملاء حتى الآن — وهذي فرصة'}
+                body={search ? undefined : 'كل عميل تستقبله الآن يصبح قاعدة عملاء دائمة. ابدأ بحجز يدوي أو شارك رابط متجرك.'}
+              />
+            )}
+          </div>
+        </Stagger>
       )}
+
+      <LastUpdated at={dataUpdatedAt ? new Date(dataUpdatedAt) : null} />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { useAuth } from '../hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import PresenceIndicator from './PresenceIndicator';
 import { useVendorTheme } from '../store/vendorTheme';
+import { LiveConnectionDot } from './ui/TrustSignals';
 
 // ─── Nav definitions ──────────────────────────────────────────────────────────
 const customerNav = [
@@ -289,11 +290,15 @@ export default function Navbar() {
                 {logoLetter}
               </div>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="font-black text-white text-sm truncate">
                 {isVendorPage ? vendorName : 'Jdawil'}
               </p>
-              <p className="text-xs text-slate-400">{roleLabel(user.role)}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-slate-400">{roleLabel(user.role)}</p>
+                <span className="opacity-30">•</span>
+                <LiveConnectionDot />
+              </div>
             </div>
           </div>
 

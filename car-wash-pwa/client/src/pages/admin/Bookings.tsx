@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Search, Filter, Navigation, Undo2 } from 'lucide-react';
+import { Search, Filter, Navigation, Undo2, Calendar } from 'lucide-react';
 import api from '../../lib/api';
 import { Booking, Employee } from '../../types';
 import { formatDateTime, formatCurrency, STATUS_LABELS } from '../../lib/utils';
 import StatusBadge from '../../components/StatusBadge';
-import EmptyState from '../../components/EmptyState';
 import { useIndustryFlags } from '../../hooks/useIndustryFlags';
+import { Stagger, StaggerItem } from '../../components/ui/Stagger';
+import { MotivationalEmpty } from '../../components/ui/MotivationalEmpty';
+import { LastUpdated } from '../../components/ui/TrustSignals';
 import RefundDialog from '../../components/vendor/RefundDialog';
 
 const STATUS_OPTIONS = ['', 'pending', 'confirmed', 'on_way', 'arrived', 'in_progress', 'completed', 'cancelled'];
@@ -22,7 +24,7 @@ export default function AdminBookings() {
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [refundFor, setRefundFor] = useState<Booking | null>(null);
 
-  const { data: bookings = [], isLoading } = useQuery<Booking[]>({
+  const { data: bookings = [], isLoading, dataUpdatedAt } = useQuery<Booking[]>({
     queryKey: ['admin-bookings'],
     queryFn: () => api.get('/bookings').then(r => r.data),
     refetchInterval: 30000,
@@ -112,16 +114,12 @@ export default function AdminBookings() {
           {[...Array(5)].map((_, i) => <div key={i} className="card animate-pulse h-20" />)}
         </div>
       ) : (
-        <div className="space-y-3">
-          <p className="text-sm text-slate-400">{filtered.length} حجز</p>
-          {filtered.map((booking, i) => (
-            <motion.div
-              key={booking.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className="card"
-            >
+        <Stagger>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-400">{filtered.length} حجز</p>
+            {filtered.map((booking) => (
+              <StaggerItem key={booking.id}>
+                <div className="card">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -186,26 +184,39 @@ export default function AdminBookings() {
                   </button>
                 )}
               </div>
-            </motion.div>
-          ))}
+                </div>
+              </StaggerItem>
+            ))}
 
-          {filtered.length === 0 && bookings.length === 0 && (
-            <EmptyState
-              emoji="📅"
-              title="لا توجد حجوزات بعد"
-              description="شارك رابط متجرك مع عملائك لاستقبال أول حجز"
-              actionLabel="عرض رابط الحجز"
-              actionPath="/vendor/branding"
-            />
-          )}
-          {filtered.length === 0 && bookings.length > 0 && (
-            <div className="card text-center py-12 text-slate-400">
-              <div className="text-4xl mb-3">📋</div>
-              <p>لا توجد حجوزات مطابقة للبحث</p>
-            </div>
-          )}
-        </div>
+            {filtered.length === 0 && bookings.length === 0 && (
+              <MotivationalEmpty
+                icon={Calendar}
+                accent="emerald"
+                title="جدولك مفتوح — وقت بناء قاعدة عملائك"
+                body={(<>
+                  شارك رابط متجرك مع عملائك في واتساب — أول حجز يصل خلال ساعات.
+                  <br />
+                  <span className="text-emerald-300">احنا حضّرنا لك الرسائل والقوالب.</span>
+                </>)}
+                actions={[
+                  { label: 'عرض رابط متجرك', to: '/vendor/branding', primary: true },
+                  { label: 'حجز يدوي', to: '/vendor/queue' },
+                ]}
+              />
+            )}
+            {filtered.length === 0 && bookings.length > 0 && (
+              <MotivationalEmpty
+                icon={Search}
+                accent="blue"
+                title="لا حجوزات مطابقة لبحثك"
+                body="جرّب فلتر آخر أو امسح الفلتر."
+              />
+            )}
+          </div>
+        </Stagger>
       )}
+
+      <LastUpdated at={dataUpdatedAt ? new Date(dataUpdatedAt) : null} />
 
       <RefundDialog
         open={Boolean(refundFor)}
