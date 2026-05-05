@@ -25,6 +25,7 @@ import ProTrialBanner from '../../components/vendor/ProTrialBanner';
 import MilestoneCelebration from '../../components/MilestoneCelebration';
 import PushPrompt from '../../components/PushPrompt';
 import { SetupWizardModal } from '../../components/SetupWizardModal';
+import { getSaudiGreeting } from '../../lib/saudi';
 
 interface DashboardStats {
   totalBookings?: number;
@@ -602,9 +603,9 @@ export default function VendorDashboard() {
           )}
           <div>
             <h1 className="text-white font-black text-xl">
-              {new Date().getHours() < 12 ? 'صباح الخير' : 'مساء الخير'} يا {myVendor?.nameAr ?? vendorName}
+              {getSaudiGreeting(myVendor?.nameAr ?? vendorName)}
             </h1>
-            <p className="text-slate-400 text-sm">لوحة تحكم المغسلة</p>
+            <p className="text-slate-400 text-sm">لوحة التحكم</p>
           </div>
         </div>
 
@@ -709,9 +710,9 @@ export default function VendorDashboard() {
           <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl" />
           <div className="relative z-10 p-8 flex items-center justify-between">
             <div>
-              <p className="text-white/60 text-sm mb-1">أهلاً وسهلاً</p>
+              <p className="text-white/60 text-sm mb-1">{getSaudiGreeting()}</p>
               <h1 className="text-3xl font-black text-white leading-tight">
-                مرحباً بك في لوحة تحكم
+                لوحة تحكم
               </h1>
               <h2 className="text-2xl font-bold bg-gradient-to-l from-purple-300 to-blue-300 bg-clip-text text-transparent mt-1">
                 {vendorName}

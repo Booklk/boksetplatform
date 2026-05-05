@@ -5,6 +5,7 @@ import { Calendar, Clock, CheckCircle2, XCircle, Plane, Stethoscope, AlertCircle
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
+import { MotivationalEmpty } from '../../components/ui/MotivationalEmpty';
 
 type LeaveType = 'annual' | 'sick' | 'emergency' | 'unpaid';
 type LeaveStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
@@ -162,10 +163,15 @@ export default function VendorHrSuite() {
           </div>
 
           {leaves.length === 0 ? (
-            <div className="text-center py-12 text-slate-500">
-              <Calendar className="w-10 h-10 mx-auto mb-3 opacity-40" />
-              <p className="font-bold text-slate-300">لا توجد طلبات</p>
-            </div>
+            <MotivationalEmpty
+              icon={Calendar}
+              accent="amber"
+              title={isAdmin ? 'لا طلبات إجازات قيد المراجعة' : 'لا تستحي — حقك تأخذ راحة'}
+              body={isAdmin
+                ? 'فريقك ينتج، وما عند أحد طلب — استمر بثقتك بهم.'
+                : 'لما تحتاج راحة، اطلب وسجّل سببك. الإدارة تشوف الطلب فوراً.'}
+              actions={!isAdmin ? [{ label: 'طلب إجازة جديد', onClick: () => setShowNew(true), primary: true, icon: Plus }] : []}
+            />
           ) : (
             <div className="space-y-2">
               {leaves.map((l) => {

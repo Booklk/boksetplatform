@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, AlertTriangle, Activity, Database, Wifi } from 'lucide-react';
 import api from '../lib/api';
 import MarketingLayout from '../components/marketing/MarketingLayout';
+import { MotivationalEmpty } from '../components/ui/MotivationalEmpty';
 
 interface ServiceCheck {
   ok: boolean;
@@ -152,11 +153,12 @@ export default function Status() {
           >
             <h2 className="text-white font-bold text-base mb-3">سجل الأعطال (آخر 90 يوم)</h2>
             {data && data.incidents.length === 0 ? (
-              <div className="text-center py-8">
-                <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
-                <p className="text-slate-300 font-bold">لا توجد أعطال مسجّلة في آخر 90 يوم</p>
-                <p className="text-slate-500 text-xs mt-1">هذا هو هدفنا الدائم 🎯</p>
-              </div>
+              <MotivationalEmpty
+                icon={CheckCircle2}
+                accent="emerald"
+                title="لا أعطال خلال آخر 90 يوم"
+                body="استقرار كامل — هدفنا الدائم 🎯"
+              />
             ) : (
               <ul className="space-y-3">
                 {data?.incidents.map((inc, i) => (

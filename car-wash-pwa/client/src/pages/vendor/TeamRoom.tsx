@@ -5,6 +5,7 @@ import { Send, Pin, Trash2, Plus, Check, Clock, AlertCircle, Users, MessageSquar
 import api from '../../lib/api';
 import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
+import { MotivationalEmpty } from '../../components/ui/MotivationalEmpty';
 
 interface Member {
   id: number;
@@ -180,11 +181,12 @@ export default function VendorTeamRoom() {
             {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto py-4 space-y-2.5">
               {messages.length === 0 ? (
-                <div className="text-center py-16 text-slate-500">
-                  <MessageSquare className="w-10 h-10 mx-auto mb-3 opacity-40" />
-                  <p className="font-bold text-slate-300">لا توجد رسائل بعد</p>
-                  <p className="text-xs mt-1">ابدأ المحادثة مع فريقك</p>
-                </div>
+                <MotivationalEmpty
+                  icon={MessageSquare}
+                  accent="blue"
+                  title="غرفتك فاضية… قول مرحبا 👋"
+                  body="هذي القناة بينك وبين فريقك فقط. ابدأ بسلام أو شارك إنجاز اليوم."
+                />
               ) : (
                 messages.map((m) => {
                   const mine = m.authorId === user?.id;
@@ -345,10 +347,13 @@ function TasksView({
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
-          <ListChecks className="w-10 h-10 mx-auto mb-3 opacity-40" />
-          <p className="font-bold text-slate-300">ما فيه مهام بهذا الفلتر</p>
-        </div>
+        <MotivationalEmpty
+          icon={ListChecks}
+          accent="emerald"
+          title={filter === 'mine' ? 'ما عندك مهام مكلّف فيها — استمتع' : 'لا توجد مهام بهذا الفلتر'}
+          body={filter !== 'mine' ? 'اللوحة فاضية الآن — وقت ممتاز لتخطيط الأسبوع.' : undefined}
+          actions={[{ label: 'مهمة جديدة', onClick: () => setShowNew(true), primary: true, icon: Plus }]}
+        />
       ) : (
         <div className="space-y-2">
           {filtered.map((t) => {

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Bell, BellOff, Trash2, CheckCheck, Calendar, Gift, Tag, AlertCircle } from 'lucide-react';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
+import { MotivationalEmpty } from '../../components/ui/MotivationalEmpty';
 
 interface Notif {
   id: number;
@@ -134,10 +135,12 @@ export default function CustomerNotifications() {
       {isLoading ? (
         <p className="text-center py-12 text-slate-500 text-sm">جاري التحميل…</p>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16">
-          <BellOff className="w-12 h-12 mx-auto mb-3 text-slate-600" />
-          <p className="text-slate-300 font-bold">لا توجد إشعارات بهذا الفلتر</p>
-        </div>
+        <MotivationalEmpty
+          icon={BellOff}
+          accent="blue"
+          title={filter === 'unread' ? 'كل شي محدّث ✨' : 'لا توجد إشعارات بهذا الفلتر'}
+          body={filter === 'unread' ? 'مالك يلي تقرأه — استمتع بسكون البال.' : undefined}
+        />
       ) : (
         <div className="space-y-2">
           {filtered.map((n, i) => {

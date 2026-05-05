@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { FileText, Plus, Send, Eye, CheckCircle2, XCircle, Copy, ExternalLink } from 'lucide-react';
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
+import { MotivationalEmpty } from '../../components/ui/MotivationalEmpty';
 
 type Status = 'draft' | 'sent' | 'viewed' | 'accepted' | 'rejected' | 'expired';
 interface Quote {
@@ -76,11 +77,19 @@ export default function VendorQuotations() {
       </div>
 
       {quotes.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
-          <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
-          <p className="font-bold text-slate-300">لم تُنشئ عروض بعد</p>
-          <p className="text-xs mt-1">عرض السعر الأول يأخذ دقيقتين — وتقدر ترسله واتساب مباشرة.</p>
-        </div>
+        <MotivationalEmpty
+          icon={FileText}
+          accent="purple"
+          title="جاهز تكسر سقف عروض الأسعار؟"
+          body={(<>
+            عرض السعر الأول يأخذ دقيقتين، وتقدر ترسله واتساب مباشرة.
+            <br />
+            <span className="text-purple-300">العملاء اللي يستلمون عرض احترافي يقولون "نعم" أسرع بـ ٢×.</span>
+          </>)}
+          actions={[
+            { label: 'أنشئ عرض السعر الأول', onClick: () => setShowNew(true), primary: true, icon: Plus },
+          ]}
+        />
       ) : (
         <div className="space-y-2">
           {quotes.map((q) => (
