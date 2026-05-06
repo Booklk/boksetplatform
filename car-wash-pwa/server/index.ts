@@ -757,14 +757,19 @@ cron.schedule('0 * * * *', async () => {
       scheduledAt: bookings.scheduledAt,
       customerId: bookings.customerId,
       phone: users.phone,
+      vendorId: bookings.vendorId,
+      vendorNameAr: vendors.nameAr,
     })
       .from(bookings)
       .leftJoin(users, eq(bookings.customerId, users.id))
+      .leftJoin(vendors, eq(bookings.vendorId, vendors.id))
       .where(and(gte(bookings.scheduledAt, in24h), lte(bookings.scheduledAt, in25h), eq(bookings.status, 'confirmed')));
 
     for (const b of upcoming) {
       if (!b.phone) continue;
-      await notifyAppointmentReminder(b.phone, b.bookingNumber, b.scheduledAt);
+      // Always pass the vendor's official name so the customer sees the
+      // brand they booked with — not the platform name.
+      await notifyAppointmentReminder(b.phone, b.bookingNumber, b.scheduledAt, b.vendorNameAr ?? undefined, b.vendorId);
       await db.insert(notifications).values({
         bookingId: b.id,
         userId: b.customerId,
