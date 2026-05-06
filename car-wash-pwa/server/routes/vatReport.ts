@@ -244,9 +244,9 @@ router.get('/pdf', requireAuth, requireRole('vendor_admin', 'admin'), async (req
         lte(bookings.updatedAt, monthEnd),
       ));
 
-    // Vendor name
-    const [vendor] = await db.select({ nameAr: vendors.nameAr })
-      .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    // Vendor identity (full official record — name + logo + CR + VAT + address).
+    const { getVendorIdentity } = await import('../services/vendorIdentity.js');
+    const identity = await getVendorIdentity(vendorId);
 
     const grossRevenue  = parseFloat(incomeRow.total ?? '0');
     const grossExpenses = parseFloat(expenseRow.total ?? '0');
@@ -263,7 +263,11 @@ router.get('/pdf', requireAuth, requireRole('vendor_admin', 'admin'), async (req
       9: 'سبتمبر', 10: 'أكتوبر', 11: 'نوفمبر', 12: 'ديسمبر',
     };
     const monthLabel = monthNames[month] ?? String(month);
-    const companyName = vendor?.nameAr ?? 'المتجر';
+    const companyName = identity?.nameAr ?? 'المتجر';
+    const companyLogo = identity?.logoUrl ?? null;
+    const companyCr = identity?.crNumber ?? null;
+    const companyVat = identity?.vatNumber ?? null;
+    const companyAddress = identity?.nationalAddress ?? identity?.address ?? null;
     const generatedAt = new Date().toLocaleDateString('ar-SA', { dateStyle: 'full' });
 
     const rows: Array<{ label: string; value: string }> = [
@@ -386,7 +390,10 @@ router.get('/pdf', requireAuth, requireRole('vendor_admin', 'admin'), async (req
 </head>
 <body>
   <div class="header">
+    ${companyLogo ? `<img src="${companyLogo}" alt="" style="width:72px;height:72px;border-radius:12px;object-fit:cover;margin:0 auto 12px;display:block"/>` : ''}
     <div class="company">${companyName}</div>
+    ${companyCr ? `<div style="font-size:12px;color:#64748b;margin-top:4px">س.ت: ${companyCr}${companyVat ? ` &nbsp;•&nbsp; الرقم الضريبي: ${companyVat}` : ''}</div>` : ''}
+    ${companyAddress ? `<div style="font-size:11px;color:#64748b;margin-top:2px">${companyAddress}</div>` : ''}
     <div class="report-title">تقرير ضريبة القيمة المضافة</div>
     <div class="period">${monthLabel} ${year}</div>
   </div>

@@ -4,12 +4,30 @@ import { customers, users, bookings, financials, vehicles, vendors } from '../db
 import { eq, and, gte, lte, count } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import * as XLSX from 'xlsx';
+import { getVendorIdentity, buildIdentityCoverRows, buildReportFilename, type VendorIdentity } from '../services/vendorIdentity.js';
 
 const router = Router();
 
-function buildWorkbook(sheetName: string, data: Record<string, unknown>[]): Buffer {
-  const ws = XLSX.utils.json_to_sheet(data);
+/**
+ * Build a workbook with a vendor-identity cover sheet first, then
+ * the actual data sheet. Every Excel export the platform issues
+ * opens with the merchant's official identity (name + CR + VAT +
+ * address + logo URL) so the file looks branded the moment it
+ * opens, not after the user scrolls.
+ */
+function buildBrandedWorkbook(
+  identity: VendorIdentity | null,
+  reportTitle: string,
+  sheetName: string,
+  data: Record<string, unknown>[],
+  dateRange?: { from: Date; to: Date },
+): Buffer {
   const wb = XLSX.utils.book_new();
+  const coverRows = buildIdentityCoverRows(identity, reportTitle, dateRange);
+  const cover = XLSX.utils.aoa_to_sheet(coverRows);
+  cover['!cols'] = [{ wch: 24 }, { wch: 60 }];
+  XLSX.utils.book_append_sheet(wb, cover, 'بيانات المنشأة');
+  const ws = XLSX.utils.json_to_sheet(data);
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
   return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 }
@@ -18,8 +36,7 @@ function buildWorkbook(sheetName: string, data: Record<string, unknown>[]): Buff
 router.get('/customers', requireAuth, requireRole('admin', 'vendor_admin', 'super_admin'), async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId!;
-
-    const [vendor] = await db.select({ nameAr: vendors.nameAr }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const identity = await getVendorIdentity(vendorId);
 
     const list = await db.select({
       name: users.name,
@@ -45,8 +62,8 @@ router.get('/customers', requireAuth, requireRole('admin', 'vendor_admin', 'supe
       'تاريخ التسجيل': c.createdAt ? new Date(c.createdAt).toLocaleDateString('ar-SA') : '',
     }));
 
-    const buf = buildWorkbook('العملاء', rows);
-    const filename = `عملاء-${vendor?.nameAr ?? ''}-${new Date().toLocaleDateString('ar-SA')}.xlsx`;
+    const buf = buildBrandedWorkbook(identity, 'تقرير العملاء', 'العملاء', rows);
+    const filename = buildReportFilename('عملاء', identity, 'xlsx');
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
     return res.send(buf);
@@ -62,8 +79,7 @@ router.get('/financials', requireAuth, requireRole('admin', 'vendor_admin', 'sup
     const vendorId = req.user!.vendorId!;
     const from = req.query.from ? new Date(req.query.from as string) : new Date(new Date().getFullYear(), 0, 1);
     const to = req.query.to ? new Date(req.query.to as string) : new Date();
-
-    const [vendor] = await db.select({ nameAr: vendors.nameAr }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const identity = await getVendorIdentity(vendorId);
 
     const records = await db.select().from(financials)
       .where(and(
@@ -80,8 +96,8 @@ router.get('/financials', requireAuth, requireRole('admin', 'vendor_admin', 'sup
       'التاريخ': new Date(f.date).toLocaleDateString('ar-SA'),
     }));
 
-    const buf = buildWorkbook('المالية', rows);
-    const filename = `مالية-${vendor?.nameAr ?? ''}-${new Date().toLocaleDateString('ar-SA')}.xlsx`;
+    const buf = buildBrandedWorkbook(identity, 'تقرير الحركات المالية', 'المالية', rows, { from, to });
+    const filename = buildReportFilename('مالية', identity, 'xlsx');
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
     return res.send(buf);
@@ -97,8 +113,7 @@ router.get('/bookings', requireAuth, requireRole('admin', 'vendor_admin', 'super
     const vendorId = req.user!.vendorId!;
     const from = req.query.from ? new Date(req.query.from as string) : new Date(new Date().getFullYear(), 0, 1);
     const to = req.query.to ? new Date(req.query.to as string) : new Date();
-
-    const [vendor] = await db.select({ nameAr: vendors.nameAr }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const identity = await getVendorIdentity(vendorId);
 
     const conditions: any[] = [
       eq(bookings.vendorId, vendorId),
@@ -139,8 +154,8 @@ router.get('/bookings', requireAuth, requireRole('admin', 'vendor_admin', 'super
       'التقييم': b.rating ?? '',
     }));
 
-    const buf = buildWorkbook('الحجوزات', rows);
-    const filename = `حجوزات-${vendor?.nameAr ?? ''}-${new Date().toLocaleDateString('ar-SA')}.xlsx`;
+    const buf = buildBrandedWorkbook(identity, 'تقرير الحجوزات', 'الحجوزات', rows, { from, to });
+    const filename = buildReportFilename('حجوزات', identity, 'xlsx');
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
     return res.send(buf);

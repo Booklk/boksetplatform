@@ -282,10 +282,13 @@ router.get('/pdf', requireAuth, requireRole('vendor_admin', 'admin'), async (req
     const monthLabel = monthNames[month] ?? String(month);
     const generatedAt = new Date().toLocaleDateString('ar-SA', { dateStyle: 'full' });
 
-    // Fetch vendor name for branded report
-    const [vendorRow] = await db.select({ nameAr: vendors.nameAr })
-      .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
-    const vendorDisplayName = vendorRow?.nameAr ?? 'المتجر';
+    // Fetch full vendor identity for branded report (logo + CR + VAT + address).
+    const { getVendorIdentity } = await import('../services/vendorIdentity.js');
+    const identity = await getVendorIdentity(vendorId);
+    const vendorDisplayName = identity?.nameAr ?? 'المتجر';
+    const vendorLogo = identity?.logoUrl ?? null;
+    const vendorCr = identity?.crNumber ?? null;
+    const vendorAddress = identity?.nationalAddress ?? identity?.address ?? null;
 
     const statusLabel = (s: string | null) => {
       if (s === 'paid') return '<span style="color:#16a34a;font-weight:600">مدفوع</span>';
@@ -434,7 +437,10 @@ router.get('/pdf', requireAuth, requireRole('vendor_admin', 'admin'), async (req
 </head>
 <body>
   <div class="header">
+    ${vendorLogo ? `<img src="${vendorLogo}" alt="" style="width:72px;height:72px;border-radius:12px;object-fit:cover;margin:0 auto 12px;display:block"/>` : ''}
     <div class="company">${vendorDisplayName}</div>
+    ${vendorCr ? `<div style="font-size:12px;color:#64748b;margin-top:4px">س.ت: ${vendorCr}</div>` : ''}
+    ${vendorAddress ? `<div style="font-size:11px;color:#64748b;margin-top:2px">${vendorAddress}</div>` : ''}
     <div class="report-title">كشف الرواتب الشهري</div>
     <div class="period">${monthLabel} ${year}</div>
   </div>
@@ -496,7 +502,7 @@ router.get('/pdf', requireAuth, requireRole('vendor_admin', 'admin'), async (req
 
   <div class="footer">
     <p>هذا الكشف سري ومخصص للاستخدام الداخلي فقط</p>
-    <p>${vendorDisplayName} — نظام إدارة المغاسل | ${year}</p>
+    <p>${vendorDisplayName} — صادر عبر منصة جداول | ${year}</p>
   </div>
 
   <button class="print-btn" onclick="window.print()">طباعة / تصدير PDF</button>
