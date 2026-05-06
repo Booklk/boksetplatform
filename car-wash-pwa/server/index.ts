@@ -250,6 +250,24 @@ app.use('/api/payment-gateway/webhook', paymentWebhookRoutes);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// ─── SLOW REQUEST LOGGING ───────────────────────────────────────────────────
+// Log any API request that takes longer than the threshold so we can spot
+// slow endpoints under real production load. morgan handles successful
+// short requests; this only fires for the long tail. Threshold is
+// intentionally generous (1s) to keep noise low.
+const SLOW_REQUEST_MS = Number(process.env.SLOW_REQUEST_MS ?? 1000);
+app.use((req, res, next) => {
+  if (!req.path.startsWith('/api')) return next();
+  const start = Date.now();
+  res.on('finish', () => {
+    const ms = Date.now() - start;
+    if (ms >= SLOW_REQUEST_MS) {
+      console.warn(`[slow] ${ms}ms ${req.method} ${req.path} → ${res.statusCode}`);
+    }
+  });
+  next();
+});
+
 // ─── RATE LIMITING ──────────────────────────────────────────────────────────
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -259,12 +277,24 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Per-user (or per-IP for unauth) authenticated-request limiter. Reading
+// the JWT here means a vendor with 10 employees on the same office IP gets
+// 10× the budget — much friendlier to real teams than naive per-IP at
+// scale.
 const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 200, // 200 requests per minute
+  windowMs: 60 * 1000,
+  max: 300, // per-user
   message: { error: 'طلبات كثيرة. حاول بعد شوي' },
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => {
+    const auth = req.headers.authorization?.replace('Bearer ', '');
+    if (!auth) return `ip:${req.ip ?? 'anon'}`;
+    try {
+      const payload = JSON.parse(Buffer.from(auth.split('.')[1], 'base64').toString('utf8'));
+      return `u:${payload.id ?? 'anon'}`;
+    } catch { return `ip:${req.ip ?? 'anon'}`; }
+  },
 });
 
 const campaignLimiter = rateLimit({
@@ -294,6 +324,47 @@ const onboardLimiter = rateLimit({
   legacyHeaders: false,
 });
 app.use('/api/vendors/onboard', onboardLimiter);
+
+// OTP send is the single most abused endpoint — every send burns a Meta
+// conversation and can get the platform throttled or banned. Cap to 3
+// per phone per hour (key by phone in body when present, else IP).
+const otpSendLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  message: { error: 'تجاوزت حد إرسال الرموز. حاول بعد ساعة' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    const phone = (req.body?.phone as string | undefined)?.replace(/\D/g, '');
+    return phone ? `otp:${phone}` : `otp:ip:${req.ip ?? 'anon'}`;
+  },
+});
+app.use('/api/auth/send-otp', otpSendLimiter);
+app.use('/api/auth/forgot-password', otpSendLimiter);
+
+// Public storefront views (and other unauthenticated reads) have a higher
+// allowance per IP because legitimate customers from the same NAT pool
+// (mobile carriers, office Wi-Fi) can otherwise hit the wall during a
+// marketing campaign spike.
+const publicReadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 600,
+  message: { error: 'طلبات كثيرة. حاول بعد دقيقة' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/manifest', publicReadLimiter);
+app.use('/api/pages', publicReadLimiter);
+app.use('/api/tracking', publicReadLimiter);
+
+// Webhooks (Moyasar, Meta) come from the gateway/cloud — burst tolerated.
+const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/moyasar-webhook', webhookLimiter);
 
 // Copilot is expensive: every user message can kick off up to 6 OpenAI
 // calls. 15 messages/min/vendor is generous for real use; an abusive
@@ -535,6 +606,44 @@ app.get('/api/plans', async (_req, res) => {
 // the endpoint reveals nothing sensitive.
 app.get('/api/health/live', (_req, res) => {
   return res.json({ status: 'ok', uptime: process.uptime() });
+});
+
+// Metrics — internal observability for autoscaling + alerts.
+// Same auth model as /api/health (HEALTH_CHECK_TOKEN). Reports the
+// numbers we actually need to alert on at scale: WhatsApp queue depth
+// (proxies for Meta backpressure), event loop lag (process saturation),
+// memory.
+let lastEventLoopCheck = process.hrtime.bigint();
+let lastEventLoopLagMs = 0;
+setInterval(() => {
+  const now = process.hrtime.bigint();
+  const expected = 1_000_000_000n; // 1s in ns
+  const actual = now - lastEventLoopCheck;
+  lastEventLoopLagMs = Number((actual - expected) / 1_000_000n);
+  lastEventLoopCheck = now;
+}, 1000).unref();
+
+app.get('/api/metrics', async (req, res) => {
+  const token = process.env.HEALTH_CHECK_TOKEN;
+  if (token) {
+    const provided = req.header('x-health-token') ?? req.query.token;
+    if (provided !== token) return res.status(401).json({ status: 'unauthorized' });
+  }
+  const { getQueueStats } = await import('./services/whatsappQueue.js');
+  const mem = process.memoryUsage();
+  return res.json({
+    process: {
+      uptimeSec: Math.round(process.uptime()),
+      eventLoopLagMs: Math.max(0, lastEventLoopLagMs),
+      pid: process.pid,
+    },
+    memory: {
+      rssMb: Math.round(mem.rss / 1024 / 1024),
+      heapUsedMb: Math.round(mem.heapUsed / 1024 / 1024),
+      heapTotalMb: Math.round(mem.heapTotal / 1024 / 1024),
+    },
+    whatsappQueue: getQueueStats(),
+  });
 });
 
 /** Readiness check — process + DB ready to serve traffic.
@@ -1430,6 +1539,18 @@ function gracefulShutdown(signal: string) {
       }
     });
     console.log('✅ WebSocket connections closed');
+
+    try {
+      const { drainQueueForShutdown, getQueueStats } = await import('./services/whatsappQueue.js');
+      const before = getQueueStats();
+      if (before.pending > 0 || before.active > 0) {
+        console.log(`⏳ Draining WhatsApp queue (${before.pending} pending, ${before.active} active)...`);
+        await drainQueueForShutdown(5000);
+      }
+      console.log('✅ WhatsApp queue drained');
+    } catch (e) {
+      console.error('⚠️ Error draining WhatsApp queue:', e);
+    }
 
     try {
       await closeDatabase();

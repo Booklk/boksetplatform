@@ -375,6 +375,6 @@ export async function createBookingCheckoutUrl(
     }],
   });
 
-  if (!checkout?.url) return null;
-  return { url: checkout.url, provider: chosen, amountSar };
+  if (!checkout?.redirectUrl) return null;
+  return { url: checkout.redirectUrl, provider: chosen, amountSar };
 }

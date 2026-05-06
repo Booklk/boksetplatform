@@ -254,8 +254,17 @@ export const customers = pgTable('customers', {
   defaultAddress: text('default_address'),
   defaultLat: decimal('default_lat', { precision: 10, scale: 7 }),
   defaultLng: decimal('default_lng', { precision: 10, scale: 7 }),
+  // Customer-supplied address (used by customer-profile UI alongside default).
+  // Kept distinct so the customer can have a "billing/contact address" different
+  // from the default service location.
+  address: text('address'),
   notes: text('notes'),
+  // Communication preferences (PDPL — customer chooses how we reach them).
+  preferredLanguage: varchar('preferred_language', { length: 5 }).default('ar'), // ar | en
+  preferredContactMethod: varchar('preferred_contact_method', { length: 20 }).default('whatsapp'),
+  // whatsapp | sms | email | push
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
 // ─── VEHICLES (Multiple per customer, per vendor) ─────────────────────────────
@@ -306,11 +315,19 @@ export const bookings = pgTable('bookings', {
   totalPrice: decimal('total_price', { precision: 10, scale: 2 }),
   discountAmount: decimal('discount_amount', { precision: 10, scale: 2 }).default('0'),
   promoCodeId: integer('promo_code_id'),
+  // Optional deposit charged at booking time (the rest is collected on
+  // completion). Used by ROI / financial reports.
+  depositAmount: decimal('deposit_amount', { precision: 10, scale: 2 }).default('0'),
   paymentMethod: varchar('payment_method', { length: 30 }).default('cash'),
   // cash | stcpay | mada | apple_pay | corporate
   paymentStatus: varchar('payment_status', { length: 20 }).default('pending'),
   // pending | paid | refunded
   invoiceUrl: text('invoice_url'), // PDF invoice path
+  // Marketing attribution (UTM) — captured at booking creation so we can
+  // see which campaign drove which booking later.
+  utmSource: varchar('utm_source', { length: 100 }),
+  utmMedium: varchar('utm_medium', { length: 100 }),
+  utmCampaign: varchar('utm_campaign', { length: 100 }),
   // Rating reply by vendor
   vendorReply: text('vendor_reply'),
   vendorRepliedAt: timestamp('vendor_replied_at'),
@@ -1899,3 +1916,96 @@ export const leads = pgTable('leads', {
 
 export const leadsChannelIdx = index('idx_leads_channel').on(leads.channel, leads.status);
 export const leadsCreatedIdx = index('idx_leads_created').on(leads.createdAt);
+
+// ─── PLATFORM SETTINGS ────────────────────────────────────────────────────────
+// DB-backed config the super-admin manages from the UI. Encrypted secrets
+// (API keys, tokens) are stored AES-256-GCM via lib/crypto with isEncrypted=true.
+// services/platformSettings.ts is the only consumer and caches reads for 30s.
+
+export const platformSettings = pgTable('platform_settings', {
+  id: serial('id').primaryKey(),
+  key: varchar('key', { length: 100 }).notNull().unique(),
+  value: text('value'),
+  isEncrypted: boolean('is_encrypted').notNull().default(false),
+  updatedBy: integer('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+export const platformSettingsKeyIdx = uniqueIndex('idx_platform_settings_key').on(platformSettings.key);
+
+// ─── MONTHLY USAGE COUNTERS ──────────────────────────────────────────────────
+// One row per (vendor, resource, period) — the source of truth for quota
+// enforcement. services/usageGuard.ts atomically increments via SQL conditional
+// UPDATE so two concurrent requests can't both squeak under the cap.
+// `period` is YYYY-MM (UTC). Counters reset at the start of each new period
+// because a fresh row is created on first use.
+
+export const monthlyUsage = pgTable('monthly_usage', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  resource: varchar('resource', { length: 50 }).notNull(),
+  // bookings | ai_messages | whatsapp_marketing | storage_mb
+  period: varchar('period', { length: 7 }).notNull(), // YYYY-MM
+  used: integer('used').notNull().default(0),
+  limit: integer('limit'), // null = unlimited
+  overflowCount: integer('overflow_count').notNull().default(0),
+  overflowAmountSar: decimal('overflow_amount_sar', { precision: 10, scale: 2 }).notNull().default('0'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
+// Composite unique enforces "exactly one row per (vendor, resource, period)"
+// — required by the onConflictDoUpdate upsert in usageGuard.
+export const monthlyUsageUnique = uniqueIndex('idx_monthly_usage_unique')
+  .on(monthlyUsage.vendorId, monthlyUsage.resource, monthlyUsage.period);
+export const monthlyUsageVendorIdx = index('idx_monthly_usage_vendor').on(monthlyUsage.vendorId, monthlyUsage.period);
+
+// ─── BILLING AUDIT ───────────────────────────────────────────────────────────
+// Append-only event log for every quota / overflow / addon-toggle event. We
+// never delete from this table — auditors and disputes need full history.
+// Best-effort writes from services/usageGuard + addons (failures swallowed
+// because audit must never block the main flow).
+
+export const billingAudit = pgTable('billing_audit', {
+  id: serial('id').primaryKey(),
+  vendorId: integer('vendor_id').notNull().references(() => vendors.id, { onDelete: 'cascade' }),
+  event: varchar('event', { length: 50 }).notNull(),
+  // denied_subscription_inactive | denied_plan_locked | quota_exceeded |
+  // overflow_charged | addon_activated | addon_deactivated | manual_adjustment
+  resource: varchar('resource', { length: 50 }),
+  amount: decimal('amount', { precision: 10, scale: 2 }),
+  metadata: jsonb('metadata').$type<Record<string, unknown>>().default({}),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const billingAuditVendorIdx = index('idx_billing_audit_vendor').on(billingAudit.vendorId, billingAudit.createdAt);
+export const billingAuditEventIdx = index('idx_billing_audit_event').on(billingAudit.event, billingAudit.createdAt);
+
+// ─── SCALE INDEXES (added for 5K+ vendor production load) ──────────────────
+// These cover the hot read paths the 300K marketing campaign will hammer:
+// public storefronts (slug lookup), super-admin dashboards (status filters),
+// payment webhook reconciliation (gatewayRef), customer-side bot lookups
+// (whatsappSessions.phone is already UNIQUE, but explicit index helps planner),
+// and customer login (users.email).
+
+export const vendorsSubscriptionStatusIdx = index('idx_vendors_subscription_status').on(vendors.subscriptionStatus);
+export const vendorsIndustryIdx = index('idx_vendors_industry').on(vendors.industry);
+export const vendorsActiveIdx = index('idx_vendors_active').on(vendors.isActive);
+export const vendorsCreatedIdx = index('idx_vendors_created').on(vendors.createdAt);
+
+export const usersEmailIdx = index('idx_users_email').on(users.email);
+export const usersFirebaseIdx = index('idx_users_firebase_uid').on(users.firebaseUid);
+
+export const bookingsTrackingIdx = index('idx_bookings_tracking_token').on(bookings.trackingToken);
+export const bookingsUtmIdx = index('idx_bookings_utm').on(bookings.utmSource, bookings.utmCampaign);
+export const bookingsPaymentStatusIdx = index('idx_bookings_payment_status').on(bookings.vendorId, bookings.paymentStatus);
+
+export const paymentsBookingIdx = index('idx_payments_booking_id').on(payments.bookingId);
+export const paymentsGatewayRefIdx = index('idx_payments_gateway_ref').on(payments.gatewayRef);
+export const paymentsVendorStatusIdx = index('idx_payments_vendor_status').on(payments.vendorId, payments.status);
+
+export const vendorBranchesVendorIdx = index('idx_vendor_branches_vendor').on(vendorBranches.vendorId);
+
+export const whatsappSessionsVendorIdx = index('idx_whatsapp_sessions_vendor').on(whatsappSessions.vendorId);
+export const whatsappSessionsExpiresIdx = index('idx_whatsapp_sessions_expires').on(whatsappSessions.expiresAt);

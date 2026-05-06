@@ -101,7 +101,8 @@ router.get('/admin', async (req, res) => {
       ORDER BY created_at DESC
       LIMIT 200
     `);
-    return res.json(rows.rows ?? rows);
+    // postgres-js returns the row array directly
+    return res.json(rows);
   } catch (e) {
     console.error('[leads admin]', e);
     return res.status(500).json({ error: 'خطأ في الخادم' });

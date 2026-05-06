@@ -16,6 +16,7 @@ import { db } from '../db/index.js';
 import { vendors } from '../db/schema.js';
 import { eq, sql } from 'drizzle-orm';
 import { sendViaProvider, formatSaudiPhone } from './whatsappProviders.js';
+import { enqueueSend } from './whatsappQueue.js';
 
 const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
 
@@ -73,6 +74,15 @@ async function increment(vendorId: number | null | undefined): Promise<void> {
     .where(eq(vendors.id, vendorId));
 }
 
+/**
+ * Enqueue a transactional send. Returns `true` if the send was *accepted*
+ * for delivery (queued or filtered by toggles), not whether it actually
+ * landed at WhatsApp — by design, transactional notifications are
+ * fire-and-forget so route handlers never block on Meta's latency.
+ *
+ * The toggle + quota check happens synchronously *before* enqueue so
+ * vendors don't accidentally burn quota on disabled events.
+ */
 async function send(
   phone: string,
   message: string,
@@ -92,9 +102,12 @@ async function send(
       }
     }
   }
-  const result = await sendViaProvider(vendorId, phone, message);
-  if (result.ok) await increment(vendorId);
-  return result.ok;
+  enqueueSend(`${event}→${phone.slice(-4)}`, async () => {
+    const result = await sendViaProvider(vendorId, phone, message);
+    if (result.ok) await increment(vendorId);
+    else throw new Error(result.error ?? 'send failed');
+  });
+  return true;
 }
 
 /**
@@ -212,6 +225,111 @@ export async function notifyBookingConfirmedWithTracking(
   const timeStr = scheduledAt.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
   const trackingLine = (bookingId && trackingToken) ? `\n\n📍 تتبع مباشر:\nhttps://${DOMAIN}/track/${bookingId}/${trackingToken}` : '';
   return send(phone, `✅ *${vendorName}*\n\nتم تأكيد حجزك!\n\n📋 #${bookingNumber}\n📦 ${packageName}\n📅 ${dateStr}\n⏰ ${timeStr}${trackingLine}\n\nشكراً لثقتك!`, vendorId, 'bookingConfirmed');
+}
+
+// ─── Interactive messages (buttons / list) ──────────────────────────────────
+// These bypass per-event toggles because they're conversational responses
+// (the customer initiated the conversation), but they still respect quota.
+
+interface ButtonOption { id: string; title: string }
+
+/**
+ * Send up to 3 reply-buttons. Used by the WhatsApp bot for menu navigation.
+ * Falls back to a plain text list of choices on providers/clients that don't
+ * support interactive messages.
+ */
+export async function sendInteractiveButtons(
+  phone: string,
+  body: string,
+  buttons: ButtonOption[],
+  vendorId?: number | null,
+): Promise<boolean> {
+  const { loadVendorConfig, formatSaudiPhone } = await import('./whatsappProviders.js');
+  const cfg = vendorId ? await loadVendorConfig(vendorId) : null;
+  const to = formatSaudiPhone(phone);
+
+  // Meta Cloud is the only provider with native interactive support today;
+  // for shared/Unifonic fall back to a numbered text list.
+  if (cfg?.provider === 'meta_cloud' && cfg.metaToken && cfg.metaPhoneId) {
+    try {
+      const res = await fetch(`https://graph.facebook.com/v19.0/${cfg.metaPhoneId}/messages`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${cfg.metaToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to,
+          type: 'interactive',
+          interactive: {
+            type: 'button',
+            body: { text: body },
+            action: {
+              buttons: buttons.slice(0, 3).map((b) => ({
+                type: 'reply',
+                reply: { id: b.id, title: b.title.slice(0, 20) },
+              })),
+            },
+          },
+        }),
+      });
+      if (res.ok) return true;
+    } catch {/* fall through to text fallback */}
+  }
+
+  // Fallback: plain text with numbered options
+  const fallback = `${body}\n\n${buttons.map((b, i) => `${i + 1}. ${b.title}`).join('\n')}`;
+  return sendRawWhatsAppMessage(phone, fallback, vendorId);
+}
+
+interface ListRow { id: string; title: string; description?: string }
+
+/**
+ * Send a list-style picker (up to 10 rows). Falls back to numbered text
+ * for providers without interactive support.
+ */
+export async function sendInteractiveList(
+  phone: string,
+  body: string,
+  buttonText: string,
+  rows: ListRow[],
+  vendorId?: number | null,
+  sectionTitle?: string,
+): Promise<boolean> {
+  const { loadVendorConfig, formatSaudiPhone } = await import('./whatsappProviders.js');
+  const cfg = vendorId ? await loadVendorConfig(vendorId) : null;
+  const to = formatSaudiPhone(phone);
+
+  if (cfg?.provider === 'meta_cloud' && cfg.metaToken && cfg.metaPhoneId) {
+    try {
+      const res = await fetch(`https://graph.facebook.com/v19.0/${cfg.metaPhoneId}/messages`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${cfg.metaToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to,
+          type: 'interactive',
+          interactive: {
+            type: 'list',
+            body: { text: body },
+            action: {
+              button: buttonText.slice(0, 20),
+              sections: [{
+                title: (sectionTitle ?? buttonText).slice(0, 24),
+                rows: rows.slice(0, 10).map((r) => ({
+                  id: r.id,
+                  title: r.title.slice(0, 24),
+                  description: r.description?.slice(0, 72),
+                })),
+              }],
+            },
+          },
+        }),
+      });
+      if (res.ok) return true;
+    } catch {/* fall through */}
+  }
+
+  const fallback = `${body}\n\n${rows.map((r, i) => `${i + 1}. ${r.title}${r.description ? ' — ' + r.description : ''}`).join('\n')}`;
+  return sendRawWhatsAppMessage(phone, fallback, vendorId);
 }
 
 /** Verify vendor's WhatsApp credentials — used by the Connect wizard test button. */

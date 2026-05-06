@@ -515,7 +515,6 @@ export function defaultTermsForIndustry(vendorIndustry?: string | null): TermsIn
     appliance_repair: 'appliance_repair',
     clinic: 'clinic',
     professional_services: 'professional_services',
-    spa: 'spa',
     // 'other' has no specific template — universal handles it.
   };
   if (vendorIndustry && m[vendorIndustry]) return m[vendorIndustry];

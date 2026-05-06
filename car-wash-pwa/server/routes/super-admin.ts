@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
 import { db } from '../db/index.js';
 import { vendors, users, bookings, financials, vendorSubscriptionPayments, auditLogs, inAppNotifications, platformPlans } from '../db/schema.js';
 import { eq, sql, count, sum, desc, gte, like, or, asc, and } from 'drizzle-orm';
