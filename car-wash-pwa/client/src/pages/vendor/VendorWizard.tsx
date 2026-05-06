@@ -1016,6 +1016,7 @@ export default function VendorWizard() {
                 )}
               </motion.div>
             </AnimatePresence>
+            </div>
           </div>
 
           {/* Right: live phone preview (hidden on mobile, sticky on desktop) */}

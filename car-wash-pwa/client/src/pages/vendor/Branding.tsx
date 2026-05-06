@@ -40,8 +40,6 @@ interface VendorData {
   logoUrl?: string;
   coverImageUrl?: string;
   serviceAreas?: string[];
-  whatsappPhoneId?: string;
-  whatsappToken?: string;
   paymentProvider?: string;
   merchantId?: string;
   apiKey?: string;
@@ -379,8 +377,6 @@ export default function VendorBranding() {
       });
     } else if (activeTab === 'financial') {
       saveMutation.mutate({
-        whatsappPhoneId: form.whatsappPhoneId,
-        whatsappToken: form.whatsappToken,
         paymentProvider: form.paymentProvider,
         merchantId: form.merchantId,
         apiKey: form.apiKey,
@@ -824,33 +820,26 @@ export default function VendorBranding() {
                 {/* ─── Tab 3: Financial Services ─── */}
                 {activeTab === 'financial' && (
                   <>
-                    {/* WhatsApp BYOC */}
-                    <div className="rounded-xl border border-white/10 bg-white/3 p-5 space-y-4">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-emerald-500/20">
-                          <MessageCircle className="w-4 h-4 text-emerald-400" />
+                    {/* WhatsApp Connect — moved to dedicated /vendor/whatsapp page */}
+                    <a
+                      href="/vendor/whatsapp"
+                      className="block rounded-xl border border-emerald-500/25 bg-emerald-500/8 hover:bg-emerald-500/12 p-5 transition-all"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-emerald-500/20">
+                            <MessageCircle className="w-5 h-5 text-emerald-400" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-white text-sm">واتساب الأعمال</h4>
+                            <p className="text-white/55 text-xs mt-0.5">
+                              ربط بثلاث طرق · إشعارات تلقائية · باقات مرنة
+                            </p>
+                          </div>
                         </div>
-                        <h4 className="font-bold text-white text-sm">واتساب Business</h4>
+                        <span className="text-emerald-300 text-xs font-bold">إعداد ←</span>
                       </div>
-                      <p className="text-white/40 text-xs leading-relaxed">
-                        اربط واتساب Business الخاص بمتجرك لإرسال الرسائل باسمك
-                      </p>
-                      <InputField
-                        label="معرف رقم الهاتف (Phone ID)"
-                        value={form.whatsappPhoneId ?? ''}
-                        onChange={(v) => setField('whatsappPhoneId', v)}
-                        placeholder="123456789012345"
-                        icon={Phone}
-                      />
-                      <InputField
-                        label="رمز الوصول (Access Token)"
-                        value={form.whatsappToken ?? ''}
-                        onChange={(v) => setField('whatsappToken', v)}
-                        placeholder="EAAxxxxxxxxxxxxxxxx"
-                        type="password"
-                        icon={Lock}
-                      />
-                    </div>
+                    </a>
 
                     {/* Payment Gateway */}
                     <div className="rounded-xl border border-white/10 bg-white/3 p-5 space-y-4">

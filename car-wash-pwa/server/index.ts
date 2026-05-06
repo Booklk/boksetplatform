@@ -35,6 +35,7 @@ import uploadsRoutes from './routes/uploads.js';
 import reportsRoutes from './routes/reports.js';
 // New SaaS routes
 import vendorsRoutes from './routes/vendors.js';
+import whatsappRoutes from './routes/whatsapp.js';
 import vehiclesRoutes from './routes/vehicles.js';
 import loyaltyRoutes from './routes/loyalty.js';
 import trackingRoutes from './routes/tracking.js';
@@ -348,6 +349,7 @@ app.use('/api/uploads', uploadsRoutes);
 app.use('/api/reports', reportsRoutes);
 // New
 app.use('/api/vendors', vendorsRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/vehicles', vehiclesRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/tracking', trackingRoutes);

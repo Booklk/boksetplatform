@@ -39,6 +39,41 @@ export const vendors = pgTable('vendors', {
   whatsappPhoneId: varchar('whatsapp_phone_id', { length: 255 }), // encrypted
   whatsappToken: text('whatsapp_token'), // encrypted
 
+  // WhatsApp provider — meta_cloud (vendor's own Meta Cloud API),
+  // unifonic (Saudi BSP, AES-encrypted senderId/apiKey/appSid below),
+  // shared (vendor uses Jdawil's shared sender, branded with vendor name in body),
+  // none (not connected — fall back to platform creds for OTP only).
+  whatsappProvider: varchar('whatsapp_provider', { length: 20 }).notNull().default('none'),
+  whatsappStatus: varchar('whatsapp_status', { length: 20 }).notNull().default('not_connected'),
+  // not_connected | pending | active | failed
+  whatsappVerifiedAt: timestamp('whatsapp_verified_at'),
+  whatsappLastError: text('whatsapp_last_error'),
+  // Unifonic credentials (AES-256 encrypted)
+  whatsappUnifonicAppSid: text('whatsapp_unifonic_app_sid'),
+  whatsappUnifonicSenderId: varchar('whatsapp_unifonic_sender_id', { length: 32 }),
+  whatsappUnifonicApiKey: text('whatsapp_unifonic_api_key'),
+  // Per-event notification toggles — vendor decides which events trigger
+  // a WhatsApp send. Defaults: everything on. Stored as JSON to allow
+  // adding new events without schema migrations.
+  whatsappNotifications: jsonb('whatsapp_notifications').$type<{
+    bookingConfirmed?: boolean;
+    appointmentReminder?: boolean;
+    employeeOnWay?: boolean;
+    arrived?: boolean;
+    completed?: boolean;
+    ratingRequest?: boolean;
+    paymentReceived?: boolean;
+    marketing?: boolean;
+  }>().default({}),
+  // Plan + quota (essentials/pro/business). Quota resets monthly via
+  // whatsappQuotaResetAt. Used by usageGuard to block over-quota sends
+  // and surface upgrade nudges.
+  whatsappPlan: varchar('whatsapp_plan', { length: 20 }).notNull().default('none'),
+  // none | essentials (500/mo) | pro (2000/mo) | business (5000/mo)
+  whatsappMessagesUsed: integer('whatsapp_messages_used').notNull().default(0),
+  whatsappMessagesQuota: integer('whatsapp_messages_quota').notNull().default(0),
+  whatsappQuotaResetAt: timestamp('whatsapp_quota_reset_at'),
+
   // BYOC: vendor's own payment gateway. Shape is defined (and enforced)
   // by services/payments — sensitive fields are AES-encrypted before
   // they land here, so the jsonb is intentionally left loosely typed.

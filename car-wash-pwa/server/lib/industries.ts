@@ -322,6 +322,12 @@ export const INDUSTRIES = {
     bookingFieldLabel: 'الطلب',
     defaultServices: [],
     defaultPackages: [],
+    defaultInventory: [],
+    whatsappTemplates: [
+      { name: 'تأكيد', message: 'مرحباً {customer_name}!\n\nتم تأكيد طلبك #{booking_number}\n📅 {date}\n\nشكراً لاختيارك خدمتنا!' },
+    ],
+  },
+
   appliance_repair: {
     nameAr: 'صيانة الأجهزة',
     nameEn: 'Appliance Repair',
