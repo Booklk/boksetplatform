@@ -8,6 +8,7 @@ import { vendors, users, vendorSubscriptionPayments, services, packages, fleetVe
 import { eq, desc, sql, and, isNotNull, count } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { encrypt, decrypt } from '../lib/crypto.js';
+import { cacheRemember, cacheDel } from '../services/cache.js';
 
 function signToken(user: { id: number; role: string; phone: string; vendorId?: number | null }) {
   return jwt.sign(
@@ -166,35 +167,39 @@ router.get('/public/:slug/reviews', async (req, res) => {
   }
 });
 
-// GET /api/vendors/public/:slug — Public vendor page
+// GET /api/vendors/public/:slug — Public vendor page.
+// Cached for 60s — at 300K marketing-driven visits/day this is the single
+// hottest read path. Invalidated whenever the vendor saves Branding/profile
+// (see PATCH handler below). 60s is chosen so a vendor that updates their
+// logo sees it within a minute even on the cached path.
 router.get('/public/:slug', async (req, res) => {
   try {
-    const [vendor] = await db.select({
-      id: vendors.id,
-      nameAr: vendors.nameAr,
-      nameEn: vendors.nameEn,
-      slug: vendors.slug,
-      logoUrl: vendors.logoUrl,
-      coverImageUrl: vendors.coverImageUrl,
-      primaryColor: vendors.primaryColor,
-      descriptionAr: vendors.descriptionAr,
-      city: vendors.city,
-      serviceAreas: vendors.serviceAreas,
-      phone: vendors.phone,
-      rating: vendors.rating,
-      reviewsCount: vendors.reviewsCount,
-      settings: vendors.settings,
-      // Industry drives client-side conditional UI (vehicle fields,
-      // service-type pickers, queue copy, etc.).
-      industry: vendors.industry,
-      industryLabel: vendors.industryLabel,
-      // Expose these so the storefront can render a friendly "closed"
-      // state instead of a broken page when the vendor is paused.
-      isActive: vendors.isActive,
-      subscriptionStatus: vendors.subscriptionStatus,
-    }).from(vendors)
-      .where(eq(vendors.slug, req.params.slug))
-      .limit(1);
+    const slug = req.params.slug;
+    const vendor = await cacheRemember(`vendor:public:${slug}`, 60, async () => {
+      const [v] = await db.select({
+        id: vendors.id,
+        nameAr: vendors.nameAr,
+        nameEn: vendors.nameEn,
+        slug: vendors.slug,
+        logoUrl: vendors.logoUrl,
+        coverImageUrl: vendors.coverImageUrl,
+        primaryColor: vendors.primaryColor,
+        descriptionAr: vendors.descriptionAr,
+        city: vendors.city,
+        serviceAreas: vendors.serviceAreas,
+        phone: vendors.phone,
+        rating: vendors.rating,
+        reviewsCount: vendors.reviewsCount,
+        settings: vendors.settings,
+        industry: vendors.industry,
+        industryLabel: vendors.industryLabel,
+        isActive: vendors.isActive,
+        subscriptionStatus: vendors.subscriptionStatus,
+      }).from(vendors)
+        .where(eq(vendors.slug, slug))
+        .limit(1);
+      return v ?? null;
+    });
 
     if (!vendor) return res.status(404).json({ error: 'غير موجود' });
     return res.json(vendor);
@@ -203,6 +208,13 @@ router.get('/public/:slug', async (req, res) => {
     return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
+
+/** Bust the public-vendor cache. Called whenever a write affects what
+ *  /public/:slug returns (Branding save, logo upload, plan change). */
+async function invalidateVendorCache(vendorId: number) {
+  const [v] = await db.select({ slug: vendors.slug }).from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+  if (v?.slug) await cacheDel(`vendor:public:${v.slug}`);
+}
 
 // POST /api/vendors — Super Admin: create vendor
 router.post('/', requireAuth, requireRole('super_admin'), async (req, res) => {
@@ -686,6 +698,7 @@ router.put('/:id', requireAuth, async (req: AuthRequest, res) => {
     }
 
     const [updated] = await db.update(vendors).set(updateData as any).where(eq(vendors.id, vendorId)).returning();
+    await invalidateVendorCache(vendorId);
     return res.json(updated);
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });

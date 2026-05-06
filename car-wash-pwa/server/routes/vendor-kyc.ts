@@ -8,36 +8,26 @@
  * Both are usually downloaded as PDF from المركز السعودي للأعمال
  * والتنافسية — so we accept application/pdf as well as jpeg/png.
  *
- * Files live under `uploads/kyc/` (auth-gated download only, never
- * served via the plain `/uploads/` static mount) because the PDF
- * contains PII (owner name, national address, CR number, etc.).
+ * KYC documents are PII (owner name, national address, CR number) and are
+ * always written through the storage abstraction with `private: true`.
+ *   - local provider: stored under uploads/kyc/, served only via this
+ *     auth-gated endpoint (never the public /uploads/ static mount).
+ *   - s3 provider:    stored without public-read ACL; the document
+ *     endpoint redirects callers to a 1h signed URL.
  */
 
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import crypto from 'crypto';
 import { z } from 'zod';
 import { db } from '../db/index.js';
 import { vendors, auditLogs } from '../db/schema.js';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
+import { putObject, getSignedReadUrl, currentProvider } from '../services/storage.js';
 
 const router = Router();
-
-// ── Upload storage ────────────────────────────────────────────────────────
-const KYC_DIR = path.join(process.cwd(), 'uploads', 'kyc');
-if (!fs.existsSync(KYC_DIR)) fs.mkdirSync(KYC_DIR, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, KYC_DIR),
-  filename: (_req, file, cb) => {
-    const raw = path.extname(file.originalname).toLowerCase();
-    const ext = /^\.(pdf|jpg|jpeg|png)$/.test(raw) ? raw : '';
-    cb(null, `${crypto.randomUUID()}${ext}`);
-  },
-});
 
 const ACCEPTED_MIME = new Set([
   'application/pdf',
@@ -46,7 +36,7 @@ const ACCEPTED_MIME = new Set([
 ]);
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB — PDFs from the gov portal
   fileFilter: (_req, file, cb) => {
     if (!ACCEPTED_MIME.has(file.mimetype)) {
@@ -104,24 +94,23 @@ router.post('/submit',
         documentNumber: req.body.documentNumber,
       });
 
-      // Freelance permits from the gov portal are 10-digit numbers;
-      // CR numbers are typically 10 digits too. Accept 4-30 for safety
-      // but light-validate shape here as a smoke-check.
-      if (!/^\d{4,30}$/.test(data.documentNumber)) {
-        // Not a hard error — some formats include dashes. Warn only.
-      }
+      // Private upload — KYC docs MUST NOT be world-readable. The key is
+      // what we store; readers of the document endpoint get a signed URL
+      // (s3) or a streamed response (local).
+      const { key } = await putObject(req.file.buffer, req.file.originalname, {
+        contentType: req.file.mimetype,
+        folder: 'kyc',
+        private: true,
+      });
 
-      const docUrl = path.posix.join('uploads', 'kyc', req.file.filename);
       await db.update(vendors).set({
         kycDocumentType:     data.documentType,
         kycDocumentNumber:   data.documentNumber,
-        kycDocumentUrl:      docUrl,
+        kycDocumentUrl:      key,
         kycDocumentMimeType: req.file.mimetype,
         kycStatus:           'submitted',
         kycRejectionReason:  null,
         kycSubmittedAt:      new Date(),
-        // Also populate the legacy crNumber field so the existing
-        // invoice/VAT workflow keeps working without extra plumbing.
         ...(data.documentType === 'cr' ? { crNumber: data.documentNumber } : {}),
         updatedAt:           new Date(),
       }).where(eq(vendors.id, vendorId));
@@ -144,30 +133,35 @@ router.post('/submit',
     }
   });
 
-// GET /api/vendor-kyc/document — streams the KYC file for the vendor's own
-// review OR a super_admin. Auth-gated (doc stays off the public /uploads).
+// GET /api/vendor-kyc/document — auth-gated KYC file access. For s3, redirect
+// to a 1h signed URL. For local, stream from disk (never the public
+// /uploads/ mount).
 router.get('/document', requireAuth, async (req: AuthRequest, res) => {
   try {
-    // Super admin can pass ?vendorId=N to fetch any vendor's doc.
     const targetId = req.user!.role === 'super_admin' && req.query.vendorId
       ? Number(req.query.vendorId)
       : req.user!.vendorId;
     if (!targetId) return res.status(400).json({ error: 'لا يوجد متجر' });
-    // Tenant guard.
     if (req.user!.role !== 'super_admin' && req.user!.vendorId !== targetId) {
       return res.status(403).json({ error: 'غير مصرح' });
     }
     const [row] = await db.select({
-      url:  vendors.kycDocumentUrl,
+      key:  vendors.kycDocumentUrl,
       mime: vendors.kycDocumentMimeType,
     }).from(vendors).where(eq(vendors.id, targetId)).limit(1);
-    if (!row?.url) return res.status(404).json({ error: 'لا توجد وثيقة مرفوعة' });
-    // Prevent path traversal: the stored URL must live under uploads/kyc/.
-    const safe = path.normalize(row.url);
-    if (!safe.startsWith(path.join('uploads', 'kyc'))) {
-      return res.status(400).json({ error: 'مسار غير صحيح' });
+    if (!row?.key) return res.status(404).json({ error: 'لا توجد وثيقة مرفوعة' });
+
+    if (currentProvider() === 's3') {
+      const signed = await getSignedReadUrl(row.key, 3600);
+      return res.redirect(302, signed);
     }
-    const abs = path.join(process.cwd(), safe);
+
+    // Local: legacy uploads were stored as "uploads/kyc/<file>"; new ones
+    // through the abstraction are stored as "kyc/<file>". Support both.
+    const localKey = row.key.replace(/^uploads\//, '');
+    const safe = path.normalize(localKey);
+    if (safe.includes('..')) return res.status(400).json({ error: 'مسار غير صحيح' });
+    const abs = path.join(process.cwd(), 'uploads', safe);
     if (!fs.existsSync(abs)) return res.status(404).json({ error: 'الملف غير موجود' });
     res.set('Content-Type', row.mime ?? 'application/octet-stream');
     res.set('Content-Disposition', 'inline');

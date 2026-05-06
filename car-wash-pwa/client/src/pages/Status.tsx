@@ -12,7 +12,19 @@ interface ServiceCheck {
 }
 interface HealthPayload {
   ok: boolean;
-  services: { api: ServiceCheck; database: ServiceCheck; websocket: ServiceCheck };
+  services: {
+    api: ServiceCheck;
+    database: ServiceCheck;
+    websocket: ServiceCheck;
+    replica?: ServiceCheck;
+    whatsapp?: { ok: boolean; pending: number; oldestPendingMs: number };
+  };
+  infra?: {
+    storage: 'local' | 's3';
+    cache: 'redis' | 'memory';
+    queue: 'redis' | 'memory';
+    replica: boolean;
+  };
   uptime: { bootedAt: string; seconds: number };
   incidents: Array<{ startedAt: string; resolvedAt: string | null; title: string; status: string }>;
   uptime90d: number;
@@ -119,7 +131,18 @@ export default function Status() {
               <>
                 <ServiceRow label="واجهة API" icon={Activity} ok={data.services.api.ok} latencyMs={data.services.api.latencyMs} />
                 <ServiceRow label="قاعدة البيانات" icon={Database} ok={data.services.database.ok} latencyMs={data.services.database.latencyMs} />
+                {data.services.replica && (
+                  <ServiceRow label="قاعدة القراءة (Replica)" icon={Database} ok={data.services.replica.ok} latencyMs={data.services.replica.latencyMs} />
+                )}
                 <ServiceRow label="WebSocket (التتبع المباشر)" icon={Wifi} ok={data.services.websocket.ok} latencyMs={data.services.websocket.latencyMs} />
+                {data.services.whatsapp && (
+                  <ServiceRow
+                    label={`واتساب — قائمة الانتظار${data.services.whatsapp.pending > 0 ? ` (${data.services.whatsapp.pending} رسالة معلقة)` : ''}`}
+                    icon={Activity}
+                    ok={data.services.whatsapp.ok}
+                    latencyMs={Math.round(data.services.whatsapp.oldestPendingMs)}
+                  />
+                )}
               </>
             ) : null}
           </motion.div>

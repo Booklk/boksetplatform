@@ -16,7 +16,7 @@ import { db } from '../db/index.js';
 import { vendors } from '../db/schema.js';
 import { eq, sql } from 'drizzle-orm';
 import { sendViaProvider, formatSaudiPhone } from './whatsappProviders.js';
-import { enqueueSend } from './whatsappQueue.js';
+import { enqueuePersistedSend, restorePersistedJobs, type PersistedJobPayload } from './whatsappQueue.js';
 
 const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
 
@@ -102,12 +102,42 @@ async function send(
       }
     }
   }
-  enqueueSend(`${event}→${phone.slice(-4)}`, async () => {
-    const result = await sendViaProvider(vendorId, phone, message);
-    if (result.ok) await increment(vendorId);
-    else throw new Error(result.error ?? 'send failed');
-  });
+  await enqueuePersistedSend(
+    `${event}→${phone.slice(-4)}`,
+    { kind: 'transactional', phone, message, vendorId, event },
+    async () => {
+      const result = await sendViaProvider(vendorId, phone, message);
+      if (result.ok) await increment(vendorId);
+      else throw new Error(result.error ?? 'send failed');
+    },
+  );
   return true;
+}
+
+/**
+ * Boot-time hook — restore any persisted jobs from Redis and feed them
+ * back into the queue. Safe to call when REDIS_URL is unset (no-op).
+ *
+ * Call once from index.ts after the DB is ready but before serving traffic.
+ */
+export async function restoreWhatsAppQueueOnBoot(): Promise<number> {
+  return restorePersistedJobs((payload: PersistedJobPayload) => {
+    if (payload.kind === 'transactional') {
+      return async () => {
+        const result = await sendViaProvider(payload.vendorId, payload.phone, payload.message);
+        if (result.ok) await increment(payload.vendorId);
+        else throw new Error(result.error ?? 'send failed');
+      };
+    }
+    if (payload.kind === 'raw') {
+      return async () => {
+        const result = await sendViaProvider(payload.vendorId, payload.phone, payload.message);
+        if (result.ok) await increment(payload.vendorId);
+        else throw new Error(result.error ?? 'send failed');
+      };
+    }
+    return null;
+  });
 }
 
 /**

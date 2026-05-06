@@ -17,7 +17,7 @@
  *   - this month's overflow_amount_sar already accrued
  */
 import { eq, and, sql } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { db, dbReplica } from '../db/index.js';
 import { vendors, monthlyUsage } from '../db/schema.js';
 import { ADDONS, AddonId } from './addons.js';
 
@@ -73,7 +73,10 @@ function currentPeriod(): string {
 }
 
 export async function computeProfitability(vendorId: number): Promise<VendorProfitability> {
-  const [v] = await db.select({
+  // Profitability is read-only and tolerates ~30s replica lag. Route through
+  // the replica so the super-admin dashboard doesn't compete with primary
+  // writes during peak booking hours.
+  const [v] = await dbReplica.select({
     id: vendors.id,
     nameAr: vendors.nameAr,
     slug: vendors.slug,
@@ -91,8 +94,9 @@ export async function computeProfitability(vendorId: number): Promise<VendorProf
   const subscriptionRevenue = inactive ? 0 : (PLAN_PRICES[v.plan ?? 'free'] ?? 0);
   const addonsRevenue = inactive ? 0 : addons.reduce((sum, id) => sum + (ADDONS[id as AddonId]?.priceSar ?? 0), 0);
 
-  // Pull this month's usage rows
-  const usageRows = await db.select({
+  // Pull this month's usage rows from the replica too — profitability is
+  // a snapshot, eventual consistency is fine.
+  const usageRows = await dbReplica.select({
     resource: monthlyUsage.resource,
     used: monthlyUsage.used,
     overflowAmountSar: monthlyUsage.overflowAmountSar,
@@ -162,7 +166,7 @@ export async function computeAllProfitability(): Promise<{
     inactiveCount: number;
   };
 }> {
-  const all = await db.select({ id: vendors.id }).from(vendors);
+  const all = await dbReplica.select({ id: vendors.id }).from(vendors);
   const rows = await Promise.all(all.map((v) => computeProfitability(v.id)));
 
   const totals = rows.reduce((acc, r) => {

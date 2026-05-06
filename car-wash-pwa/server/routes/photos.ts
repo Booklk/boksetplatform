@@ -5,25 +5,15 @@ import { bookingPhotos, bookings, vendors } from '../db/schema.js';
 import { eq, and, desc } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
+import { putObject } from '../services/storage.js';
 
 const router = Router();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadDir = path.join(__dirname, '..', 'uploads', 'photos');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `photo-${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  },
-});
-
+// In-memory buffer; routes write through the storage abstraction so they
+// work the same whether the platform is configured for local disk or any
+// S3-compatible object store.
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {
@@ -50,7 +40,10 @@ router.post('/booking/:id', requireAuth, requireRole('employee', 'admin', 'vendo
       .limit(1);
     if (!booking) return res.status(404).json({ error: 'الحجز غير موجود' });
 
-    const photoUrl = `/uploads/photos/${req.file.filename}`;
+    const { url: photoUrl } = await putObject(req.file.buffer, req.file.originalname, {
+      contentType: req.file.mimetype,
+      folder: 'photos',
+    });
     const [photo] = await db.insert(bookingPhotos).values({
       bookingId,
       phase,
@@ -157,7 +150,10 @@ router.post('/gallery/upload', requireAuth, requireRole('vendor_admin', 'admin')
       if (!req.file) return res.status(400).json({ error: 'الصورة مطلوبة' });
 
       const caption = typeof req.body?.caption === 'string' ? req.body.caption.trim() : '';
-      const url = `/uploads/photos/${req.file.filename}`;
+      const { url } = await putObject(req.file.buffer, req.file.originalname, {
+        contentType: req.file.mimetype,
+        folder: 'photos',
+      });
 
       const [v] = await db.select({ settings: vendors.settings })
         .from(vendors).where(eq(vendors.id, vendorId)).limit(1);

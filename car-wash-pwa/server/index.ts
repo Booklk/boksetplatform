@@ -1553,6 +1553,14 @@ function gracefulShutdown(signal: string) {
     }
 
     try {
+      const { closeCache } = await import('./services/cache.js');
+      await closeCache();
+      console.log('✅ Cache (Redis) closed');
+    } catch (e) {
+      console.error('⚠️ Error closing cache:', e);
+    }
+
+    try {
       await closeDatabase();
       console.log('✅ Database connections drained');
     } catch (e) {
@@ -1586,11 +1594,21 @@ process.on('uncaughtException', (error) => {
 // handler is registered on the same HTTP server instance.
 attachRealtime(server);
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`🚗 Jdawil SaaS Server running on http://localhost:${PORT}`);
   console.log(`🔌 WebSocket server ready on ws://localhost:${PORT}/ws`);
   console.log(`⚡ Realtime ready on ws://localhost:${PORT}/realtime`);
   console.log(`📡 Environment: ${process.env.NODE_ENV ?? 'development'}`);
+
+  // Restore any persisted WhatsApp jobs from a previous process. No-op
+  // when REDIS_URL is unset or persistence isn't enabled.
+  try {
+    const { restoreWhatsAppQueueOnBoot } = await import('./services/whatsapp.js');
+    const restored = await restoreWhatsAppQueueOnBoot();
+    if (restored > 0) console.log(`📥 Restored ${restored} pending WhatsApp jobs from Redis`);
+  } catch (e) {
+    console.warn('[boot] WhatsApp queue restore failed:', e instanceof Error ? e.message : e);
+  }
 });
 
 export default app;
