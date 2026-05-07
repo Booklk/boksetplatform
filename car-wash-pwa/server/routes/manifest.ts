@@ -89,7 +89,11 @@ router.get('/:slug.json', async (req, res) => {
     };
 
     res.setHeader('Content-Type', 'application/manifest+json');
-    res.setHeader('Cache-Control', 'public, max-age=300'); // 5-min cache
+    // Browser caches 5min; Cloudflare 1h with SWR for slow-deploy windows.
+    res.setHeader(
+      'Cache-Control',
+      'public, max-age=300, s-maxage=3600, stale-while-revalidate=300',
+    );
     return res.json(manifest);
   } catch (e) {
     console.error('[manifest]', e);

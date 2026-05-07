@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { validateEnv } from './lib/validate-env.js';
 validateEnv();
-import { initSentry, captureError } from './lib/sentry.js';
+import { initSentry, captureError, sentryRequestContext } from './lib/sentry.js';
 initSentry();
 const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
 import express from 'express';
@@ -36,6 +36,8 @@ import reportsRoutes from './routes/reports.js';
 // New SaaS routes
 import vendorsRoutes from './routes/vendors.js';
 import whatsappRoutes from './routes/whatsapp.js';
+import whatsappBotRoutes from './routes/whatsappBot.js';
+import vendorHealthRoutes from './routes/vendor-health.js';
 import vehiclesRoutes from './routes/vehicles.js';
 import loyaltyRoutes from './routes/loyalty.js';
 import trackingRoutes from './routes/tracking.js';
@@ -247,8 +249,29 @@ app.use('/api/moyasar-webhook', moyasarWebhookRoutes);
 // Same reason for the generic payment-gateway webhook receiver.
 app.use('/api/payment-gateway/webhook', paymentWebhookRoutes);
 
+// WhatsApp Cloud API webhook needs raw body for HMAC-SHA256 signature
+// verification (X-Hub-Signature-256). Capture the buffer here so the
+// bot route can verify before parsing the JSON. Mounted BEFORE the
+// global express.json() but with a path-scoped JSON parser that also
+// stashes the raw bytes.
+app.use(
+  '/api/whatsapp-bot/webhook',
+  express.json({
+    limit: '1mb',
+    verify: (req, _res, buf) => {
+      (req as { rawBody?: Buffer }).rawBody = Buffer.from(buf);
+    },
+  }),
+);
+app.use('/api/whatsapp-bot', whatsappBotRoutes);
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Sentry per-request scope (must run after JSON parsing so the body is
+// available, but before routes — so any error inside a handler inherits
+// the vendor / user / route tags).
+app.use(sentryRequestContext);
 
 // ─── SLOW REQUEST LOGGING ───────────────────────────────────────────────────
 // Log any API request that takes longer than the threshold so we can spot
@@ -421,6 +444,7 @@ app.use('/api/reports', reportsRoutes);
 // New
 app.use('/api/vendors', vendorsRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/vendor-health', vendorHealthRoutes);
 app.use('/api/vehicles', vehiclesRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/tracking', trackingRoutes);

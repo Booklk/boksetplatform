@@ -9,6 +9,7 @@ import { eq, desc, sql, and, isNotNull, count } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { encrypt, decrypt } from '../lib/crypto.js';
 import { cacheRemember, cacheDel } from '../services/cache.js';
+import { setPublicCache } from '../lib/httpCache.js';
 
 function signToken(user: { id: number; role: string; phone: string; vendorId?: number | null }) {
   return jwt.sign(
@@ -160,6 +161,7 @@ router.get('/public/:slug/reviews', async (req, res) => {
         : 'عميل',
     }));
 
+    setPublicCache(res, { browserSec: 60, cdnSec: 600, swrSec: 120 });
     return res.json(reviews);
   } catch (e) {
     console.error(e);
@@ -202,6 +204,10 @@ router.get('/public/:slug', async (req, res) => {
     });
 
     if (!vendor) return res.status(404).json({ error: 'غير موجود' });
+    // Cache at CDN for 5min, browser 30s, SWR 60s. Invalidated on
+    // PATCH below — a vendor saving Branding sees their change within
+    // the in-process cache TTL (60s) plus the CDN TTL.
+    setPublicCache(res, { browserSec: 30, cdnSec: 300, swrSec: 60 });
     return res.json(vendor);
   } catch (e) {
     console.error(e);
