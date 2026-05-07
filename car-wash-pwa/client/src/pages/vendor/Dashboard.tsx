@@ -19,6 +19,7 @@ import { MoneyBackBanner } from '../../components/MoneyBackBanner';
 import { VendorPushPrompt } from '../../components/VendorPushPrompt';
 import SmartInsights from '../../components/SmartInsights';
 import MorningBrief from '../../components/vendor/MorningBrief';
+import HealthWidget from '../../components/vendor/HealthWidget';
 import PrayerTimesBadge from '../../components/vendor/PrayerTimesBadge';
 import TrialBanner from '../../components/TrialBanner';
 import ProTrialBanner from '../../components/vendor/ProTrialBanner';
@@ -823,6 +824,11 @@ export default function VendorDashboard() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* ── Health widget ─ surfaces missing setup steps in one card ── */}
+        <div className="mb-6">
+          <HealthWidget />
+        </div>
 
         {/* ── Revenue Chart + Top Services ─────────────────────────────────── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

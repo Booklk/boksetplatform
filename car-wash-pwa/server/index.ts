@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { validateEnv } from './lib/validate-env.js';
 validateEnv();
 import { initSentry, captureError, sentryRequestContext } from './lib/sentry.js';
+import { maintenanceMode } from './middleware/maintenance.js';
 initSentry();
 const DOMAIN = process.env.DOMAIN ?? 'jdawil.sa';
 import express from 'express';
@@ -38,6 +39,7 @@ import vendorsRoutes from './routes/vendors.js';
 import whatsappRoutes from './routes/whatsapp.js';
 import whatsappBotRoutes from './routes/whatsappBot.js';
 import vendorHealthRoutes from './routes/vendor-health.js';
+import customerPdplRoutes from './routes/customer-pdpl.js';
 import vehiclesRoutes from './routes/vehicles.js';
 import loyaltyRoutes from './routes/loyalty.js';
 import trackingRoutes from './routes/tracking.js';
@@ -190,8 +192,71 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 });
 
 // ─── EXPRESS MIDDLEWARE ───────────────────────────────────────────────────────
+// Maintenance mode runs first so it can short-circuit writes without
+// burning CORS / parsing / DB cycles.
+app.use(maintenanceMode);
 app.use(detectVendorDomain);
-app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+// Security headers — explicit CSP because the default helmet policy blocks
+// the scripts our PWA actually needs (Sentry, Firebase, Moyasar, Tawk).
+// `unsafe-inline` for style-src is unfortunately required by Vite + a few
+// of our component libraries; revisit when those drop inline styles.
+const isProdForCsp = process.env.NODE_ENV === 'production';
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  // Disable HSTS in dev — most local setups serve over plain HTTP and
+  // would otherwise lock browsers into HTTPS-only for the dev domain.
+  hsts: isProdForCsp ? { maxAge: 60 * 60 * 24 * 365, includeSubDomains: true, preload: true } : false,
+  contentSecurityPolicy: isProdForCsp ? {
+    useDefaults: true,
+    directives: {
+      'default-src': ["'self'"],
+      'script-src': [
+        "'self'",
+        "'unsafe-inline'", // PWA inline boot scripts; tighten with nonces later
+        'https://*.sentry.io',
+        'https://www.googletagmanager.com',
+        'https://www.google-analytics.com',
+        'https://www.gstatic.com',
+        'https://apis.google.com',
+        'https://*.firebaseio.com',
+        'https://*.googleapis.com',
+        'https://api.moyasar.com',
+        'https://*.tawk.to',
+      ],
+      'style-src':  ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      'font-src':   ["'self'", 'data:', 'https://fonts.gstatic.com'],
+      'img-src':    ["'self'", 'data:', 'blob:', 'https:'],
+      'connect-src': [
+        "'self'",
+        'https:',
+        'wss:',
+        'https://*.sentry.io',
+        'https://*.firebaseio.com',
+        'https://*.googleapis.com',
+        'https://api.moyasar.com',
+        'https://graph.facebook.com',
+        'https://api.unifonic.com',
+      ],
+      'frame-src':  ["'self'", 'https://*.moyasar.com'], // hosted checkout iframe
+      'frame-ancestors': ["'self'"],
+      'object-src': ["'none'"],
+      'base-uri':   ["'self'"],
+      'form-action': ["'self'"],
+      'upgrade-insecure-requests': [],
+    },
+  } : false,
+}));
+
+// Belt-and-braces: a few headers helmet doesn't set or sets weakly that
+// matter for a SaaS handling Saudi PII.
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self)');
+  next();
+});
 
 // Dynamic CORS: support platform domains + vendor custom domains
 const isProd = process.env.NODE_ENV === 'production';
@@ -445,6 +510,7 @@ app.use('/api/reports', reportsRoutes);
 app.use('/api/vendors', vendorsRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
 app.use('/api/vendor-health', vendorHealthRoutes);
+app.use('/api/customer-pdpl', customerPdplRoutes);
 app.use('/api/vehicles', vehiclesRoutes);
 app.use('/api/loyalty', loyaltyRoutes);
 app.use('/api/tracking', trackingRoutes);
@@ -971,19 +1037,26 @@ cron.schedule('5 0 * * *', async () => {
         AND trial_ends_at IS NOT NULL
         AND trial_ends_at < NOW()
     `);
-    // Paid subscription lapsed (no renewal) → free
-    await db.execute(sql`
-      UPDATE vendors
-      SET subscription_status = 'active',
-          subscription_plan   = 'free',
-          updated_at          = NOW()
-      WHERE subscription_status = 'active'
-        AND subscription_plan  IN ('pro', 'enterprise', 'basic')
-        AND subscription_end_date IS NOT NULL
-        AND subscription_end_date < NOW()
-    `);
+    // Note: paid-plan downgrade now goes through the dunning flow below
+    // (renewal cycle), not the silent free-tier flip.
   } catch (e) {
     console.error('[Cron subscription downgrade]', e);
+  }
+});
+
+// Hourly subscription renewal + dunning cycle. Runs the retry schedule
+// (D+0, D+1, D+3, D+5, D+7) against vendors whose paid plan has lapsed.
+// Never duplicates work because each retry day is checked against
+// subscription_end_date — running twice in the same hour is a no-op.
+cron.schedule('15 * * * *', async () => {
+  try {
+    const { runRenewalCycle } = await import('./services/subscriptionRenewal.js');
+    const summary = await runRenewalCycle();
+    if (summary.scanned > 0) {
+      console.log(`[Cron renewal] scanned=${summary.scanned} renewed=${summary.renewed} pastDue=${summary.pastDue} downgraded=${summary.downgraded}`);
+    }
+  } catch (e) {
+    console.error('[Cron renewal]', e);
   }
 });
 

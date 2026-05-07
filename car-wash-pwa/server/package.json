@@ -17,7 +17,8 @@
     "db:seed:plans": "tsx db/seed-plans.ts",
     "db:deploy": "npm run db:migrate && npm run db:seed:plans",
     "db:studio": "drizzle-kit studio",
-    "pre-launch": "tsx scripts/pre-launch-check.ts"
+    "pre-launch": "tsx scripts/pre-launch-check.ts",
+    "backup": "tsx scripts/backup-db.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1043.0",
