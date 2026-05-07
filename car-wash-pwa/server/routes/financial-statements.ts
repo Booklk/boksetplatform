@@ -5,7 +5,40 @@ import { vendors, financials, bookings, invoices, payments, inventory, fleetVehi
 import { eq, and, gte, lte, sql, desc, count } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
 import { audit } from '../middleware/audit.js';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+
+// Compatibility shim — reproduces the XLSX subset this file used so the
+// SheetJS-specific call shape stays unchanged. exceljs is the underlying
+// engine (xlsx had unfixed prototype-pollution + ReDoS advisories).
+type Cell = string | number;
+interface Sheet {
+  rows: Cell[][];
+  cols: { wch: number }[];
+}
+const XLSXShim = {
+  utils: {
+    book_new: () => ({ sheets: [] as Array<{ name: string; sheet: Sheet }> }),
+    aoa_to_sheet: (rows: Cell[][]): Sheet => ({ rows: rows.map((r) => [...r]), cols: [] }),
+    book_append_sheet: (
+      wb: { sheets: Array<{ name: string; sheet: Sheet }> },
+      sheet: Sheet,
+      name: string,
+    ) => { wb.sheets.push({ name, sheet }); },
+  },
+  write: async (wb: { sheets: Array<{ name: string; sheet: Sheet }> }): Promise<Buffer> => {
+    const out = new ExcelJS.Workbook();
+    out.creator = 'Jdawil';
+    out.created = new Date();
+    for (const { name, sheet } of wb.sheets) {
+      const ws = out.addWorksheet(name.slice(0, 31), { views: [{ rightToLeft: true }] });
+      if (sheet.cols.length) ws.columns = sheet.cols.map((c) => ({ width: c.wch }));
+      for (const row of sheet.rows) ws.addRow(row);
+    }
+    const buf = await out.xlsx.writeBuffer();
+    return Buffer.from(buf);
+  },
+};
+const XLSX = XLSXShim;
 
 const router = Router();
 const VAT_RATE = 0.15;
@@ -322,7 +355,7 @@ router.get('/export/:type', requireAuth, requireRole('vendor_admin', 'admin'), a
       ['تم إنشاء هذا التقرير من منصة Jdawil — jdawil.sa'],
     ];
     const coverSheet = XLSX.utils.aoa_to_sheet(coverData);
-    coverSheet['!cols'] = [{ wch: 25 }, { wch: 40 }];
+    coverSheet.cols = [{ wch: 25 }, { wch: 40 }];
     XLSX.utils.book_append_sheet(wb, coverSheet, 'بيانات المنشأة');
 
     // ── Data sheet based on type ──
@@ -352,7 +385,7 @@ router.get('/export/:type', requireAuth, requireRole('vendor_admin', 'admin'), a
         ['ضريبة القيمة المضافة المستحقة', '', (totalRevenue * VAT_RATE / (1 + VAT_RATE)).toFixed(2)],
       ];
       const dataSheet = XLSX.utils.aoa_to_sheet(rows);
-      dataSheet['!cols'] = [{ wch: 25 }, { wch: 20 }, { wch: 18 }];
+      dataSheet.cols = [{ wch: 25 }, { wch: 20 }, { wch: 18 }];
       XLSX.utils.book_append_sheet(wb, dataSheet, 'قائمة الدخل');
 
     } else if (type === 'balance-sheet') {
@@ -370,7 +403,7 @@ router.get('/export/:type', requireAuth, requireRole('vendor_admin', 'admin'), a
         ['(يرجى الاطلاع على التقرير التفصيلي عبر المنصة)', '', ''],
       ];
       const dataSheet = XLSX.utils.aoa_to_sheet(rows);
-      dataSheet['!cols'] = [{ wch: 40 }, { wch: 15 }, { wch: 18 }];
+      dataSheet.cols = [{ wch: 40 }, { wch: 15 }, { wch: 18 }];
       XLSX.utils.book_append_sheet(wb, dataSheet, 'المركز المالي');
 
     } else if (type === 'cash-flow') {
@@ -396,7 +429,7 @@ router.get('/export/:type', requireAuth, requireRole('vendor_admin', 'admin'), a
         ['صافي التدفق النقدي', (inflow - outflow - invest).toFixed(2)],
       ];
       const dataSheet = XLSX.utils.aoa_to_sheet(rows);
-      dataSheet['!cols'] = [{ wch: 35 }, { wch: 18 }];
+      dataSheet.cols = [{ wch: 35 }, { wch: 18 }];
       XLSX.utils.book_append_sheet(wb, dataSheet, 'التدفقات النقدية');
     } else {
       return res.status(400).json({ error: 'نوع التقرير غير صالح. الأنواع: income-statement, balance-sheet, cash-flow' });
@@ -407,7 +440,7 @@ router.get('/export/:type', requireAuth, requireRole('vendor_admin', 'admin'), a
       'balance-sheet': 'المركز-المالي',
       'cash-flow': 'التدفقات-النقدية',
     };
-    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    const buf = await XLSX.write(wb);
     const filename = `${typeNames[type] ?? type}-${identity?.nameAr ?? ''}-${new Date().toLocaleDateString('ar-SA')}.xlsx`;
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
@@ -586,7 +619,7 @@ router.get('/export-professional', requireAuth, requireRole('vendor_admin', 'adm
         ['تم إنشاء هذا التقرير من منصة جداول (jdawil) — jdawil.sa'],
       ];
       const cover = XLSX.utils.aoa_to_sheet(coverRows);
-      cover['!cols'] = [{ wch: 28 }, { wch: 44 }];
+      cover.cols = [{ wch: 28 }, { wch: 44 }];
       XLSX.utils.book_append_sheet(wb, cover, 'الغلاف');
 
       /* ─── 2. Annual P&L ─────────────────────────────────────────────── */
@@ -629,7 +662,7 @@ router.get('/export-professional', requireAuth, requireRole('vendor_admin', 'adm
 
       pnlRows.push(revRow, expRow, salRow, mntRow, totExpRow, [], netRow, marginRow, vatRow);
       const pnl = XLSX.utils.aoa_to_sheet(pnlRows);
-      pnl['!cols'] = [{ wch: 30 }, ...years.map(() => ({ wch: 15 }))];
+      pnl.cols = [{ wch: 30 }, ...years.map(() => ({ wch: 15 }))];
       XLSX.utils.book_append_sheet(wb, pnl, 'قائمة الدخل');
 
       /* ─── 3. Monthly breakdown (one sheet per year) ─────────────────── */
@@ -655,7 +688,7 @@ router.get('/export-professional', requireAuth, requireRole('vendor_admin', 'adm
         rows.push([]);
         rows.push(['الإجمالي السنوي', fmt(ytdIncome), '', '', '', fmt(ytdExp), fmt(ytdIncome - ytdExp)]);
         const sheet = XLSX.utils.aoa_to_sheet(rows);
-        sheet['!cols'] = [
+        sheet.cols = [
           { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 14 },
         ];
         XLSX.utils.book_append_sheet(wb, sheet, `شهري ${y}`);
@@ -709,7 +742,7 @@ router.get('/export-professional', requireAuth, requireRole('vendor_admin', 'adm
       expRows.push(grandRow);
 
       const expSheet = XLSX.utils.aoa_to_sheet(expRows);
-      expSheet['!cols'] = [{ wch: 28 }, { wch: 15 }, ...years.map(() => ({ wch: 14 }))];
+      expSheet.cols = [{ wch: 28 }, { wch: 15 }, ...years.map(() => ({ wch: 14 }))];
       XLSX.utils.book_append_sheet(wb, expSheet, 'تحليل المصروفات');
 
       /* ─── 5. Cashflow (simplified annual) ───────────────────────────── */
@@ -730,7 +763,7 @@ router.get('/export-professional', requireAuth, requireRole('vendor_admin', 'adm
       }
       cashRows.push(cashInRow, cashOutRow, [], netCashRow);
       const cashSheet = XLSX.utils.aoa_to_sheet(cashRows);
-      cashSheet['!cols'] = [{ wch: 35 }, ...years.map(() => ({ wch: 16 }))];
+      cashSheet.cols = [{ wch: 35 }, ...years.map(() => ({ wch: 16 }))];
       XLSX.utils.book_append_sheet(wb, cashSheet, 'التدفقات النقدية');
 
       /* ─── 6. YoY comparison (only when >= 2 years) ──────────────────── */
@@ -757,12 +790,12 @@ router.get('/export-professional', requireAuth, requireRole('vendor_admin', 'adm
         }), pct(newest.income - newestTotalExp, oldest.income - oldestTotalExp)]);
 
         const yoy = XLSX.utils.aoa_to_sheet(yoyRows);
-        yoy['!cols'] = [{ wch: 25 }, ...years.map(() => ({ wch: 14 })), { wch: 24 }];
+        yoy.cols = [{ wch: 25 }, ...years.map(() => ({ wch: 14 })), { wch: 24 }];
         XLSX.utils.book_append_sheet(wb, yoy, 'مقارنة سنوية');
       }
 
       /* ─── Ship ──────────────────────────────────────────────────────── */
-      const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      const buf = await XLSX.write(wb);
       const filename = `القوائم-المالية-${identity?.nameAr ?? ''}-${years.join('-')}.xlsx`;
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);

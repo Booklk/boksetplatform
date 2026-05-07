@@ -138,7 +138,7 @@ router.put('/config', requireAuth, requireRole('vendor_admin', 'admin'), async (
     return res.json({ success: true, config });
   } catch (e: any) {
     if (e.name === 'ZodError') return res.status(422).json({ error: e.errors });
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
@@ -240,7 +240,7 @@ router.get('/available', async (req, res) => {
 
     return res.json({ appointmentMode: true, slots, config });
   } catch (e: any) {
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
@@ -347,7 +347,7 @@ router.post('/book', requireAuth, async (req: AuthRequest, res) => {
     });
   } catch (e: any) {
     if (e.name === 'ZodError') return res.status(422).json({ error: e.errors });
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
@@ -387,7 +387,7 @@ router.get('/my', requireAuth, async (req: AuthRequest, res) => {
 
     return res.json(myBookings);
   } catch (e: any) {
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
@@ -419,7 +419,7 @@ router.delete('/:id', requireAuth, async (req: AuthRequest, res) => {
 
     return res.json({ success: true });
   } catch (e: any) {
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
@@ -468,7 +468,7 @@ router.get('/schedule', requireAuth, requireRole('vendor_admin', 'admin', 'emplo
 
     return res.json({ date, bookings: dayBookings, config });
   } catch (e: any) {
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
@@ -514,7 +514,7 @@ router.get('/schedule/week', requireAuth, requireRole('vendor_admin', 'admin', '
 
     return res.json({ from, to, days: Object.values(byDate) });
   } catch (e: any) {
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
@@ -569,7 +569,7 @@ router.post('/:id/block-slot', requireAuth, requireRole('vendor_admin', 'admin')
     return res.json({ success: true });
   } catch (e: any) {
     if (e.name === 'ZodError') return res.status(422).json({ error: e.errors });
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 

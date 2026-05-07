@@ -3,7 +3,7 @@ import { db } from '../db/index.js';
 import { customers, users, bookings, financials, vehicles, vendors } from '../db/schema.js';
 import { eq, and, gte, lte, count } from 'drizzle-orm';
 import { requireAuth, requireRole, AuthRequest } from '../middleware/auth.js';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { getVendorIdentity, buildIdentityCoverRows, buildReportFilename, type VendorIdentity } from '../services/vendorIdentity.js';
 
 const router = Router();
@@ -14,22 +14,39 @@ const router = Router();
  * opens with the merchant's official identity (name + CR + VAT +
  * address + logo URL) so the file looks branded the moment it
  * opens, not after the user scrolls.
+ *
+ * Uses exceljs (actively maintained) instead of xlsx — xlsx has
+ * known prototype-pollution + ReDoS issues with no upstream fix.
  */
-function buildBrandedWorkbook(
+async function buildBrandedWorkbook(
   identity: VendorIdentity | null,
   reportTitle: string,
   sheetName: string,
   data: Record<string, unknown>[],
   dateRange?: { from: Date; to: Date },
-): Buffer {
-  const wb = XLSX.utils.book_new();
+): Promise<Buffer> {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'Jdawil';
+  wb.created = new Date();
+
+  // Cover sheet — vendor identity rows.
+  const cover = wb.addWorksheet('بيانات المنشأة', { views: [{ rightToLeft: true }] });
+  cover.columns = [{ width: 24 }, { width: 60 }];
   const coverRows = buildIdentityCoverRows(identity, reportTitle, dateRange);
-  const cover = XLSX.utils.aoa_to_sheet(coverRows);
-  cover['!cols'] = [{ wch: 24 }, { wch: 60 }];
-  XLSX.utils.book_append_sheet(wb, cover, 'بيانات المنشأة');
-  const ws = XLSX.utils.json_to_sheet(data);
-  XLSX.utils.book_append_sheet(wb, ws, sheetName);
-  return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+  for (const row of coverRows) cover.addRow(row);
+
+  // Data sheet — explicit column headers from the first row's keys
+  // (matches the exact behaviour json_to_sheet had).
+  const dataSheet = wb.addWorksheet(sheetName, { views: [{ rightToLeft: true }] });
+  if (data.length > 0) {
+    const keys = Object.keys(data[0]);
+    dataSheet.columns = keys.map((key) => ({ header: key, key, width: 20 }));
+    for (const row of data) dataSheet.addRow(row);
+    dataSheet.getRow(1).font = { bold: true };
+  }
+
+  const out = await wb.xlsx.writeBuffer();
+  return Buffer.from(out);
 }
 
 // GET /api/exports/customers — Export customers list
@@ -62,7 +79,7 @@ router.get('/customers', requireAuth, requireRole('admin', 'vendor_admin', 'supe
       'تاريخ التسجيل': c.createdAt ? new Date(c.createdAt).toLocaleDateString('ar-SA') : '',
     }));
 
-    const buf = buildBrandedWorkbook(identity, 'تقرير العملاء', 'العملاء', rows);
+    const buf = await buildBrandedWorkbook(identity, 'تقرير العملاء', 'العملاء', rows);
     const filename = buildReportFilename('عملاء', identity, 'xlsx');
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
@@ -96,7 +113,7 @@ router.get('/financials', requireAuth, requireRole('admin', 'vendor_admin', 'sup
       'التاريخ': new Date(f.date).toLocaleDateString('ar-SA'),
     }));
 
-    const buf = buildBrandedWorkbook(identity, 'تقرير الحركات المالية', 'المالية', rows, { from, to });
+    const buf = await buildBrandedWorkbook(identity, 'تقرير الحركات المالية', 'المالية', rows, { from, to });
     const filename = buildReportFilename('مالية', identity, 'xlsx');
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);
@@ -154,7 +171,7 @@ router.get('/bookings', requireAuth, requireRole('admin', 'vendor_admin', 'super
       'التقييم': b.rating ?? '',
     }));
 
-    const buf = buildBrandedWorkbook(identity, 'تقرير الحجوزات', 'الحجوزات', rows, { from, to });
+    const buf = await buildBrandedWorkbook(identity, 'تقرير الحجوزات', 'الحجوزات', rows, { from, to });
     const filename = buildReportFilename('حجوزات', identity, 'xlsx');
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`);

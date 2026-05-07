@@ -39,7 +39,16 @@ router.use('/', (req: RawRequest, _res: Response, next) => {
 
 function verifySignature(req: RawRequest): boolean {
   const secret = process.env.MOYASAR_WEBHOOK_SECRET;
-  if (!secret) return true; // dev: skip verification so local testing still works
+  if (!secret) {
+    // In production a missing secret means the webhook accepts anything,
+    // which would let an attacker forge `payment.paid` events. Refuse.
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[moyasar-webhook] MOYASAR_WEBHOOK_SECRET missing — rejecting in production');
+      return false;
+    }
+    // Dev: allow so local testing without ngrok+secret keeps working.
+    return true;
+  }
   const provided = req.header('x-moyasar-signature') ?? '';
   const expected = crypto.createHmac('sha256', secret).update(req.rawBody ?? '').digest('hex');
   try {

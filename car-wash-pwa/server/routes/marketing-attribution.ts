@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { db } from '../db/index.js';
 import { marketingAttribution } from '../db/schema.js';
 import { eq, sql, gte } from 'drizzle-orm';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -70,8 +71,10 @@ router.post('/capture', async (req, res) => {
   }
 });
 
-// Super-admin analytics: campaign performance.
-router.get('/campaigns-summary', async (req, res) => {
+// Super-admin analytics: campaign performance. Auth-gated so competitors
+// can't scrape the attribution funnel — these numbers are competitive
+// intelligence (cost-per-acquisition by source).
+router.get('/campaigns-summary', requireAuth, requireRole('super_admin'), async (req, res) => {
   try {
     // Last 90 days by default.
     const days = Math.min(365, Math.max(7, Number(req.query.days ?? 90)));

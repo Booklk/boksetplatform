@@ -8,6 +8,28 @@ import { users, customers, vendors, customerLifecycleEvents } from '../db/schema
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, AuthRequest } from '../middleware/auth.js';
 import { sendPlatformWhatsApp } from '../services/whatsapp.js';
+import { cacheGet, cacheIncr, cacheDel } from '../services/cache.js';
+
+// Per-account login lockout. The IP-based authLimiter stops casual scrapers,
+// but a distributed brute-force attacker hitting a target phone from N IPs
+// would slip through. We track attempts on the *phone* in cache and lock
+// the account after LOGIN_MAX_ATTEMPTS failures within the window.
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_LOCKOUT_SEC = 15 * 60; // 15 minutes
+const LOGIN_KEY = (phone: string) => `login:fail:${phone.replace(/\D/g, '')}`;
+
+async function isLockedOut(phone: string): Promise<boolean> {
+  const v = await cacheGet(LOGIN_KEY(phone));
+  return v ? Number(v) >= LOGIN_MAX_ATTEMPTS : false;
+}
+
+async function recordFailedLogin(phone: string): Promise<number> {
+  return cacheIncr(LOGIN_KEY(phone), LOGIN_LOCKOUT_SEC);
+}
+
+async function clearLoginFailures(phone: string): Promise<void> {
+  await cacheDel(LOGIN_KEY(phone));
+}
 
 function normalizePhone(phone: string): string {
   let p = (phone || '').replace(/[\s\-\(\)]/g, '');
@@ -128,62 +150,106 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login
+// Login.
+// Hardened against:
+//   - account enumeration: same error message for "no such user" and
+//     "wrong password"
+//   - distributed brute force: per-phone attempt counter in cache locks
+//     the account for 15min after 5 failures
+//   - timing attacks: bcrypt.compare runs even when the user doesn't
+//     exist (using a placeholder hash) so login latency doesn't leak
+//     existence
+const PLACEHOLDER_HASH = '$2a$10$' + 'A'.repeat(53); // never matches anything
+
 router.post('/login', async (req, res) => {
   try {
     const data = loginSchema.parse(req.body);
+    const phone = data.phone;
+    const GENERIC_AUTH_ERROR = { error: 'رقم الجوال أو كلمة المرور غير صحيحة' };
+
+    if (await isLockedOut(phone)) {
+      return res.status(429).json({
+        error: 'تم تجاوز عدد المحاولات. حاول مرة ثانية بعد 15 دقيقة.',
+      });
+    }
 
     const [user] = await db.select().from(users)
-      .where(eq(users.phone, data.phone))
+      .where(eq(users.phone, phone))
       .limit(1);
 
-    if (!user) return res.status(401).json({ error: 'رقم الجوال غير مسجل' });
-    if (!user.isActive) return res.status(403).json({ error: 'الحساب موقوف' });
-
-    if (data.firebaseUid) {
+    // Firebase UID path (passwordless / OTP-style)
+    if (data.firebaseUid && user?.isActive) {
       await db.update(users).set({ firebaseUid: data.firebaseUid }).where(eq(users.id, user.id));
+      await clearLoginFailures(phone);
       const token = signToken(user);
       return res.json({ token, user: { id: user.id, name: user.name, phone: user.phone, role: user.role, vendorId: user.vendorId } });
     }
 
-    if (!data.password || !user.passwordHash) {
-      return res.status(401).json({ error: 'كلمة المرور مطلوبة' });
+    if (!data.password) {
+      return res.status(401).json(GENERIC_AUTH_ERROR);
     }
-    const valid = await bcrypt.compare(data.password, user.passwordHash);
-    if (!valid) return res.status(401).json({ error: 'كلمة المرور غير صحيحة' });
 
+    // Run bcrypt regardless so the response time is the same whether or
+    // not the phone exists. Any failure (no user / inactive / bad password)
+    // collapses to the generic error.
+    const hashToCheck = user?.passwordHash ?? PLACEHOLDER_HASH;
+    const valid = await bcrypt.compare(data.password, hashToCheck);
+
+    if (!user || !user.isActive || !user.passwordHash || !valid) {
+      const attempts = await recordFailedLogin(phone);
+      if (attempts >= LOGIN_MAX_ATTEMPTS) {
+        return res.status(429).json({
+          error: 'تم تجاوز عدد المحاولات. حاول مرة ثانية بعد 15 دقيقة.',
+        });
+      }
+      return res.status(401).json(GENERIC_AUTH_ERROR);
+    }
+
+    await clearLoginFailures(phone);
     const token = signToken(user);
     return res.json({ token, user: { id: user.id, name: user.name, phone: user.phone, role: user.role, vendorId: user.vendorId } });
   } catch (e: any) {
     if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
-    console.error(e);
+    console.error('[auth/login]', e);
     return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });
 
 // ─── Admin-only login (separate panel — phone + password) ────────────────────
+// Hardened against brute-force, account-enumeration, and timing attacks
+// the same way as /login. Lockout is more aggressive (3 attempts, 30 min)
+// because super_admin compromise is catastrophic.
 router.post('/admin-login', async (req, res) => {
   try {
     const { phone, password } = req.body;
     if (!phone || !password) return res.status(400).json({ error: 'رقم الجوال وكلمة المرور مطلوبة' });
 
-    // Use the shared normalizer so signup, OTP verify and admin login
-    // all accept the same shapes (+966, 966…, leading zero, etc.).
     const p = normalizePhone(phone);
+    const ADMIN_KEY = `admin-login:fail:${p.replace(/\D/g, '')}`;
+    const ADMIN_MAX = 3;
+    const ADMIN_LOCKOUT_SEC = 30 * 60;
+    const genericError = 'رقم الجوال أو كلمة المرور غير صحيحة';
+    const lockedError = 'تم تجاوز عدد المحاولات. حاول مرة ثانية بعد 30 دقيقة.';
+
+    const fails = await cacheGet(ADMIN_KEY);
+    if (fails && Number(fails) >= ADMIN_MAX) {
+      return res.status(429).json({ error: lockedError });
+    }
 
     const [user] = await db.select().from(users)
       .where(eq(users.phone, p))
       .limit(1);
 
-    const genericError = 'رقم الجوال أو كلمة المرور غير صحيحة';
-    if (!user) return res.status(401).json({ error: genericError });
-    if (user.role !== 'super_admin') return res.status(401).json({ error: genericError });
-    if (!user.isActive) return res.status(401).json({ error: genericError });
-    if (!user.passwordHash) return res.status(401).json({ error: genericError });
+    const hashToCheck = user?.passwordHash ?? PLACEHOLDER_HASH;
+    const valid = await bcrypt.compare(password, hashToCheck);
 
-    const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) return res.status(401).json({ error: genericError });
+    if (!user || user.role !== 'super_admin' || !user.isActive || !user.passwordHash || !valid) {
+      const n = await cacheIncr(ADMIN_KEY, ADMIN_LOCKOUT_SEC);
+      if (n >= ADMIN_MAX) return res.status(429).json({ error: lockedError });
+      return res.status(401).json({ error: genericError });
+    }
 
+    await cacheDel(ADMIN_KEY);
     const token = signToken(user);
     return res.json({
       token,

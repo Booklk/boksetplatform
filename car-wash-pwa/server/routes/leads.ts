@@ -14,6 +14,7 @@ import { z } from 'zod';
 import { db } from '../db/index.js';
 import { leads } from '../db/schema.js';
 import { sql } from 'drizzle-orm';
+import { requireAuth, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -88,8 +89,9 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Super-admin pipeline view.
-router.get('/admin', async (req, res) => {
+// Super-admin pipeline view — REQUIRES super_admin role to prevent any
+// caller from harvesting the lead PII pool.
+router.get('/admin', requireAuth, requireRole('super_admin'), async (req, res) => {
   try {
     const status = req.query.status as string | undefined;
     const channel = req.query.channel as string | undefined;

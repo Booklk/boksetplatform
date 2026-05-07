@@ -60,14 +60,34 @@ router.post('/booking/:id', requireAuth, requireRole('employee', 'admin', 'vendo
   }
 });
 
-// GET /api/photos/booking/:id — Get photos for a booking
+// GET /api/photos/booking/:id — Get photos for a booking. Tenant-guarded:
+// the caller must either be the booking's customer, or staff at the same
+// vendor (admin/vendor_admin/employee). Without this check, any
+// authenticated user could enumerate any booking's photos by ID.
 router.get('/booking/:id', requireAuth, async (req: AuthRequest, res) => {
   try {
     const bookingId = parseInt(req.params.id);
+    if (!Number.isFinite(bookingId)) return res.status(400).json({ error: 'معرّف غير صالح' });
+
+    const [booking] = await db.select({
+      id: bookings.id,
+      vendorId: bookings.vendorId,
+      customerId: bookings.customerId,
+    }).from(bookings).where(eq(bookings.id, bookingId)).limit(1);
+    if (!booking) return res.status(404).json({ error: 'الحجز غير موجود' });
+
+    const u = req.user!;
+    const isOwner = u.role === 'customer' && booking.customerId === u.id;
+    const isStaff = ['vendor_admin', 'admin', 'employee'].includes(u.role) && u.vendorId === booking.vendorId;
+    const isSuper = u.role === 'super_admin';
+    if (!isOwner && !isStaff && !isSuper) {
+      return res.status(403).json({ error: 'غير مصرح' });
+    }
+
     const photos = await db.select().from(bookingPhotos).where(eq(bookingPhotos.bookingId, bookingId));
     return res.json(photos);
   } catch (e) {
-    console.error(e);
+    console.error('[photos/booking GET]', e);
     return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });

@@ -232,10 +232,21 @@ router.get('/health', requireAuth, requireRole('super_admin'), async (_req, res)
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const [todayBookings] = await db.select({ count: count() }).from(bookings).where(gte(bookings.createdAt, today));
 
-    // Pending support tickets
-    const [openTickets] = await db.select({ count: count() }).from(
-      db.select().from(sql`support_tickets`).where(sql`status = 'open' OR status = 'in_progress'`).as('t')
-    ).catch(() => [{ count: 0 }]);
+    // Pending support tickets — execute raw because the support_tickets
+    // table is created by a separate migration and may not exist in all
+    // environments. Drizzle's typed builder rejects raw subqueries since
+    // 0.45 (a security tightening for the SQL-injection CVE), so we
+    // fall back to db.execute and tolerate a missing table.
+    let openTickets = { count: 0 };
+    try {
+      const rows = (await db.execute(sql`
+        SELECT COUNT(*)::int AS count FROM support_tickets
+        WHERE status IN ('open', 'in_progress')
+      `)) as unknown as Array<{ count: number }>;
+      openTickets = { count: rows[0]?.count ?? 0 };
+    } catch {
+      // Table missing or other failure — leave count at 0.
+    }
 
     return res.json({
       status: dbStatus === 'connected' ? 'healthy' : 'degraded',

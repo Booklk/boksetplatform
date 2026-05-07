@@ -373,7 +373,10 @@ export async function executeStepAction(
 
       // ── Push notification (Web Push / VAPID) ──────────────────────────
       case 'send_push': {
-        const title = config.templateName ?? 'بوكست';
+        // Brand fallback should be the vendor's name (the customer is the
+        // vendor's customer, not the platform's). Falls back to a generic
+        // notification label only as a last resort.
+        const title = config.templateName ?? vendor.nameAr ?? 'إشعار';
         const body = interpolateMessage(
           config.message ?? 'عندك عرض خاص من {vendor}!',
           customer,
