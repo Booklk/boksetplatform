@@ -20,10 +20,13 @@ function signToken(user: { id: number; role: string; phone: string; vendorId?: n
 }
 
 function autoSlug(nameAr: string, phone: string) {
-  // Build a unique slug: transliterated prefix + last 6 digits of phone + timestamp
+  // Build a unique slug: brand prefix + last 6 digits of phone + base36 timestamp.
+  // The `nameAr` argument is intentionally not transliterated — Arabic-to-Latin
+  // is locale-sensitive and we'd rather keep slugs short, predictable, and
+  // collision-free. Vendors can later set a custom slug from settings.
   const prefix = phone.replace(/\D/g, '').slice(-6);
   const ts = Date.now().toString(36);
-  return `bk-${prefix}-${ts}`;
+  return `jd-${prefix}-${ts}`;
 }
 
 const router = Router();
@@ -265,10 +268,37 @@ router.post('/onboard', async (req, res) => {
 
     if (!nameAr?.trim()) return res.status(400).json({ error: 'اسم المنشأة مطلوب' });
     if (!phone?.trim()) return res.status(400).json({ error: 'رقم الجوال مطلوب' });
-    if (!password || password.length < 8) return res.status(400).json({ error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' });
-    if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
-      return res.status(400).json({ error: 'كلمة المرور يجب أن تحتوي على حرف كبير ورقم على الأقل' });
+
+    // Password rule — modernised:
+    //   either 12+ characters of anything, OR 8-11 chars with at least 2
+    //   of {digit, symbol, mixed-case}. The old rule forced a Latin
+    //   uppercase letter which broke for users typing Arabic-only
+    //   passwords like "سعودي2024!".
+    if (!password) return res.status(400).json({ error: 'كلمة المرور مطلوبة' });
+    const pwLen = String(password).length;
+    if (pwLen < 8) return res.status(400).json({ error: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' });
+    if (pwLen < 12) {
+      const hasDigit = /\d/.test(password);
+      const hasSymbol = /[^\p{L}\p{N}]/u.test(password);
+      const hasMixedCase = /[a-z]/.test(password) && /[A-Z]/.test(password);
+      const strengthScore = [hasDigit, hasSymbol, hasMixedCase].filter(Boolean).length;
+      if (strengthScore < 2) {
+        return res.status(400).json({
+          error: 'كلمة المرور قصيرة. أضف رقم ورمز (مثل ! أو @) أو اجعلها 12 حرف فأكثر',
+        });
+      }
     }
+
+    // Industry must be one of the known sectors. The seeding step below
+    // expects a valid key; falling back to 'other' silently used to leave
+    // vendors with empty service catalogues.
+    const ALLOWED_INDUSTRIES = new Set([
+      'car_wash', 'salon', 'home_cleaning', 'movers',
+      'ac_maintenance', 'plumbing', 'electrical',
+      'beauty_home', 'freelancer', 'appliance_repair',
+      'clinic', 'professional_services', 'spa', 'other',
+    ]);
+    const safeIndustry = industry && ALLOWED_INDUSTRIES.has(industry) ? industry : 'other';
 
     // Normalize phone the same way the rest of the auth flow does.
     let normalizedPhone = String(phone).replace(/[\s\-\(\)]/g, '');
@@ -317,7 +347,7 @@ router.post('/onboard', async (req, res) => {
     // Wrap critical operations in a transaction
     const result = await db.transaction(async (tx) => {
       // 1. Create vendor record
-      const vendorIndustry = industry || 'other';
+      const vendorIndustry = safeIndustry;
       const [vendor] = await tx.insert(vendors).values({
         nameAr,
         nameEn: nameEn || null,
@@ -537,10 +567,22 @@ router.post('/notification-preferences', requireAuth, async (req: AuthRequest, r
   }
 });
 
-// GET /api/vendors/setup-checklist — MUST come before /:id
+// GET /api/vendors/setup-checklist — MUST come before /:id.
+// Industry-aware: shows the steps that actually apply to the vendor's
+// sector. A salon doesn't see "أضف سيارتك"; a car wash does. The four
+// universal steps (profile, services, employees, first booking) are
+// always present.
 router.get('/setup-checklist', requireAuth, async (req: AuthRequest, res) => {
   try {
     const vendorId = req.user!.vendorId!;
+
+    const [vendorRow] = await db.select({ industry: vendors.industry })
+      .from(vendors).where(eq(vendors.id, vendorId)).limit(1);
+    const vendorIndustry = vendorRow?.industry ?? 'other';
+    // Sectors that operate a vehicle fleet — show the "add your first
+    // vehicle" step only for these.
+    const FLEET_SECTORS = new Set(['car_wash', 'home_cleaning', 'movers', 'beauty_home', 'ac_maintenance', 'plumbing', 'electrical', 'appliance_repair']);
+    const showFleetStep = FLEET_SECTORS.has(vendorIndustry);
 
     const [
       servicesCount,
@@ -548,28 +590,34 @@ router.get('/setup-checklist', requireAuth, async (req: AuthRequest, res) => {
       vehiclesCount,
       hasBooking,
       hasLoyalty,
+      hasWhatsapp,
     ] = await Promise.all([
       db.select({ c: sql<number>`count(*)` }).from(services).where(and(eq(services.vendorId, vendorId), eq(services.isActive, true))),
       db.select({ c: sql<number>`count(*)` }).from(users).where(and(eq(users.vendorId, vendorId), eq(users.role, 'employee'), eq(users.isActive, true))),
       db.select({ c: sql<number>`count(*)` }).from(fleetVehicles).where(and(eq(fleetVehicles.vendorId, vendorId), eq(fleetVehicles.isActive, true))),
       db.select({ c: sql<number>`count(*)` }).from(bookings).where(eq(bookings.vendorId, vendorId)),
       db.select({ c: sql<number>`count(*)` }).from(loyaltyPrograms).where(and(eq(loyaltyPrograms.vendorId, vendorId), eq(loyaltyPrograms.isActive, true))),
+      db.select({ s: vendors.whatsappStatus }).from(vendors).where(eq(vendors.id, vendorId)).limit(1),
     ]);
 
-    const steps = [
-      { id: 'profile', label: 'أكمل بيانات متجرك', done: true, path: '/vendor/setup', desc: 'اسم المتجر والموقع وطريقة التواصل' },
-      { id: 'services', label: 'أضف خدماتك وأسعارها', done: Number(servicesCount[0]?.c) > 0, path: '/admin/services', desc: 'حتى تتمكن العملاء من الحجز' },
-      { id: 'employees', label: 'أضف أول موظف', done: Number(employeesCount[0]?.c) > 0, path: '/vendor/employees', desc: 'أضف سائقيك وفنييك' },
-      { id: 'vehicle', label: 'أضف سيارتك الأولى', done: Number(vehiclesCount[0]?.c) > 0, path: '/vendor/fleet', desc: 'ليبدأ نظام التوزيع التلقائي' },
-      { id: 'booking', label: 'استقبل أول حجز', done: Number(hasBooking[0]?.c) > 0, path: '/admin/bookings', desc: 'شارك رابطك مع عميل' },
-      { id: 'loyalty', label: 'فعّل برنامج الولاء', done: Number(hasLoyalty[0]?.c) > 0, path: '/vendor/branding', desc: 'بطاقة مخرّمة أو نقاط للعملاء المتكررين' },
+    const universalSteps = [
+      { id: 'profile',  label: 'أكمل بيانات متجرك',     done: true,                                    path: '/vendor/branding', desc: 'الاسم، الشعار، الموقع، طرق التواصل' },
+      { id: 'services', label: 'أضف خدماتك وأسعارها',   done: Number(servicesCount[0]?.c) > 0,        path: '/admin/services',  desc: 'حتى يقدر العملاء يحجزون' },
+      { id: 'whatsapp', label: 'فعّل واتساب لمتجرك',    done: hasWhatsapp[0]?.s === 'active',           path: '/vendor/whatsapp', desc: 'لإرسال تأكيدات الحجوزات تلقائياً' },
+      { id: 'employees', label: 'أضف أول موظف',          done: Number(employeesCount[0]?.c) > 0,        path: '/vendor/employees', desc: 'الفريق الذي ينفّذ الخدمات' },
+      ...(showFleetStep ? [
+        { id: 'vehicle', label: 'أضف أول مركبة',         done: Number(vehiclesCount[0]?.c) > 0,         path: '/vendor/fleet',     desc: 'ليبدأ نظام التوزيع التلقائي للموظفين' },
+      ] : []),
+      { id: 'booking', label: 'استقبل أول حجز',         done: Number(hasBooking[0]?.c) > 0,             path: '/admin/bookings',  desc: 'شارك رابط متجرك مع عملائك' },
+      { id: 'loyalty', label: 'فعّل برنامج الولاء',      done: Number(hasLoyalty[0]?.c) > 0,             path: '/vendor/loyalty-settings', desc: 'نقاط أو بطاقة لتشجيع التكرار' },
     ];
 
+    const steps = universalSteps;
     const completedCount = steps.filter(s => s.done).length;
     const percent = Math.round((completedCount / steps.length) * 100);
     return res.json({ steps, completedCount, totalSteps: steps.length, percent, isComplete: completedCount === steps.length });
   } catch (e) {
-    console.error(e);
+    console.error('[setup-checklist]', e);
     return res.status(500).json({ error: 'خطأ في الخادم' });
   }
 });

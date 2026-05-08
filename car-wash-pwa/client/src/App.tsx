@@ -68,6 +68,7 @@ const PricingPage = lazy(() => import('./pages/Pricing'));
 const StatusPage = lazy(() => import('./pages/Status'));
 const DemoRequest = lazy(() => import('./pages/DemoRequest'));
 const HelpPage = lazy(() => import('./pages/Help'));
+const HelpArticle = lazy(() => import('./pages/HelpArticle'));
 
 const VendorDashboard = lazy(() => import('./pages/vendor/Dashboard'));
 const VendorQueue = lazy(() => import('./pages/vendor/Queue'));
@@ -329,6 +330,7 @@ function AppRoutes() {
         <Route path="/status" element={<S><StatusPage /></S>} />
         <Route path="/demo-request" element={<S><DemoRequest /></S>} />
         <Route path="/help" element={<S><HelpPage /></S>} />
+        <Route path="/help/article/:slug" element={<S><HelpArticle /></S>} />
 
         {/* ── Customer ──────────────────────────────────────────────────── */}
         <Route path="/app" element={

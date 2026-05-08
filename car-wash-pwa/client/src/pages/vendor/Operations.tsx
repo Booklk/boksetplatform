@@ -417,7 +417,7 @@ function BookingRow({ booking }: { booking: TodayBooking }) {
 export default function VendorOperations() {
   const { user } = useAuth();
   const vendorId = user?.vendorId;
-  const vendorName = user?.vendor?.nameAr ?? user?.name ?? 'المغسلة';
+  const vendorName = user?.vendor?.nameAr ?? user?.name ?? 'متجرك';
   const qc = useQueryClient();
 
   // ── Queries ────────────────────────────────────────────────────────────────

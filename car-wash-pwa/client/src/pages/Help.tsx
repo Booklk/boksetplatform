@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { Search, MessageCircle, Mail, Calendar, ChevronDown, BookOpen } from 'lucide-react';
+import { Search, MessageCircle, Mail, Calendar, ChevronDown, BookOpen, ChevronLeft, Clock } from 'lucide-react';
 import MarketingLayout from '../components/marketing/MarketingLayout';
 import { Link } from 'react-router-dom';
+import { HELP_ARTICLES, HELP_CATEGORIES } from '../data/helpArticles';
 
 interface Faq {
   q: string;
@@ -148,6 +149,9 @@ export default function Help() {
             </div>
           )}
 
+          {/* Operations guides — for merchants who already signed up */}
+          <OperationsGuides />
+
           {/* Still need help */}
           <div className="mt-10 rounded-3xl border border-white/10 bg-gradient-to-bl from-blue-500/10 to-transparent p-6 sm:p-8 text-center">
             <h2 className="text-xl sm:text-2xl font-black mb-2">ما لقيت إجابتك؟</h2>
@@ -178,5 +182,57 @@ export default function Help() {
         </div>
       </div>
     </MarketingLayout>
+  );
+}
+
+/**
+ * Section: operational guides for merchants already on the platform.
+ * Distinct from the FAQ above (which targets prospects) — these answer
+ * "how do I do X" questions that come up while running a store.
+ */
+function OperationsGuides() {
+  return (
+    <div className="mt-10 rounded-3xl border border-white/10 bg-white/3 p-6">
+      <div className="flex items-center gap-2 mb-1">
+        <BookOpen className="w-5 h-5 text-blue-300" />
+        <h2 className="text-xl font-black">دليل التاجر — أدلة تشغيل المنصة</h2>
+      </div>
+      <p className="text-slate-400 text-sm mb-5">
+        أدلة عملية للتجار المسجّلين — كيف تشارك متجرك، تربط بوابة الدفع، تدير حجوزاتك، وتفهم تقاريرك المالية.
+      </p>
+
+      <div className="space-y-6">
+        {HELP_CATEGORIES.map((cat) => {
+          const articles = HELP_ARTICLES.filter((a) => a.category === cat.id);
+          if (articles.length === 0) return null;
+          return (
+            <div key={cat.id}>
+              <h3 className="text-sm font-bold text-white/85 mb-2">
+                {cat.emoji} {cat.nameAr}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {articles.map((a) => (
+                  <Link
+                    key={a.slug}
+                    to={`/help/article/${a.slug}`}
+                    className="group flex items-center justify-between gap-2 rounded-xl border border-white/8 bg-white/2 hover:bg-white/5 hover:border-white/15 px-4 py-3 transition-all"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold text-white truncate group-hover:text-blue-200">
+                        {a.title}
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-0.5 inline-flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {a.minutes} دقائق
+                      </div>
+                    </div>
+                    <ChevronLeft className="w-4 h-4 text-slate-500 group-hover:text-white shrink-0" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }

@@ -373,7 +373,7 @@ export default function SuperAdminDashboard() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/5">
-                  {['المغسلة', 'الخطة', 'حالة الاشتراك', 'تاريخ الانتهاء', 'إجراءات'].map(
+                  {['المتجر', 'الخطة', 'حالة الاشتراك', 'تاريخ الانتهاء', 'إجراءات'].map(
                     (h) => (
                       <th
                         key={h}

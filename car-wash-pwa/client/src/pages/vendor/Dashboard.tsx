@@ -303,7 +303,9 @@ function QRCard({ slug, vendorName }: { slug: string; vendorName: string }) {
 export default function VendorDashboard() {
   const { user } = useAuth();
   const vendorId = user?.vendorId;
-  const vendorName = user?.vendor?.nameAr ?? user?.name ?? 'المغسلة';
+  // Generic fallback — the platform supports 13 industries (salons, clinics,
+  // spas, plumbers, etc.), not only car washes. "متجرك" works for everyone.
+  const vendorName = user?.vendor?.nameAr ?? user?.name ?? 'متجرك';
 
   const { data: myVendor } = useQuery({
     queryKey: ['my-vendor'],
