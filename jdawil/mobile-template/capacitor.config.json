@@ -1,0 +1,44 @@
+{
+  "appId": "{{APP_BUNDLE_ID}}",
+  "appName": "{{APP_NAME}}",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "hostname": "{{VENDOR_HOST}}",
+    "androidScheme": "https",
+    "iosScheme": "https",
+    "allowNavigation": [
+      "{{VENDOR_HOST}}",
+      "*.jdawil.sa",
+      "*.moyasar.com",
+      "*.firebaseio.com",
+      "*.googleapis.com"
+    ]
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": "release.keystore",
+      "keystoreAlias": "{{KEYSTORE_ALIAS}}"
+    }
+  },
+  "ios": {
+    "contentInset": "always",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "{{PRIMARY_COLOR}}",
+      "androidSplashResourceName": "splash",
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "{{PRIMARY_COLOR}}"
+    }
+  }
+}

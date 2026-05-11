@@ -1,0 +1,127 @@
+# Builds a signed Android APK for a Jdawil vendor's mobile app.
+#
+# Triggered by repository_dispatch (the API fires this after
+# mobileAppBuilder.generateVendorProject succeeds and the ZIP lands in
+# S3). The workflow:
+#   1. Downloads the per-order project ZIP from S3
+#   2. Installs deps, runs `npm run sync:android`
+#   3. Generates icons + splash from resources/logo.png
+#   4. Signs with the platform keystore (a single keystore for all
+#      Jdawil-built apps — vendors who want their own can swap later)
+#   5. Builds release APK + AAB via gradle
+#   6. Uploads APK to S3 + PATCHes the order with the download URL
+#
+# Secrets required on the repo:
+#   APK_S3_ACCESS_KEY / APK_S3_SECRET_KEY / APK_S3_BUCKET / APK_S3_ENDPOINT
+#   ANDROID_KEYSTORE_BASE64   — Jdawil's release.keystore, base64-encoded
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_PASSWORD
+#   JDAWIL_API_URL            — e.g. https://jdawil.sa
+#   JDAWIL_BUILD_TOKEN        — shared secret API uses to PATCH the order
+
+name: build-vendor-app
+
+on:
+  repository_dispatch:
+    types: [build-vendor-app]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ORDER_ID:    ${{ github.event.client_payload.orderId }}
+      ZIP_KEY:     ${{ github.event.client_payload.zipKey }}
+      BUNDLE_ID:   ${{ github.event.client_payload.bundleId }}
+      APP_NAME:    ${{ github.event.client_payload.appName }}
+
+    steps:
+      - name: Validate inputs
+        run: |
+          if [ -z "$ORDER_ID" ] || [ -z "$ZIP_KEY" ]; then
+            echo "::error::missing orderId or zipKey in repository_dispatch payload"
+            exit 1
+          fi
+          echo "building app for order $ORDER_ID (bundle=$BUNDLE_ID)"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '17' }
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install AWS CLI
+        run: pipx install awscli --quiet
+
+      - name: Download generated project ZIP from S3
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.APK_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.APK_S3_SECRET_KEY }}
+        run: |
+          aws s3 cp \
+            "s3://${{ secrets.APK_S3_BUCKET }}/$ZIP_KEY" project.zip \
+            --endpoint-url "${{ secrets.APK_S3_ENDPOINT }}" \
+            --region "${APK_S3_REGION:-auto}"
+          unzip -q project.zip -d project
+          ls -la project/
+
+      - name: Install deps
+        working-directory: project
+        run: npm ci --no-audit --no-fund
+
+      - name: Build web bundle + Capacitor sync
+        working-directory: project
+        run: |
+          npm run build:web
+          npx cap add android || true
+          npm run sync:android
+
+      - name: Generate icons + splash
+        working-directory: project
+        run: |
+          if [ -f resources/logo.png ]; then
+            npx capacitor-assets generate \
+              --iconBackgroundColor "$(grep PRIMARY_COLOR _build-context.json | head -1 | awk -F'"' '{print $4}' || echo '#1e3a8a')" \
+              --splashBackgroundColor "$(grep PRIMARY_COLOR _build-context.json | head -1 | awk -F'"' '{print $4}' || echo '#1e3a8a')"
+          fi
+
+      - name: Restore platform keystore
+        run: |
+          mkdir -p project/android/app
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > project/android/app/release.keystore
+          cat > project/android/key.properties <<EOF
+          storeFile=release.keystore
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=jdawil
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      - name: Build signed APK + AAB
+        working-directory: project/android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleRelease bundleRelease --no-daemon
+
+      - name: Upload APK + AAB to S3
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.APK_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.APK_S3_SECRET_KEY }}
+        run: |
+          APK=$(find project/android/app/build/outputs/apk/release -name "*.apk" | head -1)
+          AAB=$(find project/android/app/build/outputs/bundle/release -name "*.aab" | head -1)
+          aws s3 cp "$APK" "s3://${{ secrets.APK_S3_BUCKET }}/mobile-builds/order-$ORDER_ID/app-release.apk" \
+            --endpoint-url "${{ secrets.APK_S3_ENDPOINT }}" --region "${APK_S3_REGION:-auto}"
+          aws s3 cp "$AAB" "s3://${{ secrets.APK_S3_BUCKET }}/mobile-builds/order-$ORDER_ID/app-release.aab" \
+            --endpoint-url "${{ secrets.APK_S3_ENDPOINT }}" --region "${APK_S3_REGION:-auto}"
+
+      - name: Notify Jdawil API the build is done
+        run: |
+          curl -fsS -X POST "${{ secrets.JDAWIL_API_URL }}/api/mobile-app/orders/$ORDER_ID/build-complete" \
+            -H "Authorization: Bearer ${{ secrets.JDAWIL_BUILD_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"apkKey\":\"mobile-builds/order-$ORDER_ID/app-release.apk\",\"aabKey\":\"mobile-builds/order-$ORDER_ID/app-release.aab\"}"

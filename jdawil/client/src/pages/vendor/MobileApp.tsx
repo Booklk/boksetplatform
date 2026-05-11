@@ -289,7 +289,70 @@ function ActiveOrderCard({ order }: { order: Order }) {
           أكمل الدفع
         </button>
       )}
+
+      {/* Build trigger — appears once payment lands. The button is the
+          single source of truth for kicking off the Capacitor project
+          generation + remote APK build. */}
+      {(order.status === 'paid' || order.status === 'in_production') && <BuildButton order={order} />}
+
+      {/* Source-ZIP download — available the moment the project ZIP
+          lands in storage, even before the APK build finishes. Lets the
+          vendor / our team open the project in Android Studio if they
+          want to inspect anything. */}
+      {(order.status === 'in_production' || order.status === 'ready' || order.status === 'delivered') && (
+        <DownloadSourceButton order={order} />
+      )}
     </div>
+  );
+}
+
+function BuildButton({ order }: { order: Order }) {
+  const qc = useQueryClient();
+  const buildMut = useMutation({
+    mutationFn: () => api.post(`/mobile-app/orders/${order.id}/build`),
+    onSuccess: (r) => {
+      toast.success(r.data?.message ?? 'تم البدء — راح يجهز خلال دقائق');
+      qc.invalidateQueries({ queryKey: ['mobile-app-orders'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.error ?? 'فشل بدء البناء'),
+  });
+  const inFlight = buildMut.isPending || order.status === 'in_production';
+  return (
+    <button
+      onClick={() => buildMut.mutate()}
+      disabled={inFlight}
+      className="mt-4 w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-400 disabled:opacity-60 text-white text-sm font-black flex items-center justify-center gap-2"
+    >
+      {inFlight ? (
+        <><Loader2 size={14} className="animate-spin" /> جاري بناء التطبيق…</>
+      ) : (
+        <><Sparkles size={14} /> ابدأ بناء التطبيق</>
+      )}
+    </button>
+  );
+}
+
+function DownloadSourceButton({ order }: { order: Order }) {
+  const [loading, setLoading] = useState(false);
+  async function handleClick() {
+    setLoading(true);
+    try {
+      const r = await api.get(`/mobile-app/orders/${order.id}/download`);
+      window.open(r.data.url, '_blank');
+    } catch (e: any) {
+      toast.error(e?.response?.data?.error ?? 'تعذّر تحميل المصدر');
+    } finally {
+      setLoading(false);
+    }
+  }
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className="mt-2 w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold flex items-center justify-center gap-2"
+    >
+      <Download size={12} /> {loading ? 'جاري التحميل…' : 'حمّل ملف المشروع (Android Studio + Xcode)'}
+    </button>
   );
 }
 

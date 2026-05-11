@@ -1,0 +1,37 @@
+{
+  "name": "{{APP_BUNDLE_ID}}",
+  "version": "1.0.0",
+  "description": "{{APP_NAME}} — Mobile app powered by Jdawil",
+  "private": true,
+  "scripts": {
+    "build:web": "vite build",
+    "sync:android": "npm run build:web && cap sync android",
+    "sync:ios": "npm run build:web && cap sync ios",
+    "open:android": "cap open android",
+    "open:ios": "cap open ios",
+    "build:apk": "npm run sync:android && cd android && ./gradlew assembleRelease",
+    "build:bundle": "npm run sync:android && cd android && ./gradlew bundleRelease",
+    "icons": "capacitor-assets generate --iconBackgroundColor {{PRIMARY_COLOR}} --splashBackgroundColor {{PRIMARY_COLOR}}"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/browser": "^6.0.0",
+    "@capacitor/core": "^6.1.0",
+    "@capacitor/device": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/ios": "^6.1.0",
+    "@capacitor/network": "^6.0.0",
+    "@capacitor/preferences": "^6.0.0",
+    "@capacitor/push-notifications": "^6.0.0",
+    "@capacitor/share": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.0"
+  }
+}

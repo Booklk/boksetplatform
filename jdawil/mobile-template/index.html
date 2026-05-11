@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="theme-color" content="{{PRIMARY_COLOR}}" />
+    <title>{{APP_NAME}}</title>
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: {{PRIMARY_COLOR}}; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+      #loading { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; color: white; }
+      #loading img { width: 96px; height: 96px; border-radius: 24px; }
+      #loading .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.2); border-top-color: white; border-radius: 50%; animation: spin .8s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; opacity: 0; transition: opacity 0.4s; }
+      iframe.loaded { opacity: 1; }
+    </style>
+  </head>
+  <body>
+    <div id="loading">
+      <img src="/icon-512.png" alt="{{APP_NAME}}" />
+      <div class="spinner"></div>
+    </div>
+    <iframe id="store" src="" allow="geolocation; camera; microphone; clipboard-write; payment"></iframe>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

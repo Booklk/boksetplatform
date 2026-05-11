@@ -286,4 +286,150 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 }
 
+// ─── Build pipeline ─────────────────────────────────────────────────────────
+//
+// Three endpoints turn a paid order into a real native build:
+//
+//   POST /orders/:id/build          — vendor (or super-admin) kicks off the
+//                                     project generation. Customised
+//                                     Capacitor source is zipped and made
+//                                     downloadable. If GITHUB_BUILD_TOKEN
+//                                     is set, we also fire repository_dispatch
+//                                     so the workflow builds the APK
+//                                     remotely.
+//   GET  /orders/:id/download       — signed URL to the source ZIP.
+//   POST /orders/:id/build-complete — webhook the GitHub workflow hits
+//                                     when the APK is ready (auth-gated
+//                                     by JDAWIL_BUILD_TOKEN).
+
+router.post('/orders/:id/build', requireAuth, requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
+  try {
+    const vendorId = req.user!.vendorId;
+    const orderId = parseInt(req.params.id, 10);
+    if (!Number.isFinite(orderId)) return res.status(400).json({ error: 'معرّف الطلب غير صالح' });
+
+    const [order] = await db.select().from(mobileAppOrders).where(eq(mobileAppOrders.id, orderId)).limit(1);
+    if (!order) return res.status(404).json({ error: 'الطلب غير موجود' });
+
+    // Tenant guard — vendor can only build their own orders.
+    if (req.user!.role !== 'super_admin' && order.vendorId !== vendorId) {
+      return res.status(403).json({ error: 'غير مصرح' });
+    }
+
+    if (order.status !== 'paid' && order.status !== 'in_production') {
+      return res.status(400).json({
+        error: `الطلب لا يمكن بناؤه في هذي الحالة (${order.status}). يجب أن يكون مدفوعاً أولاً.`,
+      });
+    }
+
+    // Flip to in_production immediately so the UI shows progress.
+    await db.update(mobileAppOrders).set({
+      status: 'in_production',
+      updatedAt: new Date(),
+    }).where(eq(mobileAppOrders.id, orderId));
+
+    // Generate the customised project + ZIP it. This is fast (< 30s).
+    const { generateVendorProject } = await import('../services/mobileAppBuilder.js');
+    const result = await generateVendorProject(orderId);
+
+    // Optionally fire a remote APK build via GitHub Actions. Without the
+    // env vars set, the vendor just gets the source ZIP and builds the
+    // APK themselves (or via concierge).
+    const ghToken = process.env.GITHUB_BUILD_TOKEN;
+    const ghRepo  = process.env.GITHUB_BUILD_REPO; // e.g. booklk/boksetplatform
+    if (ghToken && ghRepo) {
+      try {
+        await fetch(`https://api.github.com/repos/${ghRepo}/dispatches`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${ghToken}`,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28',
+          },
+          body: JSON.stringify({
+            event_type: 'build-vendor-app',
+            client_payload: {
+              orderId,
+              zipKey:    result.zipKey,
+              bundleId:  result.bundleId,
+              appName:   result.appName,
+            },
+          }),
+        });
+      } catch (e) {
+        console.warn('[mobile-app/build] dispatch failed:', e instanceof Error ? e.message : e);
+      }
+    }
+
+    return res.json({
+      ok: true,
+      orderId,
+      sourceZipUrl: result.zipUrl,
+      bundleId: result.bundleId,
+      remoteBuildTriggered: !!(ghToken && ghRepo),
+      message: ghToken
+        ? 'تم بناء المشروع. سيُجهز ملف APK خلال 10-20 دقيقة وستصلك رسالة عند الجاهزية.'
+        : 'تم تجهيز مصدر التطبيق. حمّله من الرابط أعلاه. سيتولّى فريق الدعم بناء APK وإرساله لك.',
+    });
+  } catch (e) {
+    console.error('[mobile-app/build]', e);
+    return res.status(500).json({ error: 'تعذّر بناء التطبيق — تواصل مع الدعم' });
+  }
+});
+
+router.get('/orders/:id/download', requireAuth, requireRole('vendor_admin', 'admin', 'super_admin'), async (req: AuthRequest, res) => {
+  try {
+    const orderId = parseInt(req.params.id, 10);
+    const [order] = await db.select().from(mobileAppOrders).where(eq(mobileAppOrders.id, orderId)).limit(1);
+    if (!order) return res.status(404).json({ error: 'الطلب غير موجود' });
+    if (req.user!.role !== 'super_admin' && order.vendorId !== req.user!.vendorId) {
+      return res.status(403).json({ error: 'غير مصرح' });
+    }
+    // The "githubRepoUrl" column was repurposed to hold the storage key
+    // for the generated source ZIP (see services/mobileAppBuilder).
+    const key = order.githubRepoUrl;
+    if (!key) return res.status(404).json({ error: 'لم يُبنى المشروع بعد. اضغط "ابدأ البناء" أولاً.' });
+
+    const { getSignedReadUrl } = await import('../services/storage.js');
+    const url = await getSignedReadUrl(key, 3600);
+    return res.json({ url, expiresInSec: 3600 });
+  } catch (e) {
+    console.error('[mobile-app/download]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
+// Webhook fired by the GitHub Actions workflow once the APK + AAB are
+// uploaded. Auth-gated by JDAWIL_BUILD_TOKEN (set as a repo secret).
+router.post('/orders/:id/build-complete', async (req, res) => {
+  try {
+    const expected = process.env.JDAWIL_BUILD_TOKEN;
+    const provided = (req.headers.authorization ?? '').replace(/^Bearer\s+/i, '');
+    if (!expected || provided !== expected) {
+      return res.status(401).json({ error: 'unauthorized' });
+    }
+
+    const orderId = parseInt(req.params.id, 10);
+    const body = z.object({
+      apkKey: z.string().min(3),
+      aabKey: z.string().min(3).optional(),
+    }).parse(req.body);
+
+    const { getSignedReadUrl } = await import('../services/storage.js');
+    const apkUrl = await getSignedReadUrl(body.apkKey, 7 * 24 * 3600);
+
+    await db.update(mobileAppOrders).set({
+      androidApkUrl: apkUrl,
+      status: 'ready',
+      updatedAt: new Date(),
+    }).where(eq(mobileAppOrders.id, orderId));
+
+    return res.json({ ok: true });
+  } catch (e: any) {
+    if (e?.name === 'ZodError') return res.status(400).json({ error: e.errors[0]?.message });
+    console.error('[mobile-app/build-complete]', e);
+    return res.status(500).json({ error: 'خطأ في الخادم' });
+  }
+});
+
 export default router;

@@ -26,8 +26,10 @@ RUN npx tsc
 
 # ─── Stage 3: runtime ──────────────────────────────────────────────────────
 FROM node:20-alpine AS runtime
-# Add curl for the healthcheck + dumb-init for proper signal handling
-RUN apk add --no-cache curl dumb-init tzdata
+# curl (healthcheck), dumb-init (signals), tzdata (Riyadh time),
+# zip (mobileAppBuilder ZIPs the generated Capacitor project),
+# postgresql-client (pg_dump invoked by scripts/backup-db.ts).
+RUN apk add --no-cache curl dumb-init tzdata zip postgresql16-client
 ENV TZ=Asia/Riyadh
 WORKDIR /app
 # Production deps only — half the image size.
@@ -39,9 +41,13 @@ RUN npm ci --no-audit --no-fund --omit=dev && npm cache clean --force
 COPY --from=build /app/dist ./dist
 # Drizzle migrations (raw SQL — runtime-applied via the migrator).
 COPY server/drizzle ./drizzle
+# Capacitor template — the mobile-app builder copies + customises this
+# folder per order. Kept separate from dist/ so we can update the
+# template without re-tscompiling the server.
+COPY mobile-template ./mobile-template
 # Run as an unprivileged user.
 RUN addgroup -S app && adduser -S -G app app \
-    && mkdir -p /app/uploads /app/backups \
+    && mkdir -p /app/uploads /app/backups /app/data/mobile-builds \
     && chown -R app:app /app
 USER app
 ENV NODE_ENV=production
