@@ -1,0 +1,41 @@
+# Builds the Vite PWA into static assets, then ships them on an Nginx
+# Alpine image. Nginx serves the SPA and (in docker-compose) reverse-proxies
+# /api and /ws to the api service. With Cloudflare in front for SSL +
+# global CDN, this image stays tiny and cacheable.
+
+# ─── Stage 1: build ────────────────────────────────────────────────────────
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY client/package.json client/package-lock.json* ./
+RUN npm ci --no-audit --no-fund
+COPY client/ ./
+# Build-time env that the client bundles into the JS. Set in compose.
+ARG VITE_API_URL
+ARG VITE_FIREBASE_API_KEY
+ARG VITE_FIREBASE_AUTH_DOMAIN
+ARG VITE_FIREBASE_PROJECT_ID
+ARG VITE_FIREBASE_APP_ID
+ARG VITE_VAPID_PUBLIC_KEY
+ARG VITE_SENTRY_DSN
+ARG VITE_MOYASAR_PUBLISHABLE_KEY
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_FIREBASE_API_KEY=${VITE_FIREBASE_API_KEY}
+ENV VITE_FIREBASE_AUTH_DOMAIN=${VITE_FIREBASE_AUTH_DOMAIN}
+ENV VITE_FIREBASE_PROJECT_ID=${VITE_FIREBASE_PROJECT_ID}
+ENV VITE_FIREBASE_APP_ID=${VITE_FIREBASE_APP_ID}
+ENV VITE_VAPID_PUBLIC_KEY=${VITE_VAPID_PUBLIC_KEY}
+ENV VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
+ENV VITE_MOYASAR_PUBLISHABLE_KEY=${VITE_MOYASAR_PUBLISHABLE_KEY}
+RUN npm run build
+
+# ─── Stage 2: runtime (Nginx) ──────────────────────────────────────────────
+FROM nginx:1.27-alpine AS runtime
+# Replace the default vhost with ours.
+COPY deploy/nginx/jdawil.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+# Healthcheck — Nginx serves a 200 at /healthz that returns immediately.
+RUN echo 'server { listen 8081; location /healthz { return 200; access_log off; } }' \
+    > /etc/nginx/conf.d/healthz.conf
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD wget -q --spider http://127.0.0.1:8081/healthz || exit 1
+EXPOSE 80

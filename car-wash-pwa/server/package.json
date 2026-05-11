@@ -18,7 +18,10 @@
     "db:deploy": "npm run db:migrate && npm run db:seed:plans",
     "db:studio": "drizzle-kit studio",
     "pre-launch": "tsx scripts/pre-launch-check.ts",
-    "backup": "tsx scripts/backup-db.ts"
+    "pre-launch:prod": "node dist/scripts/pre-launch-check.js",
+    "backup": "tsx scripts/backup-db.ts",
+    "backup:prod": "node dist/scripts/backup-db.js",
+    "create-super-admin": "node dist/scripts/create-super-admin.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1043.0",

@@ -1,0 +1,53 @@
+# Multi-stage build for the Jdawil API server.
+#
+# Stage 1 (deps)   — install both dev + prod deps so we can typecheck/build
+# Stage 2 (build)  — `tsc` produces dist/
+# Stage 3 (runtime) — copy dist + prod deps onto a slim Alpine image,
+#                    run as a non-root user with init for proper SIGTERM
+#                    propagation to the Node process during graceful
+#                    shutdown.
+#
+# Why we don't `npm ci --omit=dev` in the build stage: the build itself
+# needs tsx + typescript + drizzle-kit which live in devDependencies.
+# Stage 3 re-installs with --omit=dev to keep the runtime image small.
+
+# ─── Stage 1: dependencies ──────────────────────────────────────────────────
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY server/package.json server/package-lock.json* ./
+RUN npm ci --no-audit --no-fund
+
+# ─── Stage 2: build ────────────────────────────────────────────────────────
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY server/ ./
+RUN npx tsc
+
+# ─── Stage 3: runtime ──────────────────────────────────────────────────────
+FROM node:20-alpine AS runtime
+# Add curl for the healthcheck + dumb-init for proper signal handling
+RUN apk add --no-cache curl dumb-init tzdata
+ENV TZ=Asia/Riyadh
+WORKDIR /app
+# Production deps only — half the image size.
+COPY server/package.json server/package-lock.json* ./
+RUN npm ci --no-audit --no-fund --omit=dev && npm cache clean --force
+# Compiled JS from the build stage (includes dist/scripts/*.js — the
+# CLI helpers like create-super-admin and backup-db live there as
+# compiled `node`-runnable JS, no tsx needed at runtime).
+COPY --from=build /app/dist ./dist
+# Drizzle migrations (raw SQL — runtime-applied via the migrator).
+COPY server/drizzle ./drizzle
+# Run as an unprivileged user.
+RUN addgroup -S app && adduser -S -G app app \
+    && mkdir -p /app/uploads /app/backups \
+    && chown -R app:app /app
+USER app
+ENV NODE_ENV=production
+ENV PORT=3001
+EXPOSE 3001
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:3001/api/health/live || exit 1
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/index.js"]
