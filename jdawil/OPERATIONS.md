@@ -10,7 +10,7 @@ before launch, then keep open during incidents.
 Run before flipping DNS or pushing the marketing campaign live.
 
 ```sh
-# from car-wash-pwa/server
+# from jdawil/server
 npm run pre-launch          # validates env, DB, indexes, optional infra
 npm test                    # 158+ unit tests
 npm run build               # tsc — must produce dist/ with 0 errors

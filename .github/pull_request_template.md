@@ -7,8 +7,8 @@
 
 ## Checklist
 
-- [ ] Server TypeScript + tests pass locally (`cd car-wash-pwa/server && npx tsc --noEmit && npx vitest run`)
-- [ ] Client TypeScript + build pass locally (`cd car-wash-pwa/client && npx tsc --noEmit && npx vite build`)
+- [ ] Server TypeScript + tests pass locally (`cd jdawil/server && npx tsc --noEmit && npx vitest run`)
+- [ ] Client TypeScript + build pass locally (`cd jdawil/client && npx tsc --noEmit && npx vite build`)
 - [ ] No new secrets committed (check `.env.example` if an env var was added)
 - [ ] Schema change? `drizzle-kit push` runs idempotently + the migration ships with the deploy script
 - [ ] New route? It's authenticated + tenant-guarded where appropriate

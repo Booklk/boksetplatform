@@ -74,7 +74,7 @@ npm run dev
 ## هيكل المشروع
 
 ```
-car-wash-pwa/
+jdawil/
 ├── server/                # Express.js + TypeScript + Drizzle ORM
 │   ├── db/                # Schema (70+ جدول) + migrations + seed
 │   ├── routes/            # 60+ API endpoint

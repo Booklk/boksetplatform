@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: car-wash-pwa/server
+        working-directory: jdawil/server
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: car-wash-pwa/server/package-lock.json
+          cache-dependency-path: jdawil/server/package-lock.json
 
       - name: Install
         run: npm ci
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: car-wash-pwa/client
+        working-directory: jdawil/client
     steps:
       - uses: actions/checkout@v4
 
@@ -63,7 +63,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: car-wash-pwa/client/package-lock.json
+          cache-dependency-path: jdawil/client/package-lock.json
 
       - name: Install
         run: npm ci
@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: client-dist
-          path: car-wash-pwa/client/dist
+          path: jdawil/client/dist
           retention-days: 7
 
   # ── Docker build smoke-test (only on main merges) ───────────────────
@@ -97,7 +97,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v5
         with:
-          context: ./car-wash-pwa
+          context: ./jdawil
           push: false
           tags: jadawel:ci
           cache-from: type=gha

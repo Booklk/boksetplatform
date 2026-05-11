@@ -47,7 +47,7 @@ SSH into your VPS as root, then:
 
 ```bash
 # Download just the installer
-curl -fsSL https://raw.githubusercontent.com/booklk/boksetplatform/main/car-wash-pwa/deploy/scripts/install.sh -o install.sh
+curl -fsSL https://raw.githubusercontent.com/booklk/boksetplatform/main/jdawil/deploy/scripts/install.sh -o install.sh
 
 # Run it. The script:
 #   - installs Docker, git, cron
@@ -66,7 +66,7 @@ After ~5 minutes you'll see:
 ```
 ✅  Jdawil is up.
    Local probe:       curl http://127.0.0.1/api/health/live
-   Logs:              cd /opt/jdawil/car-wash-pwa/deploy && docker compose logs -f
+   Logs:              cd /opt/jdawil/jdawil/deploy && docker compose logs -f
 ```
 
 Test it:
@@ -104,7 +104,7 @@ If TLS errors: in Cloudflare set SSL/TLS to "Flexible" first to verify reachabil
 
 ## 3. Wire in the optional services (when ready)
 
-Edit `/opt/jdawil/car-wash-pwa/deploy/.env` and fill the optional sections:
+Edit `/opt/jdawil/jdawil/deploy/.env` and fill the optional sections:
 
 ### WhatsApp (Meta Cloud)
 1. developers.facebook.com → create an app → add WhatsApp
@@ -123,7 +123,7 @@ Edit `/opt/jdawil/car-wash-pwa/deploy/.env` and fill the optional sections:
 
 ### VAPID (web push)
 ```bash
-cd /opt/jdawil/car-wash-pwa/server
+cd /opt/jdawil/jdawil/server
 npx web-push generate-vapid-keys
 ```
 Paste the public key into `VAPID_PUBLIC_KEY` AND `VITE_VAPID_PUBLIC_KEY`,
@@ -145,7 +145,7 @@ private into `VAPID_PRIVATE_KEY`.
 
 After editing `.env`:
 ```bash
-cd /opt/jdawil/car-wash-pwa/deploy
+cd /opt/jdawil/jdawil/deploy
 bash scripts/deploy.sh
 ```
 
@@ -155,7 +155,7 @@ bash scripts/deploy.sh
 
 ### Update to latest code
 ```bash
-cd /opt/jdawil/car-wash-pwa/deploy
+cd /opt/jdawil/jdawil/deploy
 bash scripts/deploy.sh
 ```
 This pulls from git, rebuilds only what changed, runs DB migrations,

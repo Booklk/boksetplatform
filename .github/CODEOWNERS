@@ -3,15 +3,15 @@
 *                                   @booklk
 
 # Server-side — DB schema, auth, payments, services all want a senior look.
-car-wash-pwa/server/db/schema.ts    @booklk
-car-wash-pwa/server/lib/crypto.ts   @booklk
-car-wash-pwa/server/middleware/     @booklk
-car-wash-pwa/server/routes/auth.ts               @booklk
-car-wash-pwa/server/routes/payment-gateway.ts    @booklk
-car-wash-pwa/server/routes/payment-webhook.ts    @booklk
-car-wash-pwa/server/routes/moyasar-webhook.ts    @booklk
-car-wash-pwa/server/services/payments/           @booklk
-car-wash-pwa/server/services/zatcaQr.ts          @booklk
+jdawil/server/db/schema.ts    @booklk
+jdawil/server/lib/crypto.ts   @booklk
+jdawil/server/middleware/     @booklk
+jdawil/server/routes/auth.ts               @booklk
+jdawil/server/routes/payment-gateway.ts    @booklk
+jdawil/server/routes/payment-webhook.ts    @booklk
+jdawil/server/routes/moyasar-webhook.ts    @booklk
+jdawil/server/services/payments/           @booklk
+jdawil/server/services/zatcaQr.ts          @booklk
 
 # CI config needs tooling team eyes.
 .github/workflows/                  @booklk

@@ -25,7 +25,10 @@ set -euo pipefail
 
 REPO_URL="${REPO_URL:-https://github.com/booklk/boksetplatform.git}"
 BRANCH="${BRANCH:-main}"
-INSTALL_DIR="${INSTALL_DIR:-/opt/jdawil}"
+# Where the git repo lives on the host. The repo contains a `jdawil/`
+# subfolder which is the actual project — so deploy paths look like
+# $INSTALL_DIR/jdawil/deploy. Override INSTALL_DIR to relocate.
+INSTALL_DIR="${INSTALL_DIR:-/opt/jdawil-repo}"
 
 log()  { printf '\033[1;36m[jdawil] %s\033[0m\n' "$*"; }
 warn() { printf '\033[1;33m[jdawil] %s\033[0m\n' "$*"; }
@@ -68,7 +71,7 @@ else
 fi
 chown -R jdawil:jdawil "$INSTALL_DIR"
 
-DEPLOY_DIR="$INSTALL_DIR/car-wash-pwa/deploy"
+DEPLOY_DIR="$INSTALL_DIR/jdawil/deploy"
 [[ -f "$DEPLOY_DIR/docker-compose.yml" ]] || die "deploy/docker-compose.yml not found in $DEPLOY_DIR"
 
 # ─── 4. .env ───────────────────────────────────────────────────────────────
